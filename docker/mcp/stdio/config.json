@@ -1,0 +1,81 @@
+{
+  "app": {
+    "name": "omnibot",
+    "version": "1.0.0",
+    "description": "AI chatbot for cosmic medical journaling support and ticket creation",
+    "run_local":true,
+    "debug": true
+  },
+  "ollama": {
+    "enabled": false,
+    "agent_model_name": "qwen3:latest",
+    "embeddings_model_name": "jeffh/intfloat-multilingual-e5-large:q8_0",
+    "host": "http://localhost",
+    "port": 11434
+  },
+  "openai": {
+    "enabled": false,
+    "agent_model_name": "gpt-4o-mini",
+    "embeddings_model_name": "text-embedding-3-small"
+  },
+  "mistral": {
+    "enabled": true,
+    "model_name": "devstral-small-2507",
+    "base_url": "https://api.mistral.ai/v1",
+    "embeddings_model_name": "text-embedding-3-small",
+    "chat_completion_endpoint": "/chat/completions"
+  },
+  "qdrant": {
+    "host": "qdrant",
+    "port": 6333,
+    "result_limit": 6
+  },
+  "grafana": {
+    "enabled":false,
+    "level": "error",
+    "log_to_file": false
+  },
+  "features": {
+    "cosmic_agent": true,
+    "create_ticket": true,
+    "who_am_i": true
+  },
+  "langsmith": {
+    "enabled": false,
+    "tracing": true
+  },
+  "jira": {
+    "enabled": true,
+    "project_key": "HEAL",
+    "issue_type": "Task"
+  },
+  "cosmic_database":{
+    "collection_name":"cosmic_documents_clean",
+    "document_path":"C:/RemoteRepos/omnigate/cosmic_documents"
+
+
+  },
+  "mcp":{
+    "database_path": "C:/Users/shahw/OneDrive/Desktop/Langgraph/multi_agent/Healthbot-agentic/database_data",
+    "docker_database_path": "/app/database_data/social_media_database.db",
+    "database_server_url": "http://localhost:8762",
+    "docker_database_server_url": "http://database_server:8762",
+    "provider": {
+        "openai": false,
+        "ollama": false,
+        "mistral": true
+    },
+    "mcp_ollama":{
+        "enabled": false,
+        "model_name": "qwen2.5:3b-instruct"
+    },
+    "mcp_openai":{
+        "enabled": false,
+        "model_name": "gpt-4o-mini"
+    },
+    "mcp_mistral":{
+        "enabled": true,
+        "model_name": "devstral-small-2507"
+    }
+  }
+}

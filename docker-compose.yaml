@@ -1,34 +1,76 @@
 services:
-  ollama:
-    volumes:
-      - ollama:/root/.ollama
-    container_name: ollama
-    pull_policy: always
-    tty: true
-    restart: unless-stopped
-    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
-
   open-webui:
     build:
       context: .
       args:
         OLLAMA_BASE_URL: '/ollama'
       dockerfile: Dockerfile
-    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
     container_name: open-webui
     volumes:
       - open-webui:/app/backend/data
     depends_on:
-      - ollama
+      - mcp_server
     ports:
       - ${OPEN_WEBUI_PORT-3000}:8080
     environment:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
       - 'WEBUI_SECRET_KEY='
+      - 'OPENAI_API_KEY=${OPENAI_API_KEY}'
+      - 'ENV=dev'
+      - 'RESET_CONFIG_ON_START=True'
+      - 'TOOL_SERVER_CONNECTIONS=[{"url": "http://mcp_server:8009", "path": "openapi.json", "auth_type": "none", "key": "", "config": {"enable": true, "access_control": null}, "info": {"id": "", "name": "MCP", "description": ""}}]'
     extra_hosts:
       - host.docker.internal:host-gateway
+    networks:
+      - mcp-network
     restart: unless-stopped
+
+  database_server:
+    build:
+      context: ./docker
+      dockerfile: DockerFile.database
+    ports:
+      - "8762:8762"
+    volumes:
+      - mcp_db_data:/app/database_data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8762/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - mcp-network
+
+  mcp_server:
+    build:
+      context: ./docker
+      dockerfile: DockerFIle.mcp
+    ports:
+      - "8009:8009"
+    depends_on:
+      - database_server
+    environment:
+      - DATABASE_URL=http://database_server:8762
+      - PYTHONPATH=/app
+    volumes:
+      - .:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8009/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - mcp-network
 
 volumes:
   ollama: {}
   open-webui: {}
+  mcp_db_data:
+
+networks:
+  mcp-network:
+    driver: bridge
