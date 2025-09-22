@@ -49,9 +49,9 @@ MISTRAL_API_KEY=your_mistral_api_key_here
 OPENWEATHER_API_KEY=your_openweather_api_key_here
 
 # Azure Active Directory (Pre-configured)
-AZURE_CLIENT_ID=8453aaa6-f125-4c28-9c3e-ff636d833539
-AZURE_TENANT_ID=cfbb6550-a2fc-4705-9adc-c5711634d8a8
-AZURE_CLIENT_SECRET=cky8Q~iBJ3mhQxKk03SXC.lTD0wx_b2uT6Q2dc6e
+AZURE_CLIENT_ID=XXXX-XXXX-XXXX-XXXX-XXXX
+AZURE_TENANT_ID=XXXX-XXXX-XXXX-XXXX-XXXX
+AZURE_CLIENT_SECRET=XXXX-XXXX-XXXX-XXXX-XXXX
 
 # Database Configuration (Auto-configured)
 SQLITE_SERVER_URL=http://database_server:8762
