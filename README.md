@@ -147,6 +147,48 @@ This will start the Open WebUI server, which you can access at [http://localhost
   docker run -d -p 3000:8080 --add-host=host.docker.internal:host-gateway -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:main
   ```
 
+### Enhanced Installation with MCP & Azure AD (Alternative Setup)
+
+> [!NOTE]
+> **For enhanced setup with Model Context Protocol (MCP) integration and Azure Active Directory authentication**, follow this alternative installation method. See [SETUP_README.md](./SETUP_README.md) for complete setup instructions.
+
+**Prerequisites**: Ensure you have Docker, Docker Compose, and required API keys.
+
+1. **Clone and Setup**:
+   ```bash
+   git clone https://github.com/Lovenoreus/webui-bot
+   cd webui-bot
+   ```
+
+2. **Configure Environment** (Required):
+   ```bash
+   # Create single .env file in root directory
+   cp .env.example .env
+   ```
+   
+   Edit `.env` with your credentials:
+   ```env
+   # Required API Keys
+   OPENAI_API_KEY=your_openai_api_key_here
+   AZURE_CLIENT_ID=your_azure_client_id_here
+   AZURE_TENANT_ID=your_azure_tenant_id_here
+   AZURE_CLIENT_SECRET=your_azure_client_secret_here
+   MISTRAL_API_KEY=your_mistral_api_key_here
+   OPENWEATHER_API_KEY=your_openweather_api_key_here
+   ```
+
+3. **Start Services**:
+   ```bash
+   docker compose up
+   ```
+
+4. **Access Points**:
+   - **Main Application**: http://localhost:3000
+   - **MCP Server**: http://localhost:8009  
+   - **Database Server**: http://localhost:8762
+
+This setup includes multi-service architecture with MCP integration, database persistence, and Azure AD authentication.
+
 - **If Ollama is on a Different Server**, use this command:
 
   To connect to Ollama on another server, change the `OLLAMA_BASE_URL` to the server's URL:
