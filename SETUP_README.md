@@ -23,9 +23,9 @@ cd webui-bot
 
 ### 2. Environment Configuration (Required)
 
-This project requires **TWO** separate `.env` files in different locations:
+This project requires **ONE** `.env` file in the root directory containing all environment variables:
 
-#### File 1: Root Directory `.env` (Required)
+#### Single `.env` File Setup (Required)
 
 Create a `.env` file in the **root directory** of the project:
 
@@ -37,13 +37,22 @@ cp .env.example .env
 Edit the root `.env` file with the following configuration:
 
 ```env
+# Ollama URL for the backend to connect
+OLLAMA_BASE_URL='http://localhost:11434'
 
 # OpenAI API Configuration (Required)
 OPENAI_API_KEY=your_openai_api_key_here
 
-# Optional configurations
+# Azure Active Directory Configuration (Required for MCP Server)
+AZURE_CLIENT_ID=your_azure_client_id_here
+AZURE_TENANT_ID=your_azure_tenant_id_here
+AZURE_CLIENT_SECRET=your_azure_client_secret_here
 
-OLLAMA_BASE_URL=''
+# Additional API Keys
+MISTRAL_API_KEY=your_mistral_api_key_here
+OPENWEATHER_API_KEY=your_openweather_api_key_here
+
+# Optional configurations
 OPENAI_API_BASE_URL=''
 CORS_ALLOW_ORIGIN='*'
 FORWARDED_ALLOW_IPS='*'
@@ -52,48 +61,19 @@ DO_NOT_TRACK=true
 ANONYMIZED_TELEMETRY=false
 ```
 
-#### File 2: MCP Server `.env` (Required)
-
-Create a `.env` file in the **docker/mcp/stdio/** directory:
-
-```bash
-# The directory already exists, create/edit the .env file
-touch docker/mcp/stdio/.env
-```
-
-Edit the MCP `.env` file with the following configuration:
-
-```env
-# Azure Active Directory Configuration (Required)
-AZURE_CLIENT_ID=your_azure_client_id_here
-AZURE_TENANT_ID=your_azure_tenant_id_here
-AZURE_CLIENT_SECRET=your_azure_client_secret_here
-
-# API Keys (Required)
-OPENAI_API_KEY=your_openai_api_key_here
-MISTRAL_API_KEY=your_mistral_api_key_here
-OPENWEATHER_API_KEY=your_openweather_api_key_here
-```
-
 ### Environment Variables Explanation
 
-#### Root `.env` File Variables:
+All environment variables are now consolidated in the single root `.env` file:
 
 | Variable | Description | Required | Where to Get |
 |----------|-------------|----------|--------------|
-| `OPENAI_API_KEY` | OpenAI API key for main application | **Yes** | OpenAI Platform → API Keys |
+| `OPENAI_API_KEY` | OpenAI API key for both main application and MCP server | **Yes** | OpenAI Platform → API Keys |
+| `AZURE_CLIENT_ID` | Azure AD application client ID for MCP authentication | **Yes** | Azure Portal → App Registrations |
+| `AZURE_TENANT_ID` | Azure AD tenant ID for your organization | **Yes** | Azure Portal → Azure Active Directory |
+| `AZURE_CLIENT_SECRET` | Azure AD application secret key | **Yes** | Azure Portal → App Registrations → Certificates & secrets |
+| `MISTRAL_API_KEY` | Mistral AI API key for MCP server | **Yes** | Mistral AI Platform |
+| `OPENWEATHER_API_KEY` | OpenWeather API key for weather functionalities | **Yes** | OpenWeatherMap → API Keys |
 | `OLLAMA_BASE_URL` | Ollama server URL | No | Local Ollama installation |
-
-#### MCP `.env` File Variables:
-
-| Variable | Description | Required | Where to Get |
-|----------|-------------|----------|--------------|
-| `AZURE_CLIENT_ID` | Azure AD application client ID | **Yes** | Azure Portal → App Registrations |
-| `AZURE_TENANT_ID` | Azure AD tenant ID | **Yes** | Azure Portal → Azure Active Directory |
-| `AZURE_CLIENT_SECRET` | Azure AD application secret | **Yes** | Azure Portal → App Registrations → Certificates & secrets |
-| `OPENAI_API_KEY` | OpenAI API key for MCP server | **Yes** | OpenAI Platform → API Keys |
-| `MISTRAL_API_KEY` | Mistral AI API key | **Yes** | Mistral AI Platform |
-| `OPENWEATHER_API_KEY` | OpenWeather API key | **Yes** | OpenWeatherMap → API Keys |
 
 ## 🐳 Docker Setup
 
@@ -105,7 +85,7 @@ This project uses a multi-service Docker architecture with the following service
 
 ### How Environment Variables are Used
 
-The `docker-compose.yaml` file is configured to read environment variables as follows:
+The `docker-compose.yaml` file is configured to read all environment variables from the single root `.env` file:
 
 #### Main Application (open-webui service):
 ```yaml
@@ -115,15 +95,20 @@ environment:
 
 #### MCP Server (mcp_server service):
 ```yaml
-volumes:
-  - .:/app  # Mounts entire project, including docker/mcp/stdio/.env
+environment:
+  - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+  - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+  - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+  - OPENAI_API_KEY=${OPENAI_API_KEY}
+  - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+  - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
 ```
 
-The MCP server reads its environment variables from `docker/mcp/stdio/.env` when the container starts.
+All environment variables are now passed directly from the root `.env` file to the respective services.
 
 ### Quick Start with Docker Compose (Recommended)
 
-1. **Ensure both .env files are properly configured** (see Environment Configuration section above)
+1. **Ensure the .env file is properly configured** (see Environment Configuration section above)
 
 2. **Start all services**:
 ```bash
@@ -165,9 +150,9 @@ docker build -f docker/DockerFIle.mcp -t mcp-server ./docker
 # Build database server
 docker build -f docker/DockerFile.database -t database-server ./docker
 
-# Run individual services
+# Run individual services with environment variables from .env file
 docker run -d -p 3000:8080 --env-file .env webui-bot
-docker run -d -p 8009:8009 -v $(pwd):/app mcp-server
+docker run -d -p 8009:8009 --env-file .env -v $(pwd):/app mcp-server
 docker run -d -p 8762:8762 database-server
 ```
 

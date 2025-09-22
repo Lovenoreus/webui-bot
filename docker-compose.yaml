@@ -54,6 +54,12 @@ services:
     environment:
       - DATABASE_URL=http://database_server:8762
       - PYTHONPATH=/app
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
     volumes:
       - .:/app
     restart: unless-stopped
