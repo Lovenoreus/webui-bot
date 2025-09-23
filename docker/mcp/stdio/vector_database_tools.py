@@ -359,13 +359,6 @@ async def enhanced_multi_strategy_retrieval(
                 continue
 
             if result:
-                # Check for early success - if we get enough high-quality results
-                high_quality = [hit for hit, _ in result if hit.score > 0.8]
-                if len(high_quality) >= k // 2:
-                    if config.DEBUG:
-                        print(f"Early success from strategy {i} with {len(high_quality)} high-quality hits")
-                    all_hits = result
-                    break
                 all_hits.extend(result)
 
         # Deduplicate and sort
