@@ -118,6 +118,7 @@ if USE_MISTRAL:
 QDRANT_HOST = get_nested(config, ["qdrant", "host"], "localhost")
 QDRANT_PORT = to_int(get_nested(config, ["qdrant", "port"], 6333), default=6333)
 QDRANT_RESULT_LIMIT = to_int(get_nested(config, ["qdrant", "result_limit"], 2), default=2)
+CHUNKING_STRATEGY = get_nested(config, ["qdrant", "chunking_strategy"], "by_section_id")
 
 COSMIC_DATABASE_COLLECTION = get_nested(config, ["cosmic_database", "collection_name"], "cosmic_documents")
 COSMIC_DATABASE_DOCUMENT_PATH = get_nested(config, ["cosmic_database", "document_path"], "cosmic_documents")
