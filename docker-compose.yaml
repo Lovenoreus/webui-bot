@@ -83,6 +83,8 @@ services:
     restart: unless-stopped
     labels:
       compose.service: qdrant
+    networks:
+      - mcp-network
 
 volumes:
   qdrant_storage: {}
