@@ -1,0 +1,2271 @@
+[
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Detta dokument introducerar COSMIC Insight-modulen, beskriver funktioner och egenskaper ur slutanvändarens perspektiv, och ger översikt, vyer samt användarinstruktioner. Läsaren förväntas ha övergripande datorkunskaper och erfarenhet av hälso- och COSMIC-arbetsflöden. Dokumentet relaterar till Gemensamma Funktioner och andra relaterade dokument.",
+    "keywords": [
+      "COSMIC Insight",
+      "modul",
+      "funktioner",
+      "egenskaper",
+      "slutanvändare",
+      "hälsovård",
+      "datorkunskaper",
+      "användarinstruktioner",
+      "relaterade dokument"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Manual",
+      "COSMIC Insight",
+      "Introduktion",
+      "Funktioner",
+      "Översikt",
+      "Användarmanual"
+    ],
+    "clinical_domain": [
+      "Hälsovård"
+    ],
+    "text": "Detta dokument beskriver Cambio COSMIC Insight (fortsättningsvis kallad COSMIC Insight), dess funktioner och egenskaper ur en slutanvändares perspektiv. Dokumentet består av kapitel som ger en introduktion till modulen, en översikt över dess vyer samt avslutas med ett separat kapitel med användarinstruktioner. Läsaren förutsätts ha allmänna datorkunskaper, kunskaper och erfarenhet av hälsovård samt av COSMIC och dess arbetsflöden. Då detta dokument fokuserar på att beskriva de modulspecifika funktionerna ska det läsas tillsammans med dokumenten Gemensamma Funktioner i COSMIC Introduktion & Användarmanual samt övriga relaterade dokument, se avsnitt 1.3 Relaterade dokument ."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "Detta avsnitt beskriver versionshistoriken för COSMIC Insight, med datum, beskrivningar och giltighetsdatum för varje release.",
+    "keywords": [
+      "versionshistorik",
+      "updateringar",
+      "release",
+      "dokumentsida",
+      "COSMIC Insight"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumenthistorik",
+      "Versionshistorik",
+      "Release",
+      "Programuppdatering"
+    ],
+    "clinical_domain": [
+      "Elektronisk hälsojournal",
+      "Klinisk informatik",
+      "Datahantering i vården"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid. Version Datum Beskrivning 1.0 11.0 2018 2021 Tidigare publicerade versioner av dokumentet för COSMIC Insight 1.0 3.4. För mer information, se respektive dokumentversion. 12.0 2022-06-23 Kapitel 4 och avsnitt 1.5, 3.1, 3.3 och 3.4 uppdaterade. Bilder och ikoner har uppdaterats p.g.a. förändringar i gränssnittet. Dokumentet är giltigt från COSMIC Insight 3.5 . 13.0 2023-02-20 Kapitel 2 samt avsnitt 1.5, 3.2.4, 3.3.1, 3.3.3, 3.3.4 och 3.4.2 uppdaterade. Dokumentet är giltigt från COSMIC Insight 3.6 . 14.0 2023-06-23 Avsnitt 3.4.1 och 3.4.2 uppdaterade. Dokumentet är giltigt från COSMIC Insight 3.7 . 15.0 2023-11-24 Kapitel 4 samt avsnitt 1.4 och 3.2.3 uppdaterade. Dokumentet är giltigt från COSMIC Insight 3.8. 16.0 2024-03-19 Appendix A tillagt. Avsnitt 3.4, A22 och A23 uppdaterat. Dokumentet är giltigt från COSMIC Insight 3.9 . 17.0 2024-08-20 Avsnitt 3.4.6 uppdaterat. Dokumentet är giltigt från COSMIC Insight 3.10 . COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 6(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Relaterade dokument",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "En kort sammanfattning som hänvisar till olika relaterade dokument och guider för COSMIC.",
+    "keywords": [
+      "COSMIC",
+      "Gemensamma Funktioner",
+      "Introduktion",
+      "Användarmanual",
+      "Ikoner",
+      "Referensguide",
+      "Kortkommandon",
+      "Dokument"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokument",
+      "Referens",
+      "Användarmanual",
+      "Ikoner",
+      "Kortkommandon"
+    ],
+    "clinical_domain": [],
+    "text": "Ytterligare information finns i följande relaterade dokument: Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Ikoner i COSMIC Referensguide Kortkommandon i COSMIC Referensguide"
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.4.1",
+    "main_section_id": 3,
+    "context_summary": "Denna sektion beskriver de typografiska konventioner som används i dokumentet, inklusive fetstil för term i gränssnittet, kursiv för modul- och filnamn, färg för värden och Courier New för systemkommandon och kodexempel.",
+    "keywords": [
+      "Typografiska konventioner",
+      "fetstil",
+      "kursiv",
+      "färg",
+      "Courier New",
+      "systemkommandon",
+      "kodexempel",
+      "UI",
+      "gränssnitt"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Typografi",
+      "Dokumentstandard",
+      "Användarmanual",
+      "GUI",
+      "Språk och stil"
+    ],
+    "clinical_domain": [
+      "Sjukvårdsteknik",
+      "Hälsoinformation",
+      "IT-system"
+    ],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger , Properties.txt eller https://customer.cambio.se . Färg. värden, namn, typer och sökvägar. Exempel: där ersätts med namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.4.2",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver hur ikoner används för att markera viktig information, tips och kostnadsvärden i dokumentet. Den nämner att vissa funktioner kräver extra kostnader och tredjepartslicens.",
+    "keywords": [
+      "ikoner",
+      "information",
+      "tips",
+      "kostnad",
+      "licens",
+      "anpassning",
+      "marknad",
+      "funktion",
+      "tredjepart",
+      "COSMIC Insight",
+      "manual"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "manual",
+      "ikoner",
+      "information",
+      "tips",
+      "licens",
+      "kostnad"
+    ],
+    "clinical_domain": [
+      "Medicinsk informatik",
+      "Hälso- och sjukvårdsinformation"
+    ],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. En tredjepartslicens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 7(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.5",
+    "main_section_id": 2,
+    "context_summary": "Denna sektion förklarar de termer, akronymer och förkortningar som används i COSMIC Insight, inklusive begrepp som dashboard, filter, händelse, frågestuktur och regleringar enligt Patientdatalagen.",
+    "keywords": [
+      "termer",
+      "akronymer",
+      "förkortningar",
+      "dashboard",
+      "filter",
+      "händelse",
+      "information",
+      "kliniska parametrar",
+      "fråga",
+      "följare",
+      "PDL",
+      "privat dashboard",
+      "publik dashboard",
+      "privat fråga",
+      "publik fråga",
+      "sökfält",
+      "vårdgivare"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "terminologi",
+      "sökfunktion",
+      "dataanalys",
+      "reglering",
+      "patientdata"
+    ],
+    "clinical_domain": [
+      "diagnostik",
+      "laboratorie",
+      "medicinsk data"
+    ],
+    "text": "Följande tabell beskriver de termer, akronymer och förkortningar som används i detta dokument. Term Beskrivning Dashboard En dashboard ger en översikt över utvalda sökresultat. Det finns två typer; privat a dashboards som användare själv a skapar samt publika dashboards som använda re kan välja att följa. Filter Flera filter kan kombineras för att definiera en fråga. Händelse Ett generellt begrepp för att beskriva att något har utförts, till exempel en diagnosregistrering, beställning av labbprov, att en vårdkontakt sätts till Pågående eller att en frågas resultat beror på hur frågan definieras och vilken information som väljs att visas i resultatet. Informations mängd Definierad informationskategori t.ex. diagnos, läkemedelsordination eller numeriska sökord. Olika informations mängder har filter med sökfält anpassade efter respektive informations mängd. Kliniska parametrar En informationsmängd med undertyper, dvs. kliniska parametrar. Olika kliniska parametrar har filter med sökfält som är anpassade efter respektive klinisk parameter. Fråga En fråga består av en uppsättning filter som innehåller sökkriterier och villkoren mellan dessa. Frågedefinition Presenterar en frågas filtrering genom att visa hur sökkriterierna definierats. Följare Alla publika frågor och dashboards kan följas av användare i COSMIC Insight . Det innebär att en fråga eller dashboard läggs till i användarens privata bibliotek (Ditt bibliotek) respektive lista över dashboards (DASHBOARDS). PDL PDL = Patientdatalagen. Patientdatalagen säkerställer god och säker vård genom att kräva att patientjournaler hålls för alla patienter. Den reglerar sammanhållen journalföring, sekretess och spärrmöjligheter. Privat dashboard En privat dashboard är bara synlig för dess ägare. Privat fråga En privat fråga är bara synlig för frågans ägare. Publik dashboard En publik dashboard visas i vyn Utforska och kan öppnas av alla användare av COSMIC Insight . Publik fråga En publik fråga visas i vyn Utforska och kan öppnas av alla användare av COSMIC Insight . COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 8(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Term Beskrivning Sökfält Sökfält kan läggas till i ett filter för att definiera sökkriterier i en fråga. Sökkriterier Används för att definiera detaljer i frågor för en filtertyp, t.ex. blodtryck, vikt eller numeriska sökord. Vårdgivare En juridisk organisation som ansvarar för och bedriver hälso- och sjukvård, t.ex. landsting, privat sjukhus, privat vårdcentral och exempelvis en privatläkare eller sjukgymnast. Termen definieras och används i PDL. Alla enheter i vilken anger vilken vårdgivare som enheten tillhör. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 9(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om COSMIC Insight"
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "COSMIC Insight är en webb‑baserad mjukvara som hjälper vårdpersonal att analysera patientdata genom att skapa egna sökfrågor, visa resultat grafiskt eller i lista och stödja uppföljning och kvalitetssäkring, med begränsad åtkomst i enlighet med patientdatalagen.",
+    "keywords": [
+      "webbaserad",
+      "mjukvara",
+      "statistisk analys",
+      "patientdata",
+      "frågeställningar",
+      "grafisk visualisering",
+      "listformat",
+      "uppföljning",
+      "kvalitetssäkring",
+      "behörighet",
+      "patientdatalagen"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Webbapplikation",
+      "Patientdata",
+      "Statistik",
+      "Behörigheter",
+      "Kvalitetssäkring"
+    ],
+    "clinical_domain": [
+      "Hälso- och sjukvård",
+      "Epidemiologi",
+      "Datamatning"
+    ],
+    "text": "COSMIC Insight är en webbaserad mjukvara med syfte att ge hälso - och sjukvårdspersonal stöd vid statistisk analys av kliniska och icke -kliniska patientdata som registrerats i COSMIC EHR. Patientdata kan sökas genom frågeställningar som användare själv kan skapa. Resulta t kan visas grafiskt alternativt i listformat och kan användas för uppföljnings - eller kvalitetssäkringsändamål. Tillgång till patientuppgifter begränsas genom den enskilde användarens behörighet i enlighet med patientdatalagen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Försiktighetsåtgärder",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Varningar och försiktighetsåtgärder: COSMIC Insight ska inte vara den enda källan för diagnos eller behandling, kan inte användas för realtidsövervakning av vitala parametrar, ersätter inte patientobservation eller klinisk bedömning. Läs användarmanualen först. Version 17.0, datum 2024‑08‑20; utskrifter kan vara inaktuella.",
+    "keywords": [
+      "varningar",
+      "försiktighetsåtgärder",
+      "diagnos",
+      "behandling",
+      "realtidsövervakning",
+      "patientobservation",
+      "manual",
+      "version 17.0",
+      "Cambio Healthcare Systems"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Säkerhet",
+      "Användarmanual",
+      "Medicinsk programvara"
+    ],
+    "clinical_domain": [
+      "Klinisk sjukvård",
+      "Diagnostik",
+      "Patientövervakning"
+    ],
+    "text": "Följande varningar och försiktighetsåtgärder skall beaktas: COSMIC Insight bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. COSMIC Insight är inte avsett för realtidsövervakning av vitala fysiologiska parametrar. COSMIC Insight ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. Användarmanualen bör läsas innan användning av COSMIC Insight. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 10(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Vyerna i COSMIC Insight"
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": 2,
+    "context_summary": "COSMIC Insight är ett analysverktyg för hälso- och sjukvårdspersonal som ger statistik och frågor över patientdata. Verktyget hanterar åtkomstkontroll, loggning och olika visningslägen, och låter användare skapa enkla eller komplexa frågor för att hitta patienter utifrån diagnoser, klinisk kemi eller läkemedel.",
+    "keywords": [
+      "COSMIC Insight",
+      "hälsa",
+      "sjukvård",
+      "analysverktyg",
+      "åtkomstkontroll",
+      "användarbehörigheter",
+      "systemadministratör",
+      "sökfunktion",
+      "frågor",
+      "patienter",
+      "diagnoser",
+      "provresultat",
+      "klinisk kemi",
+      "läkemedel",
+      "karta",
+      "loggning",
+      "anonymiserat läge",
+      "identifierbart läge"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "COSMIC Insight",
+      "Hälso- och sjukvård",
+      "Datainsamling",
+      "Analysverktyg",
+      "Säkerhet",
+      "Behörighet"
+    ],
+    "clinical_domain": [
+      "Allmänt Vård",
+      "Diagnostik",
+      "Laboratorium",
+      "Farmaci"
+    ],
+    "text": "COSMIC Insight är ett analysverktyg med åtkomstkontroll som används av hälso - och sjukvårdspersonal för att ta fram statistik över vårdrelaterad hälsoinformation. Det är en applikation i modulen COSMIC Analytics och öppnas som ett fönster via menyalternativet Analytics > Insight . Från startsidan nås olika vyer för att ta fram frågor och visa olika uppgifter. Via tooltips erhålls information om olika komponenter i fönstret. COSMIC Insight riktar sig till alla typer av hälso - och sjukvårdspersonal som önskar ta fram ett underlag i syfte att studera, förstå, utvärdera samt förbättra kvaliteteten inom hälso - och sjukvård. Olika användare kan ha olika åtkomst till information, vyer, funktioner och val av visningsläge. Detta styrs av användarbehörigheter vilka sätts av en systemadministratör. Vid sökning baseras sökresultat et på urvalsfrågor som man skapar. Det går att skapa enkla eller komplexa frågor för att söka fram patienter med matchande information, t.ex. diagnoser, provresultat (klinisk kemi) eller läkemedel i COSMIC. Sökresultatet presenteras grafiskt , i listformat och på en karta . Med undantag av makulerade recept går det inte att söka på makulerad eller borttagen information. Observera att de insamlade uppgifterna inte får användas som enda informationskälla vid diagnosticering eller för direkt behandling av en specifik patient. Tack vare att aktiviteter loggas går det att återskapa alla frågor och detta oavsett om resultatet visades i anonymiserat läge eller inte. Om en användare aktiverar identifierbart läge kommer ytterligare loggning ske av de inkluderade patienterna med koppl ing till användaren. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 11(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Funktioner och egenskaper",
+    "page": 1,
+    "section_id": "3.2.1",
+    "main_section_id": 3,
+    "context_summary": "Beskrivning av startsidan i COSMIC Insight med menypanel, sök- och filtreringsarea samt frågelista. Informationen visar hur man öppnar vyer och dashboards, hanterar biblioteket och sorterar frågor.",
+    "keywords": [
+      "menypanel",
+      "sökarea",
+      "filtrering",
+      "fråglista",
+      "dashboard",
+      "bibliotek",
+      "publika frågor",
+      "sortering",
+      "kolumn",
+      "användargränssnitt"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användargränssnitt",
+      "Navigering",
+      "Dashboard",
+      "Sökfunktion",
+      "Filtrering",
+      "Bibliotekskatalog"
+    ],
+    "clinical_domain": [
+      "Allmänt"
+    ],
+    "text": "Startsidan består av en menypanel med olika alternativ ( A), en sök- och filtreringsarea ( B) samt en frågelista med redan skapade frågor (C). Från menyn kan andra vyer öppnas samt nya frågor och dashboards läggas till. Alternativet Ditt bibliotek (förvalt) visar den inloggade användare ns frågebibliotek, Utforska listar publika frågor och dashboards, och DASHBOARDS presenterar utvalda sökresultat från frågor . Sök- och filtreringsarean består av fritextfält, alternativknappar samt list- och kryssrutor för att söka fram en viss fråga, t.ex. alla publika frågo r för en viss enhet. Sorteringsordning väljs genom att klicka på önskad kolumntitel. Per default sorteras frågorna på Senast ändrad . Pilen visar vald sortering. A B C COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 12(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Genom att klicka på en fråga s namnöppnas den i en ny vy där man kan ta del av dess innehåll."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Utforska",
+    "page": 1,
+    "section_id": "3.2.2",
+    "main_section_id": 3,
+    "context_summary": "Flikarna Frågor och Dashboards visar publika frågor och dashboards. Frågor kan filtreras, följas eller avfölja, och visas i enhetens bibliotek. Granskade frågor markeras och filteras via granskade-ikonen, medan dashboards visas under DASHBOARDS med kolumner som namn, ägare, datum och antal följare.",
+    "keywords": [
+      "Frågor",
+      "Dashboards",
+      "publicerade",
+      "granskade",
+      "filtrering",
+      "följda",
+      "bibliotek",
+      "objekt per sida",
+      "enhet",
+      "behörighet"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Datahantering",
+      "Användargränssnitt",
+      "Dashboard",
+      "Frågestexter",
+      "Behörighet",
+      "Filtrering"
+    ],
+    "clinical_domain": [
+      "IT-system",
+      "Sjukvårdsteknik",
+      "Medicinsk datahantering"
+    ],
+    "text": "Vyn visar flikarna Frågor och Dashboards . Per default presenterar fliken Frågor alla publika frågor som publicerats på den inloggade användarens enhet. Frågorn a kan publiceras till olika enheter. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 13(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Frågor respektive dashboards kan sökas fram via sök - och filtreringsarean. Användare kan välja att följa/avfölja dem. Följda frågor visas i Ditt bibliotek och dashboards under DASHBOARDS . De olika kolumnerna visar information om namn , ägare, datum för senaste ändring och antal följare . Listorna kan sorteras på önskad kolumn, t.ex. Ägare. I fliken Frågor finns även kolumnen Granskad . Ikonen indikerar att frågan blivit granskad. Genom att markera alternativknappen Granskade går det att filtrera fram de granskade frågorna. Dessa är kvalitetskontrollerade av en användare med gransknin gsbehörighet, dvs . behörighet att markera publika frågor som andra användare skapat som granskade. I listrutan Objekt per sida kan användare välja hur många objekt som ska visas."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ditt bibliotek",
+    "page": 1,
+    "section_id": "3.2.3",
+    "main_section_id": 3,
+    "context_summary": "Vyn Ditt bibliotek visar alla användares och publika frågor, med möjlighet att filtrera på publika och att se antalet följare via kolumnen \"Följare\". Den liknar vyn Utforska men inkluderar en extra kolumn för publika frågor och en ikon för att indikera publik status.",
+    "keywords": [
+      "översikt",
+      "frågor",
+      "användare",
+      "publika",
+      "följare",
+      "filtrering",
+      "kolumnen Publik",
+      "ikon",
+      "version",
+      "utskrift",
+      "digital"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Användargränssnitt",
+      "Sökfunktioner",
+      "Datavisualisering",
+      "Samarbete",
+      "FAQ"
+    ],
+    "clinical_domain": [
+      "Hälso- och sjukvård"
+    ],
+    "text": "Vyn ger en översikt över alla frågor som användaren äger samt de publika frågor som användare n följer. Vyn innehåller samma funktioner och egenskaper som vyn Utforska med tillägg av kolumnen Publik. Publika frågor indikeras med ikonen . Genom att markera alternativknappen Publika går det att filtrera fram de publika frågorna. En frågas ägare kan se vem som följer frågan via siffran i kolumnen Följare. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 14(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "DASHBOARDS",
+    "page": 1,
+    "section_id": "3.2.4",
+    "main_section_id": 3,
+    "context_summary": "Beskriver hur användare kan lägga till och följa dashboards med automatiska uppdateringar inom ett kontinuerligt tidsintervall samt hur tidsstämplar visar databasätt.",
+    "keywords": [
+      "dashboards",
+      "resultat",
+      "automatiska",
+      "tidsintervall",
+      "tidsstämplar",
+      "publika dashboards",
+      "uppdatering",
+      "data"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Dashboard",
+      "Dataanalys",
+      "Användargränssnitt",
+      "Tidsintervall"
+    ],
+    "clinical_domain": [
+      "Patientdata",
+      "Vårdadministration",
+      "Diagnostik"
+    ],
+    "text": "Under DASHBOARDS visas utvalda resultat som användaren valt att lägga till i en egen dashboard samt de publika dashboards som användaren valt att följa . Om en fråga, som lagts till i en dashboard, har ett kontinuerligt tidsintervall, exempelvis de senaste sju dagarna, kommer resultatet att uppdateras automatiskt. Det kommer fortlöpande inkludera resultat et för de senaste sju dagarna då dashboarden öppnas . En tidsstämpel i grafens högra hörn visar vilka data resultatet baseras på. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 15(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Frågor",
+    "page": 1,
+    "section_id": "3.3.1",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver hur man i COSMIC Insight skapar, sparar och hanterar frågor med filter, kriterier och mätpunkter samt hur behörighet styr åtkomst och publicering av frågor.",
+    "keywords": [
+      "frågor",
+      "filter",
+      "sökriterier",
+      "användarbehörighet",
+      "publik",
+      "privat",
+      "export",
+      "import",
+      "kopiera",
+      "granskning",
+      "schema",
+      "ledtider",
+      "diagnos",
+      "kön",
+      "ålder",
+      "mätpunkter"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Funktionalitet",
+      "Databearbetning",
+      "Användargränssnitt",
+      "Behörighet",
+      "Frågekonstruktion",
+      "Dataexport",
+      "Publicering"
+    ],
+    "clinical_domain": [
+      "Patientinformation",
+      "Diagnostik",
+      "Kvalitetssäkring"
+    ],
+    "text": "Resultat baseras på frågor som är uppbyggda av filter med en uppsättning sökkriterier, t.ex. en patients ålder, kön och diagnos . Denna vy används för att lägga till filter samt specificera de önskade sökkriterierna. För att kunna skapa och spara frågor krävs användarbehörighet. Förutom sökkriterier går det att lägga till mätpunkter för att mäta ledtider, man kan lägga till villkor mellan filter, ange kopplingar och definiera samband samt beroenden mellan olika informationsmängd er. En fråga kan också innehålla delfrågor i syfte att jämföra dem med varandra. Det går då att kopiera den första delfrågan och använda den som grund för att skapa den andra delfrågan. Frågorna är märkta med Urval 1 och Urval 2 men kan namnas om och ges en beskrivning. Frågor kan sättas som publika eller privata. Publika frågor är tillgängliga för alla användare och visas i läsläge. Endast den som äger frågan kan göra ändringar i den. Andra användare måste skapa en kopia av frågan för att kunna göra ändringar. Användarbehörighet styr vilka av följande alternativ som visas för sparade frågor: Redigera information1 Ändra frågans namn och beskrivning. Skapa kopia2 Skapa en ny fråga med samma filter som den nuvarande. Den nya frågan kan redigeras och sparas av användaren. 1 Kräver användarbehörighet och är endast tillgängligt för ägaren av frågan. 2 Kräver användarbehörighet. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 16(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Gör publik1 Sätta frågan som publik. En publik fråga visas för alla användare i vyn Utforska. Som standard är frågor alltid satta som privata. Ändra publicering1 Visas när frågan är publik. Användas för att ändra enhet(er) där frågan är publicerad. Gör privat1 Sätt frågan som privat. En privat fråga visas inte i vyn Utforska. Alla frågor, skapade av användare som inte har behörighet att skapa publika frågor, blir privata. Radera1,2 Ta bort frågan. En privat fråga kan tas bort av ägaren. En publik fråga kan även raderas av användare med särskild behörighet. Schemalägg3 Schemalägg export av frågans resultat. För mer information, se dokumentet COSMIC Insight System Administration Guide . Exportera fråga till fil Exportera frågedefinitionen till fil . Importera fråga från fil Importera frågedefinitionen från fil. Markera som granskad2 Sätta frågan som granskad. Kvalitetskontrollerade frågor. Kräver användarbehörighet. Möjliggör för användare att markera publika frågor skapade av andra användare som granskade. Ta bort granskning2 Ta bort granskningen för en granskad fråga. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 17(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Filter",
+    "page": 1,
+    "section_id": "3.3.2",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver hur filter används för att definiera populationen i en fråga i COSMIC Insight. Den detaljera olika filtertyper för våra olika informationsmängder (t.ex. vårdkontakt, diagnos, läkemedel), hur man söker med matchningsalternativ, lägger till exkluderande filter, och hanterar vilket innehåll som visas i resultatet. Dessutom förklarar den hur man använder \"Första/senaste registreringen\" och vad som händer när man söker efter blodtrycksvärden i liggande position.",
+    "keywords": [
+      "filter",
+      "population",
+      "filtertyper",
+      "vårdkontakt",
+      "diagnoskod",
+      "journal",
+      "läkemedel",
+      "sökfält",
+      "ATC-koder",
+      "Innehåller",
+      "Börjar med",
+      "Slutar med",
+      "exkluderande filter",
+      "reglaget",
+      "händelser",
+      "resultat",
+      "unika patienter",
+      "Första/senaste registreringen",
+      "blodtryck",
+      "liggande position"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Frågor",
+      "Filter",
+      "Sökfunktion",
+      "Patientdata",
+      "Datavarning",
+      "Filterhantering",
+      "Resultathantering"
+    ],
+    "clinical_domain": [
+      "Diagnostik",
+      "Vårdkontakter",
+      "Läkemedelsinformation",
+      "Blodtrycksbevakning"
+    ],
+    "text": "Frågor består av en uppsättning filter vars innehåll definierar hur populationen i en fråga filtreras fram. Det finns olika typer av filter för olika informationsmängd er, t.ex. vårdkontakt , diagnoskod journal och läkemedel sordination. Varje informationsmängd har en egen uppsättning av sökfält för att ange sökkriterier. I vissa av fälten kan information sökas fram, t.ex. diagnoser eller ATC-koder. När ett antal tecken skrivs i fältet visas automatiskt en lista med matchande sökkriterier . För att begränsa den listan går det att välja något av listrutealternativen 'Innehåller', 'Börjar med' eller 'Slutar med'. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 18(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Det går även att lägga in ett exkluderande filter via knappen + exkluderande filter . Det innebär att patienter, vars poster matchar sökkriterierna i det exkluderande filtret, inte tas med i resultatet. Ett filter kan aktiveras respektive inaktiveras via reglaget . I ett filter går det att ange om händelser ska visas i resultatet för respektive filter, t.ex. vårdkontakter, läkemedel eller vårdåtgärder, eller ej. Detta görs genom att klicka på knappen . Förvalt visas alla händelser i resultatet. Valet av vilka händelser som visas i resultatet påverkar inte antalet unika patienter som filtreras fram i en fråga. Exempel 1: En fråga används för att söka fram patienter med diagnos förmaksflimmer och med en registrerad vårdkontakt på avdelning 1 senaste året. Däremot är inte händelser för registreringar av diagnos förmaksflimmer av intresse. I diagnosfiltret klickar man på knappen för att välj a Resultatet kommer att baseras på patienter med registrering av diagnosen förmaksflimmer men inga händelser kommer visas i resultatet. Varje filter har ett sökfält kallat Första/senaste registreringen med alternativen . När detta sökfält används kommer sökningen endast titta på patientens absolut första respektive senaste registrering av den aktuella informationsmängden. Uppfylls inte övriga sökkriterier definierat i filtret inkluderas inte patienten i resultatet. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 19(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Exempel 2: En fråga används för att söka fram patienters senaste blodtrycksvärde i liggande position i sökfältet Position I resultatet visas endast e n händelse per patient och det är patientens senast registrerade blodtrycksvärde. Om patientens senaste registrerade blodtryck inte togs i liggande position exkluderas patienten från resultatet. visar fortfarande endast en händelse per patient, men detta är nu patientens först registrerade blodtryck. Om sökfältet Första/senaste registreringen inte inkluderas i sökningen kommer patientens samtliga registreringar av blodtryck i liggande position visas som enskilda händelser."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Villkor",
+    "page": 1,
+    "section_id": "3.3.3",
+    "main_section_id": 3,
+    "context_summary": "Texten förklarar hur man kan använda AND‑ och OR‑villkor mellan filter i Cosmos Insight. Ett exempel visar hur patienter med kroniskt förmaksflimmer och relevanta vårdkontakter kan väljas, samt var filtren är oberoende. Referens till kopplingar ges i avsnitt 3.3.4.",
+    "keywords": [
+      "villkor",
+      "AND",
+      "OR",
+      "filter",
+      "kroniskt förmaksflimmer",
+      "diagnos",
+      "vårdkontakt",
+      "huvuddiagnos",
+      "registrerat",
+      "oberoende",
+      "koppling"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "filter",
+      "villkor",
+      "diagnos",
+      "kardiologi",
+      "registrering"
+    ],
+    "clinical_domain": [
+      "kardiologi"
+    ],
+    "text": "Och/eller-villkor kan sättas mellan filter för att styra vilka patienter som ska tas med i sökresultatet . Lista innebär att sökkriterierna i båda filtren måste vara uppfyllda för att patienten ska inkluderas i resultatet. Väljs räcker det med att sökkriterierna i ett av filtren uppfylls. Exempel: villkoret och i det nedre filtret är sökkriterierna t. Frågans resultat kommer visa patienter som fått diagnos en kroniskt förmaksflimmer registrerad som huvuddiagnos i sin journal det senaste året och som även haft en vårdkontakt av typen vårdtillfälle någon gång under det senaste året. Observera att filtren i detta läge är oberoende av varandra. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 20(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Det innebär i detta exempel att diagnosen Kroniskt förmaksflimmer inte behöver vara registrerad i samband med vårdkontakt en. För att ange villkor att diagnosen skall vara registrerad på specifik vårdkontakt kan en koppling göra s, se avsnitt 3.3.4 Kopplingar . patienter som uppfyller samtliga sökkriterier i filtren , likt beskrivningen ovan, men även de patienter som har kroniskt förmaksflimmer registrerat som huvuddiagnos under det senaste året utan att ha haft en vårdkontakt av typen vårdti llfälle någon gång under det senaste året, och tvärt om ."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Kopplingar",
+    "page": 1,
+    "section_id": "3.3.4",
+    "main_section_id": 3,
+    "context_summary": "Kopplingar beskriver hur filter är relaterade och vilka typer av relationer som finns, samt hur dessa påverkar sökresultaten.",
+    "keywords": [
+      "koppling",
+      "filter",
+      "huvudfilter",
+      "relationer",
+      "patient",
+      "provresultat",
+      "tidskoppling",
+      "vårdkontakt",
+      "ordination",
+      "remisskoppling",
+      "hälsoärendekoppling",
+      "journalanteckningskoppling",
+      "information",
+      "sökresultat"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Databas",
+      "Filtrering",
+      "Relationer",
+      "Sökfunktion",
+      "Klinikinformation"
+    ],
+    "clinical_domain": [
+      "Patientdata",
+      "Laboratorie",
+      "Vårdsprocess",
+      "Klinisk hantering"
+    ],
+    "text": "Kopplingar definierar beroenden/relationer mellan olika filter. Vid koppling väljs ett filter som via kopplas till ett huvudfilter . Flera filter kan kopplas till samma huvudfilter. Mellan huvudfiltret och kopplade filter beskrivs samband som närvarande eller frånvarande villkor, t.ex. en patient som har eller som inte har ett förändrat provresultat sedan en viss tid passerat efter läkemedelsordination. Det finns flera olika typer av kopplingar som vårdkontakt skoppling, tidskoppling, vårdåtagandekoppling , ordinationskoppling, remisskoppling , hälsoärendekoppling och journalanteckningskoppling. Varje typ representerar en viss relation mellan filtren. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 21(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Utan kopplingar skulle en sökning visa de patienter som uppfyller sökkriterierna inom valda filter. Detta utan att efterfrågad information i respektive filter nödvändigtvis har någon relation till varandra (bortsett från att de alltid tillhör samma patient), se exempel i avsnitt 3.3.3 Villkor . En informationsmängd som kopplas till ett redan kopplat filter kommer inte att presenteras i resultatet. Det vill säga , det är endast möjligt att visa information i resultatet från den första underliggande informationsmängden under ett huvudfilter. I detta fall kommer knappen, som styr om händelser ska visas i resultatet eller ej, bli grå och ej klickbar ."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Funktioner och egenskaper",
+    "page": 1,
+    "section_id": "3.3.5.1",
+    "main_section_id": 4,
+    "context_summary": "Texten beskriver hur man bygger ledtidssökningar i COSMIC Insight med upp till fem mätpunkter, inklusive val av start‑ och slutpunkter, tidsintervall och möjligheten att lägga till fler sökfält.",
+    "keywords": [
+      "ledtid",
+      "mätpunkt",
+      "tidsintervall",
+      "process",
+      "startpunkt",
+      "slutpunkt",
+      "filter",
+      "sökfält",
+      "COSMIC Insight",
+      "vårdkontakt",
+      "journalanteckning",
+      "läkemedelsordination"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Funktioner och egenskaper",
+      "Processmätning",
+      "Mätpunkt",
+      "Ledtid",
+      "COSMIC Insight",
+      "Dataanalys"
+    ],
+    "clinical_domain": [
+      "Läkemedelsordination",
+      "Vårdkontakt",
+      "Journalhantering",
+      "Processanalys",
+      "Medicinsk data"
+    ],
+    "text": "Frågor kan byggas upp av mätpunkte r i syfte att visa resultat i form av ledtider mellan valda mätpunkter, t.ex. när en läkemedelsordination startar och slutar.\nLiksom för filter finns det olika mätpunkter för olika informationsmängder, t.ex. vårdkontakt, journalanteckning och läkemedelsordination.\nMätpunkter läggs till via knappen +mätpunkt .\nI listan Välj mätpunkt går det att söka efter och/eller välja en önskad mätpunkt, t.ex. Start eller Slut.\nDen första mät punkten blir startpunkt från vilken ledtiden mäts utifrån och den sista blir slutpunkt för processen.\nFör den första mätpunkten (starten av processen) definieras vilket tidsintervall man vill söka på , t.ex. senaste åre t rullande.\nFör den sista mätpunkten anges om den ska ha inträffat eller inte, dvs. om processen är avslutad eller pågående.\nAntalet mätpunkter som ingår i en ledtidsfråga får inte överstiga fem.\nCOSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 22(81) Notera att utskrifter kan vara inaktuella.\nFör vid var tid aktuell version, se den digitala versionen.\nNär en mätpunkt lagts till kan frågan definieras ytterligare genom att lägga till fler sökfält till mätpunk ten, på samma sätt som med ett filter."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Tidsintervall mellan mätpunkter",
+    "page": 1,
+    "section_id": "3.3.5.2",
+    "main_section_id": 4,
+    "context_summary": "Kort beskrivning hur ett tidsintervall mellan två mätpunkter kan anges och ändras, t.ex. till en vecka eller 24 timmar.",
+    "keywords": [
+      "tidsintervall",
+      "mätpunkter",
+      "standardvärde",
+      "ändra",
+      "veckobaserat",
+      "24 timmar",
+      "anpassning",
+      "inställning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "tidsintervall",
+      "mätpunkter",
+      "inställning",
+      "instruktion",
+      "konfiguration"
+    ],
+    "clinical_domain": [
+      "övervakning",
+      "dataanalys"
+    ],
+    "text": "Ett tidsintervall kan anges mellan mätpunkter. Per default är det satt till att den andra mätpunkten kan ha skett när som helst efter föregående mätpunkt . Detta kan ändras, t.ex. för att ange att mätpunkten ska ha skett inom en vecka eller inom 24 h efter föregående mätpunkt. För att ändra tidsintervall, klicka på pilen och justera till önskat tidsintervall i fälten som visas."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Relation mellan mätpunkter",
+    "page": 1,
+    "section_id": "3.3.5.3",
+    "main_section_id": 4,
+    "context_summary": "Beskriv hur man definierar tidsrelationen mellan ett besök och olika dokumentationsanteckningar i COSMIC Insight.",
+    "keywords": [
+      "mätpunkter",
+      "relation",
+      "tid",
+      "besök",
+      "dokumentation",
+      "vårdkontakt",
+      "anteckning",
+      "alternativ",
+      "klicka",
+      "pilen"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "mätpunkter",
+      "tidmätning",
+      "vården",
+      "datahantering",
+      "systemkonfiguration"
+    ],
+    "clinical_domain": [
+      "vårdkontakt",
+      "journalhantering"
+    ],
+    "text": "En relation kan anges mellan mätpunkter för att definiera hur de förhåller sig till varandra. Exempel: Man önskar mäta tid från besök till dokumentation och relationen är inom samma vårdkontakt . Tiden mäts då från besöket till första anteckningen som gjorts inom samma vårdkontakt . Väljs i stället alternativet mäts tiden från besök till varje anteckning som gjorts för patienten, oavsett inom vilken vårdkontakt den skrivits. En relation är alltid förvald men kan ändras genom att klicka på pilen och välja ett annat alternativ i listan. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 23(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Kopplade filter till mätpunkter",
+    "page": 1,
+    "section_id": "3.3.5.4",
+    "main_section_id": "4",
+    "context_summary": "Texten beskriver hur du lägger till kopplade filter till en mätpunkt, vilka steg du följer och exempel på användning med vårdkontakt och diagnoskoder.",
+    "keywords": [
+      "mätpunkt",
+      "filter",
+      "kopplade filter",
+      "information",
+      "vårdkontakt",
+      "diagnos",
+      "journal",
+      "tidsmätning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Mätpunkter",
+      "Filter",
+      "Kopplingar",
+      "Vårdkontakt",
+      "Diagnoskod"
+    ],
+    "clinical_domain": [
+      "Klinisk data",
+      "Vård",
+      "Journal"
+    ],
+    "text": "En mätpunkt kan definieras genom att lägga till kopplade filter. För att lägga till ett filter klicka på knappen +filter, välj önskad informationsmängd och sedan typ av koppling. Ett filter som läggs till en mätpunkt måste alltid kopplas. Exempel: Ett kopplat filter kan läggas till om man bara vill mäta tiden till eller från en vårdkontakt inom vilken man satt en viss diagnos i journalen . I detta fall skulle man lägga till ett filter med vårdkontaktkoppling av informationsmängden Diagnos kod journal. För mer information om kopplingar, se avsnitt 3.3.4 Kopplingar ."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Första eller sista mätpunkt som matchar",
+    "page": 1,
+    "section_id": "3.3.5.5",
+    "main_section_id": 4,
+    "context_summary": "Beskriv hur man väljer om målet bör vara den första eller sista mötet för att mäta tid. Alternativet styr när tid mätas och används i COSMIC Insight.",
+    "keywords": [
+      "mätpunkt",
+      "tidsmätning",
+      "journalanteckning",
+      "vårdkontakt",
+      "COSMIC Insight",
+      "användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "mätpunkter",
+      "tidsmätning",
+      "journalanteckning",
+      "vårdkontakt",
+      "användarmanual"
+    ],
+    "clinical_domain": [
+      "Patientjournal",
+      "Vårdkontakt"
+    ],
+    "text": "Det går att definiera om det är den första eller sista mätpunkten som matchar sökningen som man avser mäta tiden till . Detta anges genom att välja a lternativet i listan som visas i den andra mätpunkten och de följande mätpunkterna . Exempel: Om alternativet Sista som matchar väljs kommer tiden mätas från besök till sista journalanteckningen som registrerats inom samma vårdkontakt . COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 24(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Resultat",
+    "page": 1,
+    "section_id": "3.4.1",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att visa ett sökresultat i COSMIC Insight: klicka på Sök i vy Ny fråga eller öppnad fråga och resultatsidorna visas i flikarna Grafer, Lista och Karta. För att se frågan igen klickar man på Visa fråga.",
+    "keywords": [
+      "sökresultat",
+      "fråga",
+      "Ny fråga",
+      "Graf",
+      "Lista",
+      "Karta",
+      "Visa fråga",
+      "COSMIC Insight"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "Sökfunktion",
+      "Resultatdisplay",
+      "Ny fråga",
+      "Visa fråga",
+      "Graf",
+      "Lista",
+      "Karta"
+    ],
+    "clinical_domain": [
+      "Onkologi",
+      "Genomik"
+    ],
+    "text": "För att visa en frågas sökresultat klickar man på knappen Sök i vyn Ny fråga eller i en öppnad fråga. Resultatet presenteras i flikarna Grafer, Lista respektive Karta. För att visa frågan igen, klicka r man på Visa fråga . COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 25(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Grafer",
+    "page": 1,
+    "section_id": "3.4.2",
+    "main_section_id": 3,
+    "context_summary": "Beskriver hur grafer i CosmiC Insight visas och anpassas, inklusive stegdiagram, ikonfunktioner, datumvisning, mål, jämförelser, samt hantering av frågor med mätpunkter.",
+    "keywords": [
+      "graf",
+      "stapeldiagram",
+      "inställningar",
+      "nedladdning",
+      "dashboard",
+      "händelser",
+      "unika patienter",
+      "datum per",
+      "mål",
+      "procent",
+      "mätpunkter",
+      "median",
+      "parallella grafer"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "graf",
+      "visualisering",
+      "interaktivitet",
+      "dataanalys",
+      "rapportering"
+    ],
+    "clinical_domain": [
+      "diagnostik",
+      "behandling",
+      "patientdata",
+      "statistik"
+    ],
+    "text": "Grafer presenterar resultatet i stapeldiagram. I en grafs övre högra hörn finns en rad med ikoner som används för att aktivera identifierbart läge , nedladdning , lägga till grafen i dashboard samt göra inställningar för grafen . Om det finns två delfrågor i grafen kommer respektive delfrågas namn att presenteras tillsammans med en färgmarkering som visar vilken av staplarna/linjerna i grafen som representerar respektive delfråga. I datumgrafer går det att visa resultatet baserat på händelser eller unika patienter via knappen . Genom att markera alternativknappen Händelser inkluderas samtliga valda händelser i resultatet. Om Unika patienter markeras visas endast den senaste händelsen för respektive patient, det vill säga att varje patient bara representeras med en händelse i grafen. Det går att välja om datumen i grafen ska visas grupperat per dag, vecka, månad eller år genom att välja ett alternativ i listrutan Visa datum per . Man kan även lägga till ett mål i en graf genom att välja alternativ i listrutan Mål och ange önskade värden i textfältet. Frågor med jämförelse kan visa resultatet i procent eller som antal per 1000. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 26(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. För frågor som innehåller mätpunkter visas en annan graf under fliken Grafer Denna graf visar mediantiden i dagar som gått mellan två mätpunkter. Om frågan innehåller två mätpunkter visas en stapel som representerar mediantiden mellan dessa mätpunkter. Om frågan har tre eller fler mätpunkter visas en stapel för mediantiden mellan första och andra mätpunkten, en annan stapel för mediantiden mellan andra och tredje mätpunkten, och så vidare. Om endast en mätpunkt är definierad i frågan visar grafen mediantiden från mätpunkten till nutid. För en fråga med två urval där båda innehåller mätpunkter visas två grafer parallellt, en per urval, där namnen på urvalen visar vilken graf som tillhör vilket urval. Mätpunktsgrafe r går, likt övriga grafer, att lägga till i en dashboard via ikonen , förutom om en fråga med två urval har ett urval med mätpunkter och ett urval utan mätpunkter. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 27(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Funktioner och egenskaper",
+    "page": 1,
+    "section_id": "3.4.3.1",
+    "main_section_id": 4,
+    "context_summary": "Denna flik visar ett detaljerat sökresultat för varje patient, inklusive totala antal patienter och händelser. Funktionen möjliggör att aktivera identifierbart läge, lägga till resultat i en dashboard, ladda ner och kontrollera detaljeringsnivån samt se information om var data skapats.",
+    "keywords": [
+      "sökresultat",
+      "patienter",
+      "händelser",
+      "identifierbart läge",
+      "dashboard",
+      "nedladdning",
+      "anonymisering",
+      "information",
+      "enhet",
+      "resurs"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Patientdata",
+      "Sökfunktion",
+      "Rapportering",
+      "Användargränssnitt",
+      "Dataintegritet",
+      "Anonymisering"
+    ],
+    "clinical_domain": [
+      "Patientinformation",
+      "Klinisk rapportering",
+      "Data-anonymisering"
+    ],
+    "text": "I denna flik visas ett detaljerat sökresultat grupperat per patient. Ovanför listan presenteras det totala antalet ingående patienter och händelser . Via ikonen kan identifierbart läge aktiveras , med kan s ökresultatet läggas till i en dashboard och via går det att ladda ner resultatet i filformat. Detaljnivån styrs av hur det anonymiserade läget konfigurerats. Genom att klicka på informationsknappen visas uppgift om var informationen skapades, t.ex. enhet och resurs. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 28(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ledtider Lista",
+    "page": 1,
+    "section_id": "3.4.3.2",
+    "main_section_id": 4,
+    "context_summary": "Beskriver hur ledtider presenteras för mätpunkter, totalt antal patienter och händelser samt median och ackumulerad tid mellan första och sista mätpunkt. I anonymt läge visas endast ackumulerad tid; i identifierbart läge visas också tid för första och sista punkt. Raden kan expandas för detaljer mellan alla mätpunkter.",
+    "keywords": [
+      "mätpunkter",
+      "patienter",
+      "händelser",
+      "mediantid",
+      "ackumulerad tid",
+      "anonymt läge",
+      "identifierbart",
+      "processen är pågående",
+      "expandera rad",
+      "COSMIC Insight"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Systemfunktion",
+      "Datahantering",
+      "Mätpunkter",
+      "Tidsanalys",
+      "Anonymisering",
+      "Processstatus",
+      "Expanderad information"
+    ],
+    "clinical_domain": [
+      "Patientdata",
+      "Mätpunkter",
+      "Processövervakning"
+    ],
+    "text": "För frågor baserade på mätpunkter presenteras det totala antalet ingående patienter och händelser samt mediantiden mellan den första och sista mätpunkten. Resultatet i listan visas med en rad per ledtid. I anonymt läge visas endast information om ackumulerad tid, dvs. tid från första till sista mätpunkten. Om man angivit att sista mätpunkten inte ska ha inträffat (processen är pågående) visas ackumulerad tid räknat ti ll aktuell tid. I identifierbart och identifierat läge visas även händelsetid för första och sista mätpunkten i de första två kolumnerna. Via pilikonen kan varje rad expanderas för att se händelsetid och ackumulerad tid mellan alla mätpunkter som ingår i frågan. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 29(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Karta",
+    "page": 1,
+    "section_id": "3.4.4",
+    "main_section_id": 3,
+    "context_summary": "Karta-fliken visar patienter på kommunnivå med adressdetaljer; senaste adresser används, och okända adresser placeras under rubriken. Fliken är inaktiv för mätpunktsfrågor.",
+    "keywords": [
+      "karta",
+      "patienter",
+      "adress",
+      "kommun",
+      "senaste adress",
+      "okänd adress",
+      "zoom",
+      "färg",
+      "tooltip",
+      "mätpunkter"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "kartor",
+      "adressdata",
+      "kommun",
+      "spårning",
+      "säkerhet"
+    ],
+    "clinical_domain": [
+      "Patientinformation",
+      "Geografisk hälsodata"
+    ],
+    "text": "Denna flik visar en karta där patienter som ingår i en fråga presenteras på kommunnivå. Om en patient hade flera adresser registrerade under frågeperioden visas den senaste. Informationen i kartan kan endast visas i identifierbart läge. Zoomfunktionen (+/- ) styr detaljnivån. Om en adress inte registrerats för en eller flera patienter, eller om patienten har skyddad identitet, läggs de till under rubriken Okänd adress som visas under zoomfunktionen. Om flera urval ingår i samma fråga visas de med olika färger. Tooltip ger ytterligare information. Fliken Karta är inaktiv för frågor som innehåller mätpunkter ."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Anonymiserat läge",
+    "page": 1,
+    "section_id": "3.4.5",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver att all presentation av resultat sker i anonymiserat läge där patientidentitet döljdes genom aggregering och ett minimum antalet patienter per grupp, samt att data endast visas inom HSA_Vårdgivare och konfigureras av systemadministratören.",
+    "keywords": [
+      "anonymisering",
+      "patientdata",
+      "aggregation",
+      "minimipatientgrupp",
+      "HSA_Vårdgivare",
+      "systemadministratör",
+      "behörighet",
+      "gruppgräns",
+      "datahantering"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Datasekretess",
+      "Patientinformation",
+      "Hälso-och-sjukvårdsinformation",
+      "Åtkomstkontroll"
+    ],
+    "clinical_domain": [
+      "Patientinformation",
+      "Datasekretess",
+      "Hälsoinformation"
+    ],
+    "text": "Alla resultat presenteras initalt i anonymiserat läge. I detta läge kan inte identiteten hos en patient härledas , varken direkt eller indirekt. En patients anonymitet säkerställs av graden av detaljer som visas i frågeresultatet. Data aggregeras för att patienter inte ska kunna pekas ut. En patient grupperas med flera andra patienter som delar samma egenskaper som ålder, diagnos eller kön. Det lägsta antalet patienter som måste finnas i en grupp för att säkerställa anonymisering konfigureras av systemadmi nistratör. Om ett otillräckligt antal patienter ingår i en grupp skalas gruppen för att visa informationen med färre antal detaljer. I de fall en sammanslagning inte kan ske kommer sökningen inte att ge ett resultat i anonymt läge. COSMIC Insight visar endast information inom en hälso -och sjukvårdsorganisation (HSA_Vårdgivare) . I anonymiserat läge begränsas inte tillgång till information baserat på användarens beviljade behörighet . All data som inloggad sjuk- och hälsovårdsorganisation bedömt kan ingå i anonymt läge visas. Vilken data som skall ingå i anonymt läge konfigurer as av systemadministratör. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 30(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Identifierbart läge",
+    "page": 1,
+    "section_id": "3.4.6",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver att anonymiseringsinställningar inte gäller i identifierbart läge, där patienter kan identifieras indirekt eller direkt genom personnummer och namn. Organisationen ansvarar för korrekt användning, och åtkomsten styrs av behörigheter och sekretessregler, särskilt inom primärvård.",
+    "keywords": [
+      "anonymisering",
+      "identifierbart läge",
+      "patientidentifikation",
+      "personnummer",
+      "namn",
+      "datasäkerhet",
+      "sekretessregler",
+      "COSMIC Insight",
+      "primärvård"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientdata",
+      "Anonymisering",
+      "Identifikation",
+      "Sekretess",
+      "Primärvård",
+      "Dataskydd"
+    ],
+    "clinical_domain": [
+      "Primärvård",
+      "Dataskydd"
+    ],
+    "text": "Inställningar för anonymisering, inklusive begränsningar av gruppstorlek, tillämpas inte i identifierbart läge. Det innebär att en patient skulle kunna identifieras indirekt i detta läge. Organisationen bär ansvar för hur COSMIC Insight används i identifierbart läge. I identifierbart läge kan användare välja att identifiera patienter så personnummer och namn visas . En identifierad patient kan väljas för vidare hantering i andra fönster i COSMIC. Identifierbart läge begränsar informationen till användaren grundat på beviljade behörigheter i COSMIC. Information som omfattas av sekretessregler kommer att uteslutas från resultatet . Det är dock möjligt att ge användare åtkomst till all information i identifierbart läge, d vs. samma som i det anonymiserade läget. Inom primärvård går det att begränsa informationen i identifierbart läge till att endast inkludera patienter på användarnas enhet. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 31(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 4 Instruktioner"
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Öppna COSMIC Insight",
+    "page": 1,
+    "section_id": "4.1",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för hur man loggar in och öppnar Insight i COSMIC via huvudmenyn eller Analytics.",
+    "keywords": [
+      "inloggning",
+      "COSMIC",
+      "Insight",
+      "meny",
+      "sökfält",
+      "Analytics",
+      "klicka"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användargränssnitt",
+      "Navigering",
+      "Insight"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Logga in i COSMIC. I huvudmenyn , skriv Insight i sökfältet, alternativt peka på menyn Analytics , och klicka sedan på menyalternativet Insight."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Öppna en sparad fråga",
+    "page": 1,
+    "section_id": "4.2",
+    "main_section_id": "2",
+    "context_summary": "Steg för att öppna en sparad fråga via Startsida, Utforska eller Dashboards.",
+    "keywords": [
+      "Öppna",
+      "sparad fråga",
+      "Startsida",
+      "Utforska",
+      "Ditt bibliotek",
+      "DASHBOARDS",
+      "ny vy"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "sökväg",
+      "interaktion",
+      "användargränssnitt"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd I vyn Startsida, klicka på menyalternativet Utforska eller Ditt bibliotek . I frågelistan, klicka på frågans namn. Frågan öppnas i en ny vy. Alternativ: Klicka på menyalternativet DASHBOARDS och därefter på en frågas namn i ett resultat."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Skapa en ny fråga",
+    "page": 1,
+    "section_id": "4.3",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att skapa en ny fråga genom att klicka på Ny fråga, ange sökkriterier, köra sök och spara frågan med namn och beskrivning.",
+    "keywords": [
+      "Ny fråga",
+      "Startsida",
+      "Klicka",
+      "Sök",
+      "Spara",
+      "Villkor",
+      "Sökcriteria",
+      "dialogruta",
+      "frågans namn",
+      "beskrivning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Frågeställning",
+      "Användargränssnitt",
+      "Databashantering",
+      "Rapportering"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd I vyn Startsida, klicka på knappen Ny fråga. I vyn som visas, fyll i sökkriterier och lägg till villkor . För att visa resultatet, klicka på knappen Sök. Klicka på knappen Spara. I dialogrutan, ange frågans namn och en beskrivning och klicka på Spara."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Lägga till ett filter",
+    "page": 1,
+    "section_id": "4.4",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för hur man lägger till inklusive och exkluderande filter i COSMIC Insight för att begränsa sökresultat.",
+    "keywords": [
+      "filter",
+      "inkluderande filter",
+      "exkluderande filter",
+      "sök",
+      "patient",
+      "resultat",
+      "cosmic insight",
+      "ny fråga",
+      "spara"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Sök",
+      "Filter",
+      "Databaser",
+      "Patientdata",
+      "Användarmanual"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Diagnostik",
+      "Datainsamling"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga genom att klicka på dess namn eller på knappen Ny fråga. Klicka på knappen +filter för att lägga till inkluderande filter3 och på +exkluderande filter4 för att lägga till et t exkluderande. I listan och som har , eller 'eller som har'. Lägg eventuellt till fler filter med sökvillkor och spara. 3 Inkluderande filter: patienter med angivet sökvillkor kommer att ingå i resultatet. 4 Exkluderande filter: patienter med angivet sökvillkor kommer inte att tas med i resultatet. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 32(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Inaktivera ett filter",
+    "page": 1,
+    "section_id": "4.5",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att inaktivera ett filter i systemet genom att klicka på reglaget, markera det som inaktivt med genomstruken text och söka igen utan filtret.",
+    "keywords": [
+      "filter",
+      "reglage",
+      "inaktivera",
+      "genomstruken text",
+      "Sök",
+      "Diagnoskod",
+      "journal",
+      "inaktiv"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "systemanvändning",
+      "filterhantering",
+      "sökfunktion",
+      "begäran"
+    ],
+    "clinical_domain": [
+      "journalföring",
+      "diagnostik"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga via vyn Startsida. I ett filter, k licka på reglaget aktivera/inaktivera . Filtret är nu inaktiverat och indikeras med genomstruken text och ordet inaktiv inom parentes tillagt, t.ex. Diagnoskod journal (Inaktiv). Klicka på knappen Sök. Det inaktiverade filtret ingår ej längre i sökningen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Aktivera ett filter",
+    "page": 1,
+    "section_id": "4.6",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att aktivera ett filter i en sökfråga via startsidan och sedan utföra sökningen.",
+    "keywords": [
+      "filter",
+      "aktivera",
+      "reglage",
+      "sök",
+      "fråga",
+      "Startsida",
+      "Sökknapp"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Sökfunktion",
+      "Filter",
+      "Användarmanual",
+      "Webbapplikation"
+    ],
+    "clinical_domain": [
+      "Allmänt"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga med inaktiverat filter via vyn Startsida. I filtret, klicka på reglaget aktivera/inaktivera . Filtret är nu aktiverat. Klicka på knappen Sök. Det aktiverade filtret kommer att tas med i sökningen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ta bort ett filter",
+    "page": 1,
+    "section_id": "4.7",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att öppna en fråga på Startsida, klicka på filtret och sedan på Ta bort för att bekräfta radering.",
+    "keywords": [
+      "filter",
+      "ta bort",
+      "Startida",
+      "fråga",
+      "knapp"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "instruktion",
+      "filter",
+      "startida",
+      "frågor"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga via vyn Startsida. Klicka på knappen i filtret. Klicka på knappen Ta bort för att bekräfta."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Lägga till sökfält i ett filter",
+    "page": 1,
+    "section_id": "4.8",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för hur man lägger till sökfält i ett filter via startsidan: öppna fråga, klicka på filterknapp, välj sökfält från listan och lägg till. Flertalet sökfält kan läggas till samtidigt med Ctrl + klick.",
+    "keywords": [
+      "sökfält",
+      "filter",
+      "startsida",
+      "Ctrl klick",
+      "filtrera",
+      "COSMIC Insight",
+      "användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Sökoptimering",
+      "Datahantering",
+      "Interfacing",
+      "Användargränssnitt",
+      "Filter",
+      "Admin"
+    ],
+    "clinical_domain": [
+      "Klinisk informationsteknik"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga via vyn Startsida. I filtret, klicka på knappen . I listan för sökfält, klicka på önskat alternativ för att lägga till det i filtret. Flera sökfält kan läggas till samtidigt med Ctrl + klick. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 33(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Definiera sökkriterier i ett filter",
+    "page": 1,
+    "section_id": "4.9",
+    "main_section_id": 2,
+    "context_summary": "Steg-för-steg-instruktion för att definiera sökkriterier och filtrera patienter i Insight-gränssnittet.",
+    "keywords": [
+      "sök",
+      "filter",
+      "patientspecifika",
+      "ålder",
+      "kön",
+      "diabetes",
+      "ketoacidos",
+      "kod journal",
+      "klinikparameter",
+      "ny fråga",
+      "sökfilter",
+      "spara",
+      "Insight"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Sökning",
+      "Filter",
+      "Patientdata",
+      "Insight",
+      "Databassökning",
+      "Funktioner"
+    ],
+    "clinical_domain": [
+      "Endokrinologi",
+      "Allmänt"
+    ],
+    "text": "Steg Åtgärd I vyn Startsida, klicka på knappen Ny fråga. Under filtret Patient, ange patientspecifika sökkriterier som t.ex. ålder och kön. I nästa filter, ange önskade sök kriterier. Exempel: - Klicka i sökfältet och fyll i sökkriterium , t.ex. diabetes. V älj sedan ett eller flera av förslagen som visas i listan E101A: Diabetes mellitus typ 1 med ketoacidos . - I listrutan, v älj informationsmängd och därefter kod journal - I listrutan, välj klinisk parameter och sedan önskat alternativ, t.ex. . Lägg ev. till ytterligare sökfält i filtret via . Visa resultatet genom att klicka på knappen Sök. Klicka på knappen Spara. I den visade dialogrutan, ange frågans namn samt en beskrivning och klicka på knappen Spara."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ta bort sökkriterier och sökfält i ett filter",
+    "page": 1,
+    "section_id": "4.10",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att ta bort ett sökkriterium eller sökfält i ett filter från COSMIC Insight-systemet.",
+    "keywords": [
+      "sökfält",
+      "sökkriterium",
+      "filter",
+      "förfrågan",
+      "Startsida",
+      "COSMIC Insight"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Filterhantering",
+      "Sökfunktion",
+      "Systemadministration"
+    ],
+    "clinical_domain": [
+      "Sjukvårdsinformationssystem"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga via vyn Startsida. I filtret, ta bort önskat sökkriterium/sökfält genom att klicka på knappen till höger om namnet , t.ex. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 34(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Lägga till en koppling",
+    "page": 1,
+    "section_id": "4.11",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att skapa en koppling mellan filter i vyen Startsida: öppna en fråga, lägg till minst två filter, klicka på ikonen för förbindelse, välj tidskoppling eller annan listruta, lägg till fler filter och spara.",
+    "keywords": [
+      "Koppling",
+      "filter",
+      "Startsida",
+      "fråga",
+      "ikon",
+      "tidskoppling",
+      "spara"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Funktion",
+      "Användning",
+      "Konfiguration"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga via vyn Startsida. Lägg till minst två filter. Klicka på ikonen i det filter som ska kopplas samman med ett annat. För muspekaren över de filter som nu visas för att se valbara kopplingsalternativ, t.ex. Tidskoppling . Klicka på aktuell kopplingstyp för frågan. I listrutan och som har välj alternativet . Lägg ev. till fler filter samt sökvillkor och spara."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Jämföra urval i en fråga",
+    "page": 1,
+    "section_id": "4.12",
+    "main_section_id": 2,
+    "context_summary": "Steg-för-steg-instruktion för att öppna en fråga, lägga till och ändra jämförelse, köra sök och spara resultatet i systemet.",
+    "keywords": [
+      "Öppna fråga",
+      "Jämförelser",
+      "Kryssruta",
+      "Urval",
+      "Sök",
+      "Spara",
+      "Startsida",
+      "Lägg till"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Funktioner i programvaran",
+      "Frågeverktyg",
+      "Sökfunktion"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. Klicka på knappen Lägg till jämförelse . I dialogrutan Jämför, markera ev. kryssrutan för att kopiera befintligt urval, klicka på Lägg till. Lägg till eller ändra sökkriterier i frågan. För att visa resultatet, klicka på knappen Sök. Klicka på knappen Spara."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Kopiera enhetsurval",
+    "page": 1,
+    "section_id": "4.13",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att kopiera ett enhetsurval i COSMIC Insight genom att öppna en fråga, välja relevanta enheter, kopiera urvalet och klistra in det i ett nytt filter.",
+    "keywords": [
+      "kopiera",
+      "enhetsurval",
+      "filter",
+      "fråga",
+      "Startsida",
+      "sök",
+      "klicka",
+      "klistra in",
+      "enhet"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "Datahantering",
+      "Filterfunktion",
+      "Cosmic Insight",
+      "Steg-för-steg"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. I ett filter välj sökkriteriet för enhet . I enhetsväljaren markera relevanta enheter för frågan . Klicka på för att kopiera urval. Lägg till ett nytt filter via . I det nya filtret välj sökkriteriet för enhet. I enhetsväljaren klicka på . Det kopierade urvalet klistras nu in i det nya filtret. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 35(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Skapa en ny fråga baserad på en befintlig fråga",
+    "page": 1,
+    "section_id": "4.14",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för hur man skapar en ny fråga genom att kopiera en befintlig fråga, justera sökkriterier och spara den med nytt namn och beskrivning.",
+    "keywords": [
+      "kopiera",
+      "fråga",
+      "öppna",
+      "sök",
+      "spara",
+      "ändra sökkriterier",
+      "ny fråga",
+      "dialogruta"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hantering av frågor",
+      "Kopiering",
+      "Sökfunktion",
+      "Spara"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. Klicka på knappen till höger om frågans namn . Välj alternativet Skapa kopia . Verifiera eller ändra sökkriterierna. För att visa resultatet, klicka på knappen Sök. Klicka på knappen Spara. I dialogrutan som visas, ange frågans namn samt en beskrivning och kli cka på knappen Spara."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Visa resultat",
+    "page": 1,
+    "section_id": "4.15",
+    "main_section_id": 2,
+    "context_summary": "Stegvisa instruktioner för att öppna en fråga, söka och välja en visualiseringsflik.",
+    "keywords": [
+      "öppna fråga",
+      "Sök",
+      "Graf",
+      "Lista",
+      "Karta",
+      "vy",
+      "Startsida",
+      "funktion"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Datahantering",
+      "Användargränssnitt",
+      "Frågestyrning",
+      "Visualisering"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. I vyn som visas, k licka på knappen Sök och välj därefter fliken Graf, Lista eller Karta i nästa vy."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Sätta en fråga som publik eller privat",
+    "page": 1,
+    "section_id": "4.16",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att öppna en fråga och välja om den ska vara publik eller privat.",
+    "keywords": [
+      "fråga",
+      "publik",
+      "privat",
+      "Startsida",
+      "dialogruta",
+      "knapp",
+      "alternativ"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Frågor",
+      "Kundsupport",
+      "Användarmanual"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. Klicka på knappen till höger om frågans namn. För att skapa en publik fråga, välj och fyll i information i dialogrutan som visas . För att skapa en privat fråga, välj alternativet"
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Följa en fråga",
+    "page": 1,
+    "section_id": "4.17",
+    "main_section_id": 2,
+    "context_summary": "Steg-för-steg-instruktion för att följa en fråga i Cosmos Insight genom att navigera till Startsida, Utforska, Frågor, välja en fråga och klicka på Följ-knappen för att lägga till den i sin följdlista.",
+    "keywords": [
+      "följ",
+      "fråga",
+      "Utforska",
+      "Startsida",
+      "plusknapp",
+      "frågelista",
+      "Följ-knapp",
+      "Cosmic Insight",
+      "introduktion",
+      "användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Navigering",
+      "Användarmanual",
+      "Frågesystem",
+      "Följning"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd I vyn Startsida, klicka på Utforska. Klicka på fliken Frågor. Välj något av följande alternativ: I frågelistan, klicka på plusknappen ( ) före frågans namn. Öppna frågan och klicka på knappen Följ. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 36(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Följa en dashboard",
+    "page": 1,
+    "section_id": "4.18",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att följa en dashboard via Fliken Dashboards på startsidan.",
+    "keywords": [
+      "dashboard",
+      "Utforska",
+      "Startsida",
+      "plusknapp",
+      "Följ",
+      "Fliken Dashboards"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "instrumentpaneler",
+      "användarinstruktion",
+      "dashboards",
+      "följ",
+      "dataanalys"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "dataanalys",
+      "klinikstyrning"
+    ],
+    "text": "Steg Åtgärd I vyn Startsida, klicka på Utforska. Klicka på fliken Dashboards. Välj något av följande alternativ: I listan över dashboards, klicka på plusknappen ( ) före en dashboards namn. Öppna dashboarden och klicka på knappen Följ."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Sluta följa en fråga",
+    "page": 1,
+    "section_id": "4.19",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att sluta följa en fråga genom att klicka på Utforska eller Ditt bibliotek på startsidan, eller genom att klicka på krysset i frågelistan och sedan på knappen Sluta följ.",
+    "keywords": [
+      "sluta följa",
+      "fråga",
+      "Utforska",
+      "Ditt bibliotek",
+      "klicka",
+      "krysset",
+      "Öppna",
+      "Sluta följ"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "FAQ",
+      "Funktion",
+      "Användning",
+      "Navigering"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd I vyn Startsida, klicka på Utforska eller Ditt bibliotek . Välj något av följande alternativ: I frågelistan, klicka på krysset före frågans namn Öppna frågan och klicka på knappen Sluta följ."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ändra namn/beskrivning på fråg a eller",
+    "page": 1,
+    "section_id": "4.20",
+    "main_section_id": "2",
+    "context_summary": "Instruktion för hur man ändrar namn eller beskrivning av en fråga eller dashboard i Cosmic Insight.",
+    "keywords": [
+      "fråga",
+      "dashboard",
+      "ändra namn",
+      "ändra beskrivning",
+      "öppna",
+      "redigera information",
+      "spara",
+      "ägare",
+      "privilegier"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Dashboardhantering",
+      "Metadataändring",
+      "Användargränssnitt"
+    ],
+    "clinical_domain": [],
+    "text": "dashboard Steg Åtgärd Öppna en fråga eller dashboard från vyn Startsida. Klicka på knappen till höger om en frågas eller dashboards namn och välj alternativet Redigera information . (Kan endast ändras av frågans ägare.) Alternativt, klicka på en frågas eller dashboards namn/beskrivning. Ändra uppgifterna och klicka på knappen Spara."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ändra namn/beskrivning på en delfråga",
+    "page": 1,
+    "section_id": "4.21",
+    "main_section_id": "2",
+    "context_summary": "Instruktion för att öppna och redigera en delfråga i COSMIC Insight, inklusive vem som kan göra ändringen.",
+    "keywords": [
+      "öppna fråga",
+      "redigera",
+      "delfråga",
+      "ägarbehörighet",
+      "COSMIC Insight",
+      "användarmanual",
+      "uppdatera information"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "delfråga",
+      "redigering",
+      "frågestyrning",
+      "systeminställningar"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida eller från en dashboard . Klicka på knappen till höger om delfrågans namn. Välj Redigera information. (Kan endast ändras av frågans ägare.) Ändra uppgifterna och klicka på knappen OK. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 37(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Radera fråga eller dashboard",
+    "page": 1,
+    "section_id": "4.22",
+    "main_section_id": 2,
+    "context_summary": "Steg-för-steg guide för att ta bort frågor eller dashboards i Insight, med hänsyn till behörigheter och olika navigationsvägar.",
+    "keywords": [
+      "radera",
+      "fråga",
+      "dashboard",
+      "behörighet",
+      "ägar",
+      "public",
+      "Utforska",
+      "Ditt bibliotek",
+      "menypanel",
+      "Öppna",
+      "Startsida",
+      "bekräfta"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användargränssnitt",
+      "Radering",
+      "Frågor",
+      "Dashboards",
+      "Behörighet"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga eller dashboard från vyn Startsida. Klicka på knappen till höger om en frågas eller dashboards namn. Välj alternativet Radera. (Kan endast raderas av ägaren, samt användare med särskild behörighet om frågan eller dashboarden är publik.) Bekräfta genom att klicka på Radera. Alternativ: Frågor och dashboards kan också tas bort i vyn Utforska eller Ditt bibliotek genom att klicka på ikonen och därefter bekräfta genom att klicka på knappen Radera. Dashboards kan även raderas via menypanelen genom att klicka på samma ikon."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Radera en delfråga",
+    "page": 1,
+    "section_id": "4.23",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att radera en delfråga: öppna frågan, klicka på 'Radera' och bekräfta.",
+    "keywords": [
+      "radera",
+      "delfråga",
+      "fråga",
+      "startsida",
+      "dashboard",
+      "bekräfta",
+      "ägare"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "administration",
+      "användargränssnitt",
+      "datahantering",
+      "frågemanagement"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd 1. Öppna en fråga från vyn Startsida eller från en dashboard. 2. Klicka på knappen till höger om delfrågans namn. 3. Välj alternativet Radera. (Kan endast raderas av frågans ägare.) 4. Bekräfta genom att klicka på Radera."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Skapa en ny dashboard i DASHBOARDS",
+    "page": 1,
+    "section_id": "4.24",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att skapa en ny dashboard genom att klicka på Ny dashboard på startsidan, fylla i namn och beskrivning och sedan spara.",
+    "keywords": [
+      "ny dashboard",
+      "Skapa",
+      "Startsida",
+      "spara",
+      "dashboard",
+      "beskrivning",
+      "knapp"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Dashboard",
+      "Skapa",
+      "Användargränssnitt",
+      "Administrering",
+      "Data Visualisering"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd I vyn Startsida, klicka på knappen Ny dashboard . I dialogrutan Ny dashboard , fyll i namn och eventuellt en beskrivning. Klicka på knappen Spara."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Lägga till resultat i en dashboard",
+    "page": 1,
+    "section_id": "4.25",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att lägga till resultat i en dashboard: öppna ärendet, söka, välja graf eller lista, klicka på \"Lägg till i dashboard\", välj dashboard; ett kryssmarkör visas.",
+    "keywords": [
+      "dashboard",
+      "lägg till",
+      "graf",
+      "lista",
+      "sök",
+      "ärende",
+      "klicka",
+      "COSMIC Insight",
+      "manual",
+      "Version 17.0"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Dashboard",
+      "Resultat",
+      "Graf",
+      "Lista",
+      "Sök",
+      "Klicka",
+      "Ärende",
+      "Manual"
+    ],
+    "clinical_domain": [
+      "Digitalisering",
+      "IT-system",
+      "Dataanalys"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga genom att klicka på dess namn Klicka på Sök. I fliken Graf eller Lista, k licka på knappen . I dialogrutan Lägg till i dashboard , klicka på knappen för önskad dashboard . En bock visas nu framför dashboardens namn. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 38(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ta bort ett resultat från en dashboard",
+    "page": 1,
+    "section_id": "4.26",
+    "main_section_id": "2",
+    "context_summary": "Instruktion för att ta bort ett resultat från en dashboard i Insight-vyn.",
+    "keywords": [
+      "dashboard",
+      "Ta bort",
+      "kryssknapp",
+      "Startsida",
+      "resultat",
+      "bekräfta"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Dashboard",
+      "Raderingsfunktion",
+      "Användargränssnitt",
+      "Datahantering"
+    ],
+    "clinical_domain": [
+      "Klinisk data"
+    ],
+    "text": "Steg Åtgärd I vyn Startsida, välj en dashboard under rubriken DASHBOARDS . I resultatets ruta, klicka på kryssknappen. Bekräfta genom att klicka på knappen Ta bort."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Definiera ett mål i en graf",
+    "page": 1,
+    "section_id": "4.27",
+    "main_section_id": 2,
+    "context_summary": "Steg för att ställa in ett mål i en graf: öppna fråga från startsida, sök, välj graf, klicka, välj mål i listruta och ange ett värde.",
+    "keywords": [
+      "mål",
+      "graf",
+      "fråga",
+      "sök",
+      "inställning",
+      "värde",
+      "dialog",
+      "startsida"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Graf",
+      "Mål",
+      "Inställningar",
+      "Användargränssnitt",
+      "Sökfunktion"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. Klicka på Sök. I vald graf, klicka på . I dialogrutan, vid Mål i listrutan och ange ett värde i följande fältet, Exempel:"
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Visa datumgraf utifrån händelser eller unika",
+    "page": 1,
+    "section_id": "4.28",
+    "main_section_id": 2,
+    "context_summary": "Beskriv hur man öppnar en fråga, söker och markerar datumgrafalternativet för händelser eller unika patienter.",
+    "keywords": [
+      "fråga",
+      "Startida",
+      "Sök",
+      "datumgraf",
+      "Händelser",
+      "Unika patienter",
+      "alternativknapp"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "patient",
+      "händelse",
+      "datumgraf",
+      "frågeställning",
+      "sökfunktion"
+    ],
+    "clinical_domain": [
+      "Patientdata",
+      "Klinisk data",
+      "Händelsehantering"
+    ],
+    "text": "patienter Steg Åtgärd Öppna en fråga från vyn Startsida. Klicka på Sök. I datumgrafen , klicka på . I dialogrutan, markera alternativknappen Händelser eller Unika patienter ."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Visa graf baserad på procent",
+    "page": 1,
+    "section_id": "4.29",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att öppna en fråga, söka och välja en graf med procentvisning för olika urval i COSMIC Insight.",
+    "keywords": [
+      "Öppna fråga",
+      "Sök",
+      "Graf",
+      "Procentvisning",
+      "Urval",
+      "Tooltip",
+      "COSMIC Insight",
+      "v17.0",
+      "Användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Graf",
+      "Procentvisning",
+      "Användarmanual",
+      "Instruktion",
+      "Dataanalys"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. Klicka på Sök. Välj graf med en jämförelse och klicka på . Markera alternativknappen Procent. I listrutan Nämnare , välj alternativet ' Urval 1', 'Urval 2' eller 'Totalen'. Grafen uppdateras med valet och ett tooltip visar ytterligare information. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 39(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 4.30 Visa graf baserad på antal per 1000 Steg Åtgärd Öppna en fråga från vyn Startsida. Klicka på Sök. Välj graf med en jämförelse och klicka på . Markera alternativknappen Antal per 1000 . I listrutorna, välj om 'Urval 1' eller 'Urval 2' ska jämföras per 1000. Grafen uppdateras med valet och ett tooltip visar ytterligare information."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Reglera om händelser ska visas i resultatet",
+    "page": 1,
+    "section_id": "4.31",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för hur man visar eller döljer händelser i resultatvyn via filter.",
+    "keywords": [
+      "händelser",
+      "resultatvy",
+      "filter",
+      "visa",
+      "dölj",
+      "fråga",
+      "Sök",
+      "knapp",
+      "grå",
+      "klicka"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "händelser",
+      "resultatvy",
+      "filtrering",
+      "användargränssnitt"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. Välj filter. Ange om händelser ska visas eller inte genom att klicka på . Om knappen är grå och ej klickbar, se förklaring i avsnitt 3.3.4 Kopplingar . Klicka på knappen Sök."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Aktivera eller inaktivera identifierbart läge",
+    "page": 1,
+    "section_id": "4.32",
+    "main_section_id": "2",
+    "context_summary": "Manualinstruktion för att växla mellan identifierbart och anonymt läge när du öppnar en fråga från startsidan.",
+    "keywords": [
+      "identifierbart läge",
+      "anonymt läge",
+      "sök",
+      "dialogruta",
+      "aktivera",
+      "steg",
+      "startsida",
+      "fråga"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Inställningar",
+      "Användargränssnitt",
+      "Sekretess",
+      "Sökfunktion"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. Klicka på Sök. För att aktivera identifierbart läge, klicka på och bekräfta genom att klicka på Aktivera i dialogrutan som visas. För att återgå till anonymt läge , klicka på ."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Identifiera/avidentifiera patienter",
+    "page": 1,
+    "section_id": "4.33",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för hur man öppnar en fråga, söker och aktiverar identifierbarhet i COSMIC Insight, visar data från grafen och identifierar eller avidentifierar patienter ensamt eller i grupp.",
+    "keywords": [
+      "identifiera",
+      "avidentifiera",
+      "patient",
+      "fråga",
+      "sök",
+      "graf",
+      "staplar",
+      "COSMIC Insight",
+      "version 17.0"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientidentifiering",
+      "Datahantering",
+      "Systemanvändning",
+      "Uppgift"
+    ],
+    "clinical_domain": [
+      "Vårdinformatik",
+      "Elektronisk hälsojournal",
+      "Patienthantering"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. Klicka på Sök. Aktivera identifierbart lä ge genom att klicka på . För en graf, visa dess bakomliggande data genom att klicka på önskad stapel. För att identifiera, klicka på Identifiera alla eller på för en enskild patien t och bekräfta. För att avidentifiera , klicka på Avidentifiera alla eller på för en enskild patient. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 40(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Lägga till patient i Patientlisten",
+    "page": 1,
+    "section_id": "4.34",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att lägga till en patient i Patientlisten via personnummer.",
+    "keywords": [
+      "patient",
+      "Patientlisten",
+      "personnummer",
+      "identifiera",
+      "lägg till",
+      "Steg",
+      "åtgärd"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientlista",
+      "Patienthantering",
+      "Åtgärd",
+      "Systemanvändning"
+    ],
+    "clinical_domain": [
+      "Övergripande",
+      "Patientadministration"
+    ],
+    "text": "Steg Åtgärd Identifiera patienten. Klicka på patientens personnummer i listan för att lägga till namn och personnummer i Patientlisten."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ladda ned resultat till en CSV-fil",
+    "page": 1,
+    "section_id": "4.35",
+    "main_section_id": 2,
+    "context_summary": "En steg‑för‑steg‑instruktion för att ladda ner sökresultat till en CSV‑fil i olika anonymiseringslägen.",
+    "keywords": [
+      "ladda ned",
+      "CSV",
+      "anonym data",
+      "identifierbar data",
+      "identifierad data",
+      "spara",
+      "sök",
+      "fråga",
+      "fliken Lista",
+      "Laddning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Datahantering",
+      "Export",
+      "CSV",
+      "Anonymisering",
+      "Kundgränssnitt",
+      "Funktionalitet"
+    ],
+    "clinical_domain": [
+      "Övrigt"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. Klicka på knappen Sök. Välj fliken Lista. Klicka på . I menyn LADDA NED , välj i vilket läge som informationen ska laddas ned; Anonym data , Identifierbar data eller Identifierad data . I dialogrutan, ändra ev. förifyllt filnamn och klicka på Spara."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ladda ner graf som bild",
+    "page": 1,
+    "section_id": "4.36",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att öppna en fråga från Startsida, söka, välja visningsläge för graf, klicka på ikon för att spara grafen som bild, ändra eventuellt filnamn och klicka Spara.",
+    "keywords": [
+      "graf",
+      "spara",
+      "bild",
+      "visningsläge",
+      "sök",
+      "startsida",
+      "fråga",
+      "dialogruta",
+      "filnamn"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "graf",
+      "export",
+      "fil",
+      "interaktion"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. Klicka på knappen Sök. Välj önskat visningsläge, t.ex. identifierbart läge i den Graf som ska sparas som bild. Klicka på . I dialogrutan, ändra eventuellt förifyllt filnamn och klicka på Spara."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Exportera fråga till fil",
+    "page": 1,
+    "section_id": "4.37",
+    "main_section_id": 2,
+    "context_summary": "Den här sektionen beskriver hur man exporterar en fråga till en fil via COSMIC Insight, med instruktioner om att öppna frågan, klicka på exportknappen och spara filen med ett anpassat namn.",
+    "keywords": [
+      "exportera",
+      "fråga",
+      "fil",
+      "Spara",
+      "Startsida",
+      "COSMIC Insight"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Export",
+      "Fråga",
+      "Fil",
+      "Användarmanual",
+      "COSMIC Insight",
+      "Version 17.0"
+    ],
+    "clinical_domain": [
+      "Medicinsk data",
+      "Elektronisk journal",
+      "Dataintegration"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. Klicka på knappen till höger om frågans namn och beskrivning. Välj alternativet Exportera fråga till fil . I dialogrutan , ändra ev entuellt förifyllt filnamn och klicka på Spara. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 41(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Importera fråga från fil",
+    "page": 1,
+    "section_id": "4.38",
+    "main_section_id": 2,
+    "context_summary": "Beskriv hur man importerar en fråga från en fil genom att öppna frågevyn, klicka på importknapp, välja fil och öppna.",
+    "keywords": [
+      "importera",
+      "fråga",
+      "fil",
+      "öppna",
+      "dialogruta",
+      "knapp",
+      "välja"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "frågor",
+      "import",
+      "användargränssnitt",
+      "filhantering"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna Ny fråga från vyn Startsida. Klicka på knappen till höger om frågans namn och beskrivning. Välj alternativet Importera fråga från fil. I dialogrutan Öppna fil , välj fil och klicka på Öppna."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Lägga till mätpunkt",
+    "page": 1,
+    "section_id": "4.39",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att lägga till en mätpunkt via startsidan genom att öppna en ny fråga och välja önskad mätpunkt.",
+    "keywords": [
+      "mätpunkt",
+      "Ny fråga",
+      "Startsida",
+      "knapp",
+      "val"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Mätpunkt",
+      "Systemgränssnitt",
+      "Fråga",
+      "Hantering"
+    ],
+    "clinical_domain": [
+      "IT",
+      "Systemadministration"
+    ],
+    "text": "Steg Åtgärd Från vyn Startsida, öppna en fråga eller klicka på knappen Ny fråga. Klicka på knappen +mätpunkt . I listan Välj mätpunkt , klicka på önskad mätpunkt."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ändra till en annan mätpunkt",
+    "page": 1,
+    "section_id": "4.40",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att byta ut en mätpunkt i frågevyn.",
+    "keywords": [
+      "fråga",
+      "mätpunkt",
+      "byta ut",
+      "sökfält",
+      "relation",
+      "koppling",
+      "matchning",
+      "klicka",
+      "Startsida",
+      "navigera"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Mätpunkt",
+      "Frågevyn",
+      "Admin",
+      "Navigering",
+      "Sökning"
+    ],
+    "clinical_domain": [
+      "Klinisk data",
+      "Mätning"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. I Frågevyn , navigera till den mätpunkt som önskas bytas ut . Klicka på mätpunktsnamnet, sifferikonen framför namnet eller knappen . I listan Välj mätpunkt , klicka på önskad mätpunkt. Definiera eventuella relationer, kopplingar, matchning, sökfält/sökkriterier , etc."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ta bort en mä tpunkt",
+    "page": 1,
+    "section_id": "4.41",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för hur man tar bort en mätpunkt: öppna en fråga från startsidan, navigera till mätpunkten i frågevyn, klicka på ikonen och sedan på knapp \"Ta bort\" för att bekräfta. Inkluderar information om COSMIC Insight och version.",
+    "keywords": [
+      "frågevy",
+      "mätpunkt",
+      "ta bort",
+      "klicka",
+      "bekräfta",
+      "COSMIC Insight",
+      "Manual",
+      "version 17.0"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Manual",
+      "Instruktion",
+      "Frågevy",
+      "Mätpunkt",
+      "Radering"
+    ],
+    "clinical_domain": [
+      "Datahantering"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. I Frågevyn, navigera till den mätpunkt som ska tas bort. Klicka på knappen . Klicka på knappen Ta bort för att bekräfta. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 42(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ändra relation mellan mätpunkter",
+    "page": 1,
+    "section_id": "4.42",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att öppna en fråga från startsidan, navigera till en relation att ändra och trycka på knappen för att förändra relationen mellan mätpunkter.",
+    "keywords": [
+      "fråga",
+      "relation",
+      "mätpunkter",
+      "knapp",
+      "startsida",
+      "navagation",
+      "öppna",
+      "ändra"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "användargränssnitt",
+      "datahantering",
+      "systemadministration"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. I Frågevyn , navigera till den relation som ska ändras. Klicka på knappen vid relationen. I listrutan vä Oberoende av relationen mellan mätpunkterna."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Ändra tidsintervall mellan mätpunkter",
+    "page": 1,
+    "section_id": 4.43,
+    "main_section_id": 2,
+    "context_summary": "Steg-för-steg-instruktion för att ändra tidsintervallet mellan mätpunkter via frågevyn.",
+    "keywords": [
+      "tidsintervall",
+      "mätpunkter",
+      "fråga",
+      "frågevyn",
+      "knapp",
+      "OK"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Tidskonfiguration",
+      "Mätpunkter",
+      "Användargränssnitt"
+    ],
+    "clinical_domain": [
+      "Hälsoinformatik"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. I Frågevyn , navigera till den tidsperioden som ska ändras. Klicka på knappen . Ange tidsintervall i de fält som visas. Klicka på OK."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Koppla ett filter till en mätpunkt",
+    "page": 1,
+    "section_id": 4.44,
+    "main_section_id": 2,
+    "context_summary": "Instruktion för hur man lägger till ett filter till en mätpunkt i COSMIC Insight, inklusive hur man öppnar en fråga, lägger till mätpunkt, väljer filter och kopplingsalternativ.",
+    "keywords": [
+      "filter",
+      "mätpunkt",
+      "fråga",
+      "kval",
+      "koppling",
+      "tidskoppling",
+      "filtkort",
+      "informativ",
+      "parameter",
+      "COSMIC Insight",
+      "instruktion"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Koppling av filter",
+      "Mätpunkter",
+      "Dataintegration",
+      "COSMIC Insight",
+      "Användarmanual",
+      "Medicinsk teknik"
+    ],
+    "clinical_domain": [
+      "Övervakning",
+      "Patientdata",
+      "Diagnostik"
+    ],
+    "text": "Steg Åtgärd Öppna en fråga från vyn Startsida. I Frågevyn , lägg till en mätpunkt. Klicka på knappen . Lägg till önskat filter genom att antingen söka i filterkortets fritextfält eller välja önskad informationsmängd eller klinisk parameter i list rutorna. Lägg till kopplingsalternativ: a) För muspekaren över mätpunktsfilter för att se valbara kopplingsalternativ, t.ex. Tidskoppling . b) Klicka på önskad kopplingstyp för frågan, t.ex. Tidskoppla. I listrutan och som har Ange eventuellt villkor kring tidskoppling samt ytterligare sökfält och sökkriterier. COSMIC Insight Introduktion & Användarmanual Version: 17.0 Datum: 2024-08-20 ©2024 Cambio Healthcare Systems AB 43(81) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Insight v17.0.pdf",
+    "section": "Visa ledtidsdetaljer",
+    "page": 1,
+    "section_id": "4.45",
+    "main_section_id": "2",
+    "context_summary": "Instruktion för att söka och visa ledtidsdetaljer i resultatvyn: klicka på Sök, välj fliken Lista, klicka på knappen i resultattabellen för en ledtid så att raden expanderar och information visas beroende på visningsläge.",
+    "keywords": [
+      "sök",
+      "frågevyn",
+      "resultatvyn",
+      "lista",
+      "ledtid",
+      "resultattabell",
+      "expansion",
+      "visning",
+      "information"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Sökfunktion",
+      "Resultatvyn",
+      "Tidsinformation",
+      "Användargränssnitt"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd Klicka på Sök i Frågevyn för önskad fråga. Resultatvyn, fliken Lista, visas. Klicka på knappen i resultattabellen för en ledtid . Raden expanderas och information visas. Beroende på aktuellt visningsläge visas olika mängd information."
+  }
+]

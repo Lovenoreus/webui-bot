@@ -1,0 +1,2191 @@
+[
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Detta dokument introducerar COSMIC Dictation och beskriver dess huvudfunktioner, samt strukturen av dokumentet.",
+    "keywords": [
+      "COSMIC Dictation",
+      "hälsovård",
+      "datorteknologi",
+      "användarinstruktioner",
+      "modulöversikt"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Introduktion",
+      "Modulöversikt",
+      "Dokumentstruktur"
+    ],
+    "clinical_domain": [
+      "Hälsovård"
+    ],
+    "text": "Detta dokument beskriver Cambio COSMIC Dictation (fortsättningsvis kallad COSMIC Dictation ) dess huvudfunktioner och egenskaper. Dokumentet är uppdelat i två delar: en introduktion till modulen bestående av en översikt över fönstren och ett separat kapitel med användarinstruktioner. Läsaren bör ha grundläggande kunskaper och erfarenhet av hälsovård, datorer, relevant område och av COSMIC."
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "Denna sektion beskriver versionshistoriken för dokumentet, med datum, ändringar och giltighetsdatum för varje version.",
+    "keywords": [
+      "versionshistorik",
+      "version",
+      "datum",
+      "ändringar",
+      "giltighet",
+      "avsnitt",
+      "kapitel",
+      "COSMIC",
+      "R8.3.05",
+      "3.7.0",
+      "3.9.0"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumentation",
+      "Versionskontroll",
+      "Ändringslogg",
+      "Version",
+      "Giltighetsinformation",
+      "Kapitel",
+      "Avsnitt"
+    ],
+    "clinical_domain": [],
+    "text": "Versionshistoriken visar ändringar som gjorts i dokumentet över tid. Version Datum Beskrivning 1.0 4.0 2016 - 2021 Tidigare publicerade versioner. För detaljer, se respektive dokumentversion. 5.0 2022-07-01 Avsnitt 4.6 tillagt. Dokumentet är giltigt från R8.3.05. 6.0 2022-10-13 Kapitel 2 uppdaterat. Avsnitt 3.1 tillagt. Dokumentet är giltigt från COSMIC 3.7.0. 7.0 2023-03-30 Avsnitt 1.3 tillagt och avsnitten 3.1 och 3.3 uppdaterade. Dokumentet är giltigt från COSMIC 3.9.0."
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Relaterade dokument",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "En lista över relaterade dokument och referenser för COSMIC-version 7.0.",
+    "keywords": [
+      "COSMIC",
+      "Gemensamma funktioner",
+      "Introduktion & användarmanual",
+      "Ikoner",
+      "Referensguide",
+      "Kortkommandon",
+      "Dictation",
+      "Version 7.0",
+      "Cambio Holding AB",
+      "dokument"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "dokument",
+      "manual",
+      "referens",
+      "COSMIC",
+      "version 7.0"
+    ],
+    "clinical_domain": [],
+    "text": "Följande relaterade dokument är tillgängliga : Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Ikoner i COSMIC Referensguide Kortkommandon i COSMIC Referensguide COSMIC Dictation Introduktion & Användarmanual Version: 7.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 5(15) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.4.1",
+    "main_section_id": 3,
+    "context_summary": "Detta stycke beskriver de typografiska konventioner som används i dokumentet, inklusive fetstil för gränssnittstermer, kursiv för modul- och filtyper, färg för värden och Courier New för systemkommandon.",
+    "keywords": [
+      "Fetstil",
+      "Kursiv",
+      "Färg",
+      "Courier New",
+      "gränssnittstermer",
+      "modulnamn",
+      "systemkommandon",
+      "kodexempel"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "typografi",
+      "gränssnitt",
+      "manual",
+      "stilkonventioner",
+      "dokumentation"
+    ],
+    "clinical_domain": [],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänk ar. Exempel: COSMIC Messenger, Properties.txt eller https://customer.cambio.se. Färg. i texten som värden, namn, typer och sökvägar. Exempel: namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter . Exempel: SET USERID=<user id>."
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.4.2",
+    "main_section_id": 3,
+    "context_summary": "Kort beskrivning av de olika ikonerna i dokumentet och deras användning.",
+    "keywords": [
+      "ikoner",
+      "information",
+      "tips",
+      "marknadsanpassning",
+      "kundanpassning",
+      "licens",
+      "gränssnitt",
+      "COSMIC Dictation",
+      "Användarmanual",
+      "versio 7.0"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Ikoner",
+      "Dokumentation",
+      "Användarmanual",
+      "Marknad",
+      "Licens",
+      "System"
+    ],
+    "clinical_domain": [],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Svensk marknadsanpassning. Svensk kundanpassning. Licens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. COSMIC Dictation Introduktion & Användarmanual Version: 7.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 6(15) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om COSMIC Dictation"
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "Översikt över COSMIC Dictations roll i vårdprocessen, beskrivning av ljudfilsfunktioner samt hur filer hanteras och transkriberas till dokument i COSMIC EHR.",
+    "keywords": [
+      "COSMIC Dictation",
+      "diktat",
+      "ljudfil",
+      "transkription",
+      "hälso- och sjukvårdspersonal",
+      "EHR",
+      "administratör"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Medicinsk dokumentation",
+      "Dikta",
+      "Ljudinspelning",
+      "EHR-integrering"
+    ],
+    "clinical_domain": [
+      "Diktering",
+      "Patientvård",
+      "Medicinsk dokumentation"
+    ],
+    "text": "COSMIC Dictation är en mjukvara med syfte att ge hälso - och sjukvårdspersonal stöd vid inspelning av ljudfiler, som kallas diktat, som en del i dokumentationsprocessen kopplat till vården av en patient. Ljudfiler visas upp i COSMIC Dictation, där kan de bli uppdaterade, lyssnas på eller raderas av hälso - och sjukvårdspersonal. Härifrån kan ljudfilerna även bli transkriberade till skrivna dokument av administratörer, och sparade i COSMIC EHR."
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Varningar och säkerhetsföreskrifter",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Denna sektion innehåller kritiska varningar och säkerhetsföreskrifter för användning av COSMIC Dictation, inklusive att den inte bör användas som enbart informationskälla för diagnos eller behandling, och att användarmanualen måste läsas före användning.",
+    "keywords": [
+      "COSMIC Dictation",
+      "diagnostisera",
+      "behandla",
+      "patient",
+      "vitalparametrar",
+      "realtidsövervakning",
+      "patientobservation",
+      "bedömning",
+      "klinik",
+      "manual",
+      "utskrift",
+      "digital version"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Säkerhet",
+      "Varningar",
+      "Klinik",
+      "Manual"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Diagnostik",
+      "Klinisk praxis"
+    ],
+    "text": "Följande varningar och säkerhetsföreskrifter sk all beaktas: COSMIC Dictation bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. COSMIC Dictation är inte avsedd för realtidsövervakning av vitala fysiologiska parametrar. COSMIC Dictation ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. Observera att användarmanualen bör läsas innan användning av COSMIC Dictation COSMIC Dictation Introduktion & Användarmanual Version: 7.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 7(15) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Fönsteröversikt"
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": 2,
+    "context_summary": "COSMIC Dictation är en del av dokumentationsprocessen och stöder skapande, inspelning och hantering av diktat. Diktaten spelas in med diktafon, sparas eller laddas upp till COSMIC, där de kan spelas upp och transkriberas. Fönstren Diktat och Diktatlista ger kontroll och översikt över pågående och avslutade diktat och möjliggör användning av spärrar.",
+    "keywords": [
+      "COSMIC Dictation",
+      "diktat",
+      "transkribering",
+      "filspårning",
+      "spärrar",
+      "användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Dokumentation",
+      "Diktation",
+      "Transkribering",
+      "Användarmanual"
+    ],
+    "clinical_domain": [
+      "Allmän klinik"
+    ],
+    "text": "COSMIC Dictation är en del av dokumentationsprocessen i COSMIC. Den stöder skapande, skrivande och hantering av diktat. De spelas in med hjälp av en diktafon. Ljudfilerna kan sparas i eller laddas upp till COSMIC där de spelas upp och transkriberas. I fönstret Diktat spelas diktat in/upp och i fönstret Diktatlista ges en översikt över pågående/avslutade diktat. COSMIC Dictation stödjer använda ndet av spärrar i fönstret Diktatlista . För mer information om spärrar se dokumentet Gemensamma Funktioner i COSMIC Introduktion & Användarmanual ."
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Fönstret Diktat",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "Fönstret visar en spelare, ett informationsfält med patientpersonnummer och en titel, samt möjlighet att maximera/minimera fönstret. Det kopplas automatiskt till vald patient och styrs av användarroll och diktatstatus; sekretessklassade ljudfiler inaktiverar spelaren tills journalen är signerad.",
+    "keywords": [
+      "Diktat",
+      "Spelar",
+      "Patient",
+      "Status",
+      "Sekretess",
+      "Spela",
+      "SpelaUpp",
+      "SpelaIn",
+      "Klassificering",
+      "Roll",
+      "Patientlista",
+      "Kategori",
+      "Prioritet",
+      "Felhantering",
+      "Journal"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Diktat",
+      "Spelarfönster",
+      "Patientinformation",
+      "Sekretess",
+      "Funktionskontroll",
+      "Rollstyrning",
+      "Statusspårning"
+    ],
+    "clinical_domain": [
+      "Klinisk dokumentation",
+      "Patientjournal",
+      "Vårdkontakt",
+      "Sekretesshantering"
+    ],
+    "text": "Fönstret används för att spela in, ändra, spela upp och skriva diktat. Det består av en spelare följt av ett område där information anges, t.ex. vårdpersonal, enhet etc. Fönstret kan visas i maximerat eller minimerat läge. Via pilen går det att byta mellan dessa lägen. Diktat kopplas automatiskt till vald patient i patientlisten. En patients personnummer och diktatets status visas i fönstertiteln. Fönstrets egenskaper, val, och funktionalitet styrs av användarroll och diktatets status. Statusen ändras automatiskt när arbetet fortgår, t.ex. när ett diktat sparas eller omriktas. För information om statusar, se avsnitt 4.7. Diktat i statusen exempelvis om fel enhet, sekreterare eller kategori valts. Prioritetsnivå och kategori kan anges. COSMIC Dictation Introduktion & Användarmanual Version: 7.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 8(15) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Precis som journalanteckningar kan diktat sekretessklassas. Sekretessklassade diktats ljudfiler kan inte nås och spelarens knappar är ina ktiverade. Sekretessen kan brytas och nivån ändras till dess journalanteckningen signerats. Tillagda journalanteckningar får samma sekretessklass som diktatets ljudfil. När reservrutin för digital diktering används kan man skapa diktat utan att v älja vårdkontakt, även om det är obligatoriskt."
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Fönstret Diktatlista",
+    "page": 1,
+    "section_id": "3.3",
+    "main_section_id": "2",
+    "context_summary": "Översikt av ej skrivna och ej färdiga diktat samt hur man hanterar inre och yttre spärrar, samt söker och sorterar diktat i COSMIC Dictation-systemet.",
+    "keywords": [
+      "diktat",
+      "fönster",
+      "spärr",
+      "inre spärr",
+      "yttre spärr",
+      "sökfunktion",
+      "patient",
+      "digital diktering",
+      "tabell",
+      "sortera",
+      "gruppera",
+      "dubbelklick",
+      "högerklick",
+      "öppna spärr",
+      "status",
+      "lyssna",
+      "läsa",
+      "ladda ner",
+      "wav",
+      "transkribera"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "System",
+      "Diktat",
+      "Användarmanual",
+      "Patientinformation",
+      "Sökfunktion",
+      "Spärrhantering",
+      "Ljudfil",
+      "Transkription",
+      "Klinisk dokumentation"
+    ],
+    "clinical_domain": [
+      "klinisk dokumentation",
+      "patientinformation",
+      "transkription"
+    ],
+    "text": "Fönstret ger en översikt över ej skrivna och ej färdiga diktat. Informationen kan visas för en vald patient eller för alla patienter. För att begränsa och specificera en sökning går det att välja olika sökkriterier och dessa kan grupperas av reservrutin för digital diktering. Sökresultatet visas i en tabell som kan sorteras och grupperas på vald tabellkolumn. COSMIC Dictation Introduktion & Användarmanual Version: 7.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 9(15) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Diktat visas som spärrade med ikonerna (inre spärr) eller (yttre spärr) om patienten har valt detta. Diktat spärras utifrån de spärregler som gäller för den inloggade enheten och kontakten eller för enbart enheten om en kontakt inte finns för diktatet. För att tillfälligt öppna en inre spärr så högerklickar man på diktatet och väljer alternativet Öppna spärr , eller dubbelklickar på diktatet. Användarinformation loggas när en spärr öppnas . Yttre spärrar kan inte öppnas i COSMIC. När man arbetar med ett diktat är det låst och visas som utgråat i diktatlistan, vilket innebär att ingen annan kan uppdatera eller transkribera diktatet. Det går dock att lyssna på diktatet genom att dubbel- eller högerklicka på diktatet och klicka OK i dialogrutan som visas, Diktat i en speciell status kan visas genom att välja ett av följande alternativ i listrutan Sök: Påbörjade diktat Status: Diktering påbörjad Diktat att skriva Status: Diktering klar och Diktat skrivs. Skrivna diktat Status: Diktat skrivet och Dokumentation klar. Diktat i statusen COSMIC Dictation Introduktion & Användarmanual Version: 7.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 10(15) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Borttagna diktat Status: Makulerad Via snabbknapparna längst ner i fönstr et kan andra fönster öppnas för att skapa nya diktat eller ladda ner ljudfiler ( .wav). Det senare alternativ et används för filer som spelats in utanför COSMIC, till exempel, ljudfiler som skapats på en diktafon och sedan överförts till en dator. COSMIC Dictation Introduktion & Användarmanual Version: 7.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 11(15) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 4 Instruktioner"
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Skapa nytt diktat",
+    "page": 1,
+    "section_id": "4.1.1",
+    "main_section_id": "3",
+    "context_summary": "Steg-för-steg-instruktion för att skapa, spela in, klassificera och spara ett nytt diktat, inklusive val av enhet och sekretessklass.",
+    "keywords": [
+      "diktat",
+      "skapa",
+      "spela in",
+      "enhet",
+      "prioritet",
+      "sekreterare",
+      "kategori",
+      "sekretess",
+      "spara",
+      "journal"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Diktat",
+      "Skapa nytt diktat",
+      "Åtgärdsinstruktioner"
+    ],
+    "clinical_domain": [
+      "Dokumentation",
+      "Sjukvård"
+    ],
+    "text": "Steg Åtgärd 1. Välj menyalternativet Skapa nytt diktat . Alternativ: I fönstret Diktatlista klicka på Skapa nytt diktat . 2. Spela in diktatet med hjälp av spelarens eller diktafonens knappar. 3. Välj en enhet och t.ex. prioritet, sekreterare, kategori, etc. 4. Om tillämpligt, klicka på sekretessikonen för att sekretessklassa diktatets ljudfil. 5. Klicka på något av följande: Spara (Ej klar. Status: Diktering klar (Klar. Status: Diktatet läggs till i fönstret Diktatlista och en referens läggs till i fönstret Journal."
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Skapa nytt diktat från fil",
+    "page": 1,
+    "section_id": "4.1.2",
+    "main_section_id": 3,
+    "context_summary": "En steg-för-steg-guide för att skapa ett nytt diktat från en fil i COSMIC-systemet, inklusive uppladdning, enhetsval och sekretessklassificering.",
+    "keywords": [
+      "Skapa",
+      "nytt diktat",
+      "fil",
+      "laddas upp",
+      "enhet",
+      "sekretessklassificering",
+      "spara",
+      "kvalitetsstatus",
+      "journal",
+      "Diktatlista"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Diktat",
+      "Fil",
+      "Skapa ny diktat",
+      "Sekretessklassificering",
+      "Journal",
+      "Diktatlista",
+      "COSMIC",
+      "Användarmanual"
+    ],
+    "clinical_domain": [
+      "Patientjournal",
+      "Kommunikation",
+      "Diktat",
+      "Dokumenthantering"
+    ],
+    "text": "Steg Åtgärd 1. Välj menyalternativet Skapa nytt diktat från fil . 2. I dialogrutan Bifoga fil, sök fram och välj filen. 3. Filen laddas upp till fönstret Diktat. 4. Välj en enhet och t.ex. pr ioritet, sekreterare, eller kategori. 5. Om tillämpligt, klicka på sekretessikonen för att sekretessklassa diktatets ljudfil. 6. Klicka på något av följande: Spara (Ej klar. Status: ) Diktering klar (Klar. Status: Diktatet läggs till i fönstret Diktatlista och en referens läggs till i fönstret Journal. COSMIC Dictation Introduktion & Användarmanual Version: 7.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 12(15) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Uppdatera diktat",
+    "page": 1,
+    "section_id": "4.2",
+    "main_section_id": 2,
+    "context_summary": "Steg för att öppna, välja och uppdatera ett diktat samt spara det med ny status.",
+    "keywords": [
+      "diktat",
+      "uppdatera",
+      "fönster",
+      "lista",
+      "spelare",
+      "diktafon",
+      "status",
+      "spara",
+      "dubbelklicka"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "diktat",
+      "uppdatering",
+      "användargränssnitt",
+      "spelare",
+      "diktafon"
+    ],
+    "clinical_domain": [
+      "Programvaruhantering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Diktatlista . 2. Sök fram och dubbelklicka på diktatet. Fönstret Diktat visas. 3. Uppdatera diktatet via spelarens eller diktafonens knappar. 4. Klicka på Uppdatera . Diktatet sparas och får status"
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Omrikta diktat",
+    "page": 1,
+    "section_id": "4.3",
+    "main_section_id": "2",
+    "context_summary": "Stegvisa instruktion för att öppna fönster, visa diktat och uppdatera information för att omrikta.",
+    "keywords": [
+      "fönster",
+      "diktatlista",
+      "högerklicka",
+      "Visa fullt fönster",
+      "Omrikta",
+      "uppdatera",
+      "information"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "dokumenthantering",
+      "diktat",
+      "instruktion",
+      "fönsterhantering",
+      "omriktningsprocess"
+    ],
+    "clinical_domain": [
+      "Övrigt"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Diktatlista . 2. Sök fram och högerklicka på diktatet. Välj menyalternativet Visa fullt fönster . Fönstret Diktat visas. 3. Uppdatera informationen och klicka på Omrikta."
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Ta bort diktat",
+    "page": 1,
+    "section_id": "4.4",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att ta bort ett diktat: öppna Diktatlista, högerklicka på diktatet och välj 'Ta bort', ange orsak i dialogrutan och bekräfta med 'Ta bort'.",
+    "keywords": [
+      "Diktatlista",
+      "Ta bort diktat",
+      "högerklick",
+      "direktiv",
+      "dialogruta",
+      "orsak"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "Dictationstjänster",
+      "Stödprocedur",
+      "Systemadministration"
+    ],
+    "clinical_domain": [
+      "Medicinsk dokumentation"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Diktatlista . 2. Sök fram och högerklicka på diktatet. Välj menyalternativet Ta bort. 3. I dialogrutan Ta bort diktat , ange en orsak och klicka på Ta bort. COSMIC Dictation Introduktion & Användarmanual Version: 7.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 13(15) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Lägga till journalanteckningar kopplade till en",
+    "page": 1,
+    "section_id": "4.5",
+    "main_section_id": 2,
+    "context_summary": "Detta avsnitt beskriver stegen för att lägga till och hantera journalanteckningar i COSMIC‑systemet via diktatlister, inklusive öppning, redigering, transkription, sparning och signering av anteckningar.",
+    "keywords": [
+      "journal",
+      "diktat",
+      "anteckning",
+      "öppna",
+      "spara",
+      "transkribera",
+      "signering",
+      "klicka",
+      "högerklicka",
+      "ändra"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "journalhantering",
+      "diktat",
+      "systemanvändning",
+      "instruktion"
+    ],
+    "clinical_domain": [
+      "sjukhusinformation",
+      "patientjournal",
+      "digitalhälsa"
+    ],
+    "text": "patient Steg Åtgärd 1. Öppna fönstret Diktatlista . 2. Sök fram och dubbelklicka på diktatet. (Status Fönstret Journal visas. (Ett öppnat diktat är låst för andra och visas i kursiv stil i fönstret Diktatlista .) 3. I fliken Anteckning, välj en mall och transkribera diktatet i en journalanteckning. 4. Klicka på: Spara Status: . Klar för signering Status: Diktat 4.6 Steg Åtgärd 1. Öppna fönstret Journal. 2. Öppna anteckningen genom att högerklicka och välja menyalternativet Ändra. 3. Dokumentera ändringarna . 4. Klicka på: Spara Status: Diktat skrivet om anteckningen skrevs i CD Inmatning v.1. Status: Diktat skrivs om anteckningen skrevs i CD Inmatning v.2 . Klar för signering Status: Diktat skrivet . COSMIC Dictation Introduktion& Användarmanual Version: 7.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 14(15) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix A Status på diktering och anteckningar"
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Översikt diktatstatusar",
+    "page": 1,
+    "section_id": "4.7",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver hur ett diktat uppdateras automatiskt genom olika statusar när det sparas, ändras, tas bort eller omriktas, samt vad varje status betyder för vårdpersonal och läkarsekreterare.",
+    "keywords": [
+      "diktat",
+      "status",
+      "sparad",
+      "uppdaterad",
+      "avslutad",
+      "borttaget",
+      "omriktas",
+      "läkarsekreterare",
+      "vårdpersonal"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "dokumenthantering",
+      "sjukvård",
+      "digital medicin",
+      "ärende",
+      "status"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "helsovård",
+      "digital hälsohantering"
+    ],
+    "text": "Statusen uppdateras automatiskt när ett diktat sparats, uppdaterats eller sparats och avslutats. Följande tabell visar ett diktats olika statusar. Åtgärd Status Ett diktat har sparats (vårdpersonal) . Diktering påbörjad . Ett diktat har avslutats (vårdpersonal) . Diktering klar. Ett diktat har ändrats (vårdpersonal) . Diktering klar. Ett diktat har tagits bort (vårdpersonal) . Diktat borttaget/avbrutet. Ett diktat har omriktats (läkarsekreterare) . Tidigare status behålls. (Endast diktat i status Diktering klar eller Diktering påbörjad kan omriktas.) Ett diktat har sparats (läkarsekreterare) . Diktat skrivs."
+  },
+  {
+    "source_file": "Cosmic manual Diktat v7.0.pdf",
+    "section": "Översikt journalanteckningars statusar",
+    "page": 1,
+    "section_id": "4.8",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver hur statusen för ett diktat och dess kopplade journalanteckning påverkar varandra, samt vilka åtgärder och utlösande händelser finns när journalanteckningen ändras.",
+    "keywords": [
+      "diktat",
+      "journalanteckning",
+      "status",
+      "koppling",
+      "signering",
+      "makulerad",
+      "borttagen",
+      "referens"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Dokumenthantering",
+      "Meddelandesystem",
+      "Journal",
+      "Diktat",
+      "Status"
+    ],
+    "clinical_domain": [
+      "Journalföring",
+      "Sjukvårdsinformation"
+    ],
+    "text": "Diktats och journalanteckningars statusar hänger samman. När en journalanteckning kopplas till ett diktat styrs dess status av journalanteckningens. Anteckningshuvudet visar om anteckningen är kopplad till ett diktat. Åtgärd Diktering Status Journalantecknings status Kommentar Journalanteckning sparas. Diktat skrivs. Ej klar för signering. En referens visas i fönstret Journal. Journalanteckning sätts som klar för signering. Diktat skrivet. Osignerat. Journalanteckningen visas i vårdpersonals lista över osignerade anteckningar. Referensen tas bort i fönstret Journal. COSMIC Dictation Introduktion & Användarmanual Version: 7.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 15(15) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Åtgärd Diktering Status Journalantecknings status Kommentar Journalanteckning är signerad . Diktat skrivet. Signerad. Diktatet tas bort automatiskt från fönstret Diktatlista när vårdpersonal signerat den länkade journalanteckningen. Journalanteckning är makulerad . Diktat skrivet. Makulerad. Om en journalanteckning makulerats påverkas inte diktatets status. Journalanteckning tas bort. Diktat skrivs. Borttagen. Om en journalanteckning tas bort ändras diktatets status till Diktat skrivs."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Detta avsnitt introducerar COSMIC Unit Overview-modulen, beskriver dess översikt, funktioner och användning i hälso- och sjukvården.",
+    "keywords": [
+      "COSMIC",
+      "enhetsöversikt",
+      "modul",
+      "funktioner",
+      "användarinstruktioner",
+      "hälsovård",
+      "icons",
+      "kortkommandon",
+      "gemensamma funktioner"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Hälsovård",
+      "Digitala system",
+      "COSMIC",
+      "Enhetsöversikt",
+      "Introduktion"
+    ],
+    "clinical_domain": [
+      "Primärvård",
+      "Vårdsystem",
+      "E-hälsa",
+      "Klinisk administration"
+    ],
+    "text": "Detta dokument beskriver Cambio COSMIC Unit Overview (fortsättningsvis kallad COSMIC Unit Overview ), dess huvudfunktioner och egenskaper. Det är uppdelat i två delar: en introduktion till modulen bestående av en översikt över fönstren och ett separat kapitel med användarinstruktioner. Läsaren bör ha grundläggande kunskaper och erfarenhet av hälsovård, relevant område och av COSMIC. Detta dokument beskriver funktioner som finns i COSMIC Unit Overview . Alla funktioner finns inte i alla konfigurationer . Denna introduktion och användarmanual fokuserar på modulspecifika funktioner . Den ska användas tillsammans med Gemensamma Funktioner i COSMIC – Introduktion & Användarmanual och r eferensguide r för ikoner och kortkommandon ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "En översikt över ändringar i dokumentet, inklusive datum och giltighet för varje version.",
+    "keywords": [
+      "versionshistorik",
+      "giltighet",
+      "ändringar",
+      "datum",
+      "Dokument",
+      "COSMIC 3.10.0",
+      "COSMIC 4.0.0",
+      "Manual"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumenthistorik",
+      "Versionskontroll",
+      "COSMIC",
+      "Manual",
+      "Produktinformation"
+    ],
+    "clinical_domain": [
+      "Klinisk teknik",
+      "Elektronisk journal",
+      "Enhetsövervakning"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid. Version Datum Beskrivning 1.0 – 13.1 2016 -2023 Tidigare publicerade versioner. Dokumentet är giltigt till COSMIC 3. 8.0. 14.0 2023 -09-19 Avsnitt en 1.3 och 4.1.3 tillag da. Avsnitten 1.1, 1.4.2 och 2.1 uppdaterade. Dokumentet är giltigt från COSMIC 3.10.0. 15.0 2024-01-30 Kapitel 1 samt avsnitt en 3.2.5 och 4.3.2 uppdatera de. Dokumentet är giltigt från COSMIC 3.11.0. 16.0 2024 -05-07 Avsnitten 4.1.3 , 4.2.1 , 4.2.2 och 4.3.1 tillagda . Dokumentet är giltigt från COSMIC 3.12.0. 16.1 2024 -05-21 Avsnitt en 1.3 och 3.4 uppdatera de. 17.0 2024 -10-15 Avsnitte n 3.2.3 , 3.2.4 och 4.4 tillag da. Dokumentet är giltigt från COSMIC 4.0.0. 18.0 2025 -01-20 Avsnitt en 3.2.3 , 3.2.4 och 3.2.6 uppdatera de. Dokumentet är giltigt från COSMIC 4.1.0. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 5(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Relaterade dokument",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "Här listas relaterade dokument till COSMIC-systemet, inklusive introduktions- och referensmanualer samt ikon- och kortkommandoguider.",
+    "keywords": [
+      "COSMIC",
+      "introduktion",
+      "användarmanual",
+      "referensguide",
+      "ikon",
+      "kortkommandon",
+      "funktioner"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokument",
+      "Referens",
+      "COSMIC",
+      "Användarmanual",
+      "Ikon",
+      "Kortkommandon"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Hälsoinformatik"
+    ],
+    "text": "Följande relaterade dokument finns tillgängliga : • COSMIC Birth – Introduktion & Användarmanual • COSMIC Medication – Introduktion & Användarmanual • Gemensamma Funktioner i COSMIC – Introduktion & Användarmanual • Ikoner i COSMIC – Referensguide • Kortkommandon i COSMIC – Referensguide"
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.4.1",
+    "main_section_id": 3,
+    "context_summary": "Texten förenklar dokumentets typografi genom att beskriva användningen av fetstil, kursiv, citattecken, vinkelparenteser och Courier New, samt ger exempel på varje stil.",
+    "keywords": [
+      "typografi",
+      "fetstil",
+      "kursiv",
+      "citattecken",
+      "vinkelparenteser",
+      "Courier New",
+      "systemkommandon",
+      "kodexempel",
+      "gränssnitt",
+      "modulnamn",
+      "filnamn",
+      "sökvägar",
+      "webblänkar"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "typografi",
+      "dokumentstil",
+      "manual",
+      "UI",
+      "dokumentation"
+    ],
+    "clinical_domain": [
+      "IT",
+      "Sjukvårdssystem"
+    ],
+    "text": "Följande typografiska konventioner används i detta dokument: • Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . • Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger, Properties.txt eller https://customer.cambio.se. • Enkla citattecken (’ ’) indikerar valbara alternativ i listrutor. Exempel: Välj alternativet ’Blå’ i listrutan Färg . • Vinkelparenteser (<…>) indikerar ersättningsbar information i texten som värden, namn, typer och sökvägar. Exempel: COSMIC <…> där <…> ersätts med namnet Link till COSMIC Link . • Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter . Exempel: SET USERID=<user id>."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.4.2",
+    "main_section_id": "3",
+    "context_summary": "Ikoner används för att markera information om uppgifter, marknad, anpassning eller område. Texten beskriver vilka ikoner som finns samt tips, tredjepartslicenskrav, konfigurationsberoende funktioner och eventuella extra kostnader samt gränssnittsdetaljer från R8.2.03.",
+    "keywords": [
+      "ikoner",
+      "information",
+      "tips",
+      "tredjepartlicens",
+      "konfiguration",
+      "extra kostnader",
+      "gränssnitt",
+      "R8.2.03"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Ikoner",
+      "Information",
+      "Användning",
+      "Licens",
+      "Konfiguration"
+    ],
+    "clinical_domain": [],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips En tredjepartslicens krävs för att använda denna produkt/funktion. Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. Information för vyer med gränssnitt införda från R8.2.03. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 6(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.5",
+    "main_section_id": 2,
+    "context_summary": "Denna sektion innehåller en tabell med termer, akronymer och förkortningar som används i dokumentet, inklusive olika Early Warning Score-system och dokumentets versioner.",
+    "keywords": [
+      "termer",
+      "akronymer",
+      "förkortningar",
+      "Early Warning Score",
+      "EWS",
+      "MEWS",
+      "NEWS",
+      "COSMIC Unit",
+      "version",
+      "manual"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Terminologi",
+      "Manual",
+      "Enhetsöversikt",
+      "COSMIC"
+    ],
+    "clinical_domain": [
+      "Akutmottagning",
+      "Intensivvård",
+      "Sjukvård"
+    ],
+    "text": "Termtabellen beskriver de termer, akronymer och förkortningar som används i detta dokument. Term Beskrivning EWS Early Warning Score MEWS Modified Early Warning Score NEWS National Early Warning Score COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 7(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om COSMIC Unit Overview"
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "COSMIC Unit Overview är ett mjukvaruvänt som hjälper vårdpersonal att få överblick över patienter i slutenvård och akutvård samt deras sängtilldelning, tester, remisser och akuta aktiviteter, och stödjer prioriteringsprocessen vid akutmottagning.",
+    "keywords": [
+      "COSMIC Unit Overview",
+      "sjukvårdspersonal",
+      "slutenvård",
+      "akutvård",
+      "sängtilldelning",
+      "laboratorietester",
+      "remisser",
+      "akuta aktiviteter",
+      "prioritering",
+      "patientöversikt"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "sjukvård",
+      "akutvård",
+      "inrikes vård",
+      "patienthantering",
+      "sjukvårdsprogramvara",
+      "sängplanering",
+      "laboratoriehantering"
+    ],
+    "clinical_domain": [
+      "Vård och vårdpersonal",
+      "Akutvård",
+      "Slutenvård",
+      "Laboratorie"
+    ],
+    "text": "COSMIC Unit Overview är en mjukvara med syfte att stödja sjukvårdspersonal i slutenvård och akutvård, för att få en överblick över de patienter som behandlas på enheten, samt patientspecifik information främst relaterad till sängtilldelning, laboratorietester, remisser och ak tuella aktiviteter. COSMIC Unit Overview stöder också vårdpersonal i processen att tilldela en prioritet till patienter som kommer till akutmottagningen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Försiktighetsåtgärder",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver vilka försiktighetsåtgärder som måste följas vid användning av COSMIC Unit Overview, inklusive att den inte är avsedd som enda diagnos- eller behandlingskälla och att användarmanualen ska läsas innan användning.",
+    "keywords": [
+      "försiktighetsåtgärder",
+      "COSMIC Unit Overview",
+      "diagnostisera",
+      "behandla",
+      "vitalparametrar",
+      "patientobservation",
+      "klinisk bedömning",
+      "användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Säker användning",
+      "Kliniska riktlinjer",
+      "Medicinteknik",
+      "Patientvård"
+    ],
+    "clinical_domain": [
+      "Klinisk säkerhet",
+      "Patientövervakning",
+      "Medicintekniska produkter"
+    ],
+    "text": "Följa nde försiktighetsåtgärde r gäller: • COSMIC Unit Overview bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. • COSMIC Unit Overview är inte avsett för realtidsövervakning av vitala fysiologiska parametrar. • COSMIC Unit Overview ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. • Observera att användarmanualen bör läsas innan användning av COSMIC Unit Overview . COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 8(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Fönsteröversikt"
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": "2",
+    "context_summary": "COSMIC Unit Overview är ett verksamhets‑ och beslutsstöd som ger överblick över enhetens aktuella situation och patientprioriteringar, inklusive tillgängliga sängar, vitalparametrar, laboratorieförfrågningar och ansvariga vårdgivare.",
+    "keywords": [
+      "COSMIC",
+      "Enhetsöversikt",
+      "patientprioriteringar",
+      "vitalparametrar",
+      "laboratorieförfrågningar",
+      "vårdkontakt",
+      "prioritering",
+      "sängstatus"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "verksamhetsstöd",
+      "patientflöde",
+      "datavisualisering",
+      "vårdkontakt",
+      "prioritering"
+    ],
+    "clinical_domain": [
+      "inpatientvård",
+      "akuten",
+      "laboratoriet"
+    ],
+    "text": "COSMIC Unit Overview är ett verksamhets - och beslutsstöd avsett att användas för att erhålla en överblick över situationen vid en enhet samt vid patientprioriteringar. Informationen visas i fönstret Enhetsöversikt som ger information om situationen vid enheten där det t.ex. går att se vilka patienter som för närvarande behandlas på enheten, vilka sängar som är lediga och hur många patienter som behandlas. Det går även att få information som rör enskilda patienter, t.ex. säng/plats, prior itet, beställda labbförfrågningar och ansvarigt vårdlag. Det finns ett avancerat stöd för prioriterad bedömning och för kontaktregistrering när den används på akutavdelningar. Exempel på arbetsflöde: En patient anländer till sjukhus •Patienten registreras. •Vårdkontakt skapas. •Öpenvårdspatien ter registreras i fönstren Vårdkontakts - information , Vårdkontakt och efterregistrering eller Prioritet. •Slutenvårdspatie nter registreras i fönstret In-och utskrivning . Patienten genomgår undersökning •Nya vitalparametrar registreras eller hämtas in till fönstret Prioritet . •Val av prioritetsnivå görs utifrån sökorsak samt systemets förslag av prioritetsnivå utifrån registrerade vitalparametrar. Viktig information kan registreras •Ansvarig läkare och sjuksköterska registreras. •Information till uppmärksamhets signalen uppdateras. •Anteckningar läggs till i fönstret Journal . Prover tas på patienten •Remiss till laboratorium skickas elektroniskt. •Resultat signeras av medicinskt ansvarig vårdgivare. Patienten lämnar, skrivs in eller ut från sjukhuset •Vårdkontakten avslutas i fönstren Vårdkontakts information eller Enhetsöversikt. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 9(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Egenskaper och funktioner",
+    "page": 1,
+    "section_id": "3.2.1",
+    "main_section_id": 3,
+    "context_summary": "Fönstret för COSMIC Unit Overview ger strukturerad patientöversikt med tabeller som visar patientinformation och är konfigurerat för olika vårdmiljöer. Det finns flikar för sluten vård, akutvård och ambulanskontakter samt möjligheter att sortera, gruppera och filtrera data. Användare kan öppna relaterade fönster via menyer och knappar.",
+    "keywords": [
+      "COSMIC",
+      "enhetsöversikt",
+      "patientinformation",
+      "tabeller",
+      "sortering",
+      "gruppning",
+      "filtrering",
+      "vårdplan",
+      "aktiviteter",
+      "ambulanskontakter"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "Vårdprogramvara",
+      "Patienthantering",
+      "COSMIC",
+      "Översiktsfönster"
+    ],
+    "clinical_domain": [
+      "vårdadministration",
+      "patientinformation",
+      "akutvård",
+      "ambulans"
+    ],
+    "text": "Fönstret ger en strukturerad och övergripande överblick över en enhets patienter. Innehållet bestäms och konfigureras av varje enhet och presenteras i tabellform. När fönstret används inom sluten vård så visas flikarna Pågående kontakter, Bokade kontakter , Förflyttningar och Avslutade kontakter . När fönstret används inom akutvård så visas flikarna Pågående kontakter, Avslutade kontakter och Förflyttningar. Om ambulansintegrationen är konfigurerad visas även fliken Ambulanskontakter. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 10(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. I tabellerna visas patientinformation, alltifrån grundläggande patientuppgifter till prioriteringsorsaker, aktiviteter, provresultat, specialistremisser, prioritet m.m. Kolumnernas ordning kan ändras och det går att ändra sorteringsordning genom att klicka p å önskad kolumnrubrik. Innehållet kan grupperas på valt alternativ i listrutan Gruppering . Via högerklicksalternativ kan andra fönster öppnas, t.ex. Prioritet , Vårdkontakt sinformation , Aktiviteter/Att göra – Patient och Patientlogg . Fönstren kan även öppna s via knapparna längst ner i fönstret. Ovanför tabellen visas en filtreringsarea med ett antal listrutor. De används för att specificera vad som ska visas i tabellen, t.ex. information för en viss enhet. En tabell kan sorteras, organiseras om och grupperas på olika sätt, t.ex. på prioritetsnivå (gäller endast på akutavdelningar)."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Sluten vård",
+    "page": 1,
+    "section_id": "3.2.2",
+    "main_section_id": 3,
+    "context_summary": "Beskriver hur man planerar och hanterar utskrivningsdatum i sluten vård via dialogfönster, inklusive alternativ för eventuell eller säker utskrivning och hanterar varningsikoner när datumet är dagens datum eller senare.",
+    "keywords": [
+      "sluten vård",
+      "planerat utskrivningsdatum",
+      "dialogfönster",
+      "Eventuell utskrivning",
+      "Säker utskrivning",
+      "varningsikon",
+      "Planerad utskrivning",
+      "tillägg",
+      "Kommentar",
+      "datumförfall"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "vård",
+      "utskrivning",
+      "planering",
+      "gränssnitt",
+      "varningssystem"
+    ],
+    "clinical_domain": [
+      "inomhusvård"
+    ],
+    "text": "Vid arbete inom sluten vård kan planerat utskrivningsdatum läggas till i dialogfönstret Redigera planerad utskrivning , som öppnas via kolumnen Planerad utskrivning antingen med ett högerklicksalternativ eller genom att dubbelklicka . Via alternativ knappar kan man markera om utskrivningen är en Eventuell utskrivning () eller en Säker utskrivning (). Dessa alternativ visas med motsvarande ikon i kolumnen Planerad utskrivning tillsammans med det angivna planerade datumet. I dialogfönstret är det möjligt att lägga till en kommentar i textfältet Tillägg , denna kommentar visas då också i kolumnen Planerad utskrivning . Varningsikonen visas om det planerade utskrivningsdatumet är dagens datum eller senare och inget val har gjorts dvs det förvalda alternativet Inte utvärderat är markerat . Ikonen indikerar att informationen om det planerade utskrivningsdatumet behöver uppdateras , antingen genom att välja eventuell/säker utskrivning eller genom att ändra det planerade utskrivningsdatumet till en framtida tidpunkt. Varningsikonen förblir oförändrad tills ett val har gjorts. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 11(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Mödrahälsovård",
+    "page": 1,
+    "section_id": "3.2.3",
+    "main_section_id": 3,
+    "context_summary": "I mödrahälsovården används fliken Pågående anslutningar för att följa upp gravida patienter. Fliken visar kolumner som personnummer, namn, ålder, ansvarig personal, team, medicinska enheter, kommentar, startdatum samt information om förlossning som BP, trimester, graviditetens längd, program och partus. Kolumnerna kan filtreras, grupperas och sorteras.",
+    "keywords": [
+      "personnummer",
+      "namn",
+      "ålder",
+      "ansvarig vårdpersonal",
+      "team",
+      "medicinska ansv. enhet",
+      "vårdande enhet",
+      "kommentar",
+      "startdatum",
+      "BP",
+      "trimester",
+      "graviditetens längd",
+      "program",
+      "partus",
+      "förlossning",
+      "flerfödsel",
+      "filtrera",
+      "gruppere",
+      "sortera"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Mödrahälsovård",
+      "Patientinformation",
+      "Anslutningar",
+      "Kolumner",
+      "Flik",
+      "Förlossning",
+      "Graviditet"
+    ],
+    "clinical_domain": [
+      "Obstetrik",
+      "Primärvård",
+      "Graviditet",
+      "Vårdgivare"
+    ],
+    "text": "Inom mödrahälsovård används fliken Pågående anslutningar för att möjliggöra uppföljning av en mottagnings gravida patienter. Vilka kolumner som visas i denna flik och deras ordningsföljd beror på hur de har konfigurerats och kan därför variera mellan olika mottagningar. Följande kolumner med patientinformation kan visas i fliken. Kolumnnamn Beskrivning Personnummer Visar patientens personnummer. Namn Visar patientens namn. Ålder Visar patientens aktuella ålder. Ansvarig vårdpersonal Visar ansvarig vårdpersonal (barnmorska) för anslutningen. Team Visar ansvarigt team för respektive patient. Ansvarigt team tilldelas direkt i kolumnen. Medicinsk ansv. enhet Visar den medicinskt ansvariga enheten för anslutningen. Vårdande enhet Visar vårdande enhet för anslutningen. Kommentar Här finns möjlighet att skriva och visa en fritextkommentar för respektive patient. Startdatum Datum för anslutningens start. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 12(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Kolumnnamn Beskrivning BP Datum för beräknad partus. Metod för beräkning visas i tooltip. Trimester Beräknat värde (1, 2 eller 3) utifrån graviditetslängd. Inget värde innebär att patienten är förlöst eller att graviditeten är avbruten (vid abort eller missfall). Tid. förl. Antal tidigare genomgångna förlossningar. Dokumenteras för graviditeten genom en journalanteckning. Grav.längd Visar patientens aktuella graviditetslängd i veckor + dagar. Metod för beräkning visas i tooltip. Program Dokumenteras genom en journalanteckning i samband med riskbedömning för graviditeten och uppdateras också genom en journalanteckning vid behov. Möjliga värden motsvarande ’Basprogram’ respektive ’Utökat basprogram’. Partus Visar datum och tid för förlossning samt den/de nyföddas kön. Flerfödsel indikeras t.ex. genom \"+1\" i aktuell cell och genom att föra muspekaren över cellen visas en lista över datum och tid för alla nyfödda barn för den aktuella patienten Liksom i övriga flikar är det möjligt att filtrera i nformationen i tabellen via listrutor och även gruppera den via listrutan Gruppering . Det är också möjligt att sortera innehållet i respektive kolumn."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Kolumner för förlossning",
+    "page": 1,
+    "section_id": "3.2.4",
+    "main_section_id": 3,
+    "context_summary": "Den här avsnittet beskriver vilka kolumner som finns tillgängliga i fliken Pågående kontakter när Enhetsöversikt används på förlossningsavdelningen, samt vad varje kolumn visar – risk‑ och tidsspecifik information, förlossningshistorik, gravida längd och olika händelser som patologisk blödning, vattenavgång och partus.",
+    "keywords": [
+      "förlossning",
+      "kolumner",
+      "pågående kontakter",
+      "risk",
+      "tid",
+      "antal förlossningar",
+      "graviditetslängd",
+      "patologisk blödning",
+      "partus",
+      "vattenavgång",
+      "Rh‑faktor",
+      "fostervatten",
+      "COSMIC"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Förlossning",
+      "Klinikdata",
+      "Patientövervakning",
+      "Kliniska kolumner",
+      "Beredskap"
+    ],
+    "clinical_domain": [
+      "Obstetrik",
+      "Perinatalvård",
+      "Klinisk datahantering"
+    ],
+    "text": "Kolumnerna är enbart tillgängliga i fliken Pågående kontakter när fönstret Enhetsöversikt används inom förlossningsavdelningen och om de är konfigurerade att visas. Kolumnnamn Beskrivning Risk Senast dokumenterade risknivån. Tid. förl. Antal tidigare förlossningar. Grav.längd Aktuell graviditetslängd. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 13(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Kolumnnamn Beskrivning Patologisk blödning Ikonen visas om patologisk blödning registrerats för en patient. BP Datum för beräknad partus. Rh Rh-faktor. Vattenavg. Datum och tid för vattenavgång samt aktuell kvalitet på fostervatten. Partus Datum och tid för förlossning. Vid flerbörd visas utökad information i tooltip. För information om hur respektive värde dokumenteras hänvisas till COSMIC Birth – Introduktion & Användarmanual."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Kolumner för psykiatrisk vård",
+    "page": 1,
+    "section_id": "3.2.5",
+    "main_section_id": 3,
+    "context_summary": "Beskrivning av vilka kolumner som är tillgängliga i Enhetsöversikt för psykiatrisk vård, vilken information de visar och hur man öppnar Aktivitetshanteraren i fönstret.",
+    "keywords": [
+      "Kolumner",
+      "psykiatrisk vård",
+      "Enhetsöversikt",
+      "Vårdform",
+      "Nästa aktivitet",
+      "Restriktioner",
+      "Tillsynsgrad",
+      "Säkerhetsklass",
+      "Permission",
+      "Frigång",
+      "Aktivitetshanterare"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Psykiatrisk vård",
+      "Enhetsovervakning",
+      "Kolumner",
+      "Aktivitetshantering"
+    ],
+    "clinical_domain": [
+      "psykiatri"
+    ],
+    "text": "Kolumnerna är enbart tillgängliga när fönstret Enhetsöversikt används inom psykiatrisk vård och om de är konfigurerade att visas. Psykiatrikolumnerna visas i fönstret Enhetsöversikt och under fliken Pågående kontakter: • Vårdform • Nästa aktivitet • Restriktioner • Tillsynsgrad • Säkerhetsklass • Permission • Frigång COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 14(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Det är möjligt att öppna fönstret Aktivitetshanterare genom att dubbelklicka på någon av kolumnerna. Det går också att använda högerklicksalternativet Aktivitetshanterare förutom i kolumnen Vårdform , eller klicka på snabbknappen Aktivitetshanterare längst ner i fönstret."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Kolumnen Läkemedel",
+    "page": 1,
+    "section_id": "3.2.6",
+    "main_section_id": 3,
+    "context_summary": "Denna sektion beskriver hur kolumnen för läkemedel i COSMIC Unit Overview visar planerade, missade och pågående utdelningstillfällen, samt vilka symboler, verktygstips och funktioner som är tillgängliga för användaren. Det framgår också hur informationen uppdateras och vilka läkemedelstyper som gäller.",
+    "keywords": [
+      "kolumn",
+      "läkemedel",
+      "utdelningstillfälle",
+      "planerad",
+      "missad",
+      "röd färg",
+      "akutmottagning",
+      "infusion",
+      "inhalation",
+      "transfusion",
+      "enteral nutrition",
+      "tooltip",
+      "Utdelningsvy",
+      "TaskService",
+      "patientinformation"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Enhetsöversikt",
+      "Läkemedelshantering",
+      "Patientinformation",
+      "Applikation",
+      "Klinisk vägledning"
+    ],
+    "clinical_domain": [
+      "Akutsjukvård",
+      "Klinisk farmaci",
+      "Patientvård",
+      "Vårdinstitution"
+    ],
+    "text": "Kolumnen Läkemedel kan användas på akutmottagningar, såväl som på andra avdelningar. När den här kolumnen är konfigurerad och det finns något utdelningstillfälle som har planerats att ges inom de närmaste 6 timmarna visas den tid då nästa utdelningstillfälle är planerat att ges för respektive patient. Om det planerade utdelningstillfället har missats, indikeras det av den tid som visas i röd färg. Kolumnen visar endast ett utdelningstillfälle, antingen planerat eller missat. Exempel: Utdelningstillfället som var planerat att ges klockan 8.00 har missats och nästa utdelningstillfälle är kl. 12.00. I det här scenariot visas 8.00 med röd färg i kolumnen. När det missade tillfället administrerats visas 12.00 i kolumnen. Om det finns fler än ett missat eller planerat tillfälle visas endast den tidigaste missade tiden eller den senaste planerade tiden, till exempel: • Om två utdelningstillfällen har missats kl. 7.00 och 8.00 och den aktuella tiden är 10.00, visas 7.00 i kolumnen. • Om två utdelningstillfällen har planerats kl. 12.00 och 13.00 och den aktuella tiden är 10.00, visas 12.00 i kolumnen. Om ett utdelningstillfälle har missats i mer än 6 timmar kommer den tiden inte längre att visas i kolumnen och i stället om patienten har ett planerat utdelningstillfälle inom de närmaste 6 timmarna, kommer den tiden att visas. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 15(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om patienten har ett pågående utdelningstillfälle som inhalation, infusion, transfusion eller enteral nutrition, visas ikonen . När det tillfället är administrerat/avslutat försvinner ikonen från kolumnen. När det finns en tid och/eller ikon i kolumnen visas även ett tooltip till kolumnen med någon av följande texter: • Nästa utdelningstillfälle kl. 12.00 • Missat utdelningstillfälle 12:00 • Pågående utdelningstillfälle Om nästa utdelningstillfälle är av ordinationstypen Vid behov , så kommer tiden att visas i kursiv stil tillsammans med texten ”vb”, t.ex. ” 08.00 vb”. När tiden har passerats för en Vid behov -utdelning och om läkemedlet inte ges till patienten, så kommer denna information att tas bort från kolumnen en minut efter den tidpunkt då läkemedlet var tänkt att ges. Om det finns ett annat utdelningstillfälle planerat inom de närmaste 6 timmarna, så ko mmer den informationen att visas i kolumnen istället. Vilket läkemedel som ska ges visas inte i tooltip och man måste öppna fliken Utdelningsvy för att veta vilket läkemedel som ska ges eller är pågående. För att öppna fliken Utdelningsvy , går det att dubbelklicka eller högerklicka på kolumnen Läkemedel och välja högerklicksalternativet Utdelningsvy . En ny snabbknapp kallad Utdelningsvy finns också och när den snabbknappen är konfigurerad kan den användas för att öppna fliken Utdelningsvy . Informationen som visas i kolumnen Läkemedel är patientspecifik vilket innebär att om patienten flyttas från en enhet till en annan, kommer den nya enheten också att se om patienten har ett planerat/missat tillfälle och/eller ett pågående utdelningstillfälle. Endast informationen om de behandlingar s om administreras av enheter beaktas. De läkemedelstyper som beaktas är följande: • Tablett • Injektion • Inhalation • Infusion • Transfusion • Enteral nutrition Läkemedelsbehandlingar av typen förskrivning beaktas inte. För att den senaste läkemedelsinformationen ska visas i fönstret Enhetsöversikt körs en TaskService dagligen under de minst upptagna timmarna på dagen. Under den tiden kommer kolumnen Läkemedel vara tom för alla patienter i översikten. Informationen kommer visas igen efter några minuter då arbetet gått färdigt. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 16(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Till skillnad från andra kolumner kommer inte ändringar att visas direkt. När ett läkemedel är administrerat kommer inte nästkommande utdelningstillfälle visas direkt utan uppdateras när översikten automatuppdateras inom 30 - 60 sekunder. När kolumnen Läkemedel används på akutmottagningen kommer endast de läkemedel som ordineras där att visas."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Bildskärmar",
+    "page": 1,
+    "section_id": "3.2.7",
+    "main_section_id": 3,
+    "context_summary": "Fönstret med reducerat innehåll kan visas på väggmonterade bildskärmar i korridorer, receptioner eller väntrum och ger snabb tillgång till patientinformation, prioritering, plats, laboratoriefall och väntetider.",
+    "keywords": [
+      "bildskärm",
+      "korridor",
+      "reception",
+      "patientinformation",
+      "prioritering",
+      "väntetid",
+      "laboratoriefall",
+      "väntrum",
+      "intranät",
+      "Internet"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Utrustning",
+      "Visuell presentation",
+      "Patientinformation",
+      "Laboratorie",
+      "Våtrum"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Laboratorie",
+      "Informationshantering"
+    ],
+    "text": "Fönstret , med reducerat och avpersonifierat innehåll, kan även visas på väggmonterade bildskärm ar som placerats i korridorer, receptioner eller andra allmänna lokaler. Det kan då använd as för snabb tillgång till patientinformation, prioritetsnivå, plats, laboratoriesvar, etc . En enhets väntetid för att träffa en läkare kan visas på en skärm i ett väntrum, på intranät eller Internet. Enheter bestämmer vad som ska visas och hur, t.ex. det totala antalet patienter med eller utan satt prioritetsnivå."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Arbetsbelastning",
+    "page": 1,
+    "section_id": "3.2.8",
+    "main_section_id": 3,
+    "context_summary": "Om en enhets arbetsbelastning ökar, indikeras detta med ikon, och man kan öppna ett fönster som visar orsaker och åtgärder för planering och beslutsstöd. Systemet loggar och föreslår åtgärder vid olika beredskapsnivåer.",
+    "keywords": [
+      "arbetsbelastning",
+      "ikon",
+      "Verksamhetsbelastning",
+      "planering",
+      "organisation",
+      "beslutsstöd",
+      "beredskapsnivå",
+      "normal",
+      "förhöjd belastning",
+      "åtgärder",
+      "loggning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Enhet",
+      "Arbetsbelastning",
+      "Funktionell kontroll",
+      "Planering och beslutsstöd",
+      "Loggning"
+    ],
+    "clinical_domain": [
+      "Klinisk beslutsstöd",
+      "Vårdsystem",
+      "Hälso- och sjukvård"
+    ],
+    "text": "Om en enhets aktuella arbetsbelastning ökar signaleras det med ikon en i övre högra hörnet. Bredvid denna ikon visas knappen Verksamhetsbelastning . Via den knappen kan ett fönster öppnas som ger info rmation om orsak och åtgärd . Det kan använd as för planering, organisation och beslutsstöd. Ett antal beredskapsnivåer används, N = normal och 1–3 = förhöjd belastning. Om en nivå höjs presenteras en anledning till nivåbytet och systemet föreslår möjliga åtgärder samt loggar informationen . COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 17(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Fönstret Prioritet",
+    "page": 1,
+    "section_id": "3.3",
+    "main_section_id": 2,
+    "context_summary": "Denna sektion förklarar hur prioriteringsfönstret i COSMIC Unit Overview används för att hantera vitalparametrar, prioritetsnivåer med RETTS/EWS, föreslagna åtgärder och hur patienter kan hänvisas samt dokumenteras.",
+    "keywords": [
+      "prioritet",
+      "vitalparametrar",
+      "triagering",
+      "EWS",
+      "RETTS",
+      "fönster",
+      "förslag",
+      "hänvisning",
+      "patient",
+      "journal",
+      "bedömning",
+      "rekonstruktionsnivå",
+      "bedömningssystem"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Prioritering",
+      "Viktiga parametrar",
+      "Triagering",
+      "Patientöverföring",
+      "Fönsterhantering"
+    ],
+    "clinical_domain": [
+      "Akutvård",
+      "Triagering",
+      "Patientöverföring"
+    ],
+    "text": "Fönstret öppnas från fönstret Enhetsöversikt , antingen via knappen Priorite ring eller som högerklicksalternativ i tabellkolumnen PRIO . Överst visas en filtreringsarea följt av en arbetsarea där information om vitalparametrar, prioritet och föreslagna åtgärder kan hanteras. Informationen används som ett beslutsstöd vid triagering när en patient anländer till enheten och vid senare omprioriteringar. Prioriteringsorsak styr den visade prioritetsinformationen samt föreslagna åtgärder. Via visas allmän information om prioriteringsorsak en och ikonen kan ge tillgång till externa/interna länkar för kompletterande information gällande den valda prioriteringsorsak en. De allmänna åtgärder som är relaterade till orsaken till besöket och de nivåspecifika åtgärder som föreslås för den valda prioriteten visas i fältet Föreslagna åtgärder . Det går att hänvisa en patient till en vårdcentral genom att klicka på knappen Hänvis ning samt fylla i uppgifter i dialogfönstret som då visas. Patientinstruktioner kan anges och skrivas ut. När en patient hänvisas, avsluta s vårdkontakten. För att snabbt avgöra graden av sjukdom kan olika triageringsmetoder användas. Prioritet kan sättas med metoderna RETTS eller EWS . De baseras på vitalparametrar , som kan hämtas via knappen Hämta senaste värden eller matas in manuellt , samt prioriteringsorsak . Om EWS används baseras den rekommenderade prioritetsnivån på totalpoängen. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 18(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Informationen märks med version för att kunna se ändringar över tid. Tidigare versioner av signerade prioriteringar visas om kryssrutan Visa tidigare prioriteringar markeras. En signerad prioritet sparas i en patients journal. Om så konfigurerat av administratör kan systemet välja en rekommenderad prioritetsnivå . Noteras bör att själva beslutet dock alltid måste tas av den som signerar prioriteten. En lägre nivå än den föreslagna kräver motivering. Varje prioritetsnivå har en definierad tidsperiod under vilken patienten prioriteras eller tas om hand. Prioriteten registreras i COSMIC så snart ett fönster signerats. En ny nedräkning startas varje gång en prioritet ändras med utgångspunkt från när den signerades. Det går att lägga till h jälptexter och journalanteckningar samt visa föreslagna åtgärder ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Fönstret Vårdkontakt sinformation",
+    "page": 1,
+    "section_id": "3.4",
+    "main_section_id": 2,
+    "context_summary": "I fönstret 'Vårdkontakt sinformation' kan man, via Enhetsöversikt, skapa, uppdatera och avsluta vårdkontakter samt se information om läkare, vårdtyngd, sekretess och statistik. Fönstret används för öppen vård och vid slutenvård för att hantera uppgifter i Enhetsöversikt.",
+    "keywords": [
+      "vårdkontakt",
+      "fönster",
+      "Enhetsöversikt",
+      "skapa",
+      "uppdatera",
+      "avsluta",
+      "läkare",
+      "vårdtyngd",
+      "sekretess",
+      "statistik",
+      "öppen vård",
+      "slutenvård"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "systemfunktion",
+      "arbetsflöde",
+      "vårdkontakt",
+      "datahantering"
+    ],
+    "clinical_domain": [
+      "Vård",
+      "Patientdata",
+      "Klinisk hantering"
+    ],
+    "text": "Fönstret öppnas från fönstret Enhetsöversikt , via högerklicksalternativet Vårdkontaktsinformation i någon av tabellkolumnerna eller via knappen Kontaktinfo . Dessa alternativ är endast valbara om fönstret Enhetsöversikt används inom öppen vård. Fönstret används för att skapa, uppdatera och avsluta vårdkontakter. Det visar information om t.ex. val av läkare, vårdtyngd, sekretess och märkning för statistisk uppföljning. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 19(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Slutenvårdsenheter hanterar vårdkontakt sinformation i fönstret In- och utskrivning och angivna uppgifter visas sedan i fönstret Enhetsöversikt , t.ex. inskrivning, överflyttning, vårdtyngd, frånvaro och utskrivning."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Fönstret Att göra – Patient",
+    "page": 1,
+    "section_id": "3.5",
+    "main_section_id": 2,
+    "context_summary": "Fönstret visar alla planerade, pågående och utförda aktiviteter för en vald patient och dag, samt tillåter att starta, stoppa, kontrollera checklistor och kliniska parametrar och planera nya aktiviteter via beställningsknappen.",
+    "keywords": [
+      "aktiviteter",
+      "planerade",
+      "pågående",
+      "utförda",
+      "start",
+      "stopp",
+      "checklista",
+      "klinisk parameter",
+      "patient",
+      "fönster",
+      "beställning",
+      "planering",
+      "försenade",
+      "tidsangivelse"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Funktioner",
+      "Patient",
+      "Aktiviteter",
+      "Planering",
+      "Gränssnitt"
+    ],
+    "clinical_domain": [
+      "Allmänt vård",
+      "Patienthantering",
+      "Vårdplanering"
+    ],
+    "text": "I detta fönster kan man starta och utföra planerade aktiviteter samt utföra pågående aktiviteter. Fönstret kan öppnas från fönstret Enhetsöversikt för vald kontakt genom att dubbelklicka på kolumnen Aktiviteter , välja högerklicksalternativet Aktiviteter , klicka på knappen Aktiviteter eller använda kortkommando Alt + A . Fönstret visar alla planerade, pågående och utförda aktiviteter för en vald patient och dag. Följande typer av aktiviteter visas i detta fönster: • Uppgifter: • Start/Stopp • Checklista • Kliniska parametrar Aktivitetens status indikeras via följande ikoner med tillhörande tooltip : • Planerad aktivitet . Patienten har en eller flera planerade aktiviteter. • Planerad aktivitet som missats , klockslaget visas i röd text. Patienten har en eller flera aktiviteter som har missats. • Pågående aktivitet . Patienten har en eller flera pågående aktiviteter. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 20(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. • Utförd aktivitet . Patienten har utfört en eller flera aktiviteter inom de senaste åtta timmarna. Om man för mus pekaren över aktuell ikon i kolumnen Aktiviteter i fönstret Enhetsöversikt visas e tt tooltip med information om missade, planerade, pågående och utförda aktiviteter inom de senaste åtta timmarna . För att planera nya aktiviteter måste man klicka på knappen för att öppna fönstret Beställning . Det är möjligt att se förkortningar na av de planerade och pågående aktiviteterna om detta är konfigurera t av en a dministratör . COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 21(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Fönstret Patientlogg",
+    "page": 1,
+    "section_id": "3.6",
+    "main_section_id": 2,
+    "context_summary": "Fönstret Patientlogg öppnas från Enhetsöversikt och visar en patients aktiviteter i läsläge, med olika vyer (Patientlogg, Kronologisk logg, Nuläge).",
+    "keywords": [
+      "patientlogg",
+      "enhetsöversikt",
+      "översikt",
+      "aktiviteter",
+      "läsläge",
+      "vyer",
+      "kronologisk logg",
+      "nuläge",
+      "COSMIC",
+      "Cambio Healthcare Systems"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Patientlogg",
+      "Översikt",
+      "Kronologisk logg",
+      "Nulägesvisning",
+      "Enhetsöversikt"
+    ],
+    "clinical_domain": [
+      "Patientövervakning",
+      "Vårdsystem",
+      "Patientjournal"
+    ],
+    "text": "Fönstret öppnas från fönstret Enhetsöversikt via knappen Patientlogg eller som högerklicksalternativ i någon av tabell kolumnerna . Fönstret ger en översikt över en patients aktiviteter under den tid vårdkontakten pågår. Informationen visas i läsläge. I trädvyn kan olika vyer väljas som Patient logg , Kronologisk logg eller Nuläge . COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 22(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 4 Instruktioner"
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Registrera Early Warning Score (EWS)",
+    "page": 1,
+    "section_id": "4.1.1",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att registrera Early Warning Score (EWS) i enhetsöversikt – öppna fönstret, välj kontakter, dubbelklicka eller välj Ny EWS, fyll i parametrar, signera, och visa poäng för MEWS eller NEWS med färgindikation.",
+    "keywords": [
+      "Early Warning Score",
+      "MEWS",
+      "NEWS",
+      "enhetsöversikt",
+      "patient",
+      "kontakter",
+      "signera",
+      "parametrar",
+      "poäng"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientövervakning",
+      "Early Warning Score",
+      "Enhetsöversikt",
+      "Kontakter",
+      "Signering"
+    ],
+    "clinical_domain": [
+      "Patientövervakning",
+      "Säkerhet i vården"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt 2. Välj fliken Pågående kontakter . 3. För vald patient, dubbelklicka i cellen i kolum nen EWS , alternativt eller välj högerklicksalternativet Ny EWS . 4. Fyll i parametervärden i fönstret Registrera kliniska parametrar , fyll i parametervärden i de olika fälten. 5. Klicka på knappen Signera . Om MEWS används visas endast poängen i fönstret Enhetsöversikt och om NEWS används visas poängen tillsammans med en färgindikation ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Byta säng plats",
+    "page": 1,
+    "section_id": "4.1.2",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att byta patientens sängplats i Enhetsöversikt – öppna fönstret, dubbelklicka i platskolumnen eller högerklick, välj önskad plats eller \"(Ingen)\" och dialogen stängs automatiskt.",
+    "keywords": [
+      "sängplats",
+      "Enhetsöversikt",
+      "patient",
+      "dubbelklick",
+      "högerklick",
+      "dialogfönster",
+      "spara",
+      "tabellkolumnen",
+      "Ingen"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "patienthantering",
+      "enhetssystems",
+      "platsuppdatering",
+      "sängbyte",
+      "interaktivt gränssnitt"
+    ],
+    "clinical_domain": [
+      "sjukhusadministration",
+      "patientvård"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. För vald patient, dubbelklicka i cellen under kolumnen Plats , alternativt välj högerklicksalternativet Plats . 3. I dialogrutan Plats , markera önskad säng plats eller alternativet ’(Ingen) ’. Dialogfönstret stängs automatiskt, informationen sparas och visas i tabellkolumnen Plats ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Lägga till kommentar på en säng plats",
+    "page": 1,
+    "section_id": "4.1.3",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att lägga till en kommentar på en sängplats i Enhetsöversikt.",
+    "keywords": [
+      "kommentar",
+      "sängplats",
+      "Enhetsöversikt",
+      "redigera",
+      "spara",
+      "flik",
+      "klicka"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "sängplats",
+      "kommentar",
+      "Enhetsöversikt",
+      "systemhantering"
+    ],
+    "clinical_domain": [
+      "sjukhusadministration",
+      "patientvård",
+      "sängadministration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Pågående kontakter . 3. Markera den rad i tabellen där kommentar önskas läggas till. 4. I kolumnen Plats , välj högerklicks alternativet Kommentar . 5. Lägg till önskad kommentar i dialogrutan Redigera kommentar . 6. Klicka på knappen Spara. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 23(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Markera patienten som trolig inskrivning",
+    "page": 1,
+    "section_id": "4.1.4",
+    "main_section_id": 3,
+    "context_summary": "Steg för att öppna Enhetsöversikt, välja pågående kontakter, markera rutan för nuvarande vårdkontakt och sedan flagga den som trolig inskrivning via högerklick.",
+    "keywords": [
+      "Enhetsöversikt",
+      "Pågående kontakter",
+      "vårdkontakt",
+      "förflyttning",
+      "trolig inskrivning",
+      "högerklick",
+      "val"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "vårdinläggning",
+      "patienthantering",
+      "Elektronisk patientjournal",
+      "förflyttning"
+    ],
+    "clinical_domain": [
+      "vårdinläggning",
+      "överföring",
+      "patientadministration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Pågående kontakter . 3. Markera raden för den aktuella vårdkontakten. 4. I tabellkolumnen Förflyttning , välj högerklicksalternativet Markera trolig inskrivning ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Planera en förflyttning",
+    "page": 1,
+    "section_id": "4.1.5",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg-instruktion för att ändra en redan planerad förflyttning i systemet, från öppning av Enhetsöversikt till att spara.",
+    "keywords": [
+      "förflyttning",
+      "planera",
+      "ändra",
+      "konsult",
+      "dialogfönster",
+      "spara",
+      "enhetsöversikt",
+      "kontakter"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "förflyttning",
+      "administration",
+      "patienthantering",
+      "arbetsflöde",
+      "systemanvändning"
+    ],
+    "clinical_domain": [
+      "Vårdplanering",
+      "Patientflyttning",
+      "Sjukvard",
+      "Klinisk administration"
+    ],
+    "text": "Om en redan planerad förflyttning ska ändras, följ steg 3 -7. Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Pågående kontakter. 3. Markera raden för den aktuella vårdkontakten. 4. I tabellkolumnen Förflyttning , dubbelklicka i den markerade cellen eller välj högerklicksalternativet Planera förflyttning . 5. I dialogfönstret Planera förflyttning , välj förflyttning salternativ under rubriken Typ av förflyttning . Ikonen beskriver skillnaderna mellan förflyttningstyperna . 6. Fyll i all nödvändig information i resten av dialogrutan (Beroende på vilken typ av förflyttning som valts, så kommer innehållet som ska fyllas i att skilja sig åt). 7. Klicka på knappen Spara ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Utföra en planerad eller direkt förflyttning",
+    "page": 1,
+    "section_id": "4.1.6",
+    "main_section_id": "3",
+    "context_summary": "Steg-för-steg-instruktion för att öppna Enhetsöversikt, välja pågående kontakt, och genomföra en förflyttning via dialogfönstret. Texten täcker både planerad och direkt förflyttning samt hur man fyller i nödvändig information.",
+    "keywords": [
+      "förflyttning",
+      "Öppna",
+      "fönstret Enhetsöversikt",
+      "Välj",
+      "Pågående kontakter",
+      "markera",
+      "tabellkolumn",
+      "högerklicksalternativ",
+      "dialogfönstret",
+      "Klicka"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Enhetsöversikt",
+      "Förflyttning",
+      "Process",
+      "Administration",
+      "Patientvård"
+    ],
+    "clinical_domain": [
+      "Patientöverföring",
+      "Sjukhusadministration",
+      "Vårdkontakt"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Pågående kontakter. 3. Markera raden för den aktuella vårdkontakten. 4. I tabellkolumnen Förflyttning , i den redan markerade cellen, välj högerklicksalternativet Förflytta nu . 5. I dialogfönstret Förflytta , välj förflyttning salternativ under rubriken Typ av förflyttning . Ikonen beskriver skillnaderna mellan förflyttnings typerna. Förflyttningsalternativet Annat sjukhus går enbart att planera och utföra i ett steg och finns därför inte tillgänglig som en direkt förflyttning . COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 24(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 6. Fyll i all nödvändig information i resten av dialogrutan . Beroende på vilken typ av förflyttning som valts, så kommer innehållet som ska fyllas i att skilja sig åt. 7. Klicka på knappen Förflytta nu ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Utföra en planerad förflyttning via fliken Förflyttningar",
+    "page": 1,
+    "section_id": "4.1.7",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att utföra en planerad förflyttning via fliken Förflyttningar i Enhetsöversikt.",
+    "keywords": [
+      "förflyttning",
+      "förflytta nu",
+      "enhetsöversikt",
+      "planerad förflyttning",
+      "dialogfönstret",
+      "information",
+      "typ"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "enhet",
+      "förflyttningar",
+      "planering",
+      "drift",
+      "operationssystem"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Förflyttningar . 3. Under rubrik raden Planerade förflyttningar , markera raden med den planerade förflyttning som ska utföras. 4. Klicka på knappen Förflytta nu , i den första tabellkolumnen. 5. I dialogfönstret Förflytta , fyll i all nödvändig information . (Beroende på vilken typ av förflyttning som valts, så kommer innehållet i rutan se något olika ut ). 6. Klicka på knappen Förflytta nu ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Ändra en planerad förflyttning via fliken Förflyttning",
+    "page": 1,
+    "section_id": "4.1.8",
+    "main_section_id": 3,
+    "context_summary": "Detta avsnitt beskriver hur man ändrar en planerad förflyttning genom fliken Förflyttning i Enhetsöversikt.",
+    "keywords": [
+      "förflyttning",
+      "enhetsöversikt",
+      "planera förflyttning",
+      "ändra",
+      "dialogfönster",
+      "spara"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "enhetsöversikt",
+      "förflyttningar",
+      "planering",
+      "manual",
+      "instruktion"
+    ],
+    "clinical_domain": [
+      "Patientflytt",
+      "Sjukvård",
+      "Transport"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt. 2. Välj fliken Förflyttningar. 3. Under rubrik raden Planerade förflyttningar , klicka på raden med den planerade förflyttning som ska ändras. 4. Klicka på knappen med ikonen . 5. I dialogfönstret Planera förflyttning , fyll i all nödvändig information. (Beroende på vilken typ av förflyttning som valts, så kommer innehållet i rutan se något olika ut). 6. Klicka på knappen Spara ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Ångra en planerad förflyttning via fliken Förflyttning",
+    "page": 1,
+    "section_id": "4.1.9",
+    "main_section_id": "3",
+    "context_summary": "När du vill avboka en planerad förflyttning i COSMIC, öppna Enhetsöversikt, gå till fliken Förflyttning och klicka på rutan med den planerade förflyttningen för att radera den via knappen.",
+    "keywords": [
+      "förflyttning",
+      "ångra",
+      "planerad",
+      "enhetsöversikt",
+      "COSMIC",
+      "raden",
+      "knapp",
+      "ta bort",
+      "rader"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Enhetsöversikt",
+      "Förflyttning",
+      "Ångra",
+      "Administration",
+      "COSMIC"
+    ],
+    "clinical_domain": [
+      "patientförflyttning",
+      "sjukvårdsadministration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt. 2. Välj fliken Förflyttning. 3. Under rubrik raden Planerade förflyttningar , klicka på raden med den planerade förflyttning som ska ångras. 4. Klicka på knappen med ikonen för att ta bort raden. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 25(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "I fönstret Att göra – Patient",
+    "page": 1,
+    "section_id": "4.1.10.1",
+    "main_section_id": 4,
+    "context_summary": "Instruktion för att öppna fönstret Att göra – Patient, genomföra en aktivitet, flytta den till avslutade och ångra vid behov.",
+    "keywords": [
+      "Öppna fönstret",
+      "Att göra – Patient",
+      "aktivitet",
+      "Utför",
+      "Avslutade",
+      "Ångra utför",
+      "Planerade och pågående",
+      "statusikon",
+      "knapp"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Enhetsöversikt",
+      "Patienthantering",
+      "Aktivitetsstyrning",
+      "Sjukvårdsprocess"
+    ],
+    "clinical_domain": [
+      "Patientvård"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Öppna fönstret Att göra – Patient t. ex via knappen Aktiviteter eller högerklicksalternativet i tabellkolumnen Aktiviteter . 3. I sektionen Planerade och pågående bocka av en aktivitet på ett av följande sätt: • Klicka på statusikonen för en planerad eller pågående aktivitet. • Expandera aktiviteten genom att klicka på raden eller ikonen. 4. Fyll i relevant information och klicka på knappen Utför . 5. Aktiviteten visas nu i sektionen Avslutade . 6. För att ångra en utförd aktivitet, klicka på aktivitetens ikon i sektionen Avslutade . 7. Välj alternativet Ångra utför . 8. Aktiviteten flyttas tillbaka till tidigare status och visas nu i sektionen Planerade och pågående ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Ange ansvarig läkare",
+    "page": 1,
+    "section_id": "4.2.1",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg instruktion för att välja eller tilldela ansvarig läkare i COSMIC‑enhetsöversiktsfönstret: öppna fönstret, gå till fliken Pågående kontakter, markera rätt rad och via antingen högerklick eller dubbelklick välja läkare, ange datum/tid och spara.",
+    "keywords": [
+      "ansvarig läkare",
+      "enhetsöversikt",
+      "kontakter",
+      "Läkare",
+      "Vårdpersonal",
+      "Spara",
+      "Dubbelklick",
+      "Min patient"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Operation",
+      "Läkaryrke",
+      "Vård",
+      "Patienthantering",
+      "Systemanvändning"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Medicinsk administration",
+      "Läkaryrke"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Pågående kontakter . 3. Markera raden för den aktuella vårdkontakten i tabellen. 4. I kolumnen Läkare , välj något av följande : • Välj högerklicksalternativet Min patient om avsikten är att tilldela sig själv som ansvarig läkare . • Dubbelklicka i cell en under kolumnen eller välj högerklicksalternativet Ange läkare om avsikten är att tilldela någon annan som ansvarig läkare. a. I dialogfönstret Vårdpersonal , välj lämpligt alternativ i listrutorna Läkare och Datum/Tid . b. Tryck på knappen Spara och stäng . COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 26(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Ange ansvarig sjuksköterska",
+    "page": 1,
+    "section_id": "4.2.2",
+    "main_section_id": 3,
+    "context_summary": "Steg för att tilldela eller ändra ansvarig sjuksköterska för en aktuell vårdkontakt i Enhetsöversikt: öppna fönstret, välja pågående kontakter, markera raden, i kolumnen 'Sjuksköterska' välja antingen själv (Min patient) eller någon annan (Ange ssk) via dubbelklick/högerklick; i dialogen Vårdpersonal välja namn och tidsangivelse, sedan spara och stänga.",
+    "keywords": [
+      "sjuksköterska",
+      "ansvarig",
+      "vårdkontakt",
+      "enhetsöversikt",
+      "Min patient",
+      "Ange ssk",
+      "förändra",
+      "vårdpersonal",
+      "Spara",
+      "datum/tid",
+      "fliken Pågående kontakter"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Vård",
+      "Personalansvar",
+      "Kontroll",
+      "Användarmanual",
+      "Systemanvändning"
+    ],
+    "clinical_domain": [
+      "Vårdpersonal",
+      "Kontakthantering",
+      "Patientvård",
+      "Sjukhusadministration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Pågående kontakter . 3. Markera raden för den aktuella vårdkontakten i tabellen. 4. I kolumnen Sjuksköterska , välj något av följande : • Välj högerklicksalternativet Min patient om avsikten är att tilldela sig själv som ansvarig sjuksköterska. • Dubbelklicka i cellen under kolumnen eller välj högerklicksalternativet Ange ssk om avsikten är att tilldela någon annan som ansvarig sjuksköterska. a. I dialogfönstret Vårdpersonal , välj lämpligt alternativ i listrutorna Sjuksköterska och Datum/Tid . b. Tryck på knappen Spara och stäng ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Prioritera patient",
+    "page": 1,
+    "section_id": "4.2.3",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg instruktion för att prioritera patient i enhetsöversiktssystemet, inklusive att öppna fönster, verifiera information, hämta eller ange värden, och signera.",
+    "keywords": [
+      "prioritering",
+      "enhetsöversikt",
+      "fönster",
+      "filter",
+      "värden",
+      "vitalparametrar",
+      "signera",
+      "kontakt",
+      "prioritet"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientbehandling",
+      "Prioritering",
+      "Arbetsflöde",
+      "Elektronisk journal"
+    ],
+    "clinical_domain": [
+      "Klinisk verksamhet",
+      "Sjukhusadministration",
+      "Patientövervakning"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Öppna fönstret Prioritet genom att klicka på knappen Prioritering . 3. I filtreringsarean, verifiera/uppdatera obligatorisk information (*) som t.ex. enheter, kontakttyp och prioriteringsorsak. 4. I arbetsarean: • För vitalparametrar, tryck på knappen Hämta senaste värden alternativt fyll i värden manuellt. • Ange övrig obligatorisk information som t.ex. diskriminatorer, prioritet, datum/tid samt eventuell prioriteringsnoteringar och ytterligare information. 5. Klicka på knappen Signera och stäng ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Via fönstret Enhetsöversikt",
+    "page": 1,
+    "section_id": "4.2.4.1",
+    "main_section_id": 4,
+    "context_summary": "Steg‑för‑steg‑instruktion för att avsluta en vårdkontakt via fönstret Enhetsöversikt i COSMIC‑systemet.",
+    "keywords": [
+      "Enhetsöversikt",
+      "avsluta kontakt",
+      "vårdkontakt",
+      "fliken Pågående kontakter",
+      "Anledning",
+      "Datum/Tid",
+      "Orsak till försening",
+      "COSMIC",
+      "Användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "enhetsöversikt",
+      "avsluta kontakt",
+      "vårdkontakt",
+      "användarmanual"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "administration",
+      "patienthantering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Pågående kontakter . 3. Markera raden för den aktuella vårdkontakten. 4. Högerklicka och välj alternativet Avsluta vårdkontakt eller tryck på knappen Avsluta kontakt. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 27(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 5. I dialogfönstret Avsluta kontakt , välj lämpligt alternativ i listrutorna Anledning och Datum/Tid. Listrutan Orsak till försening kommer enbart synas om planerad tid överskridits. 6. Tryck på knappen Avsluta kontakt ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Via fönstret Vårdkontakt sinformation",
+    "page": 1,
+    "section_id": "4.2.4.2",
+    "main_section_id": 4,
+    "context_summary": "Kort instruktionssekvens för hur man avslutar en vårdkontakt genom fönstret Vårdkontakt sinformation.",
+    "keywords": [
+      "avsluta kontakt",
+      "fönstret Vårdkontakt sinformation",
+      "tryck knapp",
+      "anledning",
+      "datum/tid",
+      "orsak till försening",
+      "planerad tid",
+      "dialogfönster"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "vårdkontakt",
+      "avsluta kontakt",
+      "UI-hantering",
+      "process",
+      "administration"
+    ],
+    "clinical_domain": [
+      "vårdadministration",
+      "patientservice",
+      "klinisk process"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Vårdkontakt sinformation . 2. Tryck på knappen Avsluta kontakt . 3. I dialogfönstret Avsluta kontakt, välj lämpligt alternativ i listrutorna Anledning och Datum/Tid. Listrutan Orsak till försening kommer enbart synas om planerad tid överskridits. 4. Tryck på knappen Avsluta kontakt ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Markera en vårdkontakt som trolig inskrivning",
+    "page": 1,
+    "section_id": "4.2.5",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att markera en vårdkontakt som trolig inskrivning i COSMIC Unit Overview.",
+    "keywords": [
+      "vårdkontakt",
+      "in‑skrivning",
+      "förflyttning",
+      "enhetsöversikt",
+      "pågående kontakter",
+      "markera",
+      "COSMIC"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Vård",
+      "Kontakter",
+      "Administration",
+      "System",
+      "Förflyttning"
+    ],
+    "clinical_domain": [
+      "Inskrivning",
+      "Hälsa",
+      "Sjukvård"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Pågående kontakter . 3. Klicka på raden för den aktuella vårdkontakten. 4. I tabell kolumnen Förflyttning , högerklick a i cellen och välj alternativet Markera trolig inskrivning . COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 28(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Ange ansvarig vårdpersonal",
+    "page": 1,
+    "section_id": "4.3.1",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg-instruktion för att tilldela ansvarig vårdpersonal via fönstret Enhetsöversikt, genom att välja fliken Pågående kontakter, markera den aktuella kontakten och välja antingen att själva bli ansvarig eller att välja någon annan via dialogfönstret Vårdpersonal.",
+    "keywords": [
+      "ansvarig vårdpersonal",
+      "enhetsöversikt",
+      "kontakter",
+      "Min patient",
+      "Ange ansvarig vårdpersonal",
+      "Vårdpersonal",
+      "Spara",
+      "stäng"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "enhetsöversikt",
+      "vårdpersonal",
+      "ansvar",
+      "kontakt",
+      "process",
+      "administration"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "personalhantering",
+      "administration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Pågående kontakter . 3. Markera raden för den aktuella vårdkontakten i tabellen. 4. I kolumnen Ansvarig vårdpersonal välj något av följande : • Välj högerklicksalternativet Min patient om avsikten är att tilldela sig själv som ansvarig vårdpersonal. • Dubbelklicka i cellen under kolumnen och välj högerklicksalternativet Ange ansvarig vårdpersonal , om avsikten är att tilldela någon annan som ansvarig vårdpersonal. a. I dialogfönstret Vårdpersonal , välj lämpligt alternativ i listrut an Ansvarig vårdpersonal . b. Tryck på knappen Spara och stäng ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Lägga till och ändra planerad utskrivning",
+    "page": 1,
+    "section_id": "4.3.2",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att lägga till eller ändra en planerad utskrivning i sluten vård via Enhetsöversikt; går igenom öppning av fönster, val av pågående kontakter, öppning av dialog, inmatning av datum/tid, val av typ (Eventuell eller Säker), eventuell kommentar, spara, och visning av ikon. Begränsning för samordningsärende. ",
+    "keywords": [
+      "planerad utskrivning",
+      "sluten vård",
+      "Enhetsöversikt",
+      "pågående kontakter",
+      "datum",
+      "tid",
+      "Säker utskrivning",
+      "Eventuell utskrivning",
+      "kommentar",
+      "spara",
+      "ikon",
+      "samordningsärende"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Vårdhantering",
+      "Utskrivning",
+      "Elektronisk vård",
+      "Patientinformation",
+      "Kärnhantering"
+    ],
+    "clinical_domain": [
+      "Vård och omsorg",
+      "Vårdplanering",
+      "Patientöverföring"
+    ],
+    "text": "Denna åtgärd är endast möjlig vid arbete inom sluten vård. Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Pågående kontakter . 3. Öppna dialogfönstret Redigera planerad utskrivning genom att d ubbelklicka i kolumnen Planerad utskrivning eller välj högerklicksalternativet Planerad utskrivning i samma kolumn. 4. Lägg till eller ändra datum och tid för Planerad utskrivning . 5. Välj om utskrivningen är en Eventuell utskrivning eller Säker utskrivning via alternativ knapparna. Det förvalda alternativet är Inte utvärderat och det är möjligt att spara datum och tid för planerad utskrivning även om inget annat val görs . 6. I textfältet Tillägg , skriv en kommentar om så önskas. 7. Klicka på Spara . 8. Det valda alternativet visas nu med en ikon i kolumnen Planerad utskrivning tillsammans med det angivna planerade datumet. För patienter med ett samordningsärende är det inte möjligt att ändra planerat utskrivningsdatum. COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 29(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Reservera en sängplats för en bokad vårdkontakt",
+    "page": 1,
+    "section_id": "4.3.3",
+    "main_section_id": 3,
+    "context_summary": "Kort instruktion för att reservera en sängplats i Enhetsöversikt genom att öppna fönstret, välja flik, dubbelklicka eller högerklicka och sedan välja önskad plats i dialogrutan.",
+    "keywords": [
+      "sängplats",
+      "reservera",
+      "bokad vårdkontakt",
+      "Enhetsöversikt",
+      "dialogruta",
+      "kolumn",
+      "Patient",
+      "Bokade kontakter"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Bokning",
+      "Vårdplanering",
+      "Sjukvårdsinformationssystem",
+      "Användarguide"
+    ],
+    "clinical_domain": [
+      "Vårdkoordination",
+      "Sjukvårdsadministration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt. 2. Välj fliken Bokade kontakter . 3. För vald patient, dubbelklicka i cellen i kolum nen Reserverad plats , eller välj högerklicksalternativet Reservera plats . 4. I dialogrutan Reservera plats , markera önskad sängplats. Dialogfönstret stängs då automatiskt, och informationen sparas och visas i tabellkolumnen Reserverad plats ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Reservera en sängplats för en pågående vårdkontakt",
+    "page": 1,
+    "section_id": "4.3.4",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg-instruktion för att reservera en sängplats i Enhetsöversikt för en pågående vårdkontakt.",
+    "keywords": [
+      "sängplats",
+      "reservera",
+      "enhetsöversikt",
+      "pågående kontakt",
+      "patient",
+      "dialogruta",
+      "reserverad plats"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patienthantering",
+      "Reservering",
+      "Vårdkontakt",
+      "Enhetsöversikt",
+      "Daglig drift"
+    ],
+    "clinical_domain": [
+      "Vård och vårdkontakt",
+      "Patienthantering",
+      "Sjukvård"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Pågående kontakter . 3. För vald patient, dubbelklicka i cellen i kolumnen Reserverad plats , eller välj högerklicksalternativet Reservera plats . 4. I dialogrutan Reservera p lats, markera önskad säng plats. Dialogfönstret stängs då automatiskt, och informationen sparas och visas i tabellkolumnen Reserverad plats ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Reservera en sängplats för en planerad förflyttning",
+    "page": 1,
+    "section_id": "4.3.5",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att reservera en sängplats i systemet genom fönstret Enhetsöversikt, genom att öppna förflyttningsfliken, välja rad, klicka på knappen, välja plats i dialogrutan och spara.",
+    "keywords": [
+      "sängplats",
+      "förflyttning",
+      "enhetsöversikt",
+      "reservera",
+      "planerad",
+      "klicka",
+      "dialogruta"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Uppgift: Reservera",
+      "Enhetsöversikt",
+      "Förflyttningar",
+      "Bostadsplanering"
+    ],
+    "clinical_domain": [
+      "Administration",
+      "Logistik",
+      "Bostadsplanering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt. 2. Välj fliken Förflyttningar. 3. Markera raden för den planerade förflyttningen. 4. I markerad rad, klicka på knappen i kolumnen Reserverad plats. 5. I dialogrutan Reservera plats , markera önskad sängplats. Dialogfönstret stängs då automatiskt, och informationen sparas och visas i tabellkolumnen Reserverad plats ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Markera vårdkontakt som flyttbar",
+    "page": 1,
+    "section_id": "4.3.6",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg-instruktion för att markera en patientkontakt som flyttbar i COSMIC enhetsöversikt.",
+    "keywords": [
+      "enhetsöversikt",
+      "vårdkontakt",
+      "flyttbar",
+      "Markera",
+      "Avmarkera",
+      "patient",
+      "dubbelklicka",
+      "kolumn"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "COSMIC",
+      "Vårdkontakter",
+      "Administrativa funktioner",
+      "Säkerhetsinställningar"
+    ],
+    "clinical_domain": [
+      "Vårdadministration",
+      "Patientvård",
+      "IT-system"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Pågående kontakter . 3. För vald patient, dubbelklicka i cellen i kolumnen Flyttbar , eller välj högerklicksalternativet Markera/Avmarkera som flyttbar . COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 30(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Avboka en bokad vårdkontakt",
+    "page": 1,
+    "section_id": "4.3.7",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg-instruktion för att avboka bokade vårdkontakter i Enhetsöversikt.",
+    "keywords": [
+      "avboka",
+      "bokade kontakter",
+      "vårdkontakt",
+      "enhetsöversikt",
+      "patient",
+      "flik",
+      "knapp",
+      "menyalternativ",
+      "högerklicka"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Medicinsk hantering",
+      "Vårdkontakt",
+      "Enhetsöversikt",
+      "Patienthantering",
+      "Administrativ funktion"
+    ],
+    "clinical_domain": [
+      "Patientadministration",
+      "Vårdkontakt",
+      "Elektronisk journal"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Bokade kontakter . 3. För vald patient, välj knappen Avboka eller högerklicka och välj menyalternativet Avboka ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Omboka en bokad vårdkontakt",
+    "page": 1,
+    "section_id": "4.3.8",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för hur man ombokar en reserverad kontakt i Enhetsöversikt: öppna fönstret, välj fliken Bokade kontakter, klicka på Omboka eller använd högerklickmenyalternativet.",
+    "keywords": [
+      "omboka",
+      "bokad kontakt",
+      "enhetsöversikt",
+      "kontakter",
+      "patient",
+      "menyalternativ",
+      "högerklick"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Vårdkontakt",
+      "Bokning",
+      "Patientdata",
+      "Försörjningsplan"
+    ],
+    "clinical_domain": [
+      "Allmänmedicin",
+      "Ambulerande vård",
+      "Vårdkontakt"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Välj fliken Bokade kontakter . 3. För vald patient, klicka på knappen Omboka eller högerklicka och välj menyalternativet Omboka ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Lägga till en ny anslutning",
+    "page": 1,
+    "section_id": "4.4.1",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att skapa och spara en ny anslutning i Enhetsöversiktssystemet.",
+    "keywords": [
+      "Öppna",
+      "Enhetsöversikt",
+      "Pågående anslutningar",
+      "Ny anslutning",
+      "Skapa anslutning",
+      "Spara"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Anslutning",
+      "Nätverk",
+      "Inställningar",
+      "Teknik"
+    ],
+    "clinical_domain": [
+      "Elektronisk patientjournal",
+      "Telemedicin"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. I fliken Pågående anslutningar klicka på knappen Ny anslutning . 3. I dialogfönstret Skapa anslutning , ange uppgifter om anslutningen och klicka på knappen Spara ."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Ändra en anslutning",
+    "page": 1,
+    "section_id": "4.4.2",
+    "main_section_id": 3,
+    "context_summary": "Steg för att ändra en anslutning i Enhetsöversikt: öppna fönstret, välj en pågående anslutning, klicka på 'Ändra anslutning', redigera informationen i dialogfönstret och spara.",
+    "keywords": [
+      "Anslutning",
+      "Enhetsöversikt",
+      "Ändra anslutning",
+      "dialogfönster",
+      "Spara",
+      "Pågående anslutningar",
+      "Klicka"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Anslutning",
+      "Systemanpassning",
+      "Användargränssnitt",
+      "Guide"
+    ],
+    "clinical_domain": [
+      "Vårdteknik",
+      "Medicinsk utrustning",
+      "Digital hälsa"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. I fliken Pågående anslutningar välj en anslutning i tabellen. 3. Klicka på knappen Ändra anslutning . 4. I dialogfönstret Editera anslutning för <...> , uppdatera informationen och klicka på knappen Spara . COSMIC Unit Overview – Introduktion & Användarmanual Version: 18.0 Datum: 2025 -01-20 ©2025 Cambio Healthcare Systems AB 31(31) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Lägga till tilläggsinformation",
+    "page": 1,
+    "section_id": "4.4.3",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg-instruktion för att öppna och lägga till tilläggsinformation till en anslutning i Enhetsöversikt.",
+    "keywords": [
+      "enhetsöversikt",
+      "tilläggsinformation",
+      "anslutning",
+      "dialogruta",
+      "flik",
+      "pågående anslutningar",
+      "knapp",
+      "öppna",
+      "lägga till",
+      "OK"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "användargränssnitt",
+      "enhetsöversikt",
+      "administration",
+      "systemadministration"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. I fliken Pågående anslutningar välj en anslutning i tabellen. 3. Klicka på knappen Tilläggsinformation . 4. I dialogrutan Tilläggsinformation , ange information och klicka på knappen OK."
+  },
+  {
+    "source_file": "Cosmic manual enhetsöversikt v18.0.pdf",
+    "section": "Avsluta en anslutning",
+    "page": 1,
+    "section_id": "4.4.4",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg-instruktion för att avsluta en anslutning i Enhetsöversikt.",
+    "keywords": [
+      "Öppna fönstret",
+      "Enhetsöversikt",
+      "Pågående anslutningar",
+      "Ändra anslutning",
+      "Avsluta anslutning",
+      "Datum",
+      "Orsak",
+      "Spara"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Enhetsöversikt",
+      "Anslutning",
+      "Avslutning",
+      "Steg-för-Steg",
+      "Kontrollpanel"
+    ],
+    "clinical_domain": [
+      "Systemadministration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. I fliken Pågående anslutningar välj en anslutning i tabellen. 3. Klicka på knappen Ändra anslutning . 4. I dialogrutan Editera anslutning för <...> , under rubriken Avslut , markera kryssrutan Avsluta anslutning . 5. Ange datum för avslut, välj en orsak och klicka på knappen Spara ."
+  }
+]

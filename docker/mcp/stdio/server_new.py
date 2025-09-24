@@ -23,6 +23,10 @@ from langchain_core.messages import SystemMessage, HumanMessage
 
 import config
 # Reuse your existing class/models
+
+from vector_mistral_tool import hospital_support_questions_tool
+from create_jira_ticket import create_jira_ticket
+
 from active_directory import ActiveDirectory
 from active_directory import CreateUserPayload, PasswordProfile
 from vector_database_tools import cosmic_database_tool
@@ -105,6 +109,18 @@ class MCPServerInfo(BaseModel):
     capabilities: Dict[str, bool]
 
 
+class CreateJiraRequest(BaseModel):
+    thread_id: str
+    conversation_topic: str
+    description: str
+    location: str
+    queue: str
+    priority: str
+    department: str
+    name: str
+    category: str
+
+
 ad = ActiveDirectory()
 
 ADMIN_API_KEY = os.getenv("MCP_ADMIN_API_KEY")  # set to enable header guard
@@ -147,6 +163,9 @@ class WeatherRequest(BaseModel):
 
 class CosmicDatabaseRequest(BaseModel):
     query: str = Field(..., description="The search query to find relevant information in the cosmic database")
+
+class HospitalSupportQuestionsRequest(BaseModel):
+    query: str = Field(..., description="The support question to search for in the hospital support knowledge base")
 
 
 def extract_sql_from_json(llm_output: str) -> str:
@@ -864,9 +883,111 @@ async def cosmic_database_endpoint(request: CosmicDatabaseRequest):
             "error": str(e)
         }
 
+
+# ++++++++++++++++++++++++++++++++
+# TICKET ENDPOINTS START
+# ++++++++++++++++++++++++++++++++
+
+
+@app.post("/ticket/create_jira")
+async def create_jira_endpoint(request: CreateJiraRequest):
+    """
+    Create a hospital support ticket for technical, equipment, software, or facility issues.
+
+    This endpoint collects and validates all required ticket fields, including:
+      - conversation_topic: A brief summary of the issue (ticket title)
+      - description: Detailed description of the problem
+      - location: Where the issue is occurring (e.g., room, department)
+      - queue: The hospital support queue to route the ticket (must be a valid queue)
+      - priority: Urgency level (e.g., Critical, High, Normal)
+      - department: Department responsible or affected
+      - name: Name of the person reporting the issue
+      - category: Type of issue (e.g., hardware, software, facility)
+
+    The endpoint ensures all information is complete and the queue is valid before creating the ticket. On success, it returns a confirmation and ticket reference for follow-up. If required fields are missing or invalid, it returns an error with details.
+
+    Returns:
+        success (bool): True if the ticket was created successfully, False otherwise.
+        result (dict): Ticket creation confirmation and reference details if successful.
+        error (str, optional): Error message if ticket creation failed.
+    """
+    try:
+        payload = request.model_dump()
+        thread_id = payload.get("thread_id")
+
+        # Keep asyncio.to_thread for synchronous create_jira_ticket function
+        result = await asyncio.to_thread(create_jira_ticket, **payload)
+
+        # Mark the ticket as completed after successful JIRA creation
+        # if thread_id:
+        #     await thread_ticket_manager.complete_ticket(thread_id)
+        #     # Or even better, add a new status like "jira_created"
+        #     # await thread_ticket_manager.update_field(thread_id, "status", "jira_created")
+
+        #     if DEBUG:
+        #         print(f"[CREATE_JIRA] Marked ticket as completed for thread: {thread_id}")
+
+        return {"success": True, "result": result}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.post("/ticket/hospital_support_questions_tool")
+async def hospital_support_questions_endpoint(request: HospitalSupportQuestionsRequest):
+    """
+    Identify support protocols, diagnostic questions, and routing information for hospital technical issues.
+
+    This endpoint is used by a hospital technical support assistant to:
+    - Analyze user problem reports (equipment, software, facility issues)
+    - Return structured protocols, diagnostic questions, and recommended queue/department for ticket routing
+    - Enforce strict workflow: ALL protocol diagnostic questions must be asked and answered sequentially before ticket creation
+    - Ensure queue selection is always from the allowed QUEUE_CHOICES list
+    - Never mention tool names, agent names, or internal components to the user
+    - Return responses in the following format:
+        - success (bool): Whether the tool executed successfully
+        - message (str): Human-readable confirmation or error message
+        - response (dict): Protocols, diagnostic questions, and routing info
+
+    Usage rules:
+    - Call this endpoint ONCE per new issue report
+    - Pass the user's query exactly as written
+    - Use the returned protocol to guide all diagnostic questioning (one question at a time)
+    - Do NOT proceed to ticket creation until all protocol questions are answered
+    - Always validate queue selection against QUEUE_CHOICES before creating a ticket
+    - Never ask for information already provided in conversation history or stored fields
+    - Never offer to skip protocol questions
+    - Be friendly, conversational, and empathetic in all user interactions
+    """
+    try:
+        if DEBUG:
+            print(f"[HOSPITAL SUPPORT] Searching hospital support for query: {request.query}")
+        result = await hospital_support_questions_tool(request.query)
+        return {
+            "success": True,
+            "query": request.query,
+            "result": result
+        }
+    except Exception as e:
+        if DEBUG:
+            print(f"[HOSPITAL SUPPORT] Error: {e}")
+        return {
+            "success": False,
+            "query": request.query,
+            "error": str(e)
+        }
+
+
+# ++++++++++++++++++++++++++++++++
+# TICKET ENDPOINTS END
+# ++++++++++++++++++++++++++++++++
+
 # ++++++++++++++++++++++++++++++++
 # ACTIVE DIRECTORY ENDPOINTS START
 # ++++++++++++++++++++++++++++++++
+
+
+
+
 
 # ------------------------------
 # AZURE AD: Single operations endpoint
@@ -1624,7 +1745,40 @@ async def mcp_tools_list():
                 },
                 "required": ["query"]
             }
-        )
+        ),
+        MCPTool(
+            name="hospital_support_questions_tool",
+            description="You are a friendly technical support assistant for a hospital environment. This tool analyzes user problem reports (equipment, software, facility issues), returns structured support protocols, diagnostic questions, and recommended queue/department for ticket routing. It enforces strict workflow: ALL protocol diagnostic questions must be asked and answered sequentially before ticket creation. Queue selection is always from the allowed QUEUE_CHOICES list. Never mention tool names, agent names, or internal components to the user. Always check conversation history and stored fields before asking questions. Use the returned protocol to guide all diagnostic questioning (one question at a time). Do NOT proceed to ticket creation until all protocol questions are answered. Always validate queue selection against QUEUE_CHOICES before creating a ticket. Be friendly, conversational, and empathetic in all user interactions. Returns: success (bool), message (str), response (dict with protocols, diagnostic questions, and routing info).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The support question to search for in the hospital support knowledge base"
+                    }
+                },
+                "required": ["query"]
+            }
+        ),
+        MCPTool(
+            name="create_jira_ticket",
+            description="Create a JIRA ticket for a support request, incident, or task. Use this tool to log issues, feature requests, or support needs in the JIRA system. Requires thread_id, conversation_topic, description, location, queue, priority, department, name, and category.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "thread_id": {"type": "string", "description": "Thread or conversation ID for the ticket context"},
+                    "conversation_topic": {"type": "string", "description": "Topic or subject of the conversation"},
+                    "description": {"type": "string", "description": "Detailed description of the issue or request"},
+                    "location": {"type": "string", "description": "Location related to the ticket (e.g., department, room)"},
+                    "queue": {"type": "string", "description": "JIRA queue or project name"},
+                    "priority": {"type": "string", "description": "Priority of the ticket (e.g., High, Medium, Low)"},
+                    "department": {"type": "string", "description": "Department related to the ticket"},
+                    "name": {"type": "string", "description": "Name of the requester or subject"},
+                    "category": {"type": "string", "description": "Category of the ticket (e.g., Incident, Request, Task)"}
+                },
+                "required": ["thread_id", "conversation_topic", "description", "location", "queue", "priority", "department", "name", "category"]
+            }
+        ),
     ]
 
     return MCPToolsListResponse(tools=tools)
@@ -1848,7 +2002,8 @@ async def root():
             "ad_add_group_member",
             "ad_remove_group_member",
             "ad_get_group_members",
-            "search_cosmic_database"
+            "search_cosmic_database",
+            "hospital_support_questions_tool"
         ],
         "docs": "/docs",
         "mcp_compatible": True

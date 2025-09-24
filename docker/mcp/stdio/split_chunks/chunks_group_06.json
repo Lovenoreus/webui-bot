@@ -1,0 +1,2015 @@
+[
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Denna sektion presenterar syftet och anlass för CDS Osteoporosis Referral samt beskriver dess funktioner, användaransvaret och referenser till nationella riktlinjer.",
+    "keywords": [
+      "CDS Osteoporosis Referral",
+      "beslutsstöd",
+      "osteoporos",
+      "frakturer",
+      "patientidentifiering",
+      "remiss",
+      "nationella riktlinjer",
+      "COSMIC",
+      "Hälso- och sjukvård"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Beslutsstöd",
+      "Osteoporos",
+      "Fraktur",
+      "Patientvård",
+      "Klinisk vägledning"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Fraktur",
+      "Patientvård",
+      "Klinisk beslutsfattande"
+    ],
+    "text": "Detta dokument beskriver beslutss tödet Cambio Clinical Decision Support (CDS) Osteoporosis Referral (härefter CDS Osteoporosis Referral ), dess funktioner och egenskaper ur en slutanvändares perspektiv. Läsaren förutsätts ha god datorvana och grundläggande kunskaper i COSMIC. Information om applicerbara och kompatibla versioner mellan beslutsstödet och underliggande journalsystem är angivet i dokumentets versionshistorik. Beslutsstödet CDS Osteoporosis Referral syftar till att hjälpa användare att identifiera patienter med nyliga och eventuellt osteoporosrelaterade frakturer, samt att remittera dessa patienter för systematisk osteoporosutredning och eventuell behandling inom frakturkedjan. Det är utvecklat i enlighet med en lokal anpassning av regionala konsensus och nationella riktlinjer för utredning och behandling av osteoporos som framtagits av Nationellt system för Kunskapsstyrning Hälso- och sjukvård [1]och Socialstyrelsen[2]. Beslutsstödet ger rekommendationer som endast ska betraktas som stöd för användaren, då dennes kunskap om patienten alltid är avgörande för beslutet. Användaren ska alltid använda sin egen kliniska kompetens och inte förlita sig enbart på beslutsstödet. Användaren har själv ansvar för samtliga medicinska beslut som fattas. Användarens kliniska bedömning ska alltid prioriteras före beslutsstödets bedömningar och rekommendationer. Beslutsstödet fattar inga beslut och ersätter inte beslutsfattaren."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "Dokumentet visar en versionhistorik för COSMIC manualen, inklusive datum, kommentarer och vilka beslutsstödsversioner samt COSMIC-versioner varje uppdatering gäller för.",
+    "keywords": [
+      "version",
+      "datum",
+      "Kommentar",
+      "uppdaterat",
+      "beslutsstöd",
+      "COSMIC",
+      "Osteoporos",
+      "CDS",
+      "kompatibel"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumenthistorik",
+      "Versionskontroll",
+      "Beslutsstöd",
+      "Systemintegration"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Klinik"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid samt kompatibla versioner mellan beslutsstödet och underliggande journalsystem. Version Datum Kommentar 1.0 2022-01-03 Första version. Dokumentet gäller från beslutsstödsversion 0.1.x och COSMIC R8.3.03. 1.1 2022-01-28 Dokument reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 0.1.x och COSMIC R8.3.03. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 5(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Version Datum Kommentar 1.2 2022-02-08 Dokument reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 0.1.x och COSMIC R8.3.03. 1.3 2022-12-02 Avsnitt 3.4.2 uppdaterat. Dokumentet gäller från beslutsstödsversion 0.2.x och COSMIC 3.7.0. 2.0 2023-05-05 Avsnitt 4.1 och 4.2 tillagda. Ny dokumentmall. Dokumentet gäller från beslutsstödsversion 0.3.x och COSMIC 3.8.0. 3.0 2024-01-08 Avsnitt 1.1, 1.2 och 3.3 uppdaterade. Kapitel 2, Appendix A, avsnitt 3.1, 3.2, 3.4.1 och 3.4.2 tillagda. Dokumentet gäller från beslutsstödsversion 1.0.x och COSMIC 3.10.0."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "Tabell med definitioner av termer, förkortningar och akronymer i dokumentet.",
+    "keywords": [
+      "termer",
+      "förkortningar",
+      "akronymer",
+      "CDS",
+      "clinical decision support",
+      "definitioner"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Terminologi",
+      "Dokument",
+      "CDS",
+      "Osteoporos",
+      "Manual"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Benskörhet",
+      "Klinisk beslutstöd"
+    ],
+    "text": "Följande tabell beskriver de termer, förkortningar och akronymer som används i detta dokument. Term Beskrivning CDS Clinical Decision Support"
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.4.1",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver de typografiska konventionerna som används i dokumentet, såsom fetstil för gränssnittsterminologi, kursiv för modul- och filnamn, färg för värden och sökvägar samt Courier New för systemkommandon och kodexempel.",
+    "keywords": [
+      "fetstil",
+      "kursiv",
+      "typografiska konventioner",
+      "gränssnitt",
+      "systemkommandon",
+      "kodexempel",
+      "COSMIC",
+      "Osteoporos",
+      "referens"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Manual",
+      "Typografi",
+      "Användarmanual",
+      "Osteoporos",
+      "Cosmic"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Klinisk vård",
+      "Medicinsk dokumentation"
+    ],
+    "text": "Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger , Properties.txt eller https://customer.cambio.se . Färg. värden, namn, typer och sökvägar. Exempel: där ersätts med namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 6(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.4.2",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver användningen av ikoner för att markera viktig information, tips, och konfigurationsspecifika begränsningar samt hänvisar till licenskrav och gränssnittsuppdateringar i systemet för osteoporos.",
+    "keywords": [
+      "ikoner",
+      "information",
+      "tips",
+      "konfiguration",
+      "tredjepartslisens",
+      "gränssnitt",
+      "CDS",
+      "osteoporos",
+      "kundavtal",
+      "version"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Ikoner",
+      "Information",
+      "Konfiguration",
+      "Licens",
+      "Gränssnitt",
+      "Version",
+      "Användarhandbok"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Benhälsa"
+    ],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. En tredjepartslicens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 7(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om CDS Osteoporosis Referral"
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": "2",
+    "context_summary": "Systemet är ett kliniskt beslutsstöd som upptäcker patienter med risk för osteoporosrelaterade frakturer och remitterar dem för utredning och behandling enligt nationella riktlinjer.",
+    "keywords": [
+      "Osteoporos",
+      "Fraktur",
+      "Klinisk beslutsstöd",
+      "Vårdpersonal",
+      "Systematisk utredning"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Klinisk beslutsstöd",
+      "Osteoporos",
+      "Frakturhantering",
+      "Vård"
+    ],
+    "clinical_domain": [
+      "Benskörhet",
+      "Reumatologi",
+      "Geriatrik"
+    ],
+    "text": "CDS Osteoporosis Referral är en klinisk beslutsstödsapplikation designad för att stödja vårdpersonal vid vårdtillfället med att upptäcka patienter med nyliga och eventuellt osteoporosrelaterade frakturer, samt att remittera dessa patienter för systematisk osteoporosutredning och eventuell behandling inom frakturkedjan. Beslutsstödet är utvecklat i enlighet med regionala konsensus och nationella riktlinjer för utredning och behandling av osteoporos som framtagits av Nationellt system för Kunskapsstyrning Häl so- och sjukvård [1] och Socialstyrelsen[2]."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Försiktighetsåtgärder",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver viktiga försiktighetsåtgärder vid användning av CDS Osteoporosis Referral-systemet och betonar att det inte ska användas ensam för diagnos eller behandling samt att användarmanualen ska läsas.",
+    "keywords": [
+      "CDS",
+      "Osteoporos",
+      "Referral",
+      "diagnos",
+      "behandling",
+      "försiktighetsåtgärder",
+      "manual",
+      "observationskrav"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Osteoporos",
+      "Patientvård",
+      "Säkerhet",
+      "Klinisk",
+      "Elektroniskt beslutstöd"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Patientvård",
+      "Säkerhet"
+    ],
+    "text": "Följande försiktighetsåtgärder skall beaktas: CDS Osteoporosis Referral bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. CDS Osteoporosis Referral är inte avsett för realtidsövervakning av vitala fysiologiska parametrar. CDS Osteoporosis Referral ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. Observera att användarmanualen för CDS Osteoporosis Referral bör läsas innan användning."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Risker med användning av CDS",
+    "page": 1,
+    "section_id": "2.3",
+    "main_section_id": 2,
+    "context_summary": "Manualen beskriver flera risker: utan nödvändig data kan CDS ge ingen rekommendation, felaktig eller korrupt data kan leda till misstag, användaren måste alltid tillämpa sin kliniska kunskap samt att beslutet är beroende av data som befann sig i journalen vid laddning och därmed riskar att ny information uteblir. Vid nätverks‑ eller serverproblem blir CDS oförsämld. Incidenter ska rapporteras.",
+    "keywords": [
+      "CDS",
+      "risker",
+      "inkorrekt data",
+      "felaktig rekommendation",
+      "patientdata",
+      "anslutningsproblem",
+      "serverproblem",
+      "incidentrapport",
+      "klinisk kunskap",
+      "manual"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Diagnostik",
+      "Beslutsstöd",
+      "Riskhantering",
+      "IT-system",
+      "Manual"
+    ],
+    "clinical_domain": [
+      "Osteoporos"
+    ],
+    "text": "Nedan följer en sammanfattning av de risker som medföljer denna produkt: Om beslutsstödet saknar nödvändig indata för att utföra en bedömning kommer en rekommendation inte kunna ges, detta betyder inte att det inte föreligger några hälsorelaterade risker för patienten. Om beslutsstödet blir matad med inkorrekt eller korrumperad data från journalsystemet kan en felaktig rekommendation genereras av beslutsstödstjänsten. Som användare måste den kliniska kunskap och allmänna kännedom som användaren har om patienten alltid föregå det som genererats av beslutsstödet. Detta är tydligt beskrivet i denna användarmanual. Beslutsstödet kommer bara ha tillgång till den patientdata som fanns i journalen när patienten laddades i journalsystemet. Om ny patientdata registrerats i patientens journal efter patientladdning finns det en risk att relevant information missas av beslut sstödet. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 8(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Beslutsstödet kan vara oåtkomlig ifall det föreligger lokala anslutningsproblem till nätverket eller om beslutsstödstjänsten ligger nere på grund av CDS Runtime serverproblem. Alla allvarliga produktrelaterade incidenter ska rapporteras till Cambio och behörig myndighet (Läkemedelsverket1)."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Produkt- och kontaktinformation",
+    "page": 1,
+    "section_id": "2.4",
+    "main_section_id": 2,
+    "context_summary": "Produktetikett innehåller namn, version, kontaktinformation till Cambio Healthcare Systems AB, CE‑märkningsinformation samt länkar till dokumentation och supportsida.",
+    "keywords": [
+      "Produktetikett",
+      "Produktnamn",
+      "Version",
+      "Kontakt",
+      "CE-märkning",
+      "Dokumentation",
+      "Cambio Healthcare Systems",
+      "SRN",
+      "Medikinteknisk produkt",
+      "CDS Osteoporosis Referral",
+      "Kundsupport",
+      "Reglering"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Produktinformation",
+      "Kontaktinformation",
+      "CE-märkning",
+      "Dokumentation",
+      "Reglering",
+      "Medikinteknik",
+      "CDS-system",
+      "Osteoporos"
+    ],
+    "clinical_domain": [
+      "Skelettsjukdomar",
+      "Osteoporos",
+      "Hälsoteknik",
+      "Vårdprogram"
+    ],
+    "text": "I beslutsstödets användargränssnitt kan en produktetikett visas via knappen . Den innehåller följande information: Produktnamn uppdelat i tre nivåer Cambio CDS - Clinical Decision Support Cambio CDS Runtime ( system) Beslutsstödets namn ( software item ) Produktversioner för beslutsstödet som software item och CDS Runtime som system. 1 https://www.lakemedelsverket.se CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 9(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Adress (fysisk och internetadress ) för ansvarig tillverkare, tillverkningsdatum och tillverkarens registreringsnummer (SRN). Cambio Healthcare Systems AB Gamla Tanneforsvägen 92 582 54 Linköping +46 13 20 03 00 https://www.cambiogroup.com/ SRN#: SE-MF-000001229 Dokumentation. Läs och följ anvisningarna i produktens introduktion & användarmanual. Via länken https://kb.cambio.se/ öppnas Kunskapsbanken med tillgång till dokumentation och övrig information. Medicinteknisk produkt. CE-märkning. Produkten uppfyller applicerbara krav i EG-direktiv 93/42/EEG. Unik produktidentifiering (produktspecifik kod). CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 10(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Att arbeta med CDS Osteoporosis Referral"
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": 2,
+    "context_summary": "CDS Osteoporosis Referral är ett kliniskt beslutsstöd som används för patienter 50 år eller över med senaste diagnostiserad fraktur. Systemet importerar automatisk klinisk data, kräver extra information från användaren via ett gränssnitt med obligatoriska fält och genererar remissrekommendationer enligt nationella riktlinjer samt skapar remisstext och journalanteckning.",
+    "keywords": [
+      "CDS",
+      "beslutsstöd",
+      "osteoporos",
+      "remittering",
+      "fraktur",
+      "journal",
+      "diagnoskod",
+      "ålder",
+      "rekommendation",
+      "regionale konsensus",
+      "nationella riktlinjer"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Kliniskt beslutsstöd",
+      "Osteoporos",
+      "Fraktur",
+      "Remittering",
+      "Journalhantering"
+    ],
+    "clinical_domain": [
+      "Ortopedisk",
+      "Endokrinologi",
+      "Geriatrisk"
+    ],
+    "text": "CDS Osteoporosis Referral är en klinisk beslutsstödsapplikation, vilket innebär att inmatad data bearbetas i enlighet med fördefinierade regler i syfte att erbjuda kliniker stöd under beslutfattningsprocessen som förbättrar möjligheterna för patienterna att erhålla korrekt behandling och i förlängningen uppnå en bättre hälsa. Bedömningar och förslag som genereras av beslutsstödet är endast rekommendationer. CDS Osteoporosis Referral fattar inga egna beslut och användaren ska alltid nyttja sin kliniska kompetens i kombination med information från beslutsstödet för att fatta beslut om handläggning. Beslutsstödet s underliggande regler exekveras vid två olika moment: när användaren laddar en patients journal i journalsystemet och när användaren signerar eller kontrasignerar en journalanteckning. I båda fall aktiveras beslutsstödet endast när patienten är 50 år eller äldre, har en aktuell fraktur diagnoskod registrerad i journalen, se avsnitt 3.4.2, och diagnosen signerades inom de föregående 6 månaderna, förutsatt att inga exklusionskriterier uppfylls , se avsnitt 3.4.4. Klinisk data som finns tillgänglig i journalsystemet, och som krävs av beslutsstödet för att identifiera patienter med aktuella frakturer importeras automatiskt (födelsedatum, journalanteckningar, diagnoskoder och läkemedelslista). Efter att patienter med nyliga och eventuellt osteoporosrelaterade frakturer identifierats av beslutsstödet behöver användare ange ytterligare klinisk information som används av beslutsstödet för att generera rekommendationer i enlighet med de kliniska riktlinjerna. När användaren öppnat beslutsstödet presenteras ett antal frågor och kriterier i användargränssnittet och de obligatoriska fälten indikeras med en orange markering. Baserat på informationen som användaren angivit i de obligatoriska fälten genererar beslutsstödet automatiskt remitteringsrekommendationer enligt lokalt anpassade regionala konsensus och nationella riktlinjer för utredning och behandling av osteoporos av Nationellt system för Kunskapsstyrning Hälso - och sjukvård [1] och Socialstyrelsen [2]. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 11(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om användaren beslutar att patienten ska remitteras, har användaren möjlighet att via beslutsstödet automatiskt skapa en remisstext som sammanfattar den viktigaste kliniska informationen. Utöver remissen skapas en journalanteckning som sparas i det underli ggande journalsystemet. Journalanteckningen innehåller klinisk data som beslutsstödet erhållit från journalsystemet, data som användaren angett i beslutsstödet samt användarens handläggningsbeslut. Beslutsstödet arbetar utifrån befintlig information i patientens journal; om information uppdateras i journalsystemet medan beslutsstödet används kommer den nya informationen inte finnas tillgänglig i beslutsstödet förrän det laddats om på nytt. I följande avsnitt beskrivs kort de bakomliggande funktioner som används i systemet, samt hur det används."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Tillgång till CDS Osteoporosis Referral",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "Avsnittet beskriver hur tillgång till CDS Osteoporosis Referral styrs i journalsystemet, när en varning visas under patientladdning eller när en journalanteckning signeras, hur användaren kan öppna dialogrutan via ikon eller meny, och vilka meddelanden som visas om kriterier inte uppfylls.",
+    "keywords": [
+      "CDS",
+      "Osteoporos",
+      "referral",
+      "journal",
+      "patientlist",
+      "ikon",
+      "dialogruta",
+      "systeminställning",
+      "användare",
+      "beslut",
+      "varning",
+      "meddelande"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "CDS",
+      "Osteoporos",
+      "Beslutsstöd",
+      "Journal system",
+      "Användarmanual",
+      "Patientvård"
+    ],
+    "clinical_domain": [
+      "Ortopedik",
+      "Endokrinologi",
+      "Kost och näring"
+    ],
+    "text": "Tillgång till CDS Osteoporosis Referral styrs av definierade behörighetsinställningar i journalsystemet. Om kriterier för aktivering av CDS Osteoporosis Referral uppfylls, se avsnitt 3.4.2, kommer en varning att visas i journalsystemet vid antingen patientladdning eller signering eller kontrasignering av en journalanteckning. Varningen om att beslutsstödet har aktiverats visas genom en CDS-ikon i patientlisten och dialogruta i journalsystemets gränssnitt. Bild 1 CDS varning med CDS ikon och d ialogrutan Aktiverade beslutsstöd CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 12(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Visningen av dialogrutan vid aktivering styrs av en systeminställning och beslutas av systemförvaltningen. Användaren kan alltid öppna dialogrutan genom att klicka på en CDS-ikon som är tänd. I dialogrutan listas vilket (eller vilka) beslutsstöd som har aktiverats. Användaren kan läsa mer om varningen genom en text som visas när muspekaren hålls över -ikonen. Bild 2 Information om varningen i dialogrutan Aktiverade beslutsstöd Användaren kan klicka på knappen Öppna beslutsstöd för att nå beslutsstödets huvudfönster där beslut om vidare handläggning kan fattas. Om användaren väljer att stänga dialogrutan och ignorera varningen, kommer varningen att visas igen nästa gång patienten laddas i patientlisten. CDS Osteoporosis Referral kan också nås från journalsystemets meny oberoende av en aktivering av beslutsstödet. Tillgång via journalsystemets meny styrs av en systeminställning och beslutas av förvaltningen. Om användaren försöker öppna beslutsstödet för en patient som inte uppfyller kriterier för användning av CDS Osteoporosis Referral , se avsnitten 3.4.2 och 3.4.4, kommer ett meddelande presenteras i huvudfönstret som förklarar varför beslutsstödet inte kan användas för den valda patienten. Bild 3 Meddelande i fönstret Remiss för osteoporosutredning (frakturkedja ) CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 13(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.3.1",
+    "main_section_id": "3",
+    "context_summary": "Beskrivning av när och hur beslutsstödet för osteoporosutredning aktiveras och vilka varningar som visas.",
+    "keywords": [
+      "beslutsstöd",
+      "fraktur",
+      "diagnoskod",
+      "remiss",
+      "patient",
+      "Osteoporos",
+      "journal",
+      "kontroll",
+      "kontrasignering",
+      "frakturkedja",
+      "remittning",
+      "vardtid",
+      "datum"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Osteoporos",
+      "Fraktur",
+      "Beslutsstöd",
+      "Journal",
+      "Remiss",
+      "Frakturkedja",
+      "Klinik"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Frakturhantering",
+      "Medicinsk IT"
+    ],
+    "text": "Beslutsstödet aktiveras när en patients journal laddas i patientlisten eller vid signering och kontrasignering av en journalanteckning om patienten är 50 år eller äldre och det finns en aktuell diagnoskod för fraktur , se avsnitt 3.4.2, signerad i journalen inom de föregående 6 månaderna . I dialogrutan kan följande tre varningar visas: Patienten har fått en fraktur och har inget dokumenterat beslut för samma frakturdiagnos från de senaste 6 månaderna. Patienten har tidigare fått en fraktur och har ett dokumenterat beslut i journalen om att skjuta upp beslutet avseende remittering. Tidsperioden som användaren tidigare valt att skjuta upp beslutet har passerat och ett nytt beslut behöver fattas. Patienten har tidigare fått en fraktur och har ett tidigare dokumenterat beslut i journalen om att skjuta upp beslutet avseende remittering. Tidsperioden som användaren tidigare valt att skjuta upp beslutet har inte passerat, men en ny fraktur med en annan diagnoskod har dokumenterats i journalsystemet och ett nytt beslut behöver fattas. Om användaren väljer att öppna beslutsstödet antingen via dialogrutan eller via journalsystemets meny visas dess huvudfönster Remiss för Osteoporosutredning (frakturkedja) . I fönstret presenteras informationen i tre olika block som användaren granskar uppifrån och ner, samt från vänster till höger: Grund för bedömning , se avsnitt 3.3.2.1. Resultat och Remiss, se avsnitt 3.3.2.2. Remisstext , se avsnitt 3.3.2.3. Bild 4 Fönstret Remiss för osteoporosutredning (frakturkedja) CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 14(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Översikt över blocken i fönstret Remiss för",
+    "page": 1,
+    "section_id": "3.3.2",
+    "main_section_id": 3,
+    "context_summary": "Kort översikt av osteoporosutredning med fokus på frakturkedjan.",
+    "keywords": [
+      "osteoporosutredning",
+      "frakturkedjan"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Osteoporos",
+      "Fraktur",
+      "Utredning",
+      "Remiss"
+    ],
+    "clinical_domain": [
+      "Ortopedik",
+      "Geriatrik"
+    ],
+    "text": "osteoporosutredning (frakturkedjan)"
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Grund för bedömning",
+    "page": 1,
+    "section_id": "3.3.2.1",
+    "main_section_id": 4,
+    "context_summary": "Det första blocket innehåller obligatoriska frågor för bedömning av lägerfraktur. Användaren ska ange om frakturen beror på lågenergivåld med Ja/Nej/Okänd. Frågor i detta block måste besvaras för att generera bedömning; annars går man vidare till nästa block.",
+    "keywords": [
+      "grund för bedömning",
+      "fraktur",
+      "lågenergivåld",
+      "patientjournal",
+      "obligatoriska frågor",
+      "användarny",
+      "CDS Osteoporosis Referral",
+      "Bild 5",
+      "Bild 6"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Bedömning",
+      "Fraktur",
+      "Kvalitet",
+      "Användarmanual",
+      "Mjukvara"
+    ],
+    "clinical_domain": [
+      "Ortopedi",
+      "Geriatrik",
+      "Endokrinologi",
+      "Fraktur",
+      "Diagnostik"
+    ],
+    "text": "Det första blocket innehåller avsnitten Grund för bedömning , Riskfaktorer (valfritt) och Behandling (valfritt) . Bild 5 Blocket Grund för bedömning När fönstret öppnas är samtliga frågor obesvarade. De obligatoriska måste besvaras för att kunna generera en bedömning. Avsnittet Grund för bedömning utgår från information som automatiskt inhämtats från patientens journal samt information som angivits av användaren. Här ombeds användaren ange om den upptäckta frakturen orsakats av lågenergivåld genom att markera ett av svarsalternativen Ja, Nej eller Okänd. Bild 6 Avsnittet Grund för bedömning CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 15(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om användaren markerar svarsalternativet Nej visas inga ytterligare frågor i det första blocket och användaren kan gå vidare till det andra blocket , se avsnitt"
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Om användaren markerar svarsalternativen Ja eller Okänd, blir det möjligt",
+    "page": 1,
+    "section_id": "3.3.2.2",
+    "main_section_id": 4,
+    "context_summary": "Manualen förklarar hur systemet automatiskt svarar på riskfaktorer och behandling med \"Ja\" när kortison, reumatoid artrit, kalcium/D-vitamin eller osteoporosprofylax upptäcks. Användaren kan läsa detaljer via informationsknapp, manuellt ändra svar, och all information dokumenteras i journal och remisstext.",
+    "keywords": [
+      "riskfaktorer",
+      "osteoporos",
+      "kortisonbehandling",
+      "reumatoid artrit",
+      "kalcium",
+      "D-vitamin",
+      "osteoporosprofylax",
+      "beslutsstöd",
+      "patientjournal",
+      "läkemedelslista",
+      "informationknapp",
+      "manuell",
+      "valfri",
+      "automatiskt",
+      "remisstext"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Riskfaktorer",
+      "Behandling",
+      "Automatiska svar",
+      "Manuell data",
+      "Beslutsstöd",
+      "Patientjournal",
+      "Läkemedelslista",
+      "Osteoporos",
+      "Kortison",
+      "Kalcium",
+      "D-vitamin",
+      "Reumatoid artrit"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Endokrinologi",
+      "Geriatrik",
+      "Klinisk beslutsstöd"
+    ],
+    "text": "Om användaren markerar svarsalternativen Ja eller Okänd, blir det möjligt att fortsätta till avsnitten Riskfaktorer (valfritt) och Behandling (valfritt) . Bild 7 Avsnittet Riskfaktorer Båda avsnitten består av valfria frågor, vars svar inte krävs av beslutsstödet för att generera rekommendationer, men som dokumenteras i journalanteckningen och eventuell remisstext som genereras av beslutsstödet. Avsnittet Riskfaktorer (valfritt) består av sju valfria frågor om riskfaktorer för osteoporosrelaterade frakturer. Två av dessa frågor kan i vissa fall besvaras automatiskt av beslutsstödet: Frågan Pågående kortisonbehandlingar besvaras automatiskt Ja av beslutsstödet ifall en aktuell pågående kortisonordination upptäcks i patientens läkemedelslista (se avsnitt 3.4.5, Tabell 2 ). I sådana fall kommer användaren att kunna läsa vilken behandling som upptäckts genom att klicka på informationsknappen bredvid frågan , se exempel i följande bild. Bild 8 Frågan Pågående kortisonbehandlingar CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 16(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Frågan Reumatoid artrit besvaras automatiskt Ja av beslutsstödet ifall en reumatoid artrit diagnos upptäcks i patientens journal (se avsnitt 3.4.5, Tabell 3). I sådana fall kommer användaren att kunna läsa vilken diagnos upptäckts genom att klicka på informationsknappen bredvid frågan , se exempel i följande bild . Bild 9 Frågan Reumatoid artrit Oavsett om dessa frågor besvarats automatiskt, kan användaren alltid manuellt markera ett svarsalternativ för samtliga frågor i avsnittet Riskfaktorer (valfritt) . Om frågan förifyllts automatiskt kommer svaret ändras till det manuella svaret som användaren markerar. Avsnittet Behandling (valfritt) består av två frågor som i vissa fall kan besvaras automatiskt av beslutsstödet: Frågan Pågående kalcium och D -vitamin substitution besvaras automatiskt Ja av beslutsstödet ifall en aktuell pågående kalcium eller/och D -vitamin behandling upptäcks i patientens läkemedelslista (se avsnitt 3.4.5, Tabell 4). I sådana fall kommer användaren att kunna läsa vilken behandling som upptäckts genom att klicka på informationsknappen bredvid frågan , se exempel i följande bild. Bild 10 Frågan Pågående kalcium och D -vitamin substitution Frågan Pågående osteoporosprofylax besvaras automatiskt Ja av beslutsstödet ifall en aktuell pågående osteoporosprofylax upptäcks i patientens läkemedelslista (se avsnitt 3.4.5, Tabell 5 ). I sådana fall kommer användaren att kunna läsa vilken behandling som upptäckts genom att klicka på informationsknappen bredvid frågan , se exempel i följande bild . Bild 11 Frågan Pågående osteoporosprofylax Informationen som användaren anger i avsnitten Riskfaktorer (valfritt) och Behandling (valfritt) kommer automatiskt inkluderas i journalanteckningen och eventuell remisstext som genereras av beslutsstödet. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 17(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Resultat och Remiss",
+    "page": 1,
+    "section_id": "3.3.2.2",
+    "main_section_id": 4,
+    "context_summary": "Denna sektion beskriver hur ett beslutsstödsystem för osteoporosutredning hanterar resultatet och eventuella remisser. Baserat på diagnostiska kriterier ges en rekommendation (remittera eller inte), och användaren väljer att skicka remiss, avstå eller skjuta upp beslutet. Vid remiss anges tolkbehov, mottagare och övriga kommentarer, och alla beslut dokumenteras i journalen och kan signeras.",
+    "keywords": [
+      "osteoporos",
+      "remiss",
+      "frakturkedjan",
+      "beslutsstöd",
+      "tolkbehov",
+      "journalanteckning",
+      "signera",
+      "avstå",
+      "skjuta upp",
+      "frakturenergi",
+      "rekommendation",
+      "undersökning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Diagnos",
+      "Uppföljning",
+      "Journalföring",
+      "Beslutsstöd",
+      "Remisshantering",
+      "Osteoporos",
+      "Fraktur",
+      "Tolkning",
+      "Medicinsk dokumentation"
+    ],
+    "clinical_domain": [
+      "Ortopedi",
+      "Endokrinologi",
+      "Geriatrik"
+    ],
+    "text": "Det andra blocket innehåller avsnitten Resultat och Remiss. Bild 12 Blocket Resultat och Remiss I avsnittet Resultat presenteras beslutsstödets rekommendation angående behov av att remittera patienten för systematisk osteoporosutredning och eventuell behandling inom frakturkedjan. Avsnittet inkluderar också en fråga om en remiss ska skickas och fritextrutan Övriga kommentarer , där användaren kan lägga till kompletterande uppgifter i fritextformat. Rekommendationen genereras i enlighet med de riktlinjerna och konsensusen som ligger till grund för beslutsstödet [1][2], med uppgifterna om frakturens energinivå som användaren angivit i det föregående blocket , se avsnitt 3.3.2.1, som underlag. Om beslutsstödet bedömer att det finns hög misstanke om osteoporos, blir rekommendationen att remittera patienten till frakturkedjan. Användaren kan då välja mellan att skicka en remiss genom att markera alternativknappen Ja, avstå från att skicka en remiss genom att markera alternativknappen Nej och att senarelägga beslutet genom att markera alternativknappen Skjut upp beslutet . Bild 13 Hög misstanke om osteoporos, rekommendation och fråga CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 18(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om användaren följer rekommendationerna och väljer att skicka en remiss genom att markera alternativknappen Ja, visas avsnittet Remiss nedanför avsnittet Resultat. Frågorna i avsnitten Remiss styrs av en systeminställning och beslutas av förvaltningen. Bild 14 Avsnittet Remiss Om användaren valt att skicka en remiss måste eventuellt tolkbehov anges. Om tolkbehov föreligger anges detta genom att markera alternativknappen Ja och därefter måste språk anges i fritextrutan Språk. Om patienten inte har något behov av tolk anges detta genom att markera alternativknappen Nej. Avsnittet avslutas med en fritextruta där användaren kan ange en eller flera ytterligare vårdenheter dit remissvaret ska skickas efter att patientens omhändertagande inom frakturkedjan avslutats. Bild 15 Frågan Tolkbehov samt mottagare av remissvar CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 19(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Den automatiskt skapade remisstexten kommer att visas i blocket Remisstext , se avsnitt 3.3.2.3. Om användaren avviker från rekommendationerna och väljer att inte skicka någon remiss, måste en orsak specificeras genom att välja ett av alternativen som presenteras. Bild 16 Listrutan Orsak till ingen remiss Om användaren väljer alternativet Annat skäl , måste orsaken anges i fritextfältet Specificera . Bild 17 Fritextfältet Specificera Efter att journalanteckningen sparats, kommer beslutsstödet inte aktiveras på sex månader för samma frakturdiagnos. Om användaren väljer att senarelägga beslutet genom att markera alternativknappen Skjut upp beslutet måste ett tidsintervall och en orsak väljas i listrutorna Skjut upp beslutet i och Orsak till uppskjutet beslut . Bild 18 Listrutan Skjut upp beslut i Bild 19 Listrutan Orsak till uppskjutet beslut CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 20(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Efter att användaren valt att skjuta upp beslutet, inaktiveras beslutsstödet under den angivna perioden för den aktuella frakturdiagnosen. En journalanteckning kommer att skapas som dokumenterar att beslutet skjutits upp, vilket gör att det alltid är möjligt att spåra hanteringen av patienten. När det valda tidsintervallet har löpt ut, aktiveras beslutsstödet nästa gång patientens journal laddas och det är då möjligt att fatta ett nytt beslut. När beslutsstödet då öppnas, kommer frågorna i det första blocket att vara förifyllda med de svar som angavs vid det tidigare beslutet (förutom om någonting förändrats avseende de diagnoserna och behandlingarna som bedöms av de fyra automatiska frågorna i det första blocket, vars svar då kommer att reflektera förändrin garna). Observera att det alltid är upp till användaren att besluta hur patienten skall handläggas. Påminnelser skickas inte från beslutsstödet utan patienten måste aktivt hämtas i patientlisten för att en notifikation skall presenteras. Inaktivering och aktivering av beslutsstödet påverkar samtliga vårdgivare som har tillgång till beslutsstödet, inte bara den enskilda användaren som fattat beslutet om att skjuta upp beslutet. Efter att användaren har valt att avstå från att skicka remissen , eller att skjuta upp beslutet, blir knappen SIGNERA aktiv i beslutsstödets gränssnitt så snart alla obligatoriska frågor är besvarade. Bild 20 Knappen SIGNERA aktiveras när alla obligatoriska frågor är besvarade CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 21(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Användaren kan då klicka på knappen för att skapa en journalanteckning som dokumenterar beslutet, vilket gör att det alltid är möjligt att spåra hanteringen av patienten. Efter att användaren klickat på knappen SIGNERA, kommer ett bekräftelsemeddelande visas i dialogrutan Signera bedömning ?. Bild 21 Dialogrutan Signera bedömning? Användaren kan välja att klicka på knappen AVBRYT, vilket resulterar i återgång till beslutsstödets huvudfönster , eller på knappen SIGNERA och då signeras journalanteckningen och sparas till det underliggande journalsystemet. Journalanteckningen sammanställer informationen som angivits i beslutsstödet och inkluderar användarens beslut. Efter att journalanteckningen har skapats och signerats avslutas besluts stödet. Om beslutsstödet bedömer att det föreligger låg misstanke om osteoporos, kommer den presenterade rekommendationen vara att inte remittera patienten för vidare osteoporosutredning. I dessa fall får användaren ändå ta ställning till huruvida en remiss ska skickas eller inte genom att markera alternativknappen Ja för att skicka en remiss eller alternativknappen Nej för att avstå . Bild 22 Låg misstanke om osteoporos, rekommendation och fråga CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 22(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om användaren följer rekommendationerna , och avstår från att skicka en remiss , kommer knappen SIGNERA att bli aktiv. G enom att klicka på knappen skapas en journalanteckning som dokumenterar beslutet enligt vad som beskrivits tidigare. Efter att journalanteckningen sparats, avslutas beslutsstödet och kommer det inte aktiveras på sex månader för den aktuella frakturdiagnosen. Om användare n, trots rekommendationerna, väljer att skicka en remiss genom att markera alternativknappen Ja, ska kliniskt relevant information anges i fritextformat och avsnittet Remiss visas nedanför avsnittet Resultat. Efter att alla obligatoriska frågor besvarats, kommer den automatiskt skapade remisstexten att visas i blocket Remisstext , se avsnitt 3.3.2.3."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Remisstext",
+    "page": 1,
+    "section_id": "3.3.2.3",
+    "main_section_id": 4,
+    "context_summary": "Den här sektionen beskriver hur remisstexten genereras automatiskt i CDS Osteoporosis Referral när användaren valde att skicka remiss och har besvarat obligatoriska frågor. Texten reflekterar samlade uppgifter samt frakturdiagnos. Användaren måste verifiera och sedan signera för att skicka remiss, vilket aktiverar knappen. Remissen skickas till specialistmottagning och systemet stängs efter 6 månader.",
+    "keywords": [
+      "remisstext",
+      "CDS",
+      "Osteoporosis",
+      "beslutsstöd",
+      "signering",
+      "remiss",
+      "frakturdiagnos",
+      "klicka knapp",
+      "journalanteckning",
+      "specialistmottagning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Osteoporos",
+      "Remiss",
+      "Kliniskt beslut",
+      "Användarmanual",
+      "Systemfunktion"
+    ],
+    "clinical_domain": [
+      "ortopedi",
+      "geriatrik",
+      "kvalitetssäkring"
+    ],
+    "text": "I det tredje och sista blocket, Remisstext , presenteras remisstexten som automatiskt skapats av beslutsstödet om användaren i föregående block beslutade att en remiss ska skickas och besvarade alla obligatoriska frågor i avsnittet Remiss. Bild 23 Blocket Remisstext CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 23(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Remisstexten är sålunda baserad på inhämtade uppgifter och informationen som användaren angivit i de två första blocken. Beslutsstödet inhämtar också information om den frakturdiagnosen som aktiverade beslutsstödet och inkluderar informationen i remisstexten. Bild 24 Exempel på remisstext Det är användarens ansvar att kontrollera att de inhämtade läkemedelsordinationerna stämmer med de läkemedel som patienten tar och att den inhämtade frakturdiagnosen stämmer med den frakturen som motiverade remissen. Om användaren i det andra blocket väljer att avstå från att skicka en remiss, alternativt väljer att skjuta upp beslutet, kommer blocket Remisstext förbli inaktivt. För att signera journalanteckningen och skicka remissen ska användaren klicka på knappen SIGNERA OCH SKICKA REMISS . Innan användaren har besvarat de obligatoriska frågorna i det andra blocket är knappen SIGNERA gråmarkerad och inaktiverad. Bild 25 Knappen SIGNERA (inaktiverad) Efter att dessa frågor besvarats, aktiveras knappen . Texten ändras till SIGNERA OCH SKICKA REMISS och färgen till blå. Bild 26 Knappen SIGNERA OCH SKICKA REMISS CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 24(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. När användaren väljer att signera journalanteckningen och skicka remissen genom att klicka på knappen SIGNERA OCH SKICKA REMISS visas bekräftelseinformation i dialogrutan Signera journalanteckning och skicka remiss? . Bild 27 Dialogrutan Signera journalanteckning och skicka remiss? Användaren kan välja att klicka på knappen AVBRYT, vilket resulterar i återgång till beslutsstödets huvudfönster, eller på k nappen SIGNERA OCH SKICKA REMISS och då skickas remissen till en specialistmottagning samt journalanteckningen signeras. Val av specialistenhet som beslutsstödet använder som remissmottagare konfigureras vid första installationen av beslutsstödet, vilket görs av systemförvaltningen. Efter att användaren har signerat journalanteckningen och skickat remissen avslutas och inaktiveras besl utsstödet i sex månader för den aktuella frakturdiagnosen."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Stänga beslutsstödet",
+    "page": 1,
+    "section_id": "3.3.3",
+    "main_section_id": 3,
+    "context_summary": "Beslutsstödet kan stängas när som helst genom att klicka på STÄNG; detta stänger både dialog och fönster utan att spara någon information eller skicka remiss. Avbryt visar åter beslutsstödets huvudfönster. Vid ny öppning krävs inmatning av obligatorisk data.",
+    "keywords": [
+      "beslutsstöd",
+      "stäng",
+      "avbryt",
+      "informationen",
+      "sparas",
+      "remiss",
+      "patientdata",
+      "användare",
+      "dialog",
+      "knapp"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslutsstöd",
+      "Användargränssnitt",
+      "Operatörinstruktion",
+      "Stängning",
+      "Datahantering"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Frakturdiagnostik",
+      "Sjukdomsförebyggande"
+    ],
+    "text": "Beslut behöver inte fattas i direkt anslutning till aktuell bedömning. En pågående bedömning kan när som helst stängas ned och påbörjas på nytt i ett senare skede. Om användaren stänger ned beslutsstödet kommer ingen information att sparas och ingen remiss skickas. För att stänga ned beslutsstödets fönster måste användaren klicka på knappen STÄNG. Dialogrutan Stäng beslutstödet ? med bekräftelse och med information om vad en nedstängning innebär. Bild 28 Dialogrutan Stäng beslutsstödet? Om användaren klickar på knappen STÄNG stängs både bekräftelsefönstrets och beslutsstödets fönster och det bakomliggande fönstret visas. Om användaren istället klickar på knappen AVBRYT stängs dialogrutan och beslutsstödets huvudfönster visas igen. Om användaren laddar patienten i patientlisten på nytt efter det att beslutsstödet stängts ned, så kommer beslutsstödet att aktiveras igen förutsatt att importerad patientdata leder till en aktivering av beslutsstödet. I detta fall behöver användaren ange all obligatorisk information på nytt eftersom informationen inte sparats när beslutsstödet användes senast. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 25(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.4.1",
+    "main_section_id": 3,
+    "context_summary": "Information om när patientdata görs tillgänglig för beslutsstödet i patientlisten.",
+    "keywords": [
+      "patientdata",
+      "beslutsstöd",
+      "patientlisten",
+      "rekommendationer",
+      "konfiguration",
+      "regler"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Beslutsstöd",
+      "Patientdata",
+      "Osteoporos"
+    ],
+    "clinical_domain": [
+      "Osteoporos"
+    ],
+    "text": "Relevanta patientdata tillgängliggörs för beslutsstödet endast när användare laddar en patient i patientlisten. I följande avsnitt ges en förenklad beskrivning över hur rekommendationerna genereras, men konfiguration och logik bakom aktuella regler beskrivs ej."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Hämtning av signerad patientdata",
+    "page": 1,
+    "section_id": "3.4.2",
+    "main_section_id": 3,
+    "context_summary": "Systemet hämtar endast signerade kliniska data; osignerade poster är inte tillgängliga för beslutsstödet.",
+    "keywords": [
+      "signerad data",
+      "journalanteckningar",
+      "ordinationer",
+      "diagnoskoder",
+      "CDS",
+      "Osteoporos",
+      "beslutsstöd",
+      "jämkan"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Datahämtning",
+      "Signering",
+      "Klinisk data",
+      "Beslutsstöd",
+      "Journal-system"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Klinisk data",
+      "Beslutsstöd"
+    ],
+    "text": "CDS Osteoporosis Referral inhämtar bara signerad klinisk data från journalsystemet som signerade journalanteckningar, signerade ordinationer i läkemedelslista och signerade diagnoskoder. Detta innebär sålunda att patientuppgifter som exempelvis sparats men inte signerats inte komm er utgöra tillgängligt informationsunderlag för beslutsstödet."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Identifiering av patient med eventuell bakomliggande",
+    "page": 1,
+    "section_id": "3.4.3",
+    "main_section_id": 3,
+    "context_summary": "Beslutsstödet aktiveras för patienter 50 år eller äldre som uppfyller alla inklusionskriterier och har minst en frakturdiagnos signerad inom de senaste 6 månaderna. Tabellen listar ICD‑10‑SE‑koder för olika frakturtyper som kan utlösa stödet. Noteras att diagnosen skickas efter signering, och datumet kan skilja från skapandet, vilket gör det viktigt att föra in och signera anteckningar i tid för att undvika att diagnoser missas.",
+    "keywords": [
+      "frakturdiagnos",
+      "ICD-10-SE",
+      "beslutsstöd",
+      "patient",
+      "50 år",
+      "6 månader",
+      "signering",
+      "journalanteckning",
+      "osteoporos",
+      "inklusion",
+      "exklusion"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Osteoporos",
+      "Fraktur",
+      "Beslutsstöd",
+      "ICD-10",
+      "Patientidentifiering"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Fraktur",
+      "Vård"
+    ],
+    "text": "osteoporos Om samtliga inklusionskriterier enligt nedan och inga exklusionskriterier, se avsnitt 3.4.4, är uppfyllda, aktiveras beslutsstödet under följande två förutsättningar : 1. Patienten är 50 år eller äldre. 2. Patientens journal innehåller en eller flera frakturdiagnoser , se Tabell 1, som signerats inom de senaste 6 månaderna . Följande tabell presenterar frakturdiagnoser enligt klassifikationen ICD -10-SE. Frakturdiagnoser ICD-10-SE-kod Diagnos M48.5 Kotkompression som ej klassificeras på annan plats S22.0 Fraktur på bröstkota S22.1 Multipla frakturer på bröstkotpelaren S32.0 Fraktur på ländkota S32.1 Fraktur på sakrum S32.3 Fraktur på os ilium S32.4 Fraktur på acetabulum S32.5 Fraktur på os pubis S32.7 Multipla frakturer på ländkotpelaren och bäckenet CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 26(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Frakturdiagnoser ICD-10-SE-kod Diagnos S42.2 Fraktur på övre delen av humerus S52.5 Fraktur på nedre delen av radius S52.6 Fraktur på nedre delen av både ulna och radius S72.0 Kollumfraktur S72.1 Pertrokantär fraktur S72.2 Subtrokantär fraktur Tabell 1 -Diagnoskoder enligt klassifikationen ICD-10- SE som kan aktivera beslutsstödet En frakturdiagnos kommer endast att skickas från det underliggande journalsystemet när den har signerats, men datumet på diagnosen kommer att motsvara tidpunkten då dess journalanteckning skapades (inte signerades). Denna diskrepans är större desto längre tid det tar innan användaren signerar en anteckning som innehåller en frakturdiagnos. Om en annan fraktur sker under tiden mellan skapande och signering av en journalanteckning med en frakturdiagnos, kommer den frakturdiagnosen som signeras sist inte aktivera beslutsstödet. Det är därför viktigt att anteckningar som innehåller frakturdiagnoser signeras i god tid, för att minska sannolikheten att frakturdiagnoser missas av beslutsstödet."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Om kriterierna inte uppfylls eller information saknas",
+    "page": 1,
+    "section_id": "3.4.4",
+    "main_section_id": 3,
+    "context_summary": "Beslutsstödet aktiveras inte när patientjournal saknas, födelsedatum saknas eller när tidigare beslut för samma fraktur finns i journalen, t.ex. remiss skickad eller skjuts upp inom de senaste 6 månaderna.",
+    "keywords": [
+      "patientjournal",
+      "födelsedatum",
+      "beslutsstöd",
+      "frakturdiagnos",
+      "remiss",
+      "skjuta upp beslut",
+      "6 månader",
+      "avsteg"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslutsstöde",
+      "Patientjournal",
+      "Frakturdiagnos",
+      "Remiss",
+      "Tidshantering",
+      "Guidelines",
+      "Osteoross"
+    ],
+    "clinical_domain": [
+      "Osteoross",
+      "Frakturhantering",
+      "Beslutsstöd"
+    ],
+    "text": "Om användaren inte laddar en patients journal eller om födelsedatum saknas i patientens journal, kommer beslutsstödet inte att aktiveras. Beslutsstödet kommer inte heller att aktiveras för den aktuella frakturen om patientens journal innehåller tidigare beslut avseende samma frakturdiagnos, enligt följande: Om det finns ett beslut att skicka en remiss eller att avstå från att skicka en remiss taget för mindre än 6 månader sedan. Om det finns ett beslut att skjuta upp beslutet och den valda tidsperioden inte har löpt ut. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 27(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Identifiering av diagnoser och behandlingar",
+    "page": 1,
+    "section_id": "3.4.5",
+    "main_section_id": 3,
+    "context_summary": "Den här sektionen listar de diagnos‑ och behandlingskoder som beslutsstödet använder för att identifiera kortisonbehandling, reumatoid artrit, kalcium‑ och D‑vitaminordinationer samt osteoporosprofylax. Tabellen innehåller ATC‑koder, ICD‑10‑koder och läkemedelskombinationer.",
+    "keywords": [
+      "diagnos",
+      "behandling",
+      "kortison",
+      "reumatoid artrit",
+      "vitamin D",
+      "kalcium",
+      "osteoporos",
+      "ATC‑kod",
+      "ICD‑10",
+      "profylax"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Diagnoser",
+      "Behandling",
+      "Kortison",
+      "Rheum",
+      "Vitaminer och mineraler",
+      "Osteoporos",
+      "ATC-kod",
+      "ICD-10",
+      "Decision support"
+    ],
+    "clinical_domain": [
+      "Rheumatologi",
+      "Endokrinologi",
+      "Ortopedik"
+    ],
+    "text": "I tabellerna 2 5 listas de behandlingar och diagnoser som används av beslutsstödet för att förifylla frågorna i avsnitten Riskfaktorer (valfritt) och Behandling (valfritt), se avsnitt 2.1.2. Identifikation av kortisonbehandling ATC-kod Daglig dos Behandlingslängd H02AB01 H02AB06 Tabell 2 - Kriterier som beslutsstödet använder för att identifiera aktuella pågående kortisonbehandlingar Identifikation av diagnosen Reumatoid artrit ICD-10-SE-kod Diagnos M05.9 Seropositiv reumatoid artrit, ospecificerad M06.0 Seronegativ reumatoid artrit M06.8 Annan specificerad reumatoid artrit M06.9 Reumatoid artrit, ospecificerad Tabell 3 - Diagnoskoder enligt klassifikationen ICD-10- SE som beslutsstödet använder för att identifiera reumatoid artrit diagnoser. Identifikation av ordination av kalcium och D-vitamin ATC-kod Läkemedel A11CC05 Kolekalciferol A12AA04 Kalciumkarbonat A12AA06 Kalciumlaktoglukonat A12AX Kalcium, kombinationer med vitamin D och/eller övriga läkemedel M05BB05 Alendronsyra + Kalciumkarbonat + Kolekalciferol Tabell 4 - Läkemedel enligt klassifikationssystemet ATC som beslutsstödet använder för att identifiera kalcium - och vitamin D-ordinationer. Identifikation av osteoporosprofylaxordinationer. ATC-kod Läkemedel H05AA02 Teriparatid M05BA02 Klodronat M05BA03 Pamidronsyra M05BA04 Alendronsyra M05BA06 Ibandronat M05BA07 Risedronsyra M05BA08 Zoledronsyra M05BB05 Alendronsyra + Kalciumkarbonat + Kolekalciferol M05BX04 Denusomab M05BX06 Romosozumab Tabell 5 - Läkemedel enligt klassifikationssystemet ATC som beslutsstödet använder för att identifiera osteoporosprofylaxordinationer. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 28(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Hantering av spärrad information",
+    "page": 1,
+    "section_id": "3.4.6",
+    "main_section_id": "3",
+    "context_summary": "Patienter med spärrad journalinformation kan exkluderas från CDS Osteoporosis Referral efter beslut av systemförvaltning via en administratörsinställning; regionens rutiner gäller för hantering av spärrarna.",
+    "keywords": [
+      "spärrad journalinformation",
+      "exkludera patienter",
+      "systemförvaltning",
+      "administratör",
+      "regionsrutiner",
+      "CDS Osteoporosis Referral"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "journalinformation",
+      "spärrad",
+      "patienthantering",
+      "systemförvaltning",
+      "region",
+      "riktlinjer"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Endokrinologi",
+      "Orthopedi"
+    ],
+    "text": "Patienter med spärrad journalinformation kan exkluderas från CDS Osteoporosis Referral. Det är systemförvaltningen som beslutar om detta ska göras och det styrs via en inställning som konfigureras av administratör i det lokala journalsystemet. I övrigt är det regionens egna rutiner som gäller för hur spärrar ska hanteras."
+  },
+  {
+    "source_file": "Cosmic manual CDS osteoporos v3.0.pdf",
+    "section": "Felhantering",
+    "page": 1,
+    "section_id": "3.5",
+    "main_section_id": 2,
+    "context_summary": "Beslutsstödet stängs och ett felmeddelande visas när falsk data tas emot från journalsystemet.",
+    "keywords": [
+      "felhantering",
+      "beslutsstöd",
+      "journalsystem",
+      "felmeddelande"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "felhantering",
+      "datasäkerhet",
+      "journaldata",
+      "beslutsstöd"
+    ],
+    "clinical_domain": [
+      "Osteoporos",
+      "Knogelhälsa",
+      "Geriatrik"
+    ],
+    "text": "Om beslutsstödet erhåller felaktig data från journalsystemet inaktiveras beslutsstödet och kan således inte användas för den aktuella patienten. Ett felmeddelande kommer då att presenteras för användaren. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024-01-08 ©2024 Cambio Healthcare Systems AB 29(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix A Referenser [1] Nationellt system för Kunskapsstyrning Hälso - och sjukvård. Personcentrerat och sammanhållet vårdförlopp Osteoporos - sekundärprevention efter fraktur [Internet]. Nationellt kliniskt kunskapsstöd; 2021. [citerad 2021 Sep 06]. Hämtad från: https://d2flujgsl7escs.cloudfront.net/external/210224_V%C3%A5rdf%C3%B6rlopp_ Osteoporos_Publ.pdf [2] Socialstyrelsen. Nationella riktlinjer för rörelseorganens sjukdomar [Internet]. Socialstyrelsen; 2021. [citerad 2021 Sep 06]. Hämtad från: https://www.socialstyrelsen.se/regler-och-riktlinjer/nationella-riktlinjer/riktlinjer-och utvarderingar/rorelseorganens-sjukdomar/"
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Introducerar CDS Stroke Prevention, ett verktyg som varnar och rekommenderar behandling för patienter med förmaksflimmer/ -fladder i risk för stroke, baserat på CHA2DS2‑VASc, samt beskriver hur beslutet integreras i COSMIC och journalföring.",
+    "keywords": [
+      "CDS",
+      "Stroke Prevention",
+      "förmaksflimmer",
+      "stroke",
+      "CHA2DS2-VASc",
+      "COSMIC",
+      "journal",
+      "rekommendation",
+      "Socialstyrelsen",
+      "diagnoskoder",
+      "patientlista",
+      "kön",
+      "ålder",
+      "Behandling"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Hälso- och sjukvård",
+      "Kliniskt beslutsstöd",
+      "Stroke",
+      "Förmaksflimmer",
+      "Patientjournal",
+      "Rekommendationer"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "Kardiologi",
+      "Primärvård"
+    ],
+    "text": "Detta dokument beskriver Cambio Clinical Decision Support (CDS) Stroke Prevention (härefter kallad CDS Stroke Prevention ) ur ett användarperspektiv. Läsaren förutsätts ha grundläggande kunskaper i COSMIC samt av datoranvändning generellt. Information om applicerbara och kompatibla versioner mellan beslutsstödet och underliggande journalsystem är angivet i dokumentets versionshistorik. CDS Stroke Prevention ett stöd för att upptäcka, behandla och journalföra patienter med förmaksflimmer/fladder som löper risk att drabbas av stroke. Stödet ger en varning när en patient med förmaksflimmer/ -fladder, som inte behandlas enligt riktlinjerna från Socialstyrelsen, hämtas i patientlisten. Användaren kan välja att öppna beslutsstödet CDS Stroke Prevention direkt eller att göra det senare. Utifrån diagnoskoder, kön och ålder sätts poäng enligt CHA 2DS2-VASc för att räkna ut risknivån för stroke och ge rekommendation om behandling. Användaren får en rekommendation avseende medicinsk behandling till patienten presenterad och kan öppna COSMIC -vyn Ny ordination direkt via beslutsstödets gränssnitt. Det skapas en journalmall där anteckningar kopplade till beslutet automatiskt fylls i. Beslutsstödet ger rekommendationer som endast skall betraktas som understöd för användaren, då dennes kunskap om patienten alltid är avgörande för beslutet. Beslutsstödet ersätter därmed inte beslutsfattaren."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "Versioner och datum för dokumentändringar, beskriver kompatibilitet mellan beslutsstödsversioner och COSMIC-system.",
+    "keywords": [
+      "version",
+      "datum",
+      "ändringar",
+      "kompatibilitet",
+      "beslutsstöd",
+      "COSMIC",
+      "journal",
+      "avsnitt",
+      "uppdatering",
+      "revision"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumenthistorik",
+      "Versionshistorik",
+      "Beslutsstöd",
+      "COSMIC",
+      "Journalintegration"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Hjärtsjukdom",
+      "Neurologi"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid samt kompatibla versioner mellan beslutsstödet och underliggande journalsystem. Version Datum Beskrivning 1.0 2019-05-16 Första version. Dokumentet gäller för beslutsstödsversion 1.0.x och från COSMIC R8.2.02. 2.0 2019-10-02 Dokumentet reviderat och uppdaterat. Dokumentet gäller för beslutsstödsversion 2.0.x och från COSMIC R8.2.03. 2.1 2019-10-28 Avsnitt 3.3.5 uppdaterat. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 5(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.\nVersion Datum Beskrivning 2.2 2020-07-07 Avsnitt 4.3 uppdaterat. Dokumentet gäller för beslutsstödsversion 2.1.x och från COSMIC R8.2.03. 3.0 2020-11-26 Dokumentet reviderat och uppdaterat. Dokumentet gäller för beslutsstödsversion 3.0.x och från COSMIC R8.2.07. 4.0 2021-03-29 Avsnitt 3.3 uppdaterat. Dokumentet gäller för beslutsstödsversion 4.0.x och från COSMIC R8.2.07. 4.1 2021-06-03 Dokumentet reviderat och uppdaterat. 5.0 2021-10-07 Avsnitt 3.2 uppdaterat. Dokumentet gäller för beslutsstödsversion 5.0 och från COSMIC R8.3.01. 5.1 2022-02-17 Avsnitt 3.3.5 uppdaterat. 5.2 2022-07-01 Kapitel 3 uppdaterat. 5.3 2023-05-04 Kapitel 2 tillagt. Dokumentet gäller för beslutsstödsversion 5.1.x och från COSMIC 3.8.0. 6.0 2023-10-13 Avsnitt 3.2 och 3.4.2 tillagda. Dokumentet gäller för beslutsstödsversion 5.2.x och från COSMIC 3.10.0. 6.1 2024-02-01 Kapitel 2 uppdaterat."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "Texten förklarar vilka termer, förkortningar och akronymer som används i dokumentet och ger en översikt över relevanta förkortningar för CDS, DOAK, NOAK, TIA och strokeförhindra",
+    "keywords": [
+      "termer",
+      "förkortningar",
+      "akronymer",
+      "CDS",
+      "DOAK",
+      "NOAK",
+      "TIA",
+      "stroke",
+      "prevention",
+      "version",
+      "datum"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "terminologi",
+      "hälsoteknik",
+      "klinisk beslutsstöd",
+      "antikoagulantia",
+      "strokeförhinder"
+    ],
+    "clinical_domain": [
+      "kardiovaskulära sjukdomar",
+      "neurologi",
+      "fysioterapi",
+      "pharma"
+    ],
+    "text": "Följande tabell beskriver de termer, förkortningar och akronymer som används i detta dokument.\nTerm Beskrivning CDS Clinical Decision Support DOAK Direktverkande perorala antikoagulantia NOAK Non-vitamin K Orala Antikoagulantia TIA Transitorisk ischemisk attack CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 6(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.4.1",
+    "main_section_id": 3,
+    "context_summary": "Dokumentet beskriver de typografiska konventioner som används, exempel på fetstil, kursiv, färg, typsnitt och hur termer, modulnamn och systemkommandon markeras.",
+    "keywords": [
+      "fetstil",
+      "kursiv",
+      "färg",
+      "typsnitt",
+      "Courier New",
+      "systemkommandon",
+      "kodexempel",
+      "modulnamn",
+      "filnamn"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "typografi",
+      "manual",
+      "format",
+      "användning",
+      "dokumentdesign",
+      "gränssnitt"
+    ],
+    "clinical_domain": [
+      "allmänt"
+    ],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger , Properties.txt eller https://customer.cambio.se . Färg. värden, namn, typer och sökvägar. Exempel: där ersätts med namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.4.2",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver vilka ikoner som används i dokumentet för att framhäva viktig information, tips och andra notifikationer. Den nämner kostnadsaspekter, tredjepartslicenser och specifik dokumentation för CDS Stroke Prevention.",
+    "keywords": [
+      "ikoner",
+      "information",
+      "tips",
+      "konfiguration",
+      "kostnad",
+      "tredjepartslisens",
+      "CDS",
+      "stroke",
+      "föreskrifter",
+      "användarmanual"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "Dokumentation",
+      "Grafisk representation",
+      "IKONER",
+      "Informationshantering",
+      "Operativ guide"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "Stroke",
+      "Hälsovård"
+    ],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. En tredjepartslicens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 7(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om CDS Stroke Prevention"
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "CDS Stroke Prevention är en klinisk beslutsstödsapplikation som använder den validerade CHADS2‑VASc‑skalan för att identifiera patienter med förmaksflimmer eller fladder som saknar aktiv strokeförebyggande behandling. Systemet räknar ut den procentuella 1‑årsrisk för stroke och ger en automatiserad rekommendation för behandling enligt internationella riktlinjer, samt stöder ordinationsprocessen.",
+    "keywords": [
+      "CDS",
+      "stroke",
+      "förmaksflimmer",
+      "fladder",
+      "CHADS2‑VASc",
+      "strokeförebyggande behandling",
+      "riskbedömning",
+      "rekommendation",
+      "ordination"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Klinisk beslutsstöd",
+      "Stroke",
+      "Hälsa",
+      "Medicinsk app",
+      "Förmaksflimmer",
+      "Riskbedömning"
+    ],
+    "clinical_domain": [
+      "kardiologi",
+      "neurologi",
+      "stroke",
+      "hälsovård",
+      "kardiovaskulär"
+    ],
+    "text": "Cambio Clinical Decision Support (CDS) Stroke Prevention (härefter CDS Stroke Prevention ) är en klinisk beslutsstödsapplikation som implementerar den kliniskt validerade CHADS2- VASc poängskalan för att identifiera patienter av alla åldrar med förmaksflimmer eller fladder som saknar aktiv strokeförebyggande behandling. CDS Stroke Prevention tillhandahåller en estimering av den procentuella risken för stroke inom det kommande året för de identifierade patienterna och genererar automatiskt en rekommendation för strokeförebyggande behandling i linje med internationellt validerade kliniska riktlinjer för strokeförebyggande behandling baserat på patientens CHADS2 -VASc poäng. Vidare tillhandahåller CDS Stroke Prevention vårdpersonalen stöd i ordinationsprocessen."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Försiktighetsåtgärder",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Kortfattad beskrivning av nödvändiga försiktighetsåtgärder vid användning av CDS Stroke Prevention.",
+    "keywords": [
+      "försiktighetsåtgärder",
+      "CDS Stroke Prevention",
+      "diagnostik",
+      "behandling",
+      "realtidsövervakning",
+      "vitalparametrar",
+      "patientobservation",
+      "klinisk bedömning",
+      "användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Säkerhet",
+      "Klinisk vägledning",
+      "Medicinsk IT"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Kardiologi",
+      "Kliniskt beslutsstöd"
+    ],
+    "text": "Följande försiktighetsåtgärder skall beaktas: CDS Stroke Prevention bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. CDS Stroke Prevention är inte avsedd för realtidsövervakning av vitala fysiologiska parametrar. CDS Stroke Prevention ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. Användarmanualen för CDS Stroke Prevention bör läsas innan användning."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Risker med användning av CDS",
+    "page": 1,
+    "section_id": "2.3",
+    "main_section_id": 2,
+    "context_summary": "Sammanfattar risker vid användning av CDS: brist på data, felaktig data, användarens kliniska kunskap behövs, risk för borttappad ny information och nätverksproblem.",
+    "keywords": [
+      "risk",
+      "CDS",
+      "beslutsstöd",
+      "data",
+      "inkorrekt data",
+      "felaktig data",
+      "patientdata",
+      "nätverk",
+      "kunskap"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "CDS",
+      "Riskhantering",
+      "Säkerhet",
+      "Klinisk beslut",
+      "Patientdata"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "Kardiologi",
+      "Informatik"
+    ],
+    "text": "Nedan följer en sammanfattning av de risker som medföljer denna produkt: Om beslutsstödet saknar nödvändig indata för att utföra en bedömning kommer en rekommendation inte kunna ges, detta betyder inte att det inte föreligger några hälsorelaterade risker för patienten. Om beslutsstödet blir matad med inkorrekt eller korrumperad data från journalsystemet kan en felaktig rekommendation genereras av beslutsstödstjänsten. Som användare måste den kliniska kunskap och allmänna kännedom som användaren har om patienten alltid föregå det som genererats av beslutsstödet. Detta är tydligt beskrivet i denna användarmanual. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 8(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Beslutsstödet kommer bara ha tillgång till den patientdata som fanns i journalen när patienten laddades i journalsystemet. Om ny patientdata registrerats i patientens journal efter patientladdning finns det en risk att relevant information missas av beslutsstödet. Beslutsstödet kan vara oåtkomlig ifall det föreligger lokala anslutningsproblem till nätverket eller om beslutsstödstjänsten ligger nere på grund av CDS Runtime serverproblem."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Produkt- och kontaktinformation",
+    "page": 1,
+    "section_id": "2.4",
+    "main_section_id": 2,
+    "context_summary": "Information om produktetikett för CDS Stroke Prevention inklusive produktnamn på tre nivåer, kontaktuppgifter till tillverkaren, CE‑märkning, EG‑direktiv, SRN‑nummer samt länkar till manual och kunskapsbank.",
+    "keywords": [
+      "produktetikett",
+      "produktenamn",
+      "CDS",
+      "Cambio",
+      "Läkemedelsverket",
+      "CE-märkning",
+      "EG-direktiv",
+      "SRN",
+      "medicinteknisk produkt",
+      "version",
+      "dokumentation",
+      "kunskapsbank",
+      "Linköping",
+      "telefon",
+      "webbplats"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Produktinformation",
+      "Kontaktinformation",
+      "Dokumentation",
+      "Reglering CE-märkning",
+      "Tillverkare"
+    ],
+    "clinical_domain": [
+      "Medicinteknik",
+      "Kliniskt beslutstöd"
+    ],
+    "text": "I beslutsstödets användargränssnitt visas en produktetikett via knappen . Den innehåller följande information: Produktnamn uppdelat i tre nivåer Cambio CDS - Clinical Decision Support Cambio CDS Runtime ( system) Beslutsstödets namn ( software item ) 1 https://www.lakemedelsverket.se Alla allvarliga produktrelaterade incidenter ska rapporteras till Cambio och behörig myndighet (Läkemedelsverket1). CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 9(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Produktversioner för beslutsstödet som software item och CDS Runtime som system. Adress (fysisk och internetadress) för ansvarig tillverkare, tillverkningsdatum och tillverkarens registreringsnummer (SRN). Cambio Healthcare Systems AB Gamla Tanneforsvägen 92 582 54 Linköping +46 13 20 03 00 https://www.cambiogroup.com/ SRN#: SE-MF-000001229 Dokumentation. Läs och följ anvisningarna i produktens introduktion & användarmanual. Via länken https://kb.cambio.se/ öppnas Kunskapsbanken med tillgång till dokumentation och övrig information. Medicinteknisk produkt. CE-märkning. Produkten uppfyller applicerbara krav i EG -direktiv 93/42/EEG. Unik produktidentifiering (produktspecifik kod). CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 10(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Att arbeta med CDS Stroke Prevention"
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Regler",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": 2,
+    "context_summary": "Beslutsstödet aktiveras när en ny patient med förmaksflimmer/laterala diagnos i journalen hämtas, utan föreslagen behandling. Risk för stroke beräknas och rekommendation för medicinsk behandling ges enligt Socialstyrelsens riktlinjer. Varning visas tills beslutet dokumenteras, och systemet uppdateras vid diagnos- eller läkemedlingsändringar.",
+    "keywords": [
+      "beslutsstöd",
+      "förmaksflimmer",
+      "stroke",
+      "riskbedömning",
+      "Socialstyrelsen",
+      "diagnoskod",
+      "behandlingsrekommendation",
+      "journal",
+      "behörighet"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Behandling"
+    ],
+    "clinical_domain": [
+      "Kardiologi"
+    ],
+    "text": "Beslutsstödet aktiveras endast när användaren hämtar en ny patient i patientlisten och patienten har diagnoskod förmaksflimmer/ -fladder registrerad i journalen, se Appendix A1 , utan rekommenderad behandling, se Appendix A2 . Patienten behöver inte behandlas enligt rekommendation , men då måste en motivering till beslutet dokumenteras via beslutsstödet för att varningen inte skall visas igen. Beslutsstödet räknar automatiskt ut risken för stroke samt ger rekommendation om medicinsk behandling enligt gällande riktlinjer från Socialstyrelsen. Systemet arbetar utifrån befintliga diagnoskoder i patientens journal, eller diagnoser registrerade inom vårdadministration. Om diagnoser läggs till, eller läkemedel tas bort, tänds inte varningen förrän patienten laddas nästa gång. Vem som ska ha tillgång till CDS Stroke Prevention styrs av journalsystemets behörighetsinställningar. I följande avsnitt beskrivs kortfattat de bakomliggande funktioner som används i systemet, samt hur det skall användas."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Tillgång till CDS Stroke Prevention",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver hur varningen för aktivering av CDS Stroke Prevention visas i journalsystemet, inklusive ikon, dialogruta och hur användaren kan öppna beslutsstödet eller ignorera varningen. Tillgång till beslutsstöd ges även via menyn. Inställningarna styrs av systemförvaltningen.",
+    "keywords": [
+      "CDS",
+      "Stroke Prevention",
+      "varning",
+      "patientlista",
+      "dialogruta",
+      "patienten",
+      "beslutsstöd",
+      "systeminställning",
+      "meny",
+      "information"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "CDS",
+      "Stroke Prevention",
+      "Journalsystem",
+      "Beslutsstöd",
+      "Varning",
+      "Patientinformation",
+      "Meny"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "Stroke"
+    ],
+    "text": "Om kriterier för aktivering av CDS Stroke Prevention uppfylls, se avsnitt 3.3, kommer en varning att visas i journalsystemet. Varningen om att beslutsstödet har aktiverats indikeras med en CDS-ikon i patientlisten samt en visad dialogruta i journalsystemets gränssnitt. Bild 1 CDS varning med CDS ikon och dialogrutan Aktiverade beslutsstöd CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 11(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Visningen av dialogrutan vid aktivering styrs av en systeminställning och beslutas av systemförvaltningen. Användaren kan alltid öppna dialogrutan genom att klicka på en CDS-ikon som är tänd i patientlisten. I dialogrutan listas beslutsstöd som har aktiverats. Användaren kan läsa mer om varningen genom en text som visas när muspekaren hålls över -ikonen. Bild 2 Information om varningen i dialogrutan Aktiverade beslutsstöd Användaren kan klicka på knappen Öppna beslutsstöd för att visa beslutsstödets huvudfönster Stroke Prevention där beslut om vidare handläggning kan fattas. Om användaren väljer att stänga dialogrutan och ignorera varningen, kommer varningen att visas igen nästa gång patienten laddas i patientlisten. CDS Stroke Prevention kan nås från journalsystemets meny oberoende av en aktivering av beslutsstödet . Tillgång via journalsystemets meny styrs av en systeminställning och beslutas av systemförvaltningen."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Aktivering av beslutstödet och typ av varningar",
+    "page": 1,
+    "section_id": "3.3.1.1",
+    "main_section_id": 4,
+    "context_summary": "Beslutsstödet aktiveras när en patient med förmaksflimmer utan rekommenderad strokeförebyggande behandling laddas i patientlisten och visar fyra olika varningstyper relaterade till behandling, beslut, tidsstämpel och CHA2DS2-VASc.",
+    "keywords": [
+      "beslutsstöd",
+      "förmaksflimmer",
+      "stroke-prevention",
+      "varning",
+      "CHA2DS2‑VASc",
+      "Socialstyrelsens riktlinjer",
+      "tidsstämpel",
+      "patientlista"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslutsstöd",
+      "Strokeprevention",
+      "Medicinsk varning",
+      "Patienthantering",
+      "Diagnosöversikt"
+    ],
+    "clinical_domain": [
+      "Kardiovaskulär",
+      "Strokeprevention",
+      "Vårdgivning"
+    ],
+    "text": "Beslutsstödet aktiveras när en patient med diagnoskod förmaksflimmer/ -fladder, utan rekommenderad strokeförebyggande behandling, laddas i patientlisten. Varningen via dialogrutan indikerar följande fyra olika sorters varningar: Patienten har inte medicinsk behandling som följer Socialstyrelsens riktlinjer vid förmaksflimmer . Patienten har beslut om att inte ta behandling men har förändrad CHA 2DS2- VASc-poäng. Patienten har beslut om att inte ta behandling men tidsstämpeln är äldre än ett år. Patienten har fått sitt beslut uppskjutet men har förhöjd CHA2DS2-VASc-poäng. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 12(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om dialogrutan Aktiverade beslutsstöd visas och användare n öppnar beslutsstödet visas beslutsstödets huvudfönster Stroke Prevention . Bild 3 Fönstret Stroke Prevention Fönstret består av avsnitten Diagnosöversikt , CHA2DS2-VASc poäng , Rekommendationer , Ordination samt Medicinskt beslut , vilka granskas uppifrån och ner, samt från vänster till höger. Dessa beskrivs i följande avsnitt."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Diagnosöversikt",
+    "page": 1,
+    "section_id": "3.3.1.2",
+    "main_section_id": 4,
+    "context_summary": "Texten beskriver hur diagnoser som ingår i CHA2DS2-VASc hanteras i Diagnosöversikt: de som är journalförda med koder markeras som Ja, påverkar poäng och starrisk, kräver obligatorisk kommentar vid ändring, och påverkar beslut i CDS Stroke Prevention. Diagnoser sparas inom beslutsstödet men påverkar inte journalkoder.",
+    "keywords": [
+      "CHA2DS2-VASc",
+      "diagnoskoder",
+      "poäng",
+      "stroke",
+      "risk",
+      "obligatorisk",
+      "beslutsstöd",
+      "journalföring",
+      "diagnosöversikt"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Diagnosöversikt",
+      "Stroke Prevention",
+      "CHA2DS2-VASc",
+      "Bedömning",
+      "Beslutsstöd"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi",
+      "Stroke"
+    ],
+    "text": "Under avsnittet l istas alla diagnoser som ingår i CHA2DS2-VASc. De diagnoser som finns journalförda med diagnoskoder på aktuell patient är automatiskt förvalda som Ja. Endast signerade diagnoser visas. CDS Stroke Prevention fattar inga egna beslut utan det är alltid upp till den enskilde användaren att utnyttja sin egen kunskap i kombination med beslutsstödet för att ta beslut om adekvat handläggning. Det går att ändra de förifyllda värdena avseende diagnoser som ingår i CHA2DS2- VASc och därmed uppdatera bedömningen som beslutsstödet genomfört. Sätts värdet Ja för en diagnos ökar CHA2DS2-VASc -poängen och den uppskattade risken för stroke det kommande året, sätts värdet om til l Nej minskar poängen. Ändras någon av diagnoserna måste detta motiveras med en obligatorisk kommentar. Observera att inga diagnoskoder skapas eller tas bort i journalen, utan omvärderingen gäller endast inom beslutsstödet. Diagnoser sätts alltid enligt befintliga rutiner. När en omvärdering har skett i Diagnosöversikt sparas informationen, så nästa gång en varning tänds visas fortfarande samma värden. Skulle däremot en ny registrering av en av de omvärderade diagnoserna göras i journalen, kommer denna registrering även speglas i diagnosöversikten. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 13(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "CHA2DS2-VASc -poäng",
+    "page": 1,
+    "section_id": "3.3.1.3",
+    "main_section_id": 4,
+    "context_summary": "Visar en sammanställning av CHA2DS2-VASc‑poängen enligt diagnosöversikten och räknar automatiskt utan extra input.",
+    "keywords": [
+      "CHA2DS2-VASc",
+      "poäng",
+      "diagnosöversikt",
+      "automatisk uträkning",
+      "stroke prevention"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "stroke",
+      "riskbedömning",
+      "diagnos",
+      "poängsystem",
+      "kardiologi"
+    ],
+    "clinical_domain": [
+      "kardiologi",
+      "neurologi",
+      "stroke",
+      "riskbedömning"
+    ],
+    "text": "Visar en sammanställning av CHA2DS2-VASc -poängen, enligt diagnosöversikten . Uträkningen görs automatiskt och ingen ytterligare input behövs."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Rekommendationer",
+    "page": 1,
+    "section_id": "3.3.1.4",
+    "main_section_id": 4,
+    "context_summary": "Visar en sammanfattning av faktorer och rekommendationer som utgör beslutsunderlaget för handläggningen av patienten. Den visar också den procentuella risken för stroke under det kommande året baserat på CHA2DS2-VASc och påpekar att systemet inte tar hänsyn till andra riskfaktorer.",
+    "keywords": [
+      "stroke",
+      "CHA2DS2-VASc",
+      "risk",
+      "faktorer",
+      "rekommendationer",
+      "beslutsunderlag",
+      "patient",
+      "procentuell risk",
+      "system"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Rekommendationer",
+      "Riskbedömning",
+      "Strokeprevention",
+      "CHA2DS2-VASc",
+      "Patientutvärdering"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi"
+    ],
+    "text": "Visar en sammanfattning av de faktorer och rekommendationer som utgör beslutsunderlaget för handläggningen av patienten. Här visas också den procentuella risken för stroke under det kommande året, utifrån CHA2DS2-VASc - poängen. Observera att systemet inte tar hänsyn till eventuella riskfaktorer utöver de som ingår i CHA2DS2-VASc."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Ordination",
+    "page": 1,
+    "section_id": "3.3.1.5",
+    "main_section_id": 4,
+    "context_summary": "Texten beskriver hur en rekommenderad ordination väljs via en listruta, sparas i en automatgenererad journalanteckning och sedan genomförs i COSMIC Medication; användaren måste säkerställa att valet stämmer.",
+    "keywords": [
+      "ordination",
+      "listruta",
+      "journalanteckning",
+      "Recept",
+      "COSMIC Medication",
+      "läkemedel",
+      "icke godkända läkemedel",
+      "gängse rutiner",
+      "val"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "ordination",
+      "journalanteckning",
+      "läkemedelsordination",
+      "strokebehandling",
+      "COSMIC"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "kardiologi",
+      "medicin",
+      "strokebehandling"
+    ],
+    "text": "En rekommenderad ordination kan väljas i en listruta. Detta val sparas senare i den automatgenerade journalanteckningen. Användaren kan sedan använda snabbknappen Recept för att öppna COSMIC Medication där en sökning på valt läkemedel automatiskt har genomförts , se specialfall i avsnitt 4.4 för icke godkända läkemedel. I COSMIC Medication kan användaren ordinera läkemedlet enligt gängse rutiner. Det är användarens ansvar att säkerställa att valt läkemedel i listrutan är samma läkemedel som ordineras."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Medicinskt beslut",
+    "page": 1,
+    "section_id": "3.3.1.6",
+    "main_section_id": 4,
+    "context_summary": "Texten beskriver hur man dokumenterar ett medicinskt beslut, inklusive när det fattas eller skjuts upp, och hur journalanteckningen genereras automatiskt.",
+    "keywords": [
+      "medicinskt beslut",
+      "journalanteckning",
+      "beslut",
+      "signering",
+      "automatgenerera"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Medicinsk dokumentation",
+      "Beslutstagning",
+      "Journalhantering"
+    ],
+    "clinical_domain": [
+      "Klinisk dokumentation",
+      "Stroke",
+      "CDS"
+    ],
+    "text": "Används för att dokumentera det medicinska beslutet. Här anges om beslutet tas direkt eller om beslutet skjuts upp. För att få en fullständig journalanteckning skall alla delar i denna del av fönstret fyllas i. När man har granskat och säkerställt att alla uppgifter är korrekta signeras beslutet och en journalanteckning automatgenereras med samtliga av ovanstående delar."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Rekommendation följs",
+    "page": 1,
+    "section_id": "3.3.2",
+    "main_section_id": "3",
+    "context_summary": "Instruktion för hur man signerar beslutet när en rekommendation följs och läkemedel väljs i listrutan, inkl. möjlighet att lägga till kommentar och inaktivering av varning.",
+    "keywords": [
+      "rekommendation",
+      "läkemedel",
+      "signera",
+      "beslut",
+      "kommentar",
+      "varning",
+      "ordinerat",
+      "CDS",
+      "strokeprevention"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Medicinskt beslut",
+      "Rekommendation följs",
+      "Signering",
+      "Läkemedelsordinerande",
+      "CDS"
+    ],
+    "clinical_domain": [
+      "Kardiovaskulär",
+      "Strokeprevention",
+      "Medicinsk beslut",
+      "Vårdteknik"
+    ],
+    "text": "Om rekommendation följs och ett läkemedel valts i listrutan måste man, efter att ha ordinerat läkemedlet, markerat alternativknappen Ta beslut nu och klicka på knappen Signera. Det går även att ange en kommentar. När beslutet signerats får användaren ett meddelande om att beslutet är signerat, och varningen kommer inaktiveras tills dess att ordinationen sätts ut. Bild 4 Avsnittet Medicinskt beslut, rekommendation följs CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 14(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Rekommendation följs ej",
+    "page": 1,
+    "section_id": "3.3.3",
+    "main_section_id": 3,
+    "context_summary": "Om rekommendationen inte följs måste ett beslut tas och en anledning anges i \"Orsak till att avstå behandling\" eller fritext. Signering inaktiverar varning i ett år; efter detta måste beslutet omprövas.",
+    "keywords": [
+      "rekommendation",
+      "avstående",
+      "behandling",
+      "beslut",
+      "varning",
+      "Årsvarning",
+      "fritext",
+      "Orsak till att avstå",
+      "CHA2DS2-VASc",
+      "patientlist"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Medicinsk beslut",
+      "Rekommendation",
+      "Avstå behandling",
+      "Varning",
+      "Dokumentation"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Kardiologi",
+      "Medicinsk beslutsfattande"
+    ],
+    "text": "Om rekommendationen inte följs, måste man ange att beslut tas ändå. Under Följt rekommendation markeras alternativknappen Nej. En anledning till att rekommenderad behandling ej följs måste alltid anges. Önskad orsak väljs i listrutan Orsak till att avstå behandling och kan kompletteras med fritext. Om alternativet Annan orsak väljs måste en anledning alltid anges i fritext. När vårdgivaren signerar detta beslut inaktiveras varningen i ett år om inte CHA2DS2-VASc -poängen höjs innan dess. Efter ett år måste beslutet omprövas och då kommer dialogfönstret att återigen presenteras nästa gång patienten laddas i patientlisten. Bild 5Avsnittet Medicinskt beslut, rekommendation följs ej"
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Beslut skjuts upp",
+    "page": 1,
+    "section_id": "3.3.4",
+    "main_section_id": 3,
+    "context_summary": "Denna sektion beskriver hur en vårdgivare kan skjuta upp ett kliniskt beslut i ett CDS-system, vilka krav som måste uppfyllas och hur systemet hanterar aktivering, avaktivering samt påminnelser under och efter tidsintervallet.",
+    "keywords": [
+      "beslut",
+      "skjut upp",
+      "CDS",
+      "strokeprevention",
+      "patient",
+      "aktivering",
+      "avaktivering",
+      "påminnelse",
+      "journalanteckning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "beslut",
+      "fördröjning",
+      "patienthantering",
+      "sjukvårdsprocess",
+      "CDS-system",
+      "strokeprevention"
+    ],
+    "clinical_domain": [
+      "kardiologi",
+      "neurologi",
+      "patientvård"
+    ],
+    "text": "Om vårdgivaren önskar finns det möjlighet att skjuta upp beslutet ett specifikt tidsintervall. Beslutsstödet inaktiveras därmed under denna period för den aktuella patienten. Beslutsstödet kommer aktiveras under denna period endast om CHA2DS2-VASc -poängen höjs. En journalanteckning kommer att skapas som dokumenterar att beslutet har skjutits upp vilket gör att det alltid är möjligt att spåra hanteringen av patienten. När det valda tidsintervallet har löpt ut aktiveras beslutsstödet på nytt och det är möjligt att signera ett annat beslut för patienten. Observera att det är upp till vårdgivaren själv att avgöra hur patienten skall handläggas. En automatiskt påminnelse från beslutsstödet kommer inte att skickas utan patienten måste aktivt hämtas i patientlisten för att varning skall ges. Varningen aktiveras/avaktiveras för alla vårdgivare, inte bara för den som fattade beslutet att skjuta upp. Bild 6 Avsnittet Medicinskt beslut, beslut skjuts upp CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 15(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Förmaksflimmer anses inte aktuell för strokeförbyggande",
+    "page": 1,
+    "section_id": "3.3.5",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver vad man ska göra när förmaksflimmer eller -fladder inte bedöms vara aktuell för strokeprophylax: diagnosen kan avmarkeras i beslutsstödet, CHA2DS2‑VASc‑beräkningen avaktiveras, och en medicinsk beslutssignatur med motivering krävs. Diagnosen försvinner inte ur journalen, men inga varningar utlöses förrän en ny diagnos läggs till. Ett journalanteckning skapas vid avmarkering.",
+    "keywords": [
+      "förmaksflimmer",
+      "fladder",
+      "strokeprophylax",
+      "diagnos",
+      "CHA2DS2-VASc",
+      "medicinskt beslut",
+      "vårvarning",
+      "journal",
+      "CDS",
+      "strokeprevention",
+      "diagnosverktyg"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Strokeprevention",
+      "Diagnoser",
+      "Medicinskt beslut",
+      "Varning",
+      "CDS",
+      "Journal",
+      "Kardiologi"
+    ],
+    "clinical_domain": [
+      "kardiologi",
+      "internmedicin",
+      "neurologi",
+      "klinisk beslutsstöd"
+    ],
+    "text": "insatser I händelse av att patientens förmaksflimmer/ -fladder inte bedöms vara aktuellt kan användaren välja att under pågående granskning i beslutsstödet avmarkera diagnosen och därmed inte gå vidare med strokeprofylaktiska insatser. Om ett förmaksflimmer/ -fladder inte anses vara aktuellt för strokeprofylax anges det i diagnosöversikten, genom att fylla i värdet Nej, med konsekvensen att CHA 2DS2- VASc -beräkningen slås av. Detta innebär att diagnosen finns kvar i patientens journal och diagnosverktyg, men att det inte triggar igång en varning i strokeförebyggande syfte. Ett beslut skall ändå signeras med motivering till varför diagnosen ändrats för att ge spårbarhet i patientens journal till varför strokeförebyggande insatser inte satts in. Beslutet gör också att kommande varningar inaktiveras. Observera att inga diagnoskoder tas bort i diagnosverktyget eftersom omvärderingen enbart gäller det aktuella beslutet. Varning om att patienten saknar strokeförbyggande insatser kommer endast ges om en ny diagnos sätts kring förmaksflimmer/fladder. När CHA2DS2-VASc -beräkningen slås av visas följande information i fönstret. Bild 7 Beräkning av CHA2DS2-VASc avslagen Observera att de fält som eventuellt har fyllts i under Medicinskt beslut kommer att tömmas när diagnosen förmaksflimmer/ -fladder avmarkeras. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 16(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. En journalanteckning skapas när förmaksflimmer/fladder inte anses vara aktuell: Bild 8 Journalanteckning i fönstret Journal"
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Beslut signeras",
+    "page": 1,
+    "section_id": "3.3.6",
+    "main_section_id": "3",
+    "context_summary": "Beslut måste signeras för att skapa en journalanteckning. Om beslutet inte signeras sparas inte informationen och ingen anteckning skapas.",
+    "keywords": [
+      "beslut",
+      "signering",
+      "journalanteckning",
+      "vedtaksstöd",
+      "användare",
+      "vårdpersonal",
+      "diagnosöversikt",
+      "CHA2DS2-VASc",
+      "CDS-anteckning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslut",
+      "Journalanteckning",
+      "Signering",
+      "Arbetsflöde",
+      "Rekommendation"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Kardiovaskulär"
+    ],
+    "text": "Oavsett om beslut tas på en gång eller skjuts upp måste beslutet signeras. När beslutet signeras skapas en journalanteckning med all relevant information kring beslutet. Om användaren väljer att stänga beslutsstödet , utan att signera, sparas inte de uppgifter som angivits och ingen journalanteckning skapas. Användaren får då ytterligare en varning nästa gång patienten laddas i patientlisten. Beslut kan endast signeras, inte sparas, då det är av högsta vikt att journalanteckningen alltid stämmer överens med det beslutsunderlag som finns sparat i beslutsstödet. Det finns ingen utpekad signeringsbehörighet, utan alla användare som har behörighet att använda CDS Stroke Prevention har också behörighet att signera. Det finns inte stöd att skicka en CDS -anteckning för vidimering, utan anteckningar signeras direkt av signeringsbehörig vårdpersonal . Journalanteckningen som signerats sammanfattar: Diagnosöversikten med vilka diagnoser som ansetts adekvata för beslutet CHA2DS2-VASc-poängen utifrån diagnosöversikten Taget beslut och datum När användaren klickar på knappen Signera uppdateras patientens journal med de inskrivna uppgifterna. Rekommenderat arbetsflöde är att efter signering stänga beslutsstödet och kontrollera journalen. Journalanteckningen som skapas följer den normala hanteringen i vårddokumentation . Det är av högsta vikt att läsa igenom hela anteckningen då denna sammanfattar underlaget för beslutet. Bild 9 Journalanteckning i fönstret Journal CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 17(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Stänga beslutsstödet utan att signera",
+    "page": 1,
+    "section_id": "3.3.7",
+    "main_section_id": 3,
+    "context_summary": "Beslut kan stängas utan signering, men då rensas information. Användaren får möjlighet att förlora ändringar och för att återgå måste data skrivas in på nytt.",
+    "keywords": [
+      "beslut",
+      "signering",
+      "stängning",
+      "CDS",
+      "patientlista",
+      "förändringar",
+      "rensa data",
+      "återöppning",
+      "granskning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslutsstöd",
+      "Signatur",
+      "CDS",
+      "Patientinformation",
+      "Ändringshantering"
+    ],
+    "clinical_domain": [
+      "Strokeförebyggande",
+      "Neurologi",
+      "Hälsovård"
+    ],
+    "text": "Beslut behöver inte tas på en gång. En pågående granskning kan dock inte sparas, då ett beslut alltid skall vara signerat. Beslutsstödet kan stängas och sedan enkelt öppnas via den röda CDS -ikonen i patientlisten. När beslutsstödet stängs utan signering rensas all information som skrivits in. När man åter öppnar ett beslut som inte signerats måste informationen således skrivas in på nytt. Om CDS-fönstret stängs ned utan att beslutet signerats, tillfrågas användaren om denne vill stänga fönstret och förlora ändringarna. Notera att ett Ja i detta fall rensar inskriven data."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.4.1",
+    "main_section_id": 3,
+    "context_summary": "CDS Stroke Prevention är ett kliniskt beslutsstöd som bearbetar data via fördefinierade regler och ger rekommendationer utan att fatta egna beslut. Det agerar enbart utifrån CHA2DS2-VASc-poäng och ger ingen varning för överdosering eller kontraindikationer.",
+    "keywords": [
+      "CDS",
+      "CDS Stroke Prevention",
+      "kliniskt beslutsstöd",
+      "datahantering",
+      "förebyggande stroke",
+      "CHA2DS2-VASc",
+      "rekommendation",
+      "klinik",
+      "patienthantering",
+      "överdosering",
+      "kontraindikationer"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Stroke",
+      "Kliniskt beslutsstöd",
+      "Patientvård",
+      "Medicinsk teknik",
+      "Diagnos",
+      "Behandling",
+      "Riskbedömning"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Kardiologi"
+    ],
+    "text": "CDS Stroke Prevention är ett kliniskt beslutsstöd, vilket betyder att inmatad data hanteras och analyseras av fördefinierade regler för att ge kliniker stöd i att snabbt kunna fatta beslut som ska leda till korrekt handläggning av patienten. De bedömningar och förslag som genereras av beslutsstödet är enbart rekommendationer. CDS Stroke Prevention tar inga egna beslut och användaren skall utnyttja sin egen kliniska kompetens i kombination med rekommendationen för att ta beslut om adekvat handläggning CDS Stroke Prevention varnar inte för överdosering eller kontraindikationer och agerar endast utifrån CHA 2DS2-VASc-poäng (med undantag av de faktorer som nämns i stycke input till CHA 2DS2-VASc). Följande avsnitt ger förenklad information om hur rekommendationerna ges och syftar inte till att beskriva konfigurationen och logiken bakom aktuella regler."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Hämtning av signerad patientdata",
+    "page": 1,
+    "section_id": "3.4.2",
+    "main_section_id": 3,
+    "context_summary": "CDS Stroke Prevention får endast åtkomst till signerad klinisk data; icke signerade uppgifter används inte.",
+    "keywords": [
+      "signerad",
+      "journalanteckning",
+      "ordination",
+      "diagnos",
+      "CDS",
+      "stroke prevention",
+      "patientdata"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "patientdata",
+      "signering",
+      "journal",
+      "diagnos",
+      "ordination"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "Stroke-prevention"
+    ],
+    "text": "CDS Stroke Prevention inhämtar bara signerad klinisk data från journalsystemet (signerade journalanteckningar, signerade ordinationer i läkemedelslista och signerade diagnoskoder). Detta innebär alltså att patientuppgifter som exempelvis sparats men inte signerats inte kommer utgöra tillgängligt informationsunderlag för beslutsstödet."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Identifiering av en patient med förhöjd strokerisk",
+    "page": 1,
+    "section_id": "3.4.3",
+    "main_section_id": 3,
+    "context_summary": "Detta avsnitt beskriver hur CDS Stroke Prevention identifierar patienter med förmaksflimmer eller fladder som saknar strokeprophylax. Varning ges när patienten inte är behandlad enligt Socialstyrelsens riktlinjer, eller när CHA2DS2‑VASc‑poängen har förändrats men inga signade beslut finns. Medicinsk data måste vara signerad för att varningen triggas, och systemet tolkar både ICD‑10 och ICD‑10 prim‑koder.",
+    "keywords": [
+      "förmaksflimmer",
+      "strokeprophylax",
+      "CHA2DS2‑VASc",
+      "diagnoser",
+      "ICD‑10 I48",
+      "signerat",
+      "vardadministration",
+      "varning",
+      "beslut",
+      "tidsstämpel"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "strokeprevention",
+      "bedömning",
+      "diagnostik",
+      "ICD‑10",
+      "VDV‑regler",
+      "beslutsstöd",
+      "patientlist",
+      "varningar",
+      "behandling"
+    ],
+    "clinical_domain": [
+      "kardiologi",
+      "strokeprevention",
+      "internmedicin"
+    ],
+    "text": "Patienter som diagnostiserats med förmaksflimmer/ -fladder men som inte har satts in på strokeprofylaktisk behandling fångas upp av CDS Stroke Prevention när de laddas i patientlisten . Undantagna från varningen är patienter utan övriga riskfaktorer med CHA 2DS2-VASc -poäng 0, samt kvinnor under 65 år utan övriga riskfaktorer. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 18(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Beslutsstödet läser in diagnoser som i ICD -10 definierats med baskoden I48 men klarar även av att läsa in koder från ICD10 prim. För information om ICD -10 och ICD- 10 prim, se Appendix A - Terminologier . Koderna läses från journalen och beroende på lokala inställningar kan de även läsas från vårdadministrativ modul. Endast signerad data triggar en varning. Notera dock att beslutsstödet inte skiljer på primär och sekundär flimmerdiagnos! Varningen ges endast i något av följande fall: Patienten har inte medicinsk behandling som följer Socialstyrelsens riktlinjer vid förmaksflimmer/fladder . Patienten har beslut om att inte ta behandling men har förändrad CHA2DS2-VASc -poäng. Patienten har beslut om att inte ta behandling men tidsstämpeln är äldre än ett år. Patienten har fått sitt beslut uppskjutet men har förhöjd CHA 2DS2-VASc-poäng. Patienten har fått sitt beslut uppsk jutet, men tiden för uppskjutningen har gått ut. Varningen ges inte i följande fall: Patienten har signerad och pågående medicinering enligt rekommendation . Patienten har en nyligen dokumenterad journalanteckning som beskriver varför patienten ej har rekommenderad behandling. Patienten har en dokumenterad journalanteckning om att beslutet är uppskjutet och tidsfristen har ännu inte gått ut . Notera att patientens ordination måste vara signerad för att användas av beslutsstödet vilket är anledningen bakom att patienter med ordination som inväntar signering fortfarande får en varning."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Input till CHA 2DS2-VASc",
+    "page": 1,
+    "section_id": "3.4.4",
+    "main_section_id": 3,
+    "context_summary": "Kopplad till CDS Stroke Prevention system kopplas diagnoskoder, kön och ålder till riskfaktorer i CHA 2DS2‑VASc. Riskfaktorerna ålder, hypertoni, diabetes, hjärtsvikt, vaskulär sjukdom och kön vägs till poäng 1 eller 2, med högsta 9 poäng, vilket används för att beräkna den årliga stroke‑risken.",
+    "keywords": [
+      "CDS Stroke Prevention",
+      "CHA 2DS2‑VASc",
+      "riskfaktorer",
+      "stroke",
+      "TIA",
+      "hypertoni",
+      "diabetes",
+      "hjärtsvikt",
+      "vaskulär sjukdom",
+      "kön",
+      "ålder",
+      "poäng",
+      "riskvärdering"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Klinisk Manual",
+      "Stroke Prevention",
+      "Riskbedömning",
+      "Digitalt KDS",
+      "Hälsa"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi",
+      "Internmedicin"
+    ],
+    "text": "Kopplad till CDS Stroke Prevention finns en extern regelmotor. Här kopplas diagnoskoder, kön och ålder från patientens journal och patientkort till riskfaktorerna i CHA 2DS2-VASc. Aktuella sökord, som anses vara riskfaktorer för stroke, är ålder, tidigare stroke, hypertoni, diabetes, hjärtsvikt, vaskulär sjukdom och kön. Dessa riskfaktorer ger 1 alternativt 2 poäng om de finns registrerade hos patienten. Undantaget är kön där en kvinna får 1 poäng och en man 0. Tidigare registrerad stroke eller TIA samt en ålder över 75 räknas som höga riskfaktorer och motsvarar således 2 poäng vardera. Maximala totalpoängen för dessa riskfaktorer är 9. Notera att endast signerad data läses in. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 19(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Poängen ligger också till grund för den årliga risken att drabbas av stroke (%). Riskfaktorer Poäng C Hjärtsvikt/VK -dysfunktion 1 H Hypertoni 1 A2 Ålder > 75 2 D Diabetes 1 S2 Stroke/TIA 2 V Vaskulär sjukdom 1 A Ålder 65-74 1 Sc Kvinnligt kön 1 För mer information om CHA 2DS2-VASc, se Appendix B - Referenser ."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Rekommenderad läkemedelslista",
+    "page": 1,
+    "section_id": "3.4.5",
+    "main_section_id": 3,
+    "context_summary": "Läkemedelsrekommendationer baseras på Socialstyrelsens riktlinjer och CHA2DS2-VASc-poäng; tre risknivåer definieras, och systemet varnar endast för saknad behandling, inte för överdosering.",
+    "keywords": [
+      "läkemedel",
+      "rekommendation",
+      "Socialstyrelsen",
+      "CHA2DS2-VASc",
+      "risknivå",
+      "0 poäng",
+      "1 poäng",
+      "2 poäng",
+      "stroke",
+      "överdosering",
+      "COSMIC",
+      "Pascal"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Kardiologi",
+      "Stroke",
+      "Antikoagulantia",
+      "Riskbedömning",
+      "Riktlinjer"
+    ],
+    "clinical_domain": [
+      "Kardiovaskulär",
+      "Neurologi",
+      "Hälsoinformatik"
+    ],
+    "text": "De läkemedel som rekommenderas i beslutsstödet är baserade på Socialstyrelsens riktlinjer och rekommendationerna bygger på den totala CHA 2DS2-VASc-poängen. Idag finns tre olika risknivåer : Den första där man ligger på 0 poäng och inte har någon förhöjd risk och därför inte rekommenderas behandling Den andra där man ligger på 1 poäng och har en klinisk relevant riskfaktor - Den tredje där man ligger på 2 poäng eller mer och har antingen en hög riskfaktor (på grund av ålder eller tidigare stroke) eller flera mindre riskfaktorer. Beslutsstödet varnar endast om patienten saknar behandling enligt riktlinjer, det varnar inte för överdosering. Notera att endast signerade läkemedel i COSMIC gäller som insatt behandling och att beslutsstödet inte får information om förskrivningar i Pascal."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Hantering av spärrad information",
+    "page": 1,
+    "section_id": "3.4.6",
+    "main_section_id": "3",
+    "context_summary": "Texten beskriver hur patienter med spärrad information kan exkluderas från CDS Stroke Prevention och hur beslutet styrs av systemförvaltning och region/affärsrutiner.",
+    "keywords": [
+      "spärrad information",
+      "exkludering",
+      "CDS Stroke Prevention",
+      "systemförvaltning",
+      "region",
+      "sjukhus",
+      "strokeprofylax",
+      "rutiner"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Patientdata",
+      "Policy",
+      "Systemförvaltning",
+      "Strokeprophylax",
+      "Informationsspärra"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "Hälsa IT",
+      "Patienthantering"
+    ],
+    "text": "Patienter med spärrad information kan väljas att exkluderas från CDS Stroke Prevention . Det är systemförvaltningens beslut om detta skall göras och styrs av en inställning. I övrigt är det Regionens eller sjukhusets egna rutiner som gäller för hur spärrar kring strokeprofylax skall hanteras. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 20(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Påminnelse om användning",
+    "page": 1,
+    "section_id": 3.5,
+    "main_section_id": 2,
+    "context_summary": "Observera att antikoagulantia inte alltid är lämpligt för patienter med förmaksflimmer/pauser; kliniskt beslut måste bedömas individuellt.",
+    "keywords": [
+      "antikoagulantia",
+      "förmaksflimmer",
+      "patient",
+      "kliniskt beslut",
+      "beslutsstöd",
+      "behandling",
+      "riskbedömning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Strokeförebyggande",
+      "Förmaksflimmer",
+      "Antikoagulantia",
+      "Kliniskt beslut",
+      "Patientvård"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi"
+    ],
+    "text": "Även om patienten har förmaksflimmer/ -fladder är inte antikoagulantia alltid lämplig som insats. Observera att beslutsstödet inte ersätter det kliniska beslutet, det är läkarens ansvar att i varje enskilt fall utvärdera om antikoagulantiabehandlig är lämplig för den enskilde patienten."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Felhantering",
+    "page": 1,
+    "section_id": "3.6",
+    "main_section_id": 2,
+    "context_summary": "När ett systemfel uppstår i CDS Stroke Prevention inaktiveras systemet, varningsikonen ersätter den röda CDS-ikonen i patientlistan och ett tooltip visar ett felmeddelande.",
+    "keywords": [
+      "systemfel",
+      "CDS",
+      "stroke prevention",
+      "varningsikon",
+      "tooltip",
+      "patientlista",
+      "felmeddelande",
+      "systemavstängning",
+      "manual"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "Systemfel",
+      "CDS",
+      "Stroke Prevention",
+      "Patientlista"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Neurologi"
+    ],
+    "text": "Om ett systemfel uppstår i CDS Stroke Prevention kommer systemet att inaktiveras varpå beslutsstödet inte kan användas för den aktuella patienten. Detta indikeras genom att den röda CDS -ikonen till höger i patientlisten ersätts med en varningsikon. Om man håller muspekaren över denna ikon visas ett tooltip med ett felmeddelande. Bild 10 Varningsikon i Patientlisten CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 21(23) Notera att utskrifter kan vara iaktuell. För vid var tid aktuell version, se den digitala versionen. 4 Specialfall"
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "4.1",
+    "main_section_id": 2,
+    "context_summary": "Handlar om att verktyget för strokeprevention fortfarande utvecklas och vissa specialfall måste hanteras manuellt.",
+    "keywords": [
+      "CDS",
+      "stroke prevention",
+      "specialfall",
+      "verktyg",
+      "utveckling",
+      "hantering",
+      "beteende"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Strokeprevention",
+      "CDS",
+      "specialfall",
+      "verktyg",
+      "utveckling"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "Kardiologi",
+      "Sjukvård",
+      "Hälsoinformatik"
+    ],
+    "text": "CDS Stroke Prevention är under kontinuerlig utveckling. I denna version av stödet har ett antal specialfall identifierats som inte täcks in av verktyget, men som kan lösas genom att man arbetar runt det. I följande avsnitt presenteras önskat beteende samt hur fallen kan hanteras med dagens verktyg."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Patient skrivs ut och diagnos läggs till",
+    "page": 1,
+    "section_id": "4.2",
+    "main_section_id": 2,
+    "context_summary": "Diagnos läggs till i patientens journal utan varning; användaren måste rensa patientlisten för att kontrollera behandling enligt riktlinjerna.",
+    "keywords": [
+      "diagnos",
+      "patient",
+      "patientlista",
+      "vardning",
+      "varning",
+      "stroke",
+      "CDS",
+      "journal"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "patienthantering",
+      "journalförvaring",
+      "varningar",
+      "diagnosinmatning"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "stroke",
+      "Kliniskt beslutstöd"
+    ],
+    "text": "Det går inte att lägga till en diagnos och få en varning nä r en patient redan hämtats i patientlisten . När användaren har en patient aktiv och som man arbetar med samt lägger till en diagnos i patientens journal, då visas inte någon varning. I detta fall får användaren skriva in aktuella diagnoser och rensa patientlisten för att hämta patienten igen om man vill kontrollera att patienten står på behandling enligt de kliniska riktlinjerna."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Ordination skrivs på remiss",
+    "page": 1,
+    "section_id": "4.3",
+    "main_section_id": 2,
+    "context_summary": "När en remiss för läkemedel skickas till kardiologen känner CDS Stroke Prevention inte att remissen är skickad och kan ge varningar trots att riktlinjen följs i gränssnittet. Beslutet bör därför skjutas och signeras efter att ordinationen registrerats.",
+    "keywords": [
+      "remiss",
+      "läkemedel",
+      "CDS",
+      "stroke prevention",
+      "NOAK",
+      "DOAK",
+      "kardiolog",
+      "ordination",
+      "varning",
+      "aktiverat",
+      "tidsättning",
+      "signering"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Remiss",
+      "Läkemedelsförskrivning",
+      "CDS",
+      "Stroke Prevention",
+      "Kardiologi",
+      "Medicinsk process"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Stroke Prevention"
+    ],
+    "text": "Om användaren väljer att skicka en remiss om att skriva ut ett läkemedel, t.ex. om användaren skickar en förfrågan till kardiologen om att skriva ut NOAK/DOAK, då kan inte CDS Stroke Prevention känna av att remissen är skickad. Om användaren anger att riktlinjen följts genom att ange Ja i CDS-gränssnittet , utan att ha ett aktivt läkemedel (inklusive ej tidssatt ordination) i läkemedelslistan , kommer patienten fortfarande få en varning. Här får man istället skjuta upp beslutet och i efterhand gå in och signera ett nytt beslut när ordinationen skrivits in."
+  },
+  {
+    "source_file": "Cosmic manual CDS stroke prevention v6.1.pdf",
+    "section": "Förskrivning av icke godkända läkemedel",
+    "page": 1,
+    "section_id": "4.4",
+    "main_section_id": 2,
+    "context_summary": "När ett läkemedel inte finns i sökningen visas ett meddelande om att inga resultat hittades; detta kan tyda på att läkemedlet inte är godkänt. Användaren bör då byta sökning till icke godkända läkemedel.",
+    "keywords": [
+      "läkemedel",
+      "icke godkända",
+      "gödsättning",
+      "beslutsstöd",
+      "receptknapp",
+      "meddelande",
+      "sökning",
+      "godkänt"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Läkemedel",
+      "Stroke",
+      "Användarmanual",
+      "Beslutsstöd",
+      "Recept"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi"
+    ],
+    "text": "Om användaren väljer ett läkemedel i beslutsstödet och klickar på receptknappen kan läkemedelsmodulen ge följande meddelande \"Inga resultat hittades för...\". I sådana fall kan det betyda att läkemedlet inte är godkänt och återfinns inte under kategorin Läkemedel i sökningen. Användaren ska därför, i läkemedelsmodulen, byta sökningen till Icke godkända läkemedel . CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 22(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix A - Terminologier A1 ICD-10 och ICD-10-prim terminologi Diagnos ICD-10 koder ICD-10-prim koder Förmaksflimmer I48 I48- Hjärtsvikt/VK -dysfunktion I50 I50- Hypertoni I10-I13, I15 I10-, I13-P, I15- Diabetes mellitus E10-E14 E108P, E109, E118P, E119, E14-B Stroke/TIA/tromboembolism I63, I64, I74, G45.0- G45.3, G45.8, G45.9 I63-, I64-, G45-P, I74-P Vaskulär sjukdom I21, I25.2, I70-I73 I21-P, I25-P, I709P, I71-, I72-, I730, I739P A2 ATC terminologi Läkemedel ATC Koder Kategori Warfarin B01AA03 Warfarin Dabigatran etexilat B01AE07 NOAK Rivaroxaban B01AF01 Apixaban B01AF02 Edoxaban B01AF03 CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024-02-01 ©2024 Cambio Healthcare Systems AB 23(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix B - Referenser B1 Elektroniska referenser [1] Socialstyrelsen, Nationella riktlinjer för hjärtsjukvård , https://www.socialstyrelsen.se/SiteCollectionDocuments/2018-6-28- vetenskapligt-underlag.pdf B2 Övriga referenser [2] Camm AJ, Kirchhof P, Lip GY, et al. Guidelines for the management of atrial fibrillation: the Task Force for the Management of Atrial Fibrillation of the European Society of Cardiology (ESC). Europace 2010;12:1360 1420 [3] Camm AJ, Lip GY, De Caterina R, et al. 2012 focused update of the ESC Guidelines for the management of atrial fibrillation: An update of the 2010 ESC Guidelines for the management of atrial fibrillation. Europace. 2012; 14: 1385- 1413. [4] Valladares, C. Förmaksflimmer, Vårdprogram version primärvård. Arytmisektionen, Kardiologiska kliniken, US i Linköping, 2012 [5] Kirchhof P, Benussi S, Kotecha D, Ahlsson A, Atar D, Casadei B, et al. 2016 ESC Guidelines for the management of atrial fibrillation developed in collaboration with EACTS. Eur Heart J. 2016;37(38):2893 B3 Referenser till CHA 2DS2-VASc [6] Lip GY, Nieuwlaat R, Pisters R, Lane DA, Crijns HJ. Refining clinical risk stratification for predicting stroke and thromboembolism in atrial fibrillation using a novel risk factorbased approach: the euro heart survey on atrial fibrillation. Chest. 2010 Feb;137(2):263-72. [7] Camm AJ, Kirchhof P, Lip GY, et al. Guidelines for the management of atrial fibrillation: the Task Force for the Management of Atrial Fibrillation of the European Society of Cardiology (ESC). Eur Heart J. 2010 Oct;31(19):2369-429. [8] Friberg L, Rosenqvist M, Lip GY. Evaluation of risk stratification schemes for ischaemic stroke and bleeding in 182 678 patients with atrial fibrillation: the Swedish Atrial Fibrillation cohort study. Eur Heart J. 2012 Jun;33(12):1500-10."
+  }
+]

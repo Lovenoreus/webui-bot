@@ -52,7 +52,7 @@
     "issue_type": "Task"
   },
   "cosmic_database":{
-    "collection_name":"cosmic_documents",
+    "collection_name":"cosmic_documents_group2",
     "document_path":"C:/RemoteRepos/omnigate/cosmic_documents"
 
 

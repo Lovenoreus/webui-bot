@@ -1,0 +1,2380 @@
+[
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Introdu ktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Beskrivning av CDS Stroke Prevention och hur det upptäcker, behandlar och journaliserar patienter med förmaksflimmer/fladder för att minska risken för stroke.",
+    "keywords": [
+      "CDS Stroke Prevention",
+      "förmaksflimmer",
+      "stroke",
+      "CHA2DS2-VASc",
+      "Socialstyrelsen",
+      "COSMIC",
+      "journal",
+      "diagnoskoder",
+      "rekommendation"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Diagnostik",
+      "Behandling",
+      "Stroke",
+      "Förmaksflimmer",
+      "Klinisk beslut",
+      "IT-system",
+      "Journalhantering"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi",
+      "Medicinsk verksamhet",
+      "IT i vården"
+    ],
+    "text": "Detta dokument beskriver Cambio Clinical Decision Support (CDS) Stroke Prevention (härefter kallad CDS Stroke Prevention ) ur ett användarperspektiv. Läsaren förutsätts ha grundläggande kunskaper i COSMIC samt av datoranvändning generellt. Information om applicerbara och kompatibla versioner mellan beslutsstödet och underliggande journalsystem är angivet i dokumentets versionshistorik. CDS Stroke Prevention ett stöd för att upptäcka, behandla och journalföra patienter med förmaksflimmer/fladder som löper risk att drabbas av stroke. Stödet ger en varning när en patient med förmaksflimmer/ -fladder, som inte behandlas enligt riktlinjerna från Socialstyrelsen, hämtas i patient listen. Användaren kan välja att öppna beslutsstödet CDS Stroke Prevention direkt eller att göra det senare. Utifrån diagnoskoder, kön och ålder sätts poäng enligt CHA 2DS2-VASc för att räkna ut risknivån för stroke och ge rekommendation om behandling. Användaren får en rekommendation avseende medicinsk behandling till patienten presenterad och kan öppna COSMIC -vyn Ny ordination direkt via beslutsstödets gränssnitt. Det skapas en journalmall där anteckningar kopplade till beslutet automatiskt fylls i. Beslutsstödet ger rekommendationer som endast skall betraktas som understöd för användaren, då dennes kunskap om patienten alltid är avgörande för beslutet. Beslutsstödet ersätter därmed inte beslutsfattaren."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "Detta avsnitt visar en tidslinje över revisions- och uppdateringar av dokumentet samt vilken version av beslutsstödet och COSMIC som är kompatibel.",
+    "keywords": [
+      "versionshistorik",
+      "ändringar",
+      "kompatibel",
+      "beslutsstöd",
+      "journalsystem",
+      "COSMIC",
+      "revision",
+      "uppdatering"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumenthistorik",
+      "Versionshistorik",
+      "Beslutsstöd",
+      "COSMIC",
+      "Journal system"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Neurologi"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid samt kompatibla versioner mellan beslutsstödet och underliggande journalsystem. Version Datum Beskrivning 1.0 2019 -05-16 Första version. Dokumentet gäller för beslutsstödsversion 1.0.x och från COSMIC R8.2.02. 2.0 2019 -10-02 Dokumentet reviderat och uppdaterat. Dokumentet gäller för beslutsstödsversion 2.0.x och från COSMIC R8.2.03. 2.1 2019 -10-28 Avsnitt 3.3.5 uppdaterat. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 5(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Version Datum Beskrivning 2.2 2020 -07-07 Avsnitt 4.3 uppdaterat. Dokumentet gäller för beslutsstödsversion 2.1.x och från COSMIC R8.2.03. 3.0 2020 -11-26 Dokumentet reviderat och uppdaterat. Dokumentet gäller för beslutsstödsversion 3.0.x och från COSMIC R8.2.07. 4.0 2021 -03-29 Avsnitt 3.3 uppdaterat. Dokumentet gäller för beslutsstödsversion 4.0.x och från COSMIC R8.2.07. 4.1 2021 -06-03 Dokumentet reviderat och uppdaterat. 5.0 2021 -10-07 Avsnitt 3.2 uppdaterat. Dokumentet gäller för beslutsstödsversion 5.0 och från COSMIC 8.01. 5.1 2022 -02-17 Avsnitt 3.3.5 uppdaterat. 5.2 2022 -07-01 Kapitel 3 uppdaterat. 5.3 2023 -05-04 Kapitel 2 tillagt. Dokumentet gäller för beslutsstödsversion 5.1.x och från COSMIC 3.8.0. 6.0 2023 -10-13 Avsnitt 3.2 och 3.4.2 tillagd a. Dokumentet gäller för beslutsstödsversion 5.2.x och från COSMIC 3.10.0. 6.1 2024 -02-01 Kapitel 2 uppdaterat."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Term er",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "Kort sammanfattning av en tabell som förklarar termer, förkortningar och akronymer som används i dokumentet.",
+    "keywords": [
+      "termer",
+      "förkortningar",
+      "akronymer",
+      "CDS",
+      "DOAK",
+      "NOAK",
+      "TIA",
+      "stroke",
+      "antikoagulantia"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "terminologi",
+      "förkortningar",
+      "akronymer",
+      "dokumetsstruktur",
+      "stroke",
+      "antikoagulation"
+    ],
+    "clinical_domain": [
+      "Klinisk beslutsstöd",
+      "Antikoagulation",
+      "Stroke",
+      "TIA",
+      "Medicinsk information"
+    ],
+    "text": "Följande tabell beskriver de termer, förkortningar och akronymer som används i detta dokument. Term Beskrivning CDS Clinical Decision Support DOAK Direktverkande perorala antikoagulantia NOAK Non -vitamin K Orala Antikoagulantia TIA Transitorisk ischemisk attack CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 6(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.4.1",
+    "main_section_id": 3,
+    "context_summary": "Dokumentet beskriver typografiska konventioner: fetstil för gränssnittstermer (t.ex. knoppar, fönsterrubriker), kursiv för modulnamn, filnamn och webblänkar, citattecken för valbara alternativ i listrutor, vinkelparenteser för ersättningsbar information och Courier New för systemkommandon och kodexempel.",
+    "keywords": [
+      "typografi",
+      "fetstil",
+      "kursiv",
+      "citattecken",
+      "vinkelparenteser",
+      "systemkommandon",
+      "gränssnitt",
+      "modulnamn",
+      "filnamn",
+      "webblänk"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Typografi",
+      "Dokumentstandard",
+      "Användargränssnitt",
+      "Systemkommandon",
+      "Kursiv",
+      "Fetstil"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Neurologi"
+    ],
+    "text": "Följande typografiska konventioner används i detta dokument: • Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . • Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger , Properties.txt eller https://customer.cambio.se . • Enkla citattecken (’ ’) indikerar valbara alternativ i listrutor. Exempel: Välj alternativet ’Blå’ i listrutan Färg . • Vinkelparenteser (<…>) indikerar ersättningsbar information i texten som värden, namn, typer och sökvägar. Exempel: COSMIC <…> där <…> ersätts med namnet Link till COSMIC Link . • Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.4.2",
+    "main_section_id": 3,
+    "context_summary": "Dokumentet beskriver vilka ikoner som används för att varna läsare om särskild information eller funktioner, samt påpekar att vissa funktioner kan kräva extra kostnad eller tredjepartslicens.",
+    "keywords": [
+      "ikoner",
+      "information",
+      "uppmärksamma",
+      "känslighet",
+      "kostnad",
+      "tredjepartslicens",
+      "gränssnitt",
+      "R8.2.03",
+      "CDS Stroke Prevention"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Ikoner",
+      "Informationsdesign",
+      "Användarmärknad",
+      "UI",
+      "Patientinformation"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Strokeprevention",
+      "Neurologi",
+      "Kardiovaskulär"
+    ],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. En tredjepartslicens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 7(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om CDS Stroke Prevention"
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "CDS Stroke Prevention är en klinisk beslutsstödsapplikation som använder CHADS2-VASc för att identifiera AF/FL-patienter utan strokeförebyggande behandling, beräknar årlig stroke‑risk och föreslår behandling samt stöder ordinationsprocessen.",
+    "keywords": [
+      "CDS Stroke Prevention",
+      "klinikbeslut",
+      "CHADS2-VASc",
+      "förmaksflimmer",
+      "fladder",
+      "strokeförebyggande",
+      "riskbedömning",
+      "ordning",
+      "behandling",
+      "patient"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Kliniska beslut",
+      "Strokeförebyggande",
+      "Förmaksflimmer",
+      "Fladder",
+      "Riskbedömning",
+      "Behandlingstolkning"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi"
+    ],
+    "text": "Cambio Clinical Decision Support (CDS) Stroke Prevention (härefter CDS Stroke Prevention ) är en klinisk beslutsstödsapplikation som implementerar den kliniskt validerade CHADS2 -VASc poängskalan för att identifiera patienter av alla åldrar med förmaksflimmer eller fladder som saknar aktiv strokeförebyggande behandling. CDS Stroke Prevention tillhandahåller en estimering av den procentuella risken för stroke inom det kommande året för de identifierade patienterna och genererar automatiskt en rekommendation för strokeförebyggande behandling i linje med internationellt validerade kliniska riktlinjer för strokeförebyggande behandling baserat på patientens CHADS2 -VASc poäng. Vidare tillhandahåller CDS Stroke Prevention vårdpersonalen stöd i ordinationsprocessen."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Försiktighetsåtgärder",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Detta avsnitt förklarar att CDS Stroke Prevention inte ska användas som enda källa, inte är avsedd för realtidsövervakning, inte ersätter observation och diagnos, och att manualen ska läsas.",
+    "keywords": [
+      "CDS Stroke Prevention",
+      "diagnos",
+      "behandling",
+      "vitalparametrar",
+      "patientobservation",
+      "patientbedömning",
+      "användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "försiktighetsåtgärder",
+      "diagnostik",
+      "behandling",
+      "användarmanual",
+      "klinik"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Neurologi"
+    ],
+    "text": "Följande försiktighetsåtgärder skall beaktas: • CDS Stroke Prevention bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. • CDS Stroke Prevention är inte avsedd för realtidsövervakning av vitala fysiologiska parametrar. • CDS Stroke Prevention ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. • Användarmanualen för CDS Stroke Prevention bör läsas innan användning."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Risker med användning av CDS",
+    "page": 1,
+    "section_id": "2.3",
+    "main_section_id": 2,
+    "context_summary": "Den här texten beskriver risker vid användning av ett beslutsstödssystem: saknad eller felaktig indata, inkorrekt eller korrupt data från journalsystemet, behovet av att klinisk kunskap skall föregå systemets rekommendationer, risk för att ny patientdata missas när systemet laddar, samt nätverks- och serverrelaterade tillgänglighetsproblem.",
+    "keywords": [
+      "risker",
+      "beslutsstöd",
+      "indata",
+      "inkorrekt data",
+      "korrupt data",
+      "klinisk kunskap",
+      "patientdata",
+      "nätverksproblem",
+      "serverproblem"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Risk",
+      "Beslutsstöd",
+      "Data",
+      "Klinisk användning",
+      "Nätverk"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "Stroke",
+      "Kardiologi"
+    ],
+    "text": "Nedan följer en sammanfattning av de risker som medföljer denna produkt: • Om beslutsstödet saknar nödvändig indata för att utföra en bedömning kommer en rekommendation inte kunna ges, detta betyder inte att det inte föreligger några hälsorelaterade risker för patienten. • Om beslutsstödet blir matad med inkorrekt eller korrumperad data från journalsystemet kan en felaktig rekommendation genereras av beslutsstödstjänsten. • Som användare måste den kliniska kunskap och allmänna kännedom som användaren har om patienten alltid föregå det som genererats av beslutsstödet. Detta är tydligt beskrivet i denna användarmanual. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 8(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. • Beslutsstödet kommer bara ha tillgång till den patientdata som fanns i journalen när patienten laddades i journalsystemet. Om ny patientdata registrerats i patientens journal efter patientladdning finns det en risk att relevant information missas av beslutsstödet. • Beslutsstödet kan vara oåtkomlig ifall det föreligger lokala anslutningsproblem till nätverket eller om beslutsstödstjänsten ligger nere på grund av CDS Runtime serverproblem."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Produkt - och kontaktinformation",
+    "page": 1,
+    "section_id": "2.4",
+    "main_section_id": 2,
+    "context_summary": "Denna sektion ger detaljerad produkt- och kontaktinformation för Cambio CDS Stroke Prevention, inklusive produktnamn, version, tillverkare, CE-märkning, registreringsnummer och anvisningar för rapportering och dokumentation.",
+    "keywords": [
+      "produktetikett",
+      "produktnamn",
+      "Cambio CDS",
+      "Cambio Healthcare Systems AB",
+      "SRN",
+      "CE-märkning",
+      "medicinteknisk produkt",
+      "rapportering",
+      "Läkemedelsverket",
+      "dokumentation",
+      "kunskapsbanken"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Produktinformation",
+      "Kontaktinformation",
+      "Medicinteknisk produkt",
+      "CE-märkningskrav",
+      "Tillverkarnamnda detaljer"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Neurologi",
+      "Medicinteknik"
+    ],
+    "text": "I beslutsstödets användargränssnitt visas en produktetikett via knappen . Den innehåller följande information: • Produktnamn uppdelat i tre nivåer • Cambio CDS - Clinical Decision Support • Cambio CDS Runtime ( system ) • Beslutsstödets namn ( software item ) 1 https://www.lakemedelsverket.se Alla allvarliga produktrelaterade incidenter ska rapporteras till Cambio och behörig myndighet (Läkemedelsverket1). CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 9(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. • Produktversioner för beslutsstödet som software item och CDS Runtime som system . • Adress (fysisk och internetadress) för ansvarig tillverkare, tillverkningsdatum och tillverkarens registreringsnummer (SRN). Cambio Healthcare Systems AB Gamla Tanneforsvägen 92 582 54 Linköping +46 13 20 03 00 https://www.cambiogroup.com/ SRN#: SE -MF-000001229 • Dokumentation. Läs och följ anvisningarna i produktens introduktion & användarmanual. Via länken https://kb.cambio.se/ öppnas Kunskapsbanken med tillgång till dokumentation och övrig information. • Medicinteknisk produkt. • CE-märkning. Produkten uppfyller applicerbara krav i EG -direktiv 93/42/EEG. • Unik produktidentifiering (produktspecifik kod). CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 10(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Att arbeta med CDS Stroke Prevention"
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Regler",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": 2,
+    "context_summary": "Beslutsstödet aktiveras endast för nya patienter med diagnoskod förmaksflimmer/-fladder och utan rekommenderad behandling. Det beräknar stroke‑risk och erbjuder läkemedelsrekommendationer enligt Socialstyrelsens riktlinjer samt kräver att förklaring dokumenteras för att släppa varning. Systemet använder befintliga diagnoser och kontrolleras av journalverktygets behörighet.",
+    "keywords": [
+      "beslutsstöd",
+      "förmaksflimmer",
+      "stroke",
+      "risk",
+      "förklaring",
+      "journal",
+      "diagnoser",
+      "Socialstyrelsen",
+      "återaktivering",
+      "behörighet"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Klinisk beslutsstöd",
+      "Strokeprevention",
+      "Diagnoskod",
+      "Journaladministration",
+      "Behörighetskontroll"
+    ],
+    "clinical_domain": [
+      "Strokeprevention",
+      "Kardiologi",
+      "Medicinsk behandling",
+      "Journaladministration"
+    ],
+    "text": "Beslutsstödet aktiveras endast när användaren hämtar en ny patient i patientlisten och patienten har diagnoskod förmaksflimmer/ -fladder registrerad i journalen , se Appendix A1 , utan rekommenderad behandling , se Appendix A2 . Patienten behöver inte behandlas enligt rekommendation , men då måste en motivering till beslutet dokumenteras via beslutsstödet för att varningen inte skall visas igen. Beslutsstödet räknar automatiskt ut risken för stroke samt ger rekommendation om medicinsk behandling enligt gällande riktlinjer från Socialstyrelsen. Systemet arbetar utifrån befintliga diagnoskoder i patientens journal, eller diagnoser registrerade inom vårdadministration . Om diagnoser läggs till, eller läkemedel tas bort, tänds inte varningen förrän patienten laddas nästa gång. Vem som ska ha tillgång till CDS Stroke Prevention styrs av journalsystemets behörighetsinställningar. I följande avsnitt beskrivs kortfattat de bakomliggande funktioner som används i systemet, samt hur det skall användas."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Tillgång till CDS Stroke Prevention",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver hur CDS Stroke Prevention aktiveras, varning visar ikoner och dialogruta, samt hur användaren kan öppna beslutsstödet eller ignorera varningen. Status och åtkomst styrs av systeminställningar och förvaltning.",
+    "keywords": [
+      "CDS",
+      "Stroke Prevention",
+      "varning",
+      "ikoner",
+      "dialogruta",
+      "systeminställning",
+      "patientlista",
+      "diagnostik",
+      "handläggning",
+      "journal",
+      "systemförvaltning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslutsstöd",
+      "Stroke Prevention",
+      "Varingssystem",
+      "Journalhantering"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Neurologi",
+      "Klinisk behandling",
+      "Patientvård"
+    ],
+    "text": "Om kriterier för aktivering av CDS Stroke Prevention uppfylls , se avsnitt 3.3, kommer en varning att visas i journalsystemet. Varningen om att beslutsstödet har aktiverats indikeras med en CDS-ikon i patientlisten samt en visad dialogruta i journalsystemets gränssnitt. Bild 1 – CDS varning med CDS ikon och d ialogrutan Aktiverade beslutsstöd CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 11(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Visningen av dialogrutan vid aktivering styrs av en systeminställning och beslutas av systemförvaltningen. Användaren kan alltid öppna dialogrutan genom att klicka på en CDS-ikon som är tänd i patientlisten . I dialogrutan listas beslutsstöd som har aktiverats. Användaren kan läsa mer om varningen genom en text som visas när muspekaren hålls över ”i”-ikonen. Bild 2 – Information om varningen i dialogrutan Aktiverade beslutsstöd Användaren kan klicka på knappen Öppna beslutsstöd för att visa beslutsstödets huvudfönster Stroke Prevention där beslut om vidare handläggning kan fattas. Om användaren väljer att stänga dialogrutan och ignorera varningen, kommer varningen att visas igen nästa gång patienten laddas i patientlisten . CDS Stroke Prevention kan nås från journalsystemets meny oberoende av en aktivering av beslutsstödet . Tillgång via journalsystemets meny styrs av en systeminställning och beslutas av systemförvaltningen."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Aktivering av beslutstödet och typ av varningar",
+    "page": 1,
+    "section_id": "3.3.1.1",
+    "main_section_id": 4,
+    "context_summary": "Beslutsstödet för strokepreventiv behandling aktiveras när en patient med diagnoskod för förmaksflimmer/laddas in i patientlistan och saknar rekommenderad behandling. Dialogrutan visar fyra olika varningstyper relaterade till behandling, beslut, tidsstämpel och CHA‑2DS‑2‑VASc‑poäng.",
+    "keywords": [
+      "beslutsstöd",
+      "förmaksflimmer",
+      "stroke",
+      "strokeförebyggande behandling",
+      "CHA 2DS2-VASc",
+      "varning",
+      "socialstyrelsen",
+      "patient",
+      "diagnoskod",
+      "patientlista"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Strokesförbyggande",
+      "Beslutsstöd",
+      "Patientförvaltning",
+      "Klinisk vägledning",
+      "Kardiologi"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Allmänmedicin",
+      "Neurologi"
+    ],
+    "text": "Beslutsstödet aktiveras när en patient med diagnoskod förmaksflimmer/ -fladder, utan rekommenderad strokeförebyggande behandling, laddas i patientlisten . Varningen via dialogrutan indikerar följande fyra olika sorters varningar: • Patienten har inte medicinsk behandling som följer Socialstyrelsens riktlinjer vid förmaksflimmer . • Patienten har beslut om att inte ta behandling men har förändrad CHA 2DS2- VASc -poäng . • Patienten har beslut om att inte ta behandling men tidsstämpeln är äldre än ett år. • Patienten har fått sitt beslut uppskjutet men har förhöjd CHA 2DS2-VASc -poäng . CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 12(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om dialogrutan Aktiverad e beslutsstöd visas och användare n öppna r beslutsstödet visas beslutsstödets huvudfönster Stroke Prevention . Bild 3 – Fönstret Stroke Prevention Fönstret består av avsnitten Diagnosöversikt , CHA 2DS 2-VASc poäng , Rekommendationer , Ordination samt Medicinskt beslut , vilka granskas uppifrån och ner, samt från vänster till höger. Dessa beskrivs i följande avsnitt."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Diagnosöversikt",
+    "page": 1,
+    "section_id": "3.3.1.2",
+    "main_section_id": 4,
+    "context_summary": "Avsnittet beskriver hur CHA‑2DS2‑VASc‑diagnoser hanteras i beslutsstödet, vilka diagnoser som automatiskt tilldelas och hur förändringar påverkar poäng och risk. Det betonar att endast signerade diagnoser visas och att användaren måste motivera eventuella ändringar.",
+    "keywords": [
+      "CHA 2DS2-VASc",
+      "diagnoser",
+      "riskbedömning",
+      "stroke",
+      "beslutsstöd",
+      "patientjournal",
+      "signerat",
+      "poäng",
+      "justering",
+      "obligatorisk kommentar"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Diagnos",
+      "Riskbedömning",
+      "Beslutsstöd",
+      "Stroke",
+      "Kardiologi"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Stroke",
+      "Kliniskt beslutsstöd"
+    ],
+    "text": "Under avsnittet l istas alla diagnoser som ingår i CHA 2DS2-VASc . De diagnoser som finns journalförda med diagnoskoder på aktuell patient är automatiskt förvalda som Ja. Endast signerade diagnoser visas . CDS Stroke Prevention fattar inga egna beslut utan det är alltid upp till den enskilde användaren att utnyttja sin egen kunskap i kombination med beslutsstödet för att ta beslut om adekvat handläggning. Det går att ändra de förifyllda värdena avseende diagnoser som ingår i CHA 2DS2- VASc och därmed uppdatera bedömningen som beslutsstödet genomfört. Sätts värdet Ja för en diagnos ökar CHA 2DS2-VASc -poängen och den uppskattade risken för stroke det kommande året, sätts värdet om til l Nej minskar poängen. Ändras någon av diagnoserna måste detta motiveras med en obligatorisk kommentar. Observera att inga diagnoskoder skapas eller tas bort i journalen, utan omvärderingen gäller endast inom beslutsstödet. Diagnoser sätts alltid enligt befintliga rutiner. När en omvärdering har skett i Diagnosöversikt sparas informationen, så nästa gång en varning tänds visas fortfarande samma värden. Skulle däremot en ny registrering av en av de omvärderade diagnoserna göras i journalen, kommer denna registrering även speglas i diagnosöversikten. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 13(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "CHA 2DS2-VASc -poäng",
+    "page": 1,
+    "section_id": "3.3.1.3",
+    "main_section_id": 4,
+    "context_summary": "Sammanfattning av CHA2DS2-VASc-poängen som räknas automatiskt utan extra input.",
+    "keywords": [
+      "CHA 2DS2-VASc",
+      "poäng",
+      "automatiskt",
+      "diagnosöversikt",
+      "stroke",
+      "strokeförebyggande",
+      "kardiovaskulär"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "riskbedömning",
+      "poängsystem",
+      "stroke",
+      "kardiologi"
+    ],
+    "clinical_domain": [
+      "kardiologi",
+      "neurologi",
+      "stroke"
+    ],
+    "text": "Visar en sammanställning av CHA 2DS2-VASc -poängen, enligt diagnosöversikten . Uträkningen görs automatiskt och ingen ytterligare input behövs."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Rekommendationer",
+    "page": 1,
+    "section_id": "3.3.1.4",
+    "main_section_id": 4,
+    "context_summary": "Visar en sammanfattning av faktorer och rekommendationer för handläggning av patienten samt sannolikheten för stroke enligt CHA 2DS2‑VASc. Systemet räknar endast dessa faktorer.",
+    "keywords": [
+      "stroke",
+      "risk",
+      "CHA 2DS2‑VASc",
+      "patient",
+      "handläggning",
+      "procentuell risk",
+      "rekommendationer"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "stroke",
+      "riskbedömning",
+      "handläggning",
+      "kvalitetsindikatorer"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "Kardiologi",
+      "Primärvård"
+    ],
+    "text": "Visar en sammanfattning av de faktorer och rekommendationer som utgör beslutsunderlaget för handläggningen av patienten. Här visas också den procentuella risken för stroke under det kommande året, utifrån CHA 2DS2-VASc - poängen. Observera att systemet inte tar hänsyn till eventuella riskfaktorer utöver de som ingår i CHA 2DS2-VASc."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Ordination",
+    "page": 1,
+    "section_id": "3.3.1.5",
+    "main_section_id": 4,
+    "context_summary": "Användaren kan välja ett föreslaget läkemedel i en listruta, vilket sparas i journalen och kan öppnas via snabbknappen Recept för vidare ordinering i COSMIC Medication.",
+    "keywords": [
+      "ordination",
+      "listruta",
+      "journalanteckning",
+      "snabbknapp",
+      "Recept",
+      "COSMIC Medication",
+      "läkemedel",
+      "icke-godkända läkemedel"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Ordination",
+      "Journalhantering",
+      "Läkemedelsordning",
+      "COSMIC",
+      "Piktogram"
+    ],
+    "clinical_domain": [
+      "Stroke-prevention",
+      "Medicinsk behandling"
+    ],
+    "text": "En rekommenderad ordination kan väljas i en listruta. Detta val sparas senare i den automatgenerade journalanteckningen. Användaren kan sedan använda snabbknappen Recept för att öppna COSMIC Medication där en sökning på valt läkemedel automatiskt har genomförts , se specialfall i avsnitt 4.4 för icke godkända läkemedel. I COSMIC Medication kan användaren ordinera läkemedlet enligt gängse rutiner. Det är användarens ansvar att säkerställa att valt läkemedel i listrutan är samma läkemedel som ordineras."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Medicinskt beslut",
+    "page": 1,
+    "section_id": "3.3.1.6",
+    "main_section_id": 4,
+    "context_summary": "Denna sektion beskriver hur ett medicinskt beslut dokumenteras, när det tas eller skjuts upp, och kräver att alla fält fylls vilket resulterar i en automatgenererad journalanteckning.",
+    "keywords": [
+      "medicinskt beslut",
+      "dokumentation",
+      "journalanteckning",
+      "signering",
+      "fullständig",
+      "automatgenerering"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Medicinskt beslut",
+      "Dokumentation",
+      "Journalanteckning",
+      "Handlingsplan",
+      "Medicinsk dokumentation"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "Stroke",
+      "Medicinsk praxis"
+    ],
+    "text": "Används för att dokumentera det medicinska beslutet. Här anges om beslutet tas direkt eller om beslutet skjuts upp. För att få en fullständig journalanteckning skall alla delar i denna del av fönstret fyllas i. När man har granskat och säkerställt att alla uppgifter är korrekta signeras beslutet och en journalanteckning automatgenereras med samtliga av ovanstående delar."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Rekommendation följs",
+    "page": 1,
+    "section_id": "3.3.2",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver hur man, när en rekommendation följs och ett läkemedel har valt i listrutan, ska signera beslutet via knappen 'Ta beslut nu' och eventuellt lägga till en kommentar. Efter signeringen får användaren ett meddelande och varningen inaktiveras tills ordinationen sätts ut.",
+    "keywords": [
+      "rekommendation",
+      "läkemedel",
+      "ordinerat",
+      "signera",
+      "beslut",
+      "Ta beslut nu",
+      "alternativknapp",
+      "Kommentar",
+      "varning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Medicinskt beslut",
+      "Rekommendation",
+      "Läkemedelsordning",
+      "Signering",
+      "Patientvård"
+    ],
+    "clinical_domain": [
+      "Strokeprevention",
+      "Neurologi"
+    ],
+    "text": "Om rekommendation följs och ett läkemedel valts i listrutan måste man , efter att ha ordinerat läkemedlet, markerat alternativknappen Ta beslut nu och klicka på knappen Signera . Det går även att ange en kommentar. När beslutet signerats får användaren ett meddelande om att beslutet är signerat, och varningen kommer inaktiveras tills dess att ordinationen sätts ut. Bild 4 – Avsnittet Medicinskt beslut , rekommendation följs CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 14(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Rekommendation följs ej",
+    "page": 1,
+    "section_id": "3.3.3",
+    "main_section_id": 3,
+    "context_summary": "Det beskriver hur man hanterar fall där en rekommenderad stroke‑preventionstext inte följs, inklusive beslut, varning och när återvärdering krävs.",
+    "keywords": [
+      "rekommendation",
+      "följ",
+      "avstå",
+      "behandling",
+      "beslut",
+      "varning",
+      "CHA 2DS2‑VASc",
+      "återvärdering",
+      "patientlista",
+      "fritekst"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "stroke",
+      "behandlingsrekommendation",
+      "beslutshantering",
+      "varning",
+      "uppföljning",
+      "avstående"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Kardiologi",
+      "Vårdprocess"
+    ],
+    "text": "Om rekommendationen inte följs, måste man ange att beslut tas ändå. Under Följt rekommendation markeras alternativknappen Nej. En anledning till att rekommenderad behandling ej följs måste alltid ange s. Önskad orsak väljs i listrutan Orsak till att avstå behandling och kan kom pletteras med fritext. Om alternativet ’Annan orsak ’ väljs måste en anledning alltid anges i fritext. När vårdgivaren signerar detta beslut inaktiveras varningen i ett år om inte CHA 2DS2-VASc -poängen höjs innan dess. Efter ett år måste beslutet omprövas och då kommer dialogfönstret att återigen presenteras nästa gång patienten laddas i patientlisten . Bild 5 – Avsnittet Medicinskt beslut, rekommendation följs ej"
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Beslut skjuts upp",
+    "page": 1,
+    "section_id": "3.3.4",
+    "main_section_id": "3",
+    "context_summary": "Det beskriver hur vårdgivaren kan skjuta upp ett beslut i beslutsstödet, inaktivera systemet under ett tidsintervall och aktivera igen vid förfall, samt hur journalanteckning och varning hanteras.",
+    "keywords": [
+      "beslut",
+      "skjuts upp",
+      "tidsintervall",
+      "beslutsstöd",
+      "journalanteckning",
+      "varning",
+      "patienthantering",
+      "CHA2DS2-VASc",
+      "aktivering"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslut",
+      "Skjut upp",
+      "Patient",
+      "Varning",
+      "Journal",
+      "Beslutsstöd",
+      "Tidsintervall",
+      "Vårdgivare"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi",
+      "Stroke",
+      "Medicinsk beslutsstöd"
+    ],
+    "text": "Om vårdgivaren önskar finns det möjlighet att skjuta upp beslutet ett specifikt tidsintervall. Beslutsstödet inaktiveras därmed under denna period för den aktuella patienten. Beslutsstödet kommer aktiveras under denna period endast om CHA 2DS2-VASc -poängen höjs. En journalanteckning kommer att skapas som dokumenterar att beslutet har skjutits upp vilket gör att det alltid är möjligt att spåra hanteringen av patienten. När det valda tidsintervallet har löpt ut aktiveras beslutsstödet på nytt och det är möjligt att signera ett annat beslut för patienten. Observera att det är upp till vårdgivaren själv att avgöra hur patienten skall handläggas. En automatiskt påminnelse från beslutsstödet kommer inte att skickas utan patienten måste aktivt hämtas i patientlisten för att varning skall ges. Varningen aktiveras/avaktiveras för alla vårdgivare, inte bara för den som fattade beslutet att skjuta upp. Bild 6 – Avsnittet Medicinskt beslut, beslut skjuts upp CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 15(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Förmaksflimmer anses inte aktuell för strokeförbyggande",
+    "page": 1,
+    "section_id": "3.3.5",
+    "main_section_id": 3,
+    "context_summary": "Den här delen beskriver hur ett CDSS hanterar diagnosen förmaksflimmer/fladder som inte anses vara aktuell för strokeprophylax, inklusive avmarkering, inaktivering av CHA2DS2‑VASc-berekning, journalanteckning och spårbarhet för beslut.",
+    "keywords": [
+      "förmaksflimmer",
+      "fladder",
+      "strokeprophylax",
+      "CDS",
+      "diagnos",
+      "avmarkera",
+      "CHA2DS2-VASc",
+      "journal",
+      "beslut",
+      "varning",
+      "spårbarhet"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Strokeförebyggande",
+      "Arrytmi",
+      "CDS",
+      "Diagnosverktyg",
+      "Patientjournal"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi",
+      "Medicinsk",
+      "Förebyggande"
+    ],
+    "text": "insatser I händelse av att patientens förmaksflimmer/ -fladder inte bedöms vara aktuellt kan användaren välja att under pågående granskning i beslutsstödet avmarkera diagnosen och därmed inte gå vidare med strokeprofylaktiska insatser. Om ett förmaksflimmer/ -fladder inte anses vara aktuellt för strokeprofylax anges det i diagnosöversikten, genom att fylla i värdet Nej, med konsekvensen att CHA 2DS2- VASc -beräkningen slås av. Detta innebär att diagnosen finns kvar i patientens journal och diagnosverktyg, men att det inte triggar igång en varning i strokeförebyggande syfte. Ett beslut skall ändå signeras med motivering till varför diagnosen ändrats för att ge spårbarhet i patientens journal till varför strokeförebyggande insatser inte satts in. Beslutet gör också att kommande varningar inaktiveras. Observera att inga diagnoskoder tas bort i diagnosverktyget eftersom omvärderingen enbart gäller det aktuella beslutet. Varning om att patienten saknar strokeförbyggande insatser kommer endast ges om en ny diagnos sätts kring förmaksflimmer/fladder. När CHA 2DS2-VASc -beräkningen slås av visas följande information i fönstret. Bild 7 – Beräkning av CHA 2DS2-VASc avslagen Observera att de fält som eventuellt har fyllts i under Medicinskt beslut kommer att tömmas när diagnosen förmaksflimmer/ -fladder avmarkeras. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 16(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. En journalanteckning skapas när förmaksflimmer/fladder inte anses vara aktuell: Bild 8 – Journalanteckning i fönstret Journal"
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Beslut signeras",
+    "page": 1,
+    "section_id": "3.3.6",
+    "main_section_id": 3,
+    "context_summary": "Beslut måste signeras för att skapa en journalanteckning. Arbetsflödet beskriver hur och när signering ska ske samt ansvarsområden för behörig användare.",
+    "keywords": [
+      "beslut",
+      "signering",
+      "journal",
+      "diagnos",
+      "CHA2DS2-VASc",
+      "CDS",
+      "Stroke",
+      "vårdpersonal",
+      "behörighet"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "CDS",
+      "Stroke Prevention",
+      "Beslutssignering",
+      "Journal",
+      "Patientvård",
+      "Vårdpersonal",
+      "Behörighet"
+    ],
+    "clinical_domain": [
+      "Hjärtsjukdomar",
+      "Stroke",
+      "Vård",
+      "Dokumentation"
+    ],
+    "text": "Oavsett om beslut tas på en gång eller skjuts upp måste beslutet signeras. När beslutet signeras skapas en journalanteckning med all relevant information kring beslutet. Om användaren väljer att stänga beslutsstödet , utan att signera , sparas inte de uppgifter som angivits och ingen journalanteckning skapas. Användaren får då ytterligare en varning nästa gång patienten laddas i patientlisten . Beslut kan endast signeras, inte sparas, då det är av högsta vikt att journalanteckningen alltid stämmer överens med det beslutsunderlag som finns sparat i beslutsstödet. Det finns ingen utpekad signeringsbehörighet, utan alla användare som har behörighet att använda CDS Stroke Prevention har också behörighet att signera. Det finns inte stöd att skicka en CDS -anteckning för vidimering, utan anteckningar signeras direkt av signeringsbehörig vårdpersonal . Journalanteckningen som signerats sammanfattar: • Diagnosöversikten med vilka diagnoser som ansetts adekvata för beslutet • CHA 2DS2-VASc -poängen utifrån diagnosöversikten • Taget beslut och datum När användaren klickar på knappen Signera uppdateras patientens journal med de inskrivna uppgifterna. Rekommenderat arbetsflöde är att efter signering stänga beslutsstödet och kontrollera journalen. Journalanteckningen som skapas följer den normala hanteringen i vårddokumentation . Det är av högsta vikt att läsa igenom hela anteckningen då denna sammanfattar underlaget för beslutet. Bild 9 – Journalanteckning i fönstret Journal CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 17(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Stänga beslutsstödet utan att signera",
+    "page": 1,
+    "section_id": "3.3.7",
+    "main_section_id": 3,
+    "context_summary": "Beslut behöver inte signeras omedelbart; men utifrån att beslutsstödet stängs utan signering raderas all data, och användaren får bekräfta detta innan ändringar förloras.",
+    "keywords": [
+      "beslut",
+      "signera",
+      "stänga",
+      "data",
+      "rensa",
+      "CSfönster",
+      "patientlista",
+      "återöppna",
+      "bekräfta",
+      "ändringar"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Dokumentation",
+      "Beslutssupport",
+      "Användargränssnitt",
+      "Arbetsflöde"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Neurologi"
+    ],
+    "text": "Beslut behöver inte tas på en gång. En pågående granskning kan dock inte sparas, då ett beslut alltid skall vara signerat. Beslutsstödet kan stängas och sedan enkelt öppnas via den röda CDS -ikonen i patientlisten. När beslutsstödet stängs utan signering rensas all information som skrivits in. När man åter öppnar ett beslut som inte signerats måste informationen således skrivas in på nytt. Om CDS -fönstret stängs ned utan att beslutet signerats, tillfrågas användaren om denne vill stänga fönstret och förlora ändringarna. Notera att ett Ja i detta fall rensar inskriven data."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.4.1",
+    "main_section_id": 3,
+    "context_summary": "CDS Stroke Prevention är ett kliniskt beslutsstöd som genererar rekommendationer baserade på inmatade data och CHA 2DS2‑VASc‑poäng utan att göra egna beslut. Det kräver kliniskt kunnande och varnar inte för överdosering eller kontraindikationer. Texten ger en förenklad översikt av rekommendationerna och deras begränsningar.",
+    "keywords": [
+      "klinikbeslutssupport",
+      "rekommendation",
+      "CHA2DS2VASc",
+      "patientvård",
+      "klinisk kompetens",
+      "överdosering",
+      "kontraindikation"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Klinik",
+      "Beslutssupport",
+      "Stroke",
+      "Patientvård",
+      "Rekommendation"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Kardiologi",
+      "Neurologi"
+    ],
+    "text": "CDS Stroke Prevention är ett kliniskt beslutsstöd, vilket betyder att inmatad data hanteras och analyseras av fördefinierade regler för att ge kliniker stöd i att snabbt kunna fatta beslut som ska leda till korrekt handläggning av patienten. De bedömningar och förslag som genereras av beslutsstödet är enbart rekommendationer. CDS Stroke Prevention tar inga egna beslut och användaren skall utnyttja sin egen kliniska kompetens i kombination med rekommendationen för att ta beslut om adekvat handläggning CDS Stroke Prevention varnar inte för överdosering eller kontraindikationer och agerar endast utifrån CHA 2DS2-VASc -poäng (med undantag av de faktorer som nämns i stycke input till CHA 2DS2-VASc). Följande avsnitt ger f örenklad information om hur rekommendationerna ges och syftar inte till att beskriva konfigurationen och logiken bakom aktuella regler."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Hämtning av signerad patientdata",
+    "page": 1,
+    "section_id": "3.4.2",
+    "main_section_id": 3,
+    "context_summary": "Systemet hämtar endast signerad klinisk data, exklusive osignerade poster, för beslutsstöd.",
+    "keywords": [
+      "signerad data",
+      "journalsystem",
+      "diagnoskoder",
+      "ordinationer",
+      "beslutsstöd",
+      "patientuppgifter",
+      "läkemedelslista",
+      "journalanteckningar",
+      "datahämtning"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Klinisk data",
+      "Patientinformation",
+      "Journalsystem",
+      "Signering",
+      "Beslutsstöd"
+    ],
+    "clinical_domain": [
+      "Stroke-prevention",
+      "Klinisk data",
+      "Patientinformation"
+    ],
+    "text": "CDS Stroke Prevention inhämtar bara signerad klinisk data från journalsystemet (signerade journalanteckningar, signerade ordinationer i läkemedelslista och signerade diagnoskoder). Detta innebär alltså att patientuppgifter som exempelvis sparats men inte signerats inte kommer utgöra tillgängligt informationsunderlag för beslutsstödet."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Identifiering av en patient med förhöjd strokerisk",
+    "page": 1,
+    "section_id": "3.4.3",
+    "main_section_id": 3,
+    "context_summary": "Beskrivning av vilka patienter som CDS Stroke Prevention flaggar för förhöjd strokerisk och kriterierna för varning baserat på diagnos, medicinering och CHA2DS2-VASc-poäng.",
+    "keywords": [
+      "förmaksflimmer",
+      "fladder",
+      "strokeprevention",
+      "CHA2DS2-VASc",
+      "ICD-10",
+      "VARNING",
+      "medicinering",
+      "ordination",
+      "tidsstämpling",
+      "Socialstyrelsenas riktlinjer",
+      "signerat",
+      "diskussionspunkter"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Kliniskt beslutstöd",
+      "Stroke",
+      "Förmaksflimmer",
+      "Riskbedömning",
+      "Varning",
+      "ICD-10",
+      "Medicinsk behandling",
+      "Klinisk regelefterlevnad"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi",
+      "Sjukvårdssystem"
+    ],
+    "text": "Patienter som diagnostiserats med förmaksflimmer/ -fladder men som inte har satts in på strokeprofylaktisk behandling fångas upp av CDS Stroke Prevention när de laddas i patientlisten . Undantagna från varningen är patienter utan övriga riskfaktorer med CHA 2DS2-VASc -poäng 0, samt kvinnor under 65 år utan övriga riskfaktorer. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 18(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Beslutsstödet läser in diagnoser som i ICD -10 definierats med baskoden I48 men klarar även av att läsa in koder från ICD10 prim . För information om ICD -10 och ICD - 10 prim , se Appendix A - Terminologier . Koderna läses från journalen och beroende på lokala inställningar kan de även läsas från vårdadministrativ modul. Endast signerad data triggar en varning. Notera dock att beslutsstödet inte skiljer på primär och sekundär flimmerdiagnos! Varningen ges endast i något av följande fall: • Patienten har inte medicinsk behandling som följer Socialstyrelsens riktlinjer vid förmaksflimmer/fladder . • Patienten har beslut om att inte ta behandling men har förändrad CHA 2DS2-VASc -poäng . • Patienten har beslut om att inte ta behandling men tidsstämpeln är äldre än ett år . • Patienten har fått sitt beslut uppskjutet men har förhöjd CHA 2DS2-VASc -poäng . • Patienten har fått sitt beslut uppsk jutet, men tiden för uppskjutningen har gått ut. Varningen ges inte i följande fall: • Patienten har signerad och pågående medicinering enligt rekommendation . • Patienten har en nyligen dokumenterad journalanteckning som beskriver varför patienten ej har rekommenderad behandling . • Patienten har en dokumenterad journalanteckning om att beslutet är uppskjutet och tidsfristen har ännu inte gått ut . Notera att patientens ordination måste vara signerad för att användas av beslutsstödet vilket är anledningen bakom att patienter med ordination som inväntar signering fortfarande får en varning."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Input till CHA 2DS2-VASc",
+    "page": 1,
+    "section_id": "3.4.4",
+    "main_section_id": 3,
+    "context_summary": "Denna text beskriver hur CDS Stroke Prevention-systemet samlar in diagnoskoder, kön och ålder från patientjournalen och kopplar dem till riskfaktorerna i CHA2DS2‑VASc. Den listar riskfaktorerna och poängsystemet samt maximal poäng och hur poängen används för att beräkna årlig strokerisk.",
+    "keywords": [
+      "diagnoskoder",
+      "kön",
+      "ålder",
+      "riskfaktorer",
+      "CHA 2DS2-VASc",
+      "stroke",
+      "hypertension",
+      "diabetes",
+      "hjärtsvikt",
+      "vaskulär sjukdom",
+      "TIA",
+      "poäng",
+      "riskvärde"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Strokeprevention",
+      "Riskbedömning",
+      "Kardiologi",
+      "Kliniska riktlinjer",
+      "Poängsystem"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi",
+      "Internmedicin"
+    ],
+    "text": "Kopplad till CDS Stroke Prevention finns en extern regelmotor . Här kopplas diagnoskoder, kön och ålder från patientens journal och patientkort till riskfaktorerna i CHA 2DS2-VASc. Aktuella sökord, som anses vara riskfaktorer för stroke, är ålder, tidigare stroke, hypertoni, diabetes, hjärtsvikt, vaskulär sjukdom och kön. Dessa riskfaktorer ger 1 alternativt 2 poäng om de finns registrerade hos patienten. Undantaget är kön där en kvinna får 1 poäng och en man 0. Tidigare registrerad stroke eller TIA samt en ålder över 75 räknas som höga riskfaktorer och motsvarar således 2 poäng vardera. Maximala totalpoängen för dessa riskfaktorer är 9. Notera att endast signerad data läses in. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 19(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Poängen ligger också till grund för den årliga risken att drabbas av stroke (%). Riskfaktorer Poäng C Hjärtsvikt/VK -dysfunktion 1 H Hypertoni 1 A2 Ålder > 75 2 D Diabetes 1 S2 Stroke/TIA 2 V Vaskulär sjukdom 1 A Ålder 65 -74 1 Sc Kvinnligt kön 1 För mer information om CHA 2DS2-VASc , se Appendix B - Referenser ."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Rekommenderad läkemedelslista",
+    "page": 1,
+    "section_id": "3.4.5",
+    "main_section_id": 3,
+    "context_summary": "Rekommendationerna för läkemedel baseras på Socialstyrelsens riktlinjer och CHA2DS2-VASc-poängen med tre risknivåer för strokeprevention.",
+    "keywords": [
+      "läkemedel",
+      "Socialstyrelsen",
+      "CHA2DS2-VASc",
+      "risknivå",
+      "stroke",
+      "behandling",
+      "COSMIC",
+      "Pascal",
+      "Antikoagulantia"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Stroke",
+      "Riskbedömning",
+      "Läkemedelsrekommendationer",
+      "Antikoagulantia"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi",
+      "Medicinsk försörjning"
+    ],
+    "text": "De läkemedel som rekommenderas i beslutsstödet är baserade på Socialstyrelsens riktlinjer och rekommendationerna bygger på den totala CHA 2DS2-VASc -poängen. Idag finns tre olika risknivåer : • Den första där man ligger på 0 poäng och inte har någon förhöjd risk och därför inte rekommenderas behandling • Den andra där man ligger på 1 poäng och har en klinisk relevant riskfaktor - • Den tredje där man ligger på 2 poäng eller mer och har antingen en hög riskfaktor (på grund av ålder eller tidigare stroke) eller flera mindre riskfaktorer. Beslutsstödet varnar endast om patienten saknar behandling enligt riktlinjer, det varnar inte för överdosering. Notera att endast signerade läkemedel i COSMIC gäller som insatt behandling och att beslutsstödet inte får information om förskrivningar i Pascal."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Hantering av spärrad information",
+    "page": 1,
+    "section_id": "3.4.6",
+    "main_section_id": 3,
+    "context_summary": "Beskriver hur patienter med spärrad information hanteras i CDS Stroke Prevention – exkludering sker enligt systemförvaltningens inställning och interna rutiner för strokeprofylax.",
+    "keywords": [
+      "spärrad information",
+      "CDS Stroke Prevention",
+      "exkludera patienter",
+      "systemförvaltning",
+      "region",
+      "sjukhus",
+      "strokeprofylax",
+      "rutiner",
+      "utskriftsaktualitet"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Patientinformation",
+      "Datahantering",
+      "Sekretess",
+      "Strokeprophylax",
+      "Institutionsrutiner"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "Strokeprophylax",
+      "Hälsoinformation"
+    ],
+    "text": "Patienter med spärrad information kan väljas att exkluderas från CDS Stroke Prevention . Det är systemförvaltningens beslut om detta skall göras och styrs av en inställning. I övrigt är det Regionens eller sjukhusets egna rutiner som gäller för hur spärrar kring strokeprofylax skall hanteras. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 20(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Påminnelse om användning",
+    "page": 1,
+    "section_id": "3.5",
+    "main_section_id": 2,
+    "context_summary": "Rekommendation att läkaren själva bedömer lämpligheten av antikoagulantia för patient med förmaksflimmer eller -fladder – beslutsstödet ersätter inte kliniskt beslut.",
+    "keywords": [
+      "antikoagulantia",
+      "förmaksflimmer",
+      "beslutsstöd",
+      "klinikalt beslut",
+      "patientbedömning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Stroke",
+      "Kardiovaskulär",
+      "Antikoagulation",
+      "Beslutsstöd"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Neurologi"
+    ],
+    "text": "Även om patienten har förmaksflimmer/ -fladder är inte antikoagulantia alltid lämplig som insats. Observera att beslutsstödet inte ersätter det kliniska beslutet, det är läkarens ansvar att i varje enskilt fall utvärdera om antikoagulantiabehandlig är lämplig för den enskilde patienten."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Felhantering",
+    "page": 1,
+    "section_id": "3.6",
+    "main_section_id": 2,
+    "context_summary": "Beskriver hur ett systemfel i CDS Stroke Prevention hanteras genom inaktivering av beslutsstödet och aviseringsikon i patientlisten.",
+    "keywords": [
+      "systemfel",
+      "CDS Stroke Prevention",
+      "inaktiveras",
+      "varning",
+      "patientlist",
+      "tooltip",
+      "felmeddelande",
+      "varningsikon",
+      "beslutsstöd",
+      "händelse"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Felhantering",
+      "Systemåtgärder",
+      "Kvalitetssäkring",
+      "Användargränssnitt",
+      "Patientlista"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Kliniskt beslutsstöd",
+      "Hälsovårdssystem"
+    ],
+    "text": "Om ett systemfel uppstår i CDS Stroke Prevention kommer systemet att inaktiveras varpå beslutsstödet inte kan användas för den aktuella patienten. Detta indikeras genom att den röda CDS -ikonen till höger i patientlisten ersätts med en varningsikon. Om man håller muspekaren över denna ikon visas ett tooltip med ett felmeddelande . Bild 10 – Varningsikon i Patientlisten CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 21(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 4 Specialfall"
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "4.1",
+    "main_section_id": 2,
+    "context_summary": "Verktyget är i utveckling och hanterar vissa specialfall genom alternativa metoder; följande avsnitt beskriver önskat beteende och aktuella lösningar.",
+    "keywords": [
+      "CDS",
+      "strokeprevention",
+      "utveckling",
+      "specialfall",
+      "verktyg",
+      "lösning",
+      "beteende"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Försäkringssystem",
+      "Hälsoteknologi",
+      "Stroke förebyggande"
+    ],
+    "clinical_domain": [
+      "Neurologi",
+      "Stroke"
+    ],
+    "text": "CDS Stroke Prevention är under kontinuerlig utveckling. I denna version av stödet har ett antal specialfall identifierats som inte täcks in av verktyget, men som kan lösas genom att man arbetar runt det. I följande avsnitt presenteras önskat beteende samt hur fallen kan hanteras med dagens verktyg."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Patient skrivs ut och diagnos läggs till",
+    "page": 1,
+    "section_id": "4.2",
+    "main_section_id": 2,
+    "context_summary": "Beskrivning av varför en varning inte visas när en diagnos läggs till i journalen för en redan hämtad patient i listan.",
+    "keywords": [
+      "diagnos",
+      "patientlist",
+      "varning",
+      "journal",
+      "hämtad",
+      "klinik",
+      "riktlinjer"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Journalhantering",
+      "Diagnosregistrering",
+      "Patientutdrag",
+      "Övervakning",
+      "Riktlinjer"
+    ],
+    "clinical_domain": [
+      "Stroke",
+      "Neurologi",
+      "Rehabilitering"
+    ],
+    "text": "Det går inte att lägga till en diagnos och få en varning nä r en patient redan hämtats i patientlisten . När användaren har en patient aktiv och som man arbetar med samt lägger till en diagnos i patientens journal , då visas inte någon varning. I detta fall får användaren skriva in aktuella diagnoser och rensa patientlisten för att hämta patienten igen om man vill kontrollera att patienten står på behandling enligt de kliniska riktlinjerna."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Ordination skrivs på remiss",
+    "page": 1,
+    "section_id": "4.3",
+    "main_section_id": 2,
+    "context_summary": "När en användare skickar en remiss för att skriva ut ett läkemedel känner inte CDS Stroke Prevention av detta, vilket kan orsaka en varning även om inga aktiva ordinationer finns. Lösningen är att skjuta upp beslutet och signera det efter att ordinationen har registrerats.",
+    "keywords": [
+      "remiss",
+      "ordination",
+      "NOAK",
+      "DOAK",
+      "CDS Stroke Prevention",
+      "varning",
+      "läkemedel",
+      "patient"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "kardiologi",
+      "remiss",
+      "ordination",
+      "läkemedelslista",
+      "vardhantering"
+    ],
+    "clinical_domain": [
+      "kardiologi",
+      "stroke",
+      "läkemedelsbehandling"
+    ],
+    "text": "Om användaren väljer att skicka en remiss om att skriva ut ett läkemedel, t.ex. om användaren skickar en förfrågan till kardiologen om att skriva ut NOAK/DOAK, då kan inte CDS Stroke Prevention känna av att remissen är skickad. Om användaren anger att riktlinjen följts genom att ange Ja i CDS -gränssnittet , utan att ha ett aktivt läkemedel (inklusive ej tidssatt ordination) i läkemedelslistan , kommer patienten fortfarande få en varning. Här får man istället skjuta upp beslutet och i efterhand gå in och signera ett nytt beslut när ordinationen skrivits in."
+  },
+  {
+    "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+    "section": "Förskrivning av icke godkända läkemedel",
+    "page": 1,
+    "section_id": "4.4",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver hur en användare bör hantera situationer där ett valt läkemedel inte hittas i \"Läkemedel\"‑sökningen och därmed troligen inte är godkänt, samt hur sökningen ska bytas till \"Icke godkända läkemedel\" för att kunna skriva recept.",
+    "keywords": [
+      "icke godkända läkemedel",
+      "läkemedelsmodul",
+      "receptknapp",
+      "sökning",
+      "sökning i läkemedelsmodul",
+      "felmeddelande",
+      "CDS Stroke Prevention",
+      "användargränssnitt"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Läkemedelshantering",
+      "CDS",
+      "Styrt system",
+      "Recepthantering",
+      "Säkerhet i läkemedelsval"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Hjärtsjukdom",
+      "Stroke",
+      "Atrial fibrillation",
+      "Farmakologi"
+    ],
+    "text": "Om användaren väljer ett läkemedel i beslutsstödet och klickar på receptknappen kan läkemedelsmodulen ge följande meddelande \"Inga resultat hittades för...\". I sådana fall kan det betyda att läkemedlet inte är godkänt och återfinns inte under kategorin ’Läkemedel ’ i sökningen. Användaren ska därför, i läkemedelsmodulen, byta sökningen till ’Icke godkända läkemedel ’. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 22(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix A - Terminologier A1 ICD-10 och ICD -10-prim terminologi Diagnos ICD-10 koder ICD-10-prim koder Förmaksflimmer I48 I48- Hjärtsvikt/VK -dysfunktion I50 I50- Hypertoni I10-I13, I15 I10-, I13 -P, I15 - Diabetes mellitus E10-E14 E108P, E109, E118P, E119, E14-B Stroke/TIA/tromboembolism I63, I64, I74, G45.0 - G45.3, G45.8, G45.9 I63-, I64 -, G45 -P, I74 -P Vaskulär sjukdom I21, I25.2, I70 -I73 I21-P, I25 -P, I709P, I71 -, I72-, I730, I739P A2 ATC terminologi Läkemedel ATC Koder Kategori Warfarin B01AA03 Warfarin Dabigatran etexilat B01AE07 NOAK Rivaroxaban B01AF01 Apixaban B01AF02 Edoxaban B01AF03 CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 23(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix B - Referenser B1 Elektroniska referenser [1] Socialstyrelsen, Nationella riktlinjer för hjärtsjukvård , https://www.socialstyrelsen.se/SiteCollectionDocuments/2018 -6-28- vetenskapligt -underlag.pdf B2 Övriga referenser [2] Camm AJ, Kirchhof P, Lip GY, et al. Guidelines for the management of atrial fibrillation: the Task Force for the Management of Atrial Fibrillation of the European Society of Cardiology (ESC). Europace 2010;12:1360 –1420 [3] Camm AJ, Lip GY, De Caterina R, et al. 2012 focused update of the ESC Guidelines for the management of atrial fibrillation: An update of the 2010 ESC Guidelines for the management of atrial fibrillation. Europace. 2012; 14: 1385 - 1413. [4] Valladares, C. Förmaksflimmer, Vårdprogram version primärvård. Arytmisektionen, Kardiologiska kliniken, US i Linköping, 2012 [5] Kirchhof P, Benussi S, Kotecha D, Ahlsson A, Atar D, Casadei B, et al. 2016 ESC Guidelines for the management of atrial fibrillation developed in collaboration with EACTS. Eur Heart J. 2016;37(38):2893 B3 Referenser till CHA 2DS 2-VASc [6] Lip GY, Nieuwlaat R, Pisters R, Lane DA, Crijns HJ. Refining clinical risk stratification for predicting stroke and thromboembolism in atrial fibrillation using a novel risk factorbased approach: the euro heart survey on atrial fibrillation. Chest. 2010 Feb;137(2):263 -72. [7] Camm AJ, Kirchhof P, Lip GY, et al. Guidelines for the management of atrial fibrillation: the Task Force for the Management of Atrial Fibrillation of the European Society of Cardiology (ESC). Eur Heart J. 2010 Oct;31(19):2369 -429. [8] Friberg L, Rosenqvist M, Lip GY. Evaluation of risk stratification schemes for ischaemic stroke and bleeding in 182 678 patients with atrial fibrillation: the Swedish Atrial Fibrillation cohort study. Eur Heart J. 2012 Jun;33(12):1500 -10."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Dokumentet beskriver funktioner, fönster och användningsområden för Aktivitetsöversikter i COSMIC, avsett för vårdpersonal i slutenvård och akutsjukvård, och rekommenderar att ses med andra COSMIC‑manualer.",
+    "keywords": [
+      "COSMIC",
+      "Aktivitetsöversikter",
+      "vårdpersonal",
+      "hälsovård",
+      "inpatient",
+      "akutsjukvård",
+      "funktioner",
+      "fönster",
+      "användarinstruktioner",
+      "manual",
+      "referensguide"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "användarmanual",
+      "hälso-och-sjukvård",
+      "inpatientprocesser",
+      "arbetssätt-i-COSMIC",
+      "funktionella-beskrivningar"
+    ],
+    "clinical_domain": [
+      "inpatientvård",
+      "akutsjukvård",
+      "konsultation",
+      "hälsoinformatik"
+    ],
+    "text": "Detta dokument beskriver de aktivitet er som ingår i Aktivitetsöversikter i Cambio COSMIC (fortsättningsvis kallad Aktivitetsöversikter i COSMIC ), dess funktioner och egenskaper. Det är uppdelat i en introduktion med beskrivning över ingående fönster samt ett separat kapitel med användarinstruktioner. Dokumentet är avsett att användas av hälso - och sjukvårdspersonal, främst läkare, sjuksköterskor och undersköterskor med kunskap och erfarenhet av hälsovård, datorer samt av COSMIC och dess arbetsflöden. Aktivitetsöversikter i COSMIC är avsedd för användning i slutenvårdsmiljö och akutsjukvårdsmiljö. Detta dokument beskriver funktioner som finns i Aktivitetsöversikter i COSMIC. Alla funktioner finns inte i alla konfigurationer. Dokumentet bör läsas tillsammans med Gemensamma Funktioner i COSMIC Introduktion & Användarmanual och referensguiderna Ikoner i COSMIC Referensguide och Kortkommandon i COSMIC Referensguide ."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": "2",
+    "context_summary": "Detta avsnitt beskriver ändringar i dokumentet i form av versionshistorik, med datum, beskrivning av vilka sektioner som har uppdaterats och giltighet av varje COSMIC‑version.",
+    "keywords": [
+      "versionshistorik",
+      "ändringar",
+      "dokument",
+      "giltighet",
+      "COSMIC",
+      "avsnitt",
+      "datum",
+      "uppdateringar"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokument",
+      "Versionskontroll",
+      "System",
+      "COSMIC",
+      "Manual",
+      "Uppdatering"
+    ],
+    "clinical_domain": [
+      "Dokumenthantering",
+      "Systemadministration"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid. Version Datum Beskrivning 1.0 8.0 2020 - 2022 För tidigare publicerade versioner se respektive dokumentversion för detaljer. Dokumentet är giltigt till och med COSMIC 3.8.0. 9.0 2023-03-29 Avsnitt 3.1.1 tillagt. Avsnitt 1.3 uppdaterat. Dokumentet är giltigt från COSMIC 3.9.0. 10.0 2023-09-20 Avsnitt 1.1, 1.3, 1.4.2, 2.1, 3.1 och 4.11 uppdaterade. Dokumentet är giltigt från COSMIC 3. 10.0. 10.1 2023-11-28 Avsnitt 1.1 och 1.4 uppdaterade. 11.0 2024-02-02 Avsnitt 4.8 tillagt. Avsnitt 3.2 och 3.4 uppdaterade. Dokumentet är giltigt från COSMIC 3. 11.0. 12.0 2024-04-25 Avsnitt 3.1, 3.2 och 3.4 uppdaterade. Dokumentet är giltigt från COSMIC 3.12.0 13.0 2024-10-14 Avsnitt 3.4.1 uppdaterat. Dokumentet är giltigt från COSMIC 4.0.0. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 5(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Relaterade dokument",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "Denna avsnitt listar relaterade användarmanualer och guider för COSMIC-systemet.",
+    "keywords": [
+      "COSMIC",
+      "Common Order Entry",
+      "Nova",
+      "Order Management",
+      "Overviews",
+      "Unit Overview",
+      "Gemensamma Funktioner",
+      "Ikoner",
+      "Referensguide",
+      "Kortkommandon"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokument",
+      "Relaterade dokument",
+      "COSMIC",
+      "Manual"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Hälsoinformatik"
+    ],
+    "text": "Följande relaterade dokument finns tillgängliga : COSMIC Common Order Entry Introduktion & Användarmanual COSMIC Nova Introduktion & Användarmanual COSMIC Order Management Introduktion & Användarmanual COSMIC Overviews Introduktion & Användarmanual COSMIC Unit Overview Introduktion & Användarmanua l Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Ikoner i COSMIC Referensguide Kortkommandon i COSMIC Referensguide"
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.4.1",
+    "main_section_id": 3,
+    "context_summary": "Detta dokument beskriver de typografiska konventioner som används, inklusive fetstil för termer, kursiv för modulnamn, färg för värden och Courier New för kodexempel, med exempel på varje stil.",
+    "keywords": [
+      "fetstil",
+      "kursiv stil",
+      "typografi",
+      "COSMIC",
+      "systemkommandon",
+      "kodexempel",
+      "sökvägar"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Typografi",
+      "Dokumentation",
+      "Gränssnitt",
+      "Kod",
+      "Koder"
+    ],
+    "clinical_domain": [
+      "Medicinsk IT",
+      "Systemadministration"
+    ],
+    "text": "Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger, Properties.txt eller https://customer.cambio.se. Färg. värden, namn, typer och sökvägar. Exempel: namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter . Exempel: SET USERID=<user id>. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 6(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.4.2",
+    "main_section_id": 3,
+    "context_summary": "En kort beskrivning av hur ikoner används för att belysa viktig information, tips och kostnadsfrågor inom COSMIC-manualen.",
+    "keywords": [
+      "Ikoner",
+      "Information",
+      "Tips",
+      "Tredjepartslicens",
+      "Kostnadsförändringar",
+      "R8.2.03",
+      "COSMIC",
+      "Användarmanual",
+      "Version 13.0"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Ikoner",
+      "Dokumentation",
+      "Användarmanual",
+      "Informativa ikoner",
+      "R8.2.03"
+    ],
+    "clinical_domain": [
+      "Hälsovård",
+      "Kostnadsförvaltning",
+      "Medicinsk dokumentation"
+    ],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips En tredjepartsl icens krävs för att använda denna produkt/funktion. Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. Information för vyer med gränssnitt införda från R8.2.03. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 7(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.5",
+    "main_section_id": 2,
+    "context_summary": "Tabellen definierar termer, akronymer och förkortningar som används för att beskriva aktiviteter, objekt, tillägg, typ, utförare och aktivitetsöversikter i COSMIC-manualen.",
+    "keywords": [
+      "termer",
+      "akronymer",
+      "förkortningar",
+      "aktiviteter",
+      "objekt",
+      "tillägg",
+      "typ",
+      "utförare",
+      "COSMIC",
+      "patient",
+      "planering",
+      "klinisk parametrar"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Termer",
+      "Terminologi",
+      "Dokumentation",
+      "Aktivitetsöversikter",
+      "COSMIC"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Klinisk planering",
+      "Hälso- och sjukvård"
+    ],
+    "text": "Tabellen beskriver termer, akronymer och förkortningar som används i detta dokument. Term Beskrivning Aktiviteter Objekt som visas, planeras och utförs via fönstret Att göra Patient. Aktiviteter kan vara av olika typer t.ex. uppgifter eller kliniska parametrar. Tillägg Ett fritextfält som kan användas för att specificera en aktivitet. Tillägg visas b.la. i fönstret Att göra Patient och Novas Planering tillsammans med aktivitetsnamnet. Typ Gruppering av aktiviteter per typ, t.ex. uppgifter och kliniska parametrar. Utförare En grupp användare, t.ex. läkare eller undersköterska, som kan tilldelas att utföra en aktivitet. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 8(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om Aktivitetsöversikter i COSMIC"
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "Aktivitetsöversikter i COSMIC är ett verktyg som hjälper vårdpersonal genom att visa och hantera aktivitetslistor på patient‑ eller enhetsnivå. Översikterna synkroniseras med COSMIC EHR för automatiska uppdateringar och stödjer kommunikation och samarbete internt och mellan avdelningar.",
+    "keywords": [
+      "aktivitetsöversikter",
+      "COSMIC",
+      "vårdpersonal",
+      "patientnivå",
+      "enhetsnivå",
+      "EHR",
+      "synkronisering",
+      "kommunikation",
+      "samarbete",
+      "planering",
+      "uppföljning"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "aktivitetsöversikter",
+      "COSMIC",
+      "vårdpersonal",
+      "EHR",
+      "hantering",
+      "synkronisering",
+      "kommunikation",
+      "samarbete",
+      "patientnivå",
+      "enhetsnivå"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "patientvård",
+      "klinik"
+    ],
+    "text": "Aktivitetsöversikter i Cambio COSMIC (härefter Aktivitetsöversikter i COSMIC) är en mjukvara med syfte att stödja hälso - och sjukvårdspersonal i det dagliga arbetet på enheten, genom visualisering och hantering av aktivitetslistor. Att göra -listorna kan visas på patient - eller enhet/klinik- nivå. Aktivitetsöversikter i COSMIC består av översiktsfönster där aktiviteter visas och hanteras för att dokumentera planerade, pågående och utförda aktiviteter. Aktiviteterna synkroniseras till olika moduler i COSMIC EHR, vilket gör det möjligt att utföra dem inom relevant COSMIC EHR - ramverk oc h få automatiska uppdateringar. Aktiviteterna stödjer kommunikation och samarbete inom samma avdelning eller mellan avdelningar."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Försiktighetsåtgärder",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Det anges inga särskilda försiktighetsåtgärder. Texten ger en översikt över aktivitetsöversikter i COSMIC Manual.",
+    "keywords": [
+      "försiktighetsåtgärder",
+      "COSMIC",
+      "aktivitetsöversikter",
+      "manual",
+      "Användarmanual",
+      "2024",
+      "Cambio Healthcare"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Manual",
+      "Säkerhet",
+      "Användarmanual",
+      "Aktiviteter"
+    ],
+    "clinical_domain": [
+      "Allmänt",
+      "Säkerhet"
+    ],
+    "text": "Det finns inga försiktighetsåtgärder. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 9(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Fönsteröversikt"
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Egenskaper och funktioner",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": 2,
+    "context_summary": "COSMICs aktivitetsöversikter visar planerade, pågående och utförda aktiviteter i fönstren ‘Att göra Enhet’, ‘Att göra Patient’ och ‘Beställning’. Beställningsdialogen möjliggör att lägga till olika aktivitetstyper såsom lokala analyser, klinisk kemi, mikrobiologi, radiologi, immunologi, checklista och kliniska parametrar.",
+    "keywords": [
+      "aktivitetsöversikter",
+      "beställning",
+      "planerade aktiviteter",
+      "pågående aktiviteter",
+      "utförda aktiviteter",
+      "patient",
+      "enhet",
+      "lokala analyser",
+      "klinisk kemi",
+      "mikrobiologi",
+      "radiologi",
+      "immunologi",
+      "checklista",
+      "NEWS2",
+      "SpO2",
+      "smärta",
+      "kliniska parametrar"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Aktivitetstyper",
+      "Planering",
+      "Beställning",
+      "Patientvård",
+      "Kvalitetsmonitor",
+      "Fönsterhantering",
+      "Diagnostik",
+      "Laboratorie",
+      "Radiologi",
+      "Immunologi"
+    ],
+    "clinical_domain": [
+      "Diagnostik",
+      "Laboratorie",
+      "Radiologi",
+      "Immunologi",
+      "Patientvård"
+    ],
+    "text": "Aktivitetsöversikter i COSMIC använder funktionalitet i fönstren Att göra Enhet, Att göra Patient och Beställning . I fönstret Att göra Enhet visas alla aktiviteter som är planerade att utföras av eller är pågående för en eller flera valda enheter . I fönstret Att göra Patient visas en patients planerade, pågående och utförda aktiviteter. Från fönstret Beställning planeras nya aktiviteter för patienten. Från fönstret Att göra Patient kan dialogfönstret Beställning öppnas där det finns möjlighet att beställa aktiviteter av följande typer: Beställning och Svar Lokala analyser Klinisk kemi Mikrobiologi Radiologi Immunologi Uppgifter Checklista Start/stopp Kliniska parametrar Blodtryck Puls Temperatur Vikt NEWS2 SpO2 (pox) Längd Smärta (NRS) Smärta (NRS) Vila/Rörelse Andningsfrekvens Det är också dessa typer som sedan visas i fönstren Att göra Patient och Att göra Enhet. I fönstret Beställning däremot kan man även beställa andra aktivitetstyper. För ytterligare information om aktivitetstyper, se dokumentet COSMIC Common Order Entry Introduktion & Användarmanual. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 10(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Spärrhantering",
+    "page": 1,
+    "section_id": "3.1.1",
+    "main_section_id": 3,
+    "context_summary": "I COSMIC visas blockerade aktiviteter i fönstren Att göra Patient och Att göra Enhet; blockerade aktiviteter med inre respektive yttre spärr visas med ikonerna; interna spärrar kan öppnas via högerklick eller dubbelklick, medan yttre spärrar är obrytbara.",
+    "keywords": [
+      "spärr",
+      "blokerade aktiviteter",
+      "Att göra Patient",
+      "Att göra Enhet",
+      "inre spärr",
+      "yttre spärr",
+      "öppna spärr",
+      "högerklick",
+      "dubbelklick",
+      "planerad utförande enhet",
+      "historiklogg"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Systemfunktion",
+      "Användargränssnitt",
+      "Behörighet",
+      "Arbetsflöde",
+      "Patientinformation",
+      "Enhetshantering"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Klinisk data",
+      "Arbetsflöde"
+    ],
+    "text": "Information om aktiviteter kan visas som spärrad i fönstren Att göra Patient och Att göra Enhet. Spärrade aktiviteter av typerna uppgifter och kliniska parametrar, i status med ikonerna (inre spärr) eller (yttre spärr) baserat på den planerade utförande enheten. Historiklogg- beställande enheten. Uppdateringar av aktiviteter i övriga statusar spärras baserat på utförande enhet. För att temporärt öppna en inre spärr så högerklickar man på aktiviteten och väljer menyalternativet Öppna spärr , alternativt dubbelklickar. En yttre spärr kan inte öppnas i COSMIC."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Spärrar i paket",
+    "page": 1,
+    "section_id": "3.1.1.1",
+    "main_section_id": 4,
+    "context_summary": "Beskriver hur hela eller delar av ett paket kan vara spärrade och hur spärren öppnas via knapp eller aktiviteter.",
+    "keywords": [
+      "spärr",
+      "paket",
+      "aktiviteter",
+      "knapp",
+      "öppna",
+      "delmängd",
+      "COSMIC",
+      "hantering"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "Aktivitetsöversikter",
+      "Spärrhantering",
+      "Paket",
+      "COSMIC"
+    ],
+    "clinical_domain": [
+      "Sjukvårdssystem",
+      "Klinisk dokumentation",
+      "IT-hälsovård"
+    ],
+    "text": "Om alla aktiviteter i ett paket är spärrade visas paketets knapp som spärrad. Spärren kan öppnas genom att man klickar på knappen och väljer vilka av de ingående aktiviteterna som ska öppnas. Spärrade paket. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 11(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om en delmängd av aktiviteterna i ett paket är spärrade så visas knappen, och när paketet öppnas visas dessa specifika aktiviteter som spärrade. Spärren kan öppnas genom att man klickar på en av de spärrade aktiviteterna. För mer information om spärrhantering se dokumentet Gemensamma Funktioner i COSMIC Introduktion & Användarmanual ."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Kopplingar till andra fönster i COSMIC",
+    "page": 1,
+    "section_id": "3.1.2",
+    "main_section_id": 3,
+    "context_summary": "Aktiviteter i fönstret Att göra Patient kan hanteras i flera COSMIC-fönster och system, inklusive Nova, Enhetsöversikt, Analysyta, och radiologi‑relaterade fönster.",
+    "keywords": [
+      "Patient",
+      "Att göra",
+      "COSMIC Nova",
+      "Enhetsöversikt",
+      "Analysyta",
+      "Beställning",
+      "Radiologi",
+      "Svar"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Patienthantering",
+      "Fönsterkopplingar",
+      "Analysbeställning",
+      "Radiologi",
+      "Dataöverföring"
+    ],
+    "clinical_domain": [
+      "Diagnostik",
+      "Laboratoriehantering",
+      "Radiologi",
+      "Patientvårdsadministration"
+    ],
+    "text": " Aktiviteter som visas i fönstret Att göra Patient kan hanteras i COSMIC Nova (List- och Patientvyer) samt i fönstren Enhetsöversikt , Analysyta, Beställning av provbundna analyser/undersökningar, Svar provbunden, Provtagningsunderlag, Beställning radiologi och Radiologisvar. För ytterligare information, se relaterade dokument i avsnitt 1.3. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 12(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Fönstret Att göra Patient",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "Fönstret visar patientens dagliga aktiviteter i avdelningen och möjliggör filtrering, visning, hantering och avslutning av aktiviteter samt beställningar, vilket underlättar planering och utförande.",
+    "keywords": [
+      "patientaktiviteter",
+      "avdelning",
+      "filtrera",
+      "visa",
+      "hantera",
+      "beställda paket",
+      "avsluta",
+      "planering",
+      "utförande",
+      "enheter",
+      "inlämning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientvård",
+      "Arbetsflöde",
+      "IT-system",
+      "Mjukvara",
+      "Patientengagemang"
+    ],
+    "clinical_domain": [
+      "Inlagd vård",
+      "Patienthantering",
+      "Övervakning",
+      "Vårdplanering"
+    ],
+    "text": "Det här fönstret visar en patients aktuella aktiviteter på en given dag när patienten är inlagd på en avdelning . Fönstret gör det möjligt att (A) filtrera aktiviteter, ( B) visa och hantera beställda paket och aktiviteter samt ( C) avsluta aktiviteter. Här planerar och utför man aktiviteter. Aktiviteterna följer patienten och är möjliga att nå mellan olika enheter även efter att patienten skrivits ut."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Dialogfönstret Beställning",
+    "page": 1,
+    "section_id": "3.2.1",
+    "main_section_id": 3,
+    "context_summary": "Dialogfönstret öppnas via knappen i fönstret \"Att göra Patient\" och stängs när beställningen är klar. De tillagda aktiviteterna visas därefter i samma fönster.",
+    "keywords": [
+      "dialogfönster",
+      "beställning",
+      "Att göra patient",
+      "aktiviteter",
+      "COSMIC",
+      "användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patienthantering",
+      "Beställning",
+      "Dialog",
+      "Användargränssnitt"
+    ],
+    "clinical_domain": [],
+    "text": "Det här dialogfönstret öppnas v ia knappen i fönstret Att göra Patient. När en beställning är klar stängs dialogfönstret Beställning och de tillagda aktiviteterna visas i fönstret Att göra Patient. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 13(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Fönstret Att göra Enhet",
+    "page": 1,
+    "section_id": "3.3",
+    "main_section_id": 2,
+    "context_summary": "Vitt visar alla planerade och pågående aktiviteter för en enhet på en given dag, och låter filtrera, visa, hantera och utföra aktiviteter.",
+    "keywords": [
+      "aktiviteter",
+      "planerade",
+      "pågående",
+      "enhet",
+      "filter",
+      "visa",
+      "hantera",
+      "utföra",
+      "dag"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Fönster",
+      "Användargränssnitt",
+      "Aktivitetshantering",
+      "Planering",
+      "Enhet"
+    ],
+    "clinical_domain": [],
+    "text": "Det här fönstret visar alla planerade och pågående aktiviteter på en given dag för en given enhet. Fönstret gör det möjligt att filtrera aktiviteter ( A), visa och hantera beställda aktiviteter samt utföra aktiviteter ( B)."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Filter",
+    "page": 1,
+    "section_id": "3.4.1",
+    "main_section_id": 3,
+    "context_summary": "Panelen för filtrering av aktiviteter i COSMIC visar flera filteralternativ, såsom datum, fri text, utförande enhet, utförare, typ och status, samt stöd för upprepade aktiviteter.",
+    "keywords": [
+      "Datum",
+      "Fri text",
+      "Datumintervall",
+      "Utförande enhet",
+      "Utförare",
+      "Typ",
+      "Status",
+      "Upprepningar",
+      "Planerad",
+      "Bokad",
+      "Pågående",
+      "Utförd",
+      "Strukna",
+      "Avbrutna",
+      "Makulerade"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Filter",
+      "Datum",
+      "Fri text",
+      "Utförande enhet",
+      "Utförare",
+      "Typ",
+      "Status",
+      "Upprepningar"
+    ],
+    "clinical_domain": [
+      "Planering",
+      "Administrativt",
+      "Klinisk hantering"
+    ],
+    "text": "I filterpanelen ( A) är det möjligt att filtrera aktiviteter enligt följande kriterier: Datum Dagens aktiviteter visas som förval. För att se aktiviteter som tillhör en annan dag går det att antingen välja ett specifikt datum eller ett datumintervall från datumkomponenten som öppnas via ikonen eller navigera mellan de närmaste dagarna via ikonerna . För att gå tillbaka till idag kan ikonen användas. Fritext Aktivitetstyperna uppgifter och k liniska parametrar filtreras baserat på sina namn. Mi nst två tecken måste matas in för att starta filtreringen. Notera att det endast är namnet som går att filtrera på och inte t.ex. Tillägg. Utförande enhet I listan visas aktiviteter som ska utföras eller har utförts av valda enheter. Det är möjligt att se aktiviteter från fler enheter genom att lägga till dessa i filtreringen. Utförare För att endast se aktiviteter som är tilldelade en viss utförare används listrutan Utförare. Aktiviteter som inte har en specifik utförare visas alltid. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 14(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Typ För att endast se aktiviteter av en viss typ används listrutan Typ. Status Aktiviteter med följande status visas som förval i fönstret Att göra - Patient: Planerad Bokad Pågående Utförd I listrutan Status kan aktiviteter med följande status väljas: Strukna, avbrutna och makulerade Aktiviteter med följande status visas i fönstret Att göra Enhet: Planerad Bokad Pågående Gruppera upprepningar När en aktivitet ingår i en upprepad serie visas bara den tidigast planerade aktiviteten i serien, när detta filter är påslaget. För att se alla planerade aktiviteter i serien för den valda tiden avmarkeras denna kryssruta. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 15(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Aktiviteter i fönstret Att göra Patient",
+    "page": 1,
+    "section_id": "3.4.3",
+    "main_section_id": 3,
+    "context_summary": "Beskrivning av hur patientens aktiviteter hanteras i systemet, uppdelade i planerade/pågående och avslutade delar, samt funktioner för visning och hantering.",
+    "keywords": [
+      "aktiviteter",
+      "planerade",
+      "pågående",
+      "avslutade",
+      "tid",
+      "status",
+      "utförare",
+      "filtrering",
+      "patient"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Patientvård",
+      "Aktivitetsplanering",
+      "Systemhantering",
+      "Mjukvaruteknik",
+      "Planering"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Klinisk planering"
+    ],
+    "text": "Patientens aktiviteter är uppdelade i två sektioner, Planerade och pågående samt Avslutade . Aktiviteterna visas med information om Namn Status Tid Tillägg Utförare Här visas också följande ikoner: Nyligen tillagd aktivitet Paket Upprepning Kommentarer Fler alternativ I sektionen Planerade och pågående visas planerade och pågående aktiviteter för vald filtrering och när listan är filtrerad på exempelvis idag visas följande aktiviteter : Aktiviteter planerade till idag. Alla startade aktiviteter. Missade aktiviteter från tidigare datum . Aktiviteter utan datum och tid. För framtida datum visas de aktiviteter som är planerade till det valda datumet. I sektionen Avslutade visas alla aktiviteter som utförts eller avslutats den valda dagen. När man tar bort aktiviteter genom att stryka, avbryta eller makulera görs det antingen en i taget eller flera på en gång."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Beställda paket",
+    "page": 1,
+    "section_id": "3.4.3.1",
+    "main_section_id": 4,
+    "context_summary": "Texten beskriver hur beställda paket visas och styrs genom deras inblandade aktiviteter, hur status och avslutning hanteras samt vilka knappar och indikatorer som används för att navigera och visa paket i olika statusförändringar.",
+    "keywords": [
+      "paket",
+      "beställda",
+      "planerade",
+      "pågående",
+      "aktiviteter",
+      "status",
+      "avslutade",
+      "knapp",
+      "upprepning",
+      "visning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Planering",
+      "Paket",
+      "Aktivitetsöversikt",
+      "Status",
+      "Avslutade"
+    ],
+    "clinical_domain": [
+      "Hälsovård",
+      "Elektronisk journal",
+      "Patienthantering"
+    ],
+    "text": "Beställda paket visas med en knapp över sektionen Planerade och pågående . Huruvida ett paket visas styrs av aktiviteterna som ingår i paketet; finns det en aktivitet från ett paket i listan så visas också dess paket. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 16(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Det är möjligt att klicka på knappen för att se de aktiviteter som ingår i paketet. Aktiviteterna visas med ikon för status, aktivitetsnamn, tid och eventuellt ikon för upprepning. När alla aktiviteter i ett paket är avslutade visas knappen med en bock intill paketets namn . Detta innebär att inga aktiviteter i paketet längre är planerade eller pågående. Utförda paket visas nu i sektionen Avslutade ."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Aktiviteter i fönstret Att göra Enhet",
+    "page": 1,
+    "section_id": "3.4.4",
+    "main_section_id": 3,
+    "context_summary": "Översikt och filtrering av patientens planerade och pågående aktiviteter i COSMIC-systemet.",
+    "keywords": [
+      "aktiviteter",
+      "planerade",
+      "pågående",
+      "patient",
+      "status",
+      "tid",
+      "utförare",
+      "enhet",
+      "filter",
+      "planering",
+      "avbruten",
+      "saknas"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "systemfunktion",
+      "patientinformation",
+      "aktivitetshantering",
+      "display",
+      "cosmic",
+      "planering"
+    ],
+    "clinical_domain": [
+      "patientenheter",
+      "medicinsk administration",
+      "övervakning"
+    ],
+    "text": "Patientens aktiviteter visas i sektionen Planerade och pågående .\nAktiviteterna visas med information om Namn Patient Status Tid Tillägg Utförare Utförande enhet Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 17(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.\nHär visas också följande ikoner: Nyligen tillagd aktivitet Paket Upprepning Kommentarer Fler alternativ I sektionen visas planerade och pågående aktiviteter för vald filtrering. När listan är filtrerad på exempelvis idag visas följande aktiviteter: Aktiviteter planerade till idag. Alla startade aktiviteter. Missade aktiviteter från tidigare datum. Aktiviteter utan datum och tid. För framtida datum visas de aktiviteter som är planerade till det valda datumet.\nAktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 18(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.  4 Instruktioner"
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Utföra en uppgift",
+    "page": 1,
+    "section_id": "4.1",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att öppna aktivitetsfönstret, välja och utföra en uppgift samt ångra den, med statusändring i de olika sektionerna.",
+    "keywords": [
+      "öppna",
+      "aktivitet",
+      "uppgift",
+      "statusikon",
+      "utför",
+      "avslutad",
+      "ångra"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Aktivitetsförlopp",
+      "Användarhandbok",
+      "Processmanual"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Administrativt"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient eller Att göra Enhet. De aktiviteter som ska utföras finns i sektionen Planerade och pågående . 2. Välj och e xpandera en aktivitet, av typen uppgift, och välj att göra något av följande: Klicka på statusikonen för aktiviteten. Klicka på raden för aktiviteten eller ikonen 3. Fyll i relevant information och klicka på knappen Utför. Aktiviteten visas nu i sektionen Avslutade . 4. För att ångra en utförd aktivitet, klicka på aktivitetens ikon i sektionen Avslutade. 5. Välj alternativet Ångra utför. Aktiviteten flyttas tillbaka till tidigare status och visas nu i sektionen Planerade och pågående."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Utföra en klinisk parameter med mätvärde",
+    "page": 1,
+    "section_id": "4.2",
+    "main_section_id": 2,
+    "context_summary": "Steg-för-steg-instruktion för att utföra en klinisk parameter: öppna rätt fönster, välja och expandera en aktivitet av typen kliniska parametrar, fylla i mätvärde, signera och sedan kontrollera den avslutade aktiviteten samt se mätvärdet via Analysytan.",
+    "keywords": [
+      "klinikparametrar",
+      "mätvärde",
+      "signera",
+      "aktivitetsöversikt",
+      "planerade aktiviteter",
+      "avslutade aktiviteter",
+      "analysytan",
+      "cosmic",
+      "patient",
+      "enhet"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Kliniska parametrar",
+      "Patienthantering",
+      "Enhetshantering",
+      "Systemfunktion",
+      "Analysverktyg",
+      "Dokumentation"
+    ],
+    "clinical_domain": [
+      "Allmänt vård",
+      "Klinisk data"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient eller Att göra Enhet. De kliniska parametrar som ska utföras finns i sektionen Planerade och pågående . 2. Välj och expandera en aktivitet av typen kliniska parametrar, genom att välja något av följande alternativ : Klicka på statusikonen för aktivitet en. Klicka på raden för aktiviteten eller ikonen 3. Fyll i mätvärde i den expanderade raden. 4. Klicka på knappen Signera. Aktiviteten visas nu i sektionen Avslutade . 5. För att se mätvärdet klicka på aktiviteten. 6. I den expanderade raden, följ länken till fönstret Analysyta . Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 19(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Utföra en klinisk parameter utan mätvärde",
+    "page": 1,
+    "section_id": "4.3",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att utföra en klinisk parameter utan att ange ett mätvärde genom att öppna rätt fönster, markera värde, utföra, och sedan kontrollera resultatet i Analysfönstret.",
+    "keywords": [
+      "klinikparameter",
+      "utföra",
+      "mätvärde",
+      "aktivitet",
+      "Planerade och pågående",
+      "Avslutade",
+      "Analysfönstret"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "kvalitetsförbättring",
+      "klinikprocess",
+      "mätning",
+      "verksamhetsstyrning",
+      "applikationsanvändning"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "medicinteknik"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient eller Att göra Enhet. De kliniska parametrar som ska utföras finns i sektionen Planerade och pågående. 2. Välj och expandera en aktivitet, av typen kliniska parametrar, genom att klicka på statusikonen för aktiviteten, på raden för aktiviteten eller ikonen . 3. Markera kryssrutan Värde registrerat i annat fönster. 4. Klicka på knappen Utför. Aktiviteten visas nu i sektionen Avslutade . 5. För att se mätvärde klicka på aktiviteten. 6. I den expanderade raden följ länken till fönstret Analysyta ."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Starta en uppgift",
+    "page": 1,
+    "section_id": "4.4",
+    "main_section_id": "2",
+    "context_summary": "Instruktioner för att öppna fönstret för att göra en patient eller enhet, starta och expanda planerade start/stopp-aktiviteter genom att klicka på statusikonen, ange information och starta aktiviteten. Översikt av hur man ångrar en startad aktivitet och flyttar den tillbaka till status planerad.",
+    "keywords": [
+      "uppgift",
+      "starta",
+      "aktivitet",
+      "planerade",
+      "pågående",
+      "status",
+      "klicka",
+      "ångra"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "administration",
+      "patienthantering",
+      "systemanvändning",
+      "åtgärder"
+    ],
+    "clinical_domain": [
+      "patientvård",
+      "klinikhantering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient eller Att göra Enhet. 2. I sektionen Planerade och pågående , starta och expandera en planerad start/stopp aktivitet genom att k licka på statusikonen, på raden eller ikonen . 3. Ange information och klicka på knappen Starta. Aktiviteten visas nu som pågående i sektionen Planerade och pågående . 4. För att ångra en startad aktivitet, klicka på aktivitetens ikon . 5. Välj alternativet Ångra starta. Aktiviteten flyttas tillbaka till status planerad. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 20(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Stryka en planerad aktivitet",
+    "page": 1,
+    "section_id": "4.5",
+    "main_section_id": 2,
+    "context_summary": "Steg-för-steg-manual för att stryka en planerad aktivitet, hantering av serier, fyllning av orsak, strykning och återställning.",
+    "keywords": [
+      "planerad aktivitet",
+      "stryk",
+      "serie",
+      "orsak",
+      "avslutade",
+      "ångra",
+      "ikon",
+      "dialog",
+      "status"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Planering",
+      "Aktivitetshantering",
+      "Strykningsprocess",
+      "Seriefunktion",
+      "Avslutade aktiviteter"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Möteshantering",
+      "Systemadministration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient eller Att göra Enhet. 2. I sektionen Planerade och pågående klicka på den planerade aktivitetens ikon . 3. Välj alternativet Stryk. Om aktiviteten ingår i en serie välj ett av följande alternativ: Endast denna Denna och alla framtida Alla planerade i serien 4. I dialogen Orsak fyll i orsak till att aktiviteten stryks. 5. Klicka på knappen Stryk. Aktiviteten visas nu genomstruken i sektionen Avslutade . 6. För att ångra en struken aktivitet, klicka på aktivitetens ikon. 7. Välj alternativet Ångra stryk. Aktiviteten flyttas tillbaka till status planerad."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Avbryta en pågående aktivitet",
+    "page": 1,
+    "section_id": "4.6",
+    "main_section_id": "2",
+    "context_summary": "Instruktion för att avbryta eller ångra en pågående aktivitet i COSMIC, inklusive steg för att fylla i orsak och se aktiviteten som genomstruken i avslutade.",
+    "keywords": [
+      "avbryt",
+      "aktiviteter",
+      "COSMIC",
+      "planerade",
+      "pågående",
+      "ångra",
+      "status",
+      "patient",
+      "enhet"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Aktivitetsöversikter",
+      "Avbrytning",
+      "Användarmanual",
+      "COSMIC",
+      "Patient",
+      "Enhet"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Klientadministration",
+      "Sjukvårdsinformation"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient eller Att göra Enhet. 2. I sektionen Planerade och pågående klicka på den pågående aktivitete ns ikon . 3. Välj alternativet Avbryt. 4. I dialogen Orsak fyll i orsak till att aktiviteten avbryts. 5. Klicka på knappen Avbryt aktivitet . Aktiviteten visas nu genomstruken i sektionen Avslutade . 6. För att ångra en avbruten aktivitet, klicka på aktivitetens ikon . 7. Välj alternativet Ångra avbryt. Aktiviteten flyttas tillbaka till status pågående. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 21(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Ta bort en aktivitet",
+    "page": 1,
+    "section_id": 4.7,
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att makulera en aktivitet: öppna fönstret, välja aktivitet, välja makulera och orsaksdialog, klicka Makulera, aktiviteten flyttas till avslutade.",
+    "keywords": [
+      "aktivitet",
+      "makulera",
+      "patient",
+      "enhet",
+      "serie",
+      "orsak",
+      "avslutade",
+      "ikonen"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "patientvård",
+      "mjukvara",
+      "användarguide",
+      "aktivitetsadministration"
+    ],
+    "clinical_domain": [
+      "Övervakning",
+      "Patienthantering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient eller Att göra Enhet. 2. Klicka på ikonen för en aktivitet. 3. Välj alternativet Makulera . Om aktiviteten ingår i en serie välj ett av följande alternativ: Endast denna Denna och alla framtida Alla planerade i serien 4. I dialogrutan Makuleringsorsak välj orsak till att aktiviteten makuleras. 5. Klicka på knappen Makulera . Aktiviteten visas nu i sektionen Avslutade med ikonen ."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Ta bort flera aktiviteter",
+    "page": 1,
+    "section_id": "4.8",
+    "main_section_id": 2,
+    "context_summary": "Detta avsnitt beskriver hur man tar bort många aktiviteter för vissa laboratorie- och rumsliga analyser i COSMIC, inklusive steg för öppning av patientfönstret, val av aktiviteter, och användning av Makulera eller Stryk.",
+    "keywords": [
+      "aktivitet",
+      "förbrytelse",
+      "Makulera",
+      "Stryk",
+      "patient",
+      "planerade aktiviteter",
+      "avslutade",
+      "klinisk kemi",
+      "mikrobiologi",
+      "immunologi",
+      "radiologi",
+      "lokal analys",
+      "COSMIC Order Management"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Aktivitetsförvaltning",
+      "Borttagen",
+      "Patientvård",
+      "Laboratorietjänster"
+    ],
+    "clinical_domain": [
+      "Klinisk kemi",
+      "Mikrobiologi",
+      "Immunologi",
+      "Radiologi",
+      "Laboratorieanalys"
+    ],
+    "text": "Om aktiviteter av typerna klinisk kemi, mikrobiologi, immunologi, radiologi eller lokala analyser stryks kommer dessa att visas i status Makulerad . Detta då COSMIC Order Management inte hanterar status tryk. Steg Åtgärd 1. Öppna fönstret Att göra Patient. 2. Klicka på knappen Ta bort flera i sektionen för Planerade och pågående aktiviteter. 3. Välj de aktiviteter som ska tas bort via de kryssrutor som visas före aktivitetens namn. 4. Klicka på en av knapparna Makulera eller Stryk i åtgärdslisten. 5. I dialogrutan, ange orsak och klicka på knappen Makulera eller Stryk aktiviteter. Aktiviteterna visas nu i sektionen Avslutade . Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 22(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Redigera en planerad eller pågående aktivitet",
+    "page": 1,
+    "section_id": 4.9,
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att redigera en planerad eller pågående aktivitet genom att öppna aktivitetsfönstret, välja redigera, hantera serier och spara ändringar.",
+    "keywords": [
+      "redigera",
+      "aktivitet",
+      "planerad",
+      "pågående",
+      "serie",
+      "spara",
+      "uppdatera"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Aktivitetshantering",
+      "Planering",
+      "Administrativ",
+      "Patient",
+      "Enhet"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Medicinsk planering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient eller Att göra Enhet. 2. I sektionen Planerade och pågående klicka på ikonen för en aktivitet. 3. Välj alternativet Redigera. Om aktiviteten ingår i en serie välj ett av följande alternativ: Endast denna Denna och alla framtida Förläng serie 4. I dialogrutan Redigera aktivitet ändra relevant information. 5. Klicka på knappen Spara. Aktiviteten visas nu i sektionen Planerade och pågående med uppdaterad information."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Förlänga en upprepad serie",
+    "page": 1,
+    "section_id": "4.10",
+    "main_section_id": 2,
+    "context_summary": "Steg-för-steg-instruktion för att förlänga en upprepad serie i planerade och pågående aktiviteter.",
+    "keywords": [
+      "upprepad serie",
+      "förläng",
+      "Planerade och pågående",
+      "aktivitet",
+      "spara",
+      "fönster",
+      "dialogruta"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Aktivitetshantering",
+      "Patienthantering",
+      "Planering",
+      "Upprepad aktivitet"
+    ],
+    "clinical_domain": [
+      "Klinisk administration",
+      "Patientvård",
+      "Övervakning"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient eller Att göra Enhet. 2. I sektionen Planerade och pågående klicka på ikonen för en upprepad aktivitet. 3. Välj alternativet förläng serie . 4. I dialogrutan Förläng serie , fyll i information om hur serien ska förlängas. 5. Klicka på knappen Spara. Aktiviteten visas nu i sektionen Planerade och pågående med uppdaterad information."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Redigera en avslutad uppgift",
+    "page": 1,
+    "section_id": "4.11",
+    "main_section_id": "2",
+    "context_summary": "Instruktion för att redigera en avslutad aktivitet i COSMIC: öppna patientfönstret, gå till Avslutade, välj redigera, gör ändringarna och spara.",
+    "keywords": [
+      "redigera",
+      "avslutad aktivitet",
+      "COSMIC",
+      "patientfönster",
+      "spara",
+      "ändra",
+      "sektionen Avslutade",
+      "aktivitet",
+      "instruktion",
+      "patient"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientadministration",
+      "Aktivitetsredigering",
+      "Systemanvändning",
+      "COSMIC",
+      "Konsultation"
+    ],
+    "clinical_domain": [
+      "Allmänmedicin"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient. 2. I sektionen Avslutade klicka på ikonen för en aktivitet. 3. Välj alternativet Redigera. 4. Ändra det som ska uppdateras i den expanderade raden. 5. Klicka på knappen Spara. Aktiviteten visas nu i sektionen Avslutade med uppdaterad information. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 23(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Utföra en lokal analys",
+    "page": 1,
+    "section_id": "4.12.1",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steginstruktion för att utföra en lokal analys genom att öppna fönster, välja aktivitetsstatus och mata in svar.",
+    "keywords": [
+      "lokal analys",
+      "patient",
+      "enhet",
+      "planerade aktiviteter",
+      "expanderad aktivitet",
+      "mata in svar",
+      "statusikon"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "diagnostik",
+      "patientvård",
+      "analys",
+      "procedur"
+    ],
+    "clinical_domain": [
+      "diagnostik",
+      "vård"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient eller Att göra Enhet. Lokala analyser i status Sparad, Utskriven finns i sektionen för Planerade och pågående aktiviteter. 2. Välj att expandera en aktivitet av typen lokala analyser i sektionen Planerade och pågående genom att klicka på statusikonen för aktiviteten, på raden för aktiviteten eller ikonen . 3. I den expanderade aktiviteten, klicka på länken Mata in svar för att komma till fönstret Lokala analyser ."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Visa svar för lokala analyser",
+    "page": 1,
+    "section_id": "4.12.2",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att visa svar på lokala analyser genom att öppna fönstret, välja aktivitet i avsnittet Avslutade och öppna resultatfönstret Svar Provbunden.",
+    "keywords": [
+      "lokala analyser",
+      "patient",
+      "Avslutade",
+      "expanderade aktivitet",
+      "statusikon",
+      "Svar Provbunden",
+      "Makulerade",
+      "aktivitet"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patient",
+      "Analyser",
+      "Instruktion",
+      "Fönster",
+      "Resultat",
+      "Sektion Avslutade"
+    ],
+    "clinical_domain": [
+      "Diagnostik"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient. Lokala analyser i status Alla analyser besvarade och Makulerade visas i sektionen Avslutade . 2. Välj att expandera en aktivitet, av typen lokala analyser, i sektionen Avslutade genom att k licka på statusikonen för aktiviteten, på raden för aktiviteten eller ikonen . 3. I den expanderade aktiviteten, klicka på länken för att öppna fönstret Svar Provbunden ."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Hantera klinisk kemi, mikrobiologi och",
+    "page": 1,
+    "section_id": "4.13",
+    "main_section_id": 2,
+    "context_summary": "Denna sektion fokuserar på immunologi inom klinisk kemi och mikrobiologi.",
+    "keywords": [
+      "immunologi",
+      "klinisk kemi",
+      "mikrobiologi",
+      "hälsovård"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Klinisk kemi",
+      "Mikrobiologi",
+      "Immunologi",
+      "Laboratorieundersökningar"
+    ],
+    "clinical_domain": [
+      "Klinisk kemi",
+      "Mikrobiologi",
+      "Immunologi"
+    ],
+    "text": "immunologi"
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Skicka klinisk kemi, mikrobiologi och immunologi",
+    "page": 1,
+    "section_id": "4.13.1",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg-instruktion för att skicka klinisk kemi, mikrobiologi och immunologi via COSMIC-systemet.",
+    "keywords": [
+      "klinik",
+      "kemi",
+      "mikrobiologi",
+      "immunologi",
+      "aktivitetsöversikter",
+      "Provtagningsunderlag",
+      "COSMIC",
+      "Patient",
+      "Enhet"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Klinisk kemi",
+      "Mikrobiologi",
+      "Immunologi",
+      "Aktivitetshantering",
+      "COSMIC"
+    ],
+    "clinical_domain": [
+      "Laboratorietester",
+      "Diagnostik",
+      "Patientvård"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient eller Att göra Enhet. Planerade och pågående aktiviteter. 2. Välj att expandera en aktivitet i sektionen Planerade och pågående på ett av genom att k licka på statusikonen för aktiviteten , på raden för aktiviteten eller ikonen . 3. Klicka på länken i den expanderade aktiviteten för att komma till fönstret Provtagningsunderlag. Aktivitetsöversikter i COSMIC Introduktion & Användarmanual Version:13.0 Datum: 2024-10-14 ©2024 Cambio Healthcare Systems AB 24(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Visa svar för klinisk kemi , mikrobiologi och immunologi",
+    "page": 1,
+    "section_id": "4.13.2",
+    "main_section_id": 3,
+    "context_summary": "Beskrivning av hur man öppnar patientfönstret, expanderar avslutade aktiviteter och klickar på länk för att visa provsvar i laboratoriehanteringssystemet.",
+    "keywords": [
+      "patient",
+      "prov",
+      "lab",
+      "avslutade",
+      "aktivitet",
+      "expanderad",
+      "länk",
+      "svaret",
+      "fönster"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Klinisk kemi",
+      "Mikrobiologi",
+      "Immunologi",
+      "Laboratoriehantering",
+      "Aktiviteter",
+      "Användarmanual"
+    ],
+    "clinical_domain": [
+      "Klinisk kemi",
+      "Mikrobiologi",
+      "Immunologi"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient. Analyser i Prov mottaget på lab . , Avslutade . 2. Välj att expandera en aktivitet i sektionen Avslutade genom att k licka på statusikonen för aktiviteten, på raden för aktiviteten eller ikonen . 3. I den expanderade aktiviteten klicka på länken för att komma till fönstret Svar provbunden."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Planerad och bokad radiologi",
+    "page": 1,
+    "section_id": "4.14.1",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att öppna fönster, expandera planerade aktiviteter, gå till beställningsfönster och markera radiologiförfrågan som utförd.",
+    "keywords": [
+      "radiologi",
+      "planerad aktivitet",
+      "bokad radiologi",
+      "beställning",
+      "markera utförd",
+      "aktivitet",
+      "statusikon",
+      "fönster",
+      "expandera"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Radiologi",
+      "Aktivitetsöversikter",
+      "Planering",
+      "Bokning",
+      "Dokumentation"
+    ],
+    "clinical_domain": [
+      "Radiologi",
+      "Diagnostik",
+      "Bokningssystem"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient eller Att göra Enhet. Planerade och pågående aktiviteter. 2. Välj att expandera en aktivitet i sektionen Planerade och pågående genom att klicka på statusikonen för aktiviteten , på raden för aktiviteten eller ikonen . 3. Klicka på länken i den expanderade aktiviteten för att komma till fönstret Beställning radiologi. 4. till utförd genom att klicka på knappen Markera som utförd ."
+  },
+  {
+    "source_file": "Cosmic manual aktivitetsöversikter v13.0.pdf",
+    "section": "Visa svar för radiologi",
+    "page": 1,
+    "section_id": "4.14.2",
+    "main_section_id": 3,
+    "context_summary": "Detta är en steg-för-steg-instruktion för att öppna fönstret Radiologisvar från Avslutade aktiviteter och sedan återställa statusen.",
+    "keywords": [
+      "patientfönster",
+      "Avslutade",
+      "aktivitet",
+      "radiologisvar",
+      "Ångra utför",
+      "expanderad aktivitet",
+      "statusikon"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsa",
+      "Radiologi",
+      "Aktivitetsöversikter",
+      "Patienthantering"
+    ],
+    "clinical_domain": [
+      "Radiologi",
+      "Hälsovård"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Att göra Patient. finns i sektionen Avslutade . 2. Välj att expandera en aktivitet i sektionen Avslutade genom att k licka på statusikonen för aktiviteten, på raden för aktiviteten eller ikonen . 3. I den expanderade aktiviteten klicka på länken för att komma till fönstret Radiologisvar. 4. tillbaka till planerad eller bokad genom att högerklicka på aktiviteten och välja Ångra utför ."
+  }
+]
