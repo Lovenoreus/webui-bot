@@ -14,13 +14,13 @@
     "port": 11434
   },
   "openai": {
-    "enabled": true,
+    "enabled": false,
     "agent_model_name": "gpt-4o-mini",
     "embeddings_model_name": "text-embedding-3-large"
   },
   "mistral": {
-    "enabled": false,
-    "model_name": "devstral-small-2507",
+    "enabled": true,
+    "model_name": "devstral-medium-2507",
     "base_url": "https://api.mistral.ai/v1",
     "embeddings_model_name": "text-embedding-3-small",
     "chat_completion_endpoint": "/chat/completions"
@@ -63,7 +63,7 @@
     "database_server_url": "http://localhost:8762",
     "docker_database_server_url": "http://database_server:8762",
     "provider": {
-        "openai": true,
+        "openai": false,
         "ollama": false,
         "mistral": true
     },
@@ -72,12 +72,12 @@
         "model_name": "qwen2.5:3b-instruct"
     },
     "mcp_openai":{
-        "enabled": true,
+        "enabled": false,
         "model_name": "gpt-4o-mini"
     },
     "mcp_mistral":{
         "enabled": false,
-        "model_name": "devstral-small-2507"
+        "model_name": "devstral-medium-2507"
     }
   }
 }
