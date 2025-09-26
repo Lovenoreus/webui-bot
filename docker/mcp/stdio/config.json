@@ -65,7 +65,7 @@
     "provider": {
         "openai": true,
         "ollama": false,
-        "mistral": true
+        "mistral": false
     },
     "mcp_ollama":{
         "enabled": false,
