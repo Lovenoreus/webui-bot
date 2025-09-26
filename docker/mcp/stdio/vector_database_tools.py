@@ -1,101 +1,23 @@
 import sys
 import openai
-from qdrant_client import QdrantClient
 from dotenv import load_dotenv
-import os
-from typing import List
 import requests
 import config
-from typing import List, Generator
-
-
-# load_dotenv()
-
-def get_known_problems_tool(query: str) -> str:
-    """Called when the you have to find known problems related to the query."""
-
-    print(f"Retrieving known problems for query: {query}")
-    # results = kp_retriever.get_relevant_documents(query, k=2)
-    # print(results)
-    # results = [result.page_content for result in results]
-    # return results if results else "No known problems found."
-    return 'Got known problems'
-
-
-def get_who_am_i_tool(query: str) -> str:
-    """Called when the user wants to know information about the bot's identity and capabilities.
-
-    Parameters:
-    query (str): The query to search for in the 'Who Am I' database.
-    Returns:
-    str: The content of the relevant document found, or a message indicating no information was found.
-
-    """
-
-    print(f"Retrieving 'Who Am I' information for query: {query}")
-    # print(query)
-    # results = wmi_retriever.get_relevant_documents(query, k=2)
-    # results = [result.page_content for result in results]
-    # return results if results else "No known problems found."
-    return 'Got Who Am I'
-
-
-
-def check_conversation_completion(numIssueReported: int, numTicketsCreated: int) -> bool:
-    """
-    When to Call: Call this tool when ticket is successfully created or when the user explicitly states that the issue is resolved.
-    Check if the conversation is complete based on reported issues and created tickets.
-    Args:
-        numIssueReported (int): Number of issues reported by the user.
-        numTicketsCreated (int): Number of tickets created by the agent.
-    Returns:
-        bool: True if the conversation is complete, False otherwise."""
-    print(f"Checking conversation completion: {numIssueReported} issues reported, {numTicketsCreated} tickets created.")
-    if numIssueReported == numTicketsCreated:
-        return True
-    else:
-        return False
-
-
-def embed_query_using_ollama_embedding_model(query: str, model_name: str, ollama_url: str):
-    """Generate embedding using Nomic model via Ollama"""
-    payload = {
-        "model": model_name,
-        "prompt": query
-    }
-
-    try:
-        # ollama_url = "http://vs2153.vll.se:11434"
-        # ollama_url = "http://localhost:11434"
-        response = requests.post(
-            f"{ollama_url}/api/embeddings",
-            json=payload,
-            timeout=30
-        )
-        response.raise_for_status()
-        result = response.json()
-        return result["embedding"]
-
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Ollama request failed: {e}")
-        raise
-    except KeyError as e:
-        print(f"❌ Unexpected response format: {e}")
-        print(f"Response: {response.text}")
-        raise
-    except Exception as e:
-        print(f"❌ Nomic embedding failed: {e}")
-        raise
+from typing import List, Optional, Tuple, Generator
+import json
+import os
+from langchain_community.chat_models import ChatOllama
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_mistralai import ChatMistralAI
+from langchain_core.messages import SystemMessage, HumanMessage
 
 
 import httpx
 import asyncio
-from typing import List, Optional, Tuple
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.http import models as rest
 from langchain_openai import OpenAIEmbeddings
 import traceback
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -260,6 +182,123 @@ def intelligent_metadata_filter(query: str) -> Optional[rest.Filter]:
         return None
 
 
+async def llm_intelligent_metadata_filter(query: str) -> Optional[rest.Filter]:
+    """Use LLM to generate intelligent metadata filters based on query intent"""
+
+    prompt = f"""You are a metadata filter generator for a medical documentation search system.
+
+Analyze this query and determine the most relevant metadata filters:
+
+Query: "{query}"
+
+CRITICAL LANGUAGE INSTRUCTIONS:
+- The query can be in Swedish OR English
+- Your metadata values MUST match the language of the stored documents
+- Swedish documents have Swedish metadata (keywords: ["familjär hyperkolesterolemi"], clinical_domain: ["Kardiologi"])  
+- English documents have English metadata (keywords: ["familial hypercholesterolemia"], clinical_domain: ["Cardiology"])
+- Generate metadata values in the SAME language as the query to ensure proper matching
+
+Available metadata fields:
+- content_type: ["instruction", "narrative", "definition", "list", "procedure", "process", "technical", "clinical", "medical", "documentation"]
+- hierarchical_tags: Swedish docs: ["Beslutsstöd", "Journalintegration", "Remissprocess"] | English docs: ["Decision support", "Journal integration", "Referral process"]
+- clinical_domain: Swedish docs: ["Kardiologi", "Endokrinologi", "Lipidmetabolism", "Primärvården"] | English docs: ["Cardiology", "Endocrinology", "Lipid metabolism", "Primary care"]
+- keywords: Generate in same language as query
+
+Now analyze: "{query}"
+Return ONLY valid JSON, no other text.
+"""
+
+    try:
+        # Use your existing provider logic
+        if config.MCP_PROVIDER_OLLAMA:
+            llm = ChatOllama(
+                model=config.MCP_AGENT_MODEL_NAME,
+                temperature=0.1,
+                base_url=config.OLLAMA_BASE_URL
+            )
+        elif config.MCP_PROVIDER_OPENAI:
+            llm = ChatOpenAI(
+                model=config.MCP_AGENT_MODEL_NAME,
+                temperature=0.1,
+                api_key=os.environ.get("OPENAI_API_KEY")
+            )
+        elif config.MCP_PROVIDER_MISTRAL:
+            llm = ChatMistralAI(
+                model=config.MCP_AGENT_MODEL_NAME,
+                temperature=0.1,
+                streaming=False,
+                mistral_api_key=os.environ.get("MISTRAL_API_KEY"),
+                endpoint=config.MISTRAL_BASE_URL
+            )
+        else:
+            if config.DEBUG:
+                print("No LLM provider configured for metadata filtering")
+            return None
+
+        messages = [
+            SystemMessage(
+                content="You are a metadata filter generator. Generate metadata values in the same language as the query. Return only valid JSON."),
+            HumanMessage(content=prompt)
+        ]
+
+        if config.DEBUG:
+            print(f"Generating metadata filter using provider for query: {query}")
+
+        response = await llm.ainvoke(messages)
+        response_content = response.content.strip()
+
+        if config.DEBUG:
+            print(f"LLM metadata response: {response_content}")
+
+        metadata_config = json.loads(response_content)
+
+        if config.DEBUG:
+            print(f"Parsed metadata config: {metadata_config}")
+
+        return build_qdrant_filters_from_config(metadata_config)
+
+    except json.JSONDecodeError as e:
+        if config.DEBUG:
+            print(f"JSON parsing failed for metadata filter: {e}")
+            print(f"Response was: {response_content}")
+        return None
+    except Exception as e:
+        if config.DEBUG:
+            print(f"LLM metadata filtering failed: {e}")
+        return None
+
+
+def build_qdrant_filters_from_config(metadata_config: dict) -> Optional[rest.Filter]:
+    """Convert LLM-generated metadata config to Qdrant filters"""
+    should_conditions = []
+
+    for field_name, values in metadata_config.items():
+        if not values:
+            continue
+
+        field_key = f"metadata.{field_name}"
+
+        if isinstance(values, list) and values:
+            should_conditions.append(
+                rest.FieldCondition(
+                    key=field_key,
+                    match=rest.MatchAny(any=values)
+                )
+            )
+        elif isinstance(values, str) and values.strip():
+            should_conditions.append(
+                rest.FieldCondition(
+                    key=field_key,
+                    match=rest.MatchText(text=values)
+                )
+            )
+
+    if config.DEBUG and should_conditions:
+        print(f"Built {len(should_conditions)} metadata filter conditions")
+
+    return rest.Filter(should=should_conditions) if should_conditions else None
+
+
 async def enhanced_multi_strategy_retrieval(
         query: str,
         collection_name: str,
@@ -297,7 +336,9 @@ async def enhanced_multi_strategy_retrieval(
         # Define three async search strategies
         async def high_precision_search():
             try:
-                metadata_filter = intelligent_metadata_filter(query)
+                # metadata_filter = intelligent_metadata_filter(query)
+                metadata_filter = await llm_intelligent_metadata_filter(query)
+
                 response = await qdrant_client.query_points(
                     collection_name=collection_name,
                     query=query_embedding,
@@ -306,6 +347,7 @@ async def enhanced_multi_strategy_retrieval(
                     score_threshold=0.7
                 )
                 return [(hit, "high_precision") for hit in response.points]
+
             except Exception as e:
                 if config.DEBUG:
                     print(f"High precision search failed: {e}")
@@ -413,7 +455,7 @@ async def cosmic_database_tool(query: str) -> str:
         if config.USE_OPENAI:
             openai_embedder = OpenAIEmbeddings(
                 model=config.EMBEDDINGS_MODEL_NAME,
-                openai_api_key=config.OPENAI_API_KEY
+                openai_api_key=os.environ.get("OPENAI_API_KEY")
             )
 
         if config.DEBUG:

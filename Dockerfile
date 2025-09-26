@@ -27,15 +27,36 @@ FROM --platform=$BUILDPLATFORM node:22-alpine3.20 AS build
 ARG BUILD_HASH
 
 # Set Node.js options (heap limit Allocation failed - JavaScript heap out of memory)
-# ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 WORKDIR /app
 
 # to store git revision in build
 RUN apk add --no-cache git
 
+# Copy pre-downloaded binaries
+COPY local-binaries/ /tmp/onnx-cache/
+
 COPY package.json package-lock.json ./
-RUN npm ci --force
+
+# Install with pre-downloaded ONNX runtime and missing peer dependencies
+RUN npm config set maxsockets 1 && \
+    npm config set fetch-retries 3 && \
+    npm config set fetch-retry-maxtimeout 60000 && \
+    npm config set fetch-retry-mintimeout 10000 && \
+    npm install --legacy-peer-deps --ignore-scripts && \
+    npm install y-protocols prosemirror-state prosemirror-view prosemirror-model prosemirror-transform prosemirror-commands prosemirror-keymap prosemirror-history --legacy-peer-deps --ignore-scripts && \
+    # Manually extract the ONNX runtime
+    if [ -f /tmp/onnx-cache/onnxruntime-linux-x64-gpu-1.20.1.tgz ]; then \
+        mkdir -p node_modules/onnxruntime-node/bin/napi-v3/linux/x64/ && \
+        cd /tmp && \
+        tar -xzf /tmp/onnx-cache/onnxruntime-linux-x64-gpu-1.20.1.tgz && \
+        find . -name "libonnxruntime*" -type f -exec cp {} /app/node_modules/onnxruntime-node/bin/napi-v3/linux/x64/ \; 2>/dev/null || true; \
+    fi
+
+COPY . .
+ENV APP_BUILD_HASH=${BUILD_HASH}
+RUN npm run build
 
 COPY . .
 ENV APP_BUILD_HASH=${BUILD_HASH}

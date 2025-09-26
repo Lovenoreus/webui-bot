@@ -130,7 +130,7 @@ app.add_middleware(
 
 # Request models
 class GreetRequest(BaseModel):
-    name: str
+    name: Optional[str]
 
 
 class QueryDatabaseRequest(BaseModel):
@@ -638,12 +638,41 @@ async def get_sql_query(user_question: str, keywords: List[str], provider: str =
     return sql_query
 
 
+
+async def greet(name: Optional[str] = None) -> str:
+    """
+    Provide a friendly greeting to the user with appropriate time-based salutation.
+    """
+    # Handle empty strings, whitespace-only strings, and None
+    if not name or name.strip() == "":
+        name = None
+
+    hour = datetime.now().hour
+    if 5 <= hour < 12:
+        time_greeting = "Good morning"
+    elif 12 <= hour < 17:
+        time_greeting = "Good afternoon"
+    elif 17 <= hour < 21:
+        time_greeting = "Good evening"
+    else:
+        time_greeting = "Good evening"
+
+    if name:
+        response = f"[RESPONSE]: {time_greeting} {name}! I'm your Cosmic hospital assistant. I can help with policies, user management, database queries, weather information, and more. What can I do for you?"
+    else:
+        response = f"[RESPONSE]: {time_greeting}! I'm your Cosmic hospital assistant. I can help with policies, user management, database queries, weather information, and more. How can I assist you today?"
+
+    return f"{response}\n\n[Success]"
+
+
 @app.post("/greet")
 async def greet_endpoint(request: GreetRequest):
-    """Greet a user by name"""
+    """Greet a user by name with time-based salutation"""
     try:
-        message = f"Hello, {request.name}!"
+        name = request.name if request.name and request.name.strip() else None
+        message = await greet(name)
         return {"message": message}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -1372,57 +1401,59 @@ async def health_check():
 async def mcp_tools_list():
     """MCP Protocol: List available tools"""
     tools = [
+        # CONVERSATIONAL
         MCPTool(
             name="greet",
-            description="Provide a friendly greeting to the user with appropriate time-based salutation (Good morning/afternoon/evening). Use when user says hello, hi, or similar greetings, or to start conversations politely.",
+            description="TRIGGER: hello, hi, good morning, good afternoon, good evening, introduce yourself, who are you, start conversation | ACTION: Welcome user with time-based greeting | RETURNS: Personalized greeting with hospital assistant capabilities",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "name": {
-                        "type": "string",
-                        "description": "User's name if provided. If None, gives general greeting."
-                    }
+                    "name": {"type": "string", "description": "User's name", "default": ""}
                 },
-                "required": []
+                "required": ["name"]  # Required but has default
             }
         ),
+
+        # DATABASE RETRIEVAL
         MCPTool(
             name="query_database",
-            description="Execute natural language queries against the database using AI-powered SQL generation. Keywords are automatically generated using OpenAI model for optimal database searching. Use for questions about users, posts, database data, statistics, counts, summaries. Database contains hospital-related tables with current operational data.",
+            description="TRIGGER: SQL, database, query database, hospital database, list users, count users, show statistics, user data, department data, roles data, permissions data, teams data, how many, find in database, search database | ACTION: Query hospital SQL database with AI-generated SQL | RETURNS: Structured data results from hospital operational database with SQL query used",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "Natural language query about the database content"
-                    },
-                    "keywords": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "Keywords to help with query context (automatically generated if not provided)"
-                    }
+                    "query": {"type": "string", "description": "Natural language question about hospital database"},
+                    "keywords": {"type": "array", "items": {"type": "string"},
+                                 "description": "Keywords to help with database query context"}
                 },
                 "required": ["query", "keywords"]
             }
         ),
+
         MCPTool(
-            name="get_current_weather",
-            description="Get current weather information for a specific location using OpenWeatherMap API. Use when user asks about current weather conditions, temperature, atmospheric conditions, or mentions weather. Defaults to Karachi if no location provided.",
+            name="search_cosmic_database",
+            description="TRIGGER: medical procedures, hospital policies, documentation, clinical guidelines, treatment protocols, medical knowledge, policy lookup, procedure steps, cosmic database | ACTION: Search medical documentation vector database | RETURNS: Relevant medical/policy documentation from cosmic knowledge base",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "city": {
-                        "type": "string",
-                        "description": "City name (e.g., 'London', 'New York', 'Tokyo', 'Karachi')"
-                    },
+                    "query": {"type": "string", "description": "Medical/policy search query for cosmic database"}
+                },
+                "required": ["query"]
+            }
+        ),
+
+        # EXTERNAL SERVICES
+        MCPTool(
+            name="get_current_weather",
+            description="TRIGGER: weather, temperature, current conditions, forecast, how's the weather, what's the temperature, climate, meteorology | ACTION: Get real-time weather data from OpenWeather API | RETURNS: Current weather conditions for specified location",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "city": {"type": "string",
+                             "description": "City name (e.g., 'London', 'New York', 'Tokyo', 'Karachi')"},
                     "lat": {"type": "number", "description": "Latitude coordinate (use with lon)"},
                     "lon": {"type": "number", "description": "Longitude coordinate (use with lat)"},
-                    "units": {
-                        "type": "string",
-                        "enum": ["metric", "imperial", "kelvin"],
-                        "description": "Temperature units - metric (Celsius), imperial (Fahrenheit), kelvin",
-                        "default": "metric"
-                    }
+                    "units": {"type": "string", "enum": ["metric", "imperial", "kelvin"],
+                              "description": "Temperature units", "default": "metric"}
                 },
                 "anyOf": [
                     {"required": ["city"]},
@@ -1430,36 +1461,42 @@ async def mcp_tools_list():
                 ]
             }
         ),
+
+        # AZURE ACTIVE DIRECTORY - USER MANAGEMENT
         MCPTool(
             name="ad_list_users",
-            description="List all users in Azure Active Directory. Returns user information including ID, display name, email, and other user properties.",
+            description="TRIGGER: list AD users, active directory users, show all users, Azure AD users, directory users, AD accounts | ACTION: List all Azure Active Directory user accounts | RETURNS: Complete AD user directory with IDs, names, emails from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {},
                 "required": []
             }
         ),
+
         MCPTool(
             name="ad_create_user",
-            description="Create a new user in Azure Active Directory. Auto-generates userPrincipalName and mailNickname from displayName if not provided.",
+            description="TRIGGER: create AD user, add Azure AD user, new AD account, register AD user, add employee to directory | ACTION: Create new Azure Active Directory user account | RETURNS: Created AD user details with generated ID and tenant information",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "user": {
                         "type": "object",
-                        "description": "Microsoft Graph user payload with user properties",
+                        "description": "Azure AD user payload with user properties",
                         "properties": {
-                            "displayName": {"type": "string", "description": "User's display name"},
-                            "mailNickname": {"type": "string", "description": "Mail nickname (auto-generated if not provided)"},
-                            "userPrincipalName": {"type": "string", "description": "User principal name (auto-generated if not provided)"},
+                            "displayName": {"type": "string", "description": "User's display name in AD"},
+                            "mailNickname": {"type": "string",
+                                             "description": "Mail nickname (auto-generated if not provided)"},
+                            "userPrincipalName": {"type": "string",
+                                                  "description": "User principal name (auto-generated if not provided)"},
                             "passwordProfile": {
                                 "type": "object",
                                 "properties": {
                                     "password": {"type": "string", "description": "Temporary password"},
-                                    "forceChangePasswordNextSignIn": {"type": "boolean", "description": "Force password change on next sign-in"}
+                                    "forceChangePasswordNextSignIn": {"type": "boolean",
+                                                                      "description": "Force password change on next sign-in"}
                                 }
                             },
-                            "accountEnabled": {"type": "boolean", "description": "Whether account is enabled"}
+                            "accountEnabled": {"type": "boolean", "description": "Whether AD account is enabled"}
                         },
                         "required": ["displayName"]
                     }
@@ -1467,162 +1504,168 @@ async def mcp_tools_list():
                 "required": ["user"]
             }
         ),
+
         MCPTool(
             name="ad_update_user",
-            description="Update an existing user's properties in Azure Active Directory.",
+            description="TRIGGER: update AD user, modify Azure AD user, change AD user details, edit directory user, AD user updates | ACTION: Update existing Azure Active Directory user properties | RETURNS: Updated AD user information from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {"type": "string", "description": "User ID to update"},
-                    "updates": {"type": "object", "description": "Properties to update"}
+                    "user_id": {"type": "string", "description": "Azure AD user ID to update"},
+                    "updates": {"type": "object", "description": "AD user properties to update"}
                 },
                 "required": ["user_id", "updates"]
             }
         ),
+
         MCPTool(
             name="ad_delete_user",
-            description="Delete a user from Azure Active Directory.",
+            description="TRIGGER: delete AD user, remove Azure AD user, deactivate directory user, remove AD account | ACTION: Delete user account from Azure Active Directory | RETURNS: AD account deletion confirmation",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {"type": "string", "description": "User ID to delete"}
+                    "user_id": {"type": "string", "description": "Azure AD user ID to delete"}
                 },
                 "required": ["user_id"]
             }
         ),
+
         MCPTool(
             name="ad_get_user_roles",
-            description="Get all directory roles assigned to a specific user.",
+            description="TRIGGER: AD user roles, Azure AD user permissions, directory user roles, what AD roles does user have, check AD access | ACTION: Get Azure AD user's assigned directory roles | RETURNS: List of AD roles assigned to specific user from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {"type": "string", "description": "User ID to get roles for"}
+                    "user_id": {"type": "string", "description": "Azure AD user ID to get roles for"}
                 },
                 "required": ["user_id"]
             }
         ),
+
         MCPTool(
             name="ad_get_user_groups",
-            description="Get groups that a user is a member of, with optional transitive membership.",
+            description="TRIGGER: AD user groups, Azure AD user memberships, directory user groups, what AD groups is user in, check AD group membership | ACTION: Get user's Azure Active Directory group memberships | RETURNS: List of AD groups user belongs to in Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {"type": "string", "description": "User ID to get groups for"},
-                    "transitive": {"type": "boolean", "description": "Include transitive group memberships", "default": False}
+                    "user_id": {"type": "string", "description": "Azure AD user ID to get groups for"},
+                    "transitive": {"type": "boolean", "description": "Include transitive AD group memberships",
+                                   "default": False}
                 },
                 "required": ["user_id"]
             }
         ),
+
+        # AZURE ACTIVE DIRECTORY - ROLE MANAGEMENT
         MCPTool(
             name="ad_list_roles",
-            description="List all directory roles in Azure Active Directory.",
+            description="TRIGGER: list AD roles, show Azure AD roles, available directory roles, all AD roles, Azure role directory | ACTION: List all Azure Active Directory roles | RETURNS: Complete list of AD directory roles from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {},
                 "required": []
             }
         ),
+
         MCPTool(
             name="ad_add_user_to_role",
-            description="Add a user to a directory role.",
+            description="TRIGGER: assign AD role, add user to AD role, give Azure AD role, grant directory role, AD role assignment | ACTION: Assign Azure Active Directory role to user | RETURNS: AD role assignment confirmation in Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "role_id": {"type": "string", "description": "Role ID to add user to"},
-                    "user_id": {"type": "string", "description": "User ID to add to role"}
+                    "role_id": {"type": "string", "description": "Azure AD role ID to assign"},
+                    "user_id": {"type": "string", "description": "Azure AD user ID to assign role to"}
                 },
                 "required": ["role_id", "user_id"]
             }
         ),
+
         MCPTool(
             name="ad_remove_user_from_role",
-            description="Remove a user from a directory role.",
+            description="TRIGGER: remove AD role, unassign Azure AD role, revoke directory role, take away AD role | ACTION: Remove Azure Active Directory role from user | RETURNS: AD role removal confirmation from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "role_id": {"type": "string", "description": "Role ID to remove user from"},
-                    "user_id": {"type": "string", "description": "User ID to remove from role"}
+                    "role_id": {"type": "string", "description": "Azure AD role ID to remove"},
+                    "user_id": {"type": "string", "description": "Azure AD user ID to remove role from"}
                 },
                 "required": ["role_id", "user_id"]
             }
         ),
+
+        # AZURE ACTIVE DIRECTORY - GROUP MANAGEMENT
         MCPTool(
             name="ad_list_groups",
-            description="List all groups in Azure Active Directory with filtering options.",
+            description="TRIGGER: list AD groups, show Azure AD groups, all directory groups, AD group directory, available Azure groups | ACTION: List all Azure Active Directory groups | RETURNS: Complete list of AD security and distribution groups from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "security_only": {"type": "boolean", "description": "List only security groups", "default": False},
-                    "unified_only": {"type": "boolean", "description": "List only unified groups", "default": False},
-                    "select": {"type": "string", "description": "Fields to select", "default": "id,displayName,mailNickname,mail,securityEnabled,groupTypes"}
+                    "security_only": {"type": "boolean", "description": "List only AD security groups",
+                                      "default": False},
+                    "unified_only": {"type": "boolean", "description": "List only AD unified groups", "default": False},
+                    "select": {"type": "string", "description": "AD fields to select",
+                               "default": "id,displayName,mailNickname,mail,securityEnabled,groupTypes"}
                 },
                 "required": []
             }
         ),
+
         MCPTool(
             name="ad_create_group",
-            description="Create a new group in Azure Active Directory.",
+            description="TRIGGER: create AD group, add new Azure AD group, new directory group, make AD group | ACTION: Create new Azure Active Directory group | RETURNS: Created AD group details with ID from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "display_name": {"type": "string", "description": "Group display name"},
-                    "mail_nickname": {"type": "string", "description": "Group mail nickname"},
-                    "description": {"type": "string", "description": "Group description"},
-                    "group_type": {"type": "string", "enum": ["security", "unified"], "description": "Group type", "default": "security"},
-                    "visibility": {"type": "string", "description": "Group visibility"},
-                    "owners": {"type": "array", "items": {"type": "string"}, "description": "List of owner user IDs"},
-                    "members": {"type": "array", "items": {"type": "string"}, "description": "List of member user IDs"}
+                    "display_name": {"type": "string", "description": "AD group display name"},
+                    "mail_nickname": {"type": "string", "description": "AD group mail nickname"},
+                    "description": {"type": "string", "description": "AD group description"},
+                    "group_type": {"type": "string", "enum": ["security", "unified"],
+                                   "description": "Azure AD group type", "default": "security"},
+                    "visibility": {"type": "string", "description": "AD group visibility"},
+                    "owners": {"type": "array", "items": {"type": "string"},
+                               "description": "List of AD owner user IDs"},
+                    "members": {"type": "array", "items": {"type": "string"},
+                                "description": "List of AD member user IDs"}
                 },
                 "required": ["display_name", "mail_nickname"]
             }
         ),
+
         MCPTool(
             name="ad_add_group_member",
-            description="Add a user to a group as a member.",
+            description="TRIGGER: add to AD group, add member to Azure AD group, add user to directory group, join AD group | ACTION: Add user to Azure Active Directory group | RETURNS: AD group membership confirmation in Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "group_id": {"type": "string", "description": "Group ID to add member to"},
-                    "user_id": {"type": "string", "description": "User ID to add to group"}
+                    "group_id": {"type": "string", "description": "Azure AD group ID to add member to"},
+                    "user_id": {"type": "string", "description": "Azure AD user ID to add to group"}
                 },
                 "required": ["group_id", "user_id"]
             }
         ),
+
         MCPTool(
             name="ad_remove_group_member",
-            description="Remove a user from a group.",
+            description="TRIGGER: remove from AD group, remove member from Azure AD group, leave directory group, kick from AD group | ACTION: Remove user from Azure Active Directory group | RETURNS: AD group removal confirmation from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "group_id": {"type": "string", "description": "Group ID to remove member from"},
-                    "user_id": {"type": "string", "description": "User ID to remove from group"}
+                    "group_id": {"type": "string", "description": "Azure AD group ID to remove member from"},
+                    "user_id": {"type": "string", "description": "Azure AD user ID to remove from group"}
                 },
                 "required": ["group_id", "user_id"]
             }
         ),
+
         MCPTool(
             name="ad_get_group_members",
-            description="Get all members of a specific group.",
+            description="TRIGGER: AD group members, Azure AD group members, who is in directory group, show AD group members, list AD group members | ACTION: Get Azure Active Directory group member list | RETURNS: All members of specified AD group from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "group_id": {"type": "string", "description": "Group ID to get members for"}
+                    "group_id": {"type": "string", "description": "Azure AD group ID to get members for"}
                 },
                 "required": ["group_id"]
-            }
-        ),
-        MCPTool(
-            name="search_cosmic_database",
-            description="Search the cosmic database using vector similarity search. Use this tool when you need to find information from medical documentation, procedures, policies, or any content stored in the cosmic database. This tool uses advanced multi-strategy retrieval with metadata filtering.",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "The search query to find relevant information in the cosmic database"
-                    }
-                },
-                "required": ["query"]
             }
         )
     ]
@@ -1645,7 +1688,10 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             arguments["thread_id"] = "default"
 
         if tool_name == "greet":
-            greet_request = GreetRequest(name=arguments.get("name"))
+            raw_name = arguments.get("name") if arguments else None
+            clean_name = raw_name if raw_name and raw_name.strip() else None
+
+            greet_request = GreetRequest(name=clean_name)
             result = await greet_endpoint(greet_request)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
@@ -1657,8 +1703,8 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
-           
-            
+
+
         elif tool_name == "search_cosmic_database":
             query = arguments.get("query", "")
             if not query:
@@ -1666,10 +1712,19 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                     content=[MCPContent(type="text", text="Error: Query parameter is required")],
                     isError=True
                 )
-            
+
             result = await cosmic_database_tool(query)
+
+            # Handle None or empty results
+            if result is None:
+                result_text = "No results found for the query."
+            elif isinstance(result, str):
+                result_text = result
+            else:
+                result_text = str(result)  # Convert other types to string
+
             return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=result)]
+                content=[MCPContent(type="text", text=result_text)]
             )
 
         
@@ -1798,9 +1853,116 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         )
 
 
-@app.get("/")
-async def root():
-    """Root endpoint with service information"""
+from fastapi import Request
+
+
+@app.post("/")
+async def mcp_streamable_http_endpoint(request: Request):
+    """Streamable HTTP MCP protocol endpoint for MCPO compatibility"""
+    try:
+        body = await request.json()
+        method = body.get("method")
+        request_id = body.get("id")  # Can be None for notifications
+
+        if DEBUG:
+            print(f"[STREAMABLE HTTP] Received method: {method}")
+            print(f"[STREAMABLE HTTP] Body: {body}")
+
+        if method == "initialize":
+            response = {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "protocolVersion": "2024-11-05",
+                    "capabilities": {
+                        "tools": {
+                            "listChanged": False
+                        }
+                    },
+                    "serverInfo": {
+                        "name": "MCP Server with LLM SQL Generation",
+                        "version": "1.0.0"
+                    }
+                }
+            }
+            if DEBUG:
+                print(f"[STREAMABLE HTTP] Initialize response: {response}")
+            return response
+
+        elif method == "notifications/initialized":
+            # For notifications, return HTTP 204 No Content (empty response)
+            if DEBUG:
+                print(f"[STREAMABLE HTTP] Received initialized notification - connection established")
+
+            from fastapi import Response
+            return Response(status_code=204)  # No content response
+
+        elif method == "tools/list":
+            tools_response = await mcp_tools_list()
+            response = {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {"tools": [tool.dict() for tool in tools_response.tools]}
+            }
+            if DEBUG:
+                print(f"[STREAMABLE HTTP] Tools list response: {response}")
+            return response
+
+        elif method == "tools/call":
+            params = body.get("params", {})
+            call_request = MCPToolCallRequest(**params)
+            result = await mcp_tools_call(call_request)
+            response = {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": result.dict()
+            }
+            if DEBUG:
+                print(f"[STREAMABLE HTTP] Tools call response: {response}")
+            return response
+
+        elif method == "ping":
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {}
+            }
+
+        else:
+            if DEBUG:
+                print(f"[STREAMABLE HTTP] Unknown method: {method}")
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {
+                    "code": -32601,
+                    "message": f"Method not found: {method}"
+                }
+            }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[STREAMABLE HTTP] Error: {e}")
+        return {
+            "jsonrpc": "2.0",
+            "id": request_id if 'request_id' in locals() else None,
+            "error": {
+                "code": -32000,
+                "message": str(e)
+            }
+        }
+
+@app.post("/debug")
+async def debug_endpoint(request: Request):
+    """Debug endpoint to see raw requests"""
+    body = await request.json()
+    print(f"[DEBUG] Raw request: {body}")
+    return {"received": body}
+
+
+@app.get("/info")
+async def server_info():
+    """Server information endpoint (moved from root)"""
     return {
         "service": "MCP Server with LLM SQL Generation",
         "version": "1.0.0",
@@ -1817,7 +1979,7 @@ async def root():
             "/query_database_stream",
             "/weather",
             "/ad/users",
-            "/ad/roles", 
+            "/ad/roles",
             "/ad/groups",
             "/health"
         ],
@@ -1853,6 +2015,62 @@ async def root():
         "docs": "/docs",
         "mcp_compatible": True
     }
+
+# @app.get("/")
+# async def root():
+#     """Root endpoint with service information"""
+#     return {
+#         "service": "MCP Server with LLM SQL Generation",
+#         "version": "1.0.0",
+#         "description": "Standalone MCP Tools Server using LLM for natural language to SQL conversion",
+#         "protocols": ["REST API", "MCP (Model Context Protocol)"],
+#         "mcp_endpoints": {
+#             "tools_list": "/mcp/tools/list",
+#             "tools_call": "/mcp/tools/call",
+#             "server_info": "/mcp/server/info"
+#         },
+#         "rest_endpoints": [
+#             "/greet",
+#             "/query_database",
+#             "/query_database_stream",
+#             "/weather",
+#             "/ad/users",
+#             "/ad/roles",
+#             "/ad/groups",
+#             "/health"
+#         ],
+#         "features": [
+#             "LLM SQL Generation",
+#             "OpenWeather Integration",
+#             "Async Database Queries",
+#             "Streaming Support",
+#             "Active Directory Operations",
+#             "MCP Protocol Support",
+#             "Vector Database Integration"
+#         ],
+#         "tools": [
+#             "greet",
+#             "query_database",
+#             "get_current_weather",
+#             "ad_list_users",
+#             "ad_create_user",
+#             "ad_update_user",
+#             "ad_delete_user",
+#             "ad_get_user_roles",
+#             "ad_get_user_groups",
+#             "ad_list_roles",
+#             "ad_add_user_to_role",
+#             "ad_remove_user_from_role",
+#             "ad_list_groups",
+#             "ad_create_group",
+#             "ad_add_group_member",
+#             "ad_remove_group_member",
+#             "ad_get_group_members",
+#             "search_cosmic_database"
+#         ],
+#         "docs": "/docs",
+#         "mcp_compatible": True
+#     }
 
 
 if __name__ == "__main__":
