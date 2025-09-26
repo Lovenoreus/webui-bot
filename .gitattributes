@@ -47,3 +47,9 @@
 # Misc
 *.env text eol=lf
 *.lock text eol=lf
+
+#Python
+*.py text eol=lf
+
+
+
