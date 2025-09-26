@@ -1,101 +1,23 @@
 import sys
 import openai
-from qdrant_client import QdrantClient
 from dotenv import load_dotenv
-import os
-from typing import List
 import requests
 import config
-from typing import List, Generator
-
-
-# load_dotenv()
-
-def get_known_problems_tool(query: str) -> str:
-    """Called when the you have to find known problems related to the query."""
-
-    print(f"Retrieving known problems for query: {query}")
-    # results = kp_retriever.get_relevant_documents(query, k=2)
-    # print(results)
-    # results = [result.page_content for result in results]
-    # return results if results else "No known problems found."
-    return 'Got known problems'
-
-
-def get_who_am_i_tool(query: str) -> str:
-    """Called when the user wants to know information about the bot's identity and capabilities.
-
-    Parameters:
-    query (str): The query to search for in the 'Who Am I' database.
-    Returns:
-    str: The content of the relevant document found, or a message indicating no information was found.
-
-    """
-
-    print(f"Retrieving 'Who Am I' information for query: {query}")
-    # print(query)
-    # results = wmi_retriever.get_relevant_documents(query, k=2)
-    # results = [result.page_content for result in results]
-    # return results if results else "No known problems found."
-    return 'Got Who Am I'
-
-
-
-def check_conversation_completion(numIssueReported: int, numTicketsCreated: int) -> bool:
-    """
-    When to Call: Call this tool when ticket is successfully created or when the user explicitly states that the issue is resolved.
-    Check if the conversation is complete based on reported issues and created tickets.
-    Args:
-        numIssueReported (int): Number of issues reported by the user.
-        numTicketsCreated (int): Number of tickets created by the agent.
-    Returns:
-        bool: True if the conversation is complete, False otherwise."""
-    print(f"Checking conversation completion: {numIssueReported} issues reported, {numTicketsCreated} tickets created.")
-    if numIssueReported == numTicketsCreated:
-        return True
-    else:
-        return False
-
-
-def embed_query_using_ollama_embedding_model(query: str, model_name: str, ollama_url: str):
-    """Generate embedding using Nomic model via Ollama"""
-    payload = {
-        "model": model_name,
-        "prompt": query
-    }
-
-    try:
-        # ollama_url = "http://vs2153.vll.se:11434"
-        # ollama_url = "http://localhost:11434"
-        response = requests.post(
-            f"{ollama_url}/api/embeddings",
-            json=payload,
-            timeout=30
-        )
-        response.raise_for_status()
-        result = response.json()
-        return result["embedding"]
-
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Ollama request failed: {e}")
-        raise
-    except KeyError as e:
-        print(f"❌ Unexpected response format: {e}")
-        print(f"Response: {response.text}")
-        raise
-    except Exception as e:
-        print(f"❌ Nomic embedding failed: {e}")
-        raise
+from typing import List, Optional, Tuple, Generator
+import json
+import os
+from langchain_community.chat_models import ChatOllama
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_mistralai import ChatMistralAI
+from langchain_core.messages import SystemMessage, HumanMessage
 
 
 import httpx
 import asyncio
-from typing import List, Optional, Tuple
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.http import models as rest
 from langchain_openai import OpenAIEmbeddings
 import traceback
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -149,220 +71,232 @@ async def async_embed_with_fallback(
 
     return []
 
-def intelligent_metadata_filter(query: str, strictness: str = "medium") -> dict:
-    """
-    Generate intelligent metadata filters based on query analysis with configurable strictness
-    
-    Args:
-        query: The search query string
-        strictness: Filter strictness level - "high", "medium", or "low"
-    
-    Returns:
-        Qdrant filter dictionary
-    """
-    import re
-    from datetime import datetime, timedelta
-    from typing import List, Dict, Any
-    
-    # Initialize base filter
-    filters = {"must": [], "should": [], "must_not": []}
-    
-    # Extract various metadata hints from query
-    query_lower = query.lower()
-    
-    # Document type detection
-    doc_types = {
-        "pdf": ["pdf", "document", "paper", "report"],
-        "email": ["email", "message", "correspondence", "mail"],
-        "code": ["code", "function", "class", "script", "programming"],
-        "article": ["article", "blog", "post", "news"],
-        "manual": ["manual", "guide", "documentation", "docs", "readme"],
-        "presentation": ["presentation", "slides", "ppt", "slideshow"]
-    }
-    
-    # Time-based keywords
-    time_keywords = {
-        "recent": timedelta(days=7),
-        "last week": timedelta(days=7),
-        "last month": timedelta(days=30),
-        "last year": timedelta(days=365),
-        "today": timedelta(days=1),
-        "yesterday": timedelta(days=2),
-        "this year": timedelta(days=365)
-    }
-    
-    # Category/topic detection
-    categories = {
-        "technical": ["api", "database", "server", "config", "setup", "installation"],
-        "business": ["revenue", "sales", "profit", "strategy", "meeting", "client"],
-        "legal": ["contract", "agreement", "terms", "policy", "compliance"],
-        "hr": ["employee", "hiring", "performance", "training", "onboarding"],
-        "marketing": ["campaign", "brand", "social", "advertisement", "promotion"]
-    }
-    
-    # Priority/importance indicators
-    priority_keywords = {
-        "high": ["urgent", "critical", "important", "asap", "priority", "emergency"],
-        "medium": ["soon", "needed", "required", "necessary"],
-        "low": ["later", "eventually", "someday", "optional"]
-    }
-    
-    def add_filter_condition(condition: Dict[str, Any], filter_type: str = "must"):
-        """Helper to add conditions based on strictness"""
-        if strictness == "high" and filter_type in ["must", "must_not"]:
-            filters[filter_type].append(condition)
-        elif strictness == "medium":
-            filters[filter_type].append(condition)
-        elif strictness == "low" and filter_type != "must_not":
-            # In low strictness, convert some "must" to "should" for flexibility
-            target_type = "should" if filter_type == "must" else filter_type
-            filters[target_type].append(condition)
-    
-    # Document type filtering
-    detected_types = []
-    for doc_type, keywords in doc_types.items():
-        if any(keyword in query_lower for keyword in keywords):
-            detected_types.append(doc_type)
-    
-    if detected_types:
-        if strictness == "high":
-            # Must match exactly one of the detected types
-            add_filter_condition({
-                "key": "document_type",
-                "match": {"any": detected_types}
-            }, "must")
-        elif strictness == "medium":
-            # Should prefer detected types but allow others
-            add_filter_condition({
-                "key": "document_type", 
-                "match": {"any": detected_types}
-            }, "should")
-        # Low strictness: no document type restriction
-    
-    # Time-based filtering
-    current_time = datetime.now()
-    time_filter_applied = False
-    
-    for time_phrase, delta in time_keywords.items():
-        if time_phrase in query_lower:
-            cutoff_time = current_time - delta
-            time_condition = {
-                "key": "timestamp",
-                "range": {"gte": cutoff_time.isoformat()}
-            }
-            
-            if strictness == "high":
-                add_filter_condition(time_condition, "must")
-            else:
-                add_filter_condition(time_condition, "should")
-            
-            time_filter_applied = True
-            break
-    
-    # Category/topic filtering
-    detected_categories = []
-    for category, keywords in categories.items():
-        if any(keyword in query_lower for keyword in keywords):
-            detected_categories.append(category)
-    
-    if detected_categories:
-        category_condition = {
-            "key": "category",
-            "match": {"any": detected_categories}
-        }
-        
-        if strictness == "high":
-            add_filter_condition(category_condition, "must")
-        else:
-            add_filter_condition(category_condition, "should")
-    
-    # Priority filtering
-    detected_priority = None
-    for priority, keywords in priority_keywords.items():
-        if any(keyword in query_lower for keyword in keywords):
-            detected_priority = priority
-            break
-    
-    if detected_priority:
-        priority_condition = {
-            "key": "priority",
-            "match": {"value": detected_priority}
-        }
-        
-        if strictness == "high" and detected_priority == "high":
-            add_filter_condition(priority_condition, "must")
-        else:
-            add_filter_condition(priority_condition, "should")
-    
-    # Language detection (basic)
-    if any(word in query_lower for word in ["python", "javascript", "java", "sql"]):
-        lang_condition = {
-            "key": "programming_language",
-            "match": {"any": ["python", "javascript", "java", "sql"]}
-        }
-        add_filter_condition(lang_condition, "should")
-    
-    # Author/source filtering (if mentioned)
-    author_match = re.search(r'by (\w+)|from (\w+)|author:(\w+)', query_lower)
-    if author_match:
-        author = author_match.group(1) or author_match.group(2) or author_match.group(3)
-        author_condition = {
-            "key": "author",
-            "match": {"value": author}
-        }
-        add_filter_condition(author_condition, "must")
-    
-    # File extension filtering
-    ext_match = re.search(r'\.(\w+)', query)
-    if ext_match:
-        extension = ext_match.group(1).lower()
-        ext_condition = {
-            "key": "file_extension",
-            "match": {"value": extension}
-        }
-        add_filter_condition(ext_condition, "must")
-    
-    # Strictness-specific adjustments
-    if strictness == "high":
-        # Add more restrictive conditions
-        if not time_filter_applied:
-            # Prefer recent documents in high strictness
-            recent_condition = {
-                "key": "timestamp",
-                "range": {"gte": (current_time - timedelta(days=90)).isoformat()}
-            }
-            add_filter_condition(recent_condition, "should")
-        
-        # Exclude low-quality content
-        filters["must_not"].append({
-            "key": "quality_score",
-            "range": {"lt": 0.3}
-        })
-    
-    elif strictness == "low":
-        # Be more permissive - convert some must to should
-        if len(filters["must"]) > 2:
-            # Move some must conditions to should for flexibility
-            while len(filters["must"]) > 2:
-                condition = filters["must"].pop()
-                filters["should"].append(condition)
-    
-    # Clean up empty filter sections
-    final_filter = {}
-    for key, value in filters.items():
-        if value:
-            final_filter[key] = value
-    
-    # Return empty dict if no filters (let vector similarity dominate)
-    if not final_filter:
-        return {}
-    
-    # Ensure we have at least a basic structure
-    if not any(final_filter.values()):
-        return {}
-    
-    return final_filter
 
+def intelligent_metadata_filter(query: str) -> Optional[rest.Filter]:
+    """Build filters based on query intent for medical documentation"""
+    try:
+        query_lower = query.lower()
+        should_conditions = []
+
+        intent_patterns = {
+            "definition": {
+                "indicators": ["what is", "define", "definition", "explain", "meaning", "describe"],
+                "content_type": ["narrative", "definition"],
+            },
+            "process": {
+                "indicators": ["how to", "process", "procedure", "steps", "workflow", "method"],
+                "content_type": ["list", "procedure", "process"],
+                "hierarchical_tags": ["workflow", "process", "procedure"]
+            },
+            "benefits": {
+                "indicators": ["benefits", "advantages", "pros", "strengths", "value"],
+                "hierarchical_tags": ["benefits", "documentation benefits", "advantages"],
+            },
+            "compliance": {
+                "indicators": ["compliance", "hipaa", "gdpr", "standards", "regulatory", "audit"],
+                "clinical_domain": ["compliance", "data security", "regulatory"],
+            },
+            "audit": {
+                "indicators": ["audit", "trail", "log", "tracking", "history", "record"],
+                "keywords": ["audit trail", "audit", "log", "tracking"],
+                "hierarchical_tags": ["audit overview", "audit definitions", "audit trail"],
+            },
+            "technical": {
+                "indicators": ["system", "software", "technical", "implementation", "architecture"],
+                "content_type": ["technical", "system"],
+                "clinical_domain": ["system", "technical"]
+            },
+            "clinical": {
+                "indicators": ["clinical", "medical", "patient", "care", "treatment"],
+                "clinical_domain": ["clinical", "medical"],
+                "content_type": ["clinical", "medical"]
+            },
+            "documentation": {
+                "indicators": ["documentation", "document", "record", "chart", "note"],
+                "hierarchical_tags": ["documentation", "medical documentation"],
+                "content_type": ["documentation"]
+            }
+        }
+
+        # Apply intent-based filtering
+        for intent, config_pattern in intent_patterns.items():
+            if any(indicator in query_lower for indicator in config_pattern["indicators"]):
+                # Content type filtering
+                if "content_type" in config_pattern:
+                    should_conditions.append(
+                        rest.FieldCondition(
+                            key="metadata.content_type",
+                            match=rest.MatchAny(any=config_pattern["content_type"])
+                        )
+                    )
+
+                # Hierarchical tags filtering
+                if "hierarchical_tags" in config_pattern:
+                    should_conditions.append(
+                        rest.FieldCondition(
+                            key="metadata.hierarchical_tags",
+                            match=rest.MatchAny(any=config_pattern["hierarchical_tags"])
+                        )
+                    )
+
+                # Clinical domain filtering
+                if "clinical_domain" in config_pattern:
+                    should_conditions.append(
+                        rest.FieldCondition(
+                            key="metadata.clinical_domain",
+                            match=rest.MatchAny(any=config_pattern["clinical_domain"])
+                        )
+                    )
+
+                # Keywords filtering
+                if "keywords" in config_pattern:
+                    should_conditions.append(
+                        rest.FieldCondition(
+                            key="metadata.keywords",
+                            match=rest.MatchAny(any=config_pattern["keywords"])
+                        )
+                    )
+                break
+
+        # Always include broad keyword matching
+        query_words = [w for w in query_lower.split() if len(w) > 2]
+        if query_words:
+            should_conditions.append(
+                rest.FieldCondition(
+                    key="metadata.keywords",
+                    match=rest.MatchAny(any=query_words)
+                )
+            )
+            should_conditions.append(
+                rest.FieldCondition(
+                    key="metadata.context_summary",
+                    match=rest.MatchText(text=" ".join(query_words))
+                )
+            )
+
+        return rest.Filter(should=should_conditions) if should_conditions else None
+
+    except Exception as e:
+        if config.DEBUG:
+            print(f"Metadata filter error: {e}")
+        return None
+
+
+async def llm_intelligent_metadata_filter(query: str) -> Optional[rest.Filter]:
+    """Use LLM to generate intelligent metadata filters based on query intent"""
+
+    prompt = f"""You are a metadata filter generator for a medical documentation search system.
+
+Analyze this query and determine the most relevant metadata filters:
+
+Query: "{query}"
+
+CRITICAL LANGUAGE INSTRUCTIONS:
+- The query can be in Swedish OR English
+- Your metadata values MUST match the language of the stored documents
+- Swedish documents have Swedish metadata (keywords: ["familjär hyperkolesterolemi"], clinical_domain: ["Kardiologi"])  
+- English documents have English metadata (keywords: ["familial hypercholesterolemia"], clinical_domain: ["Cardiology"])
+- Generate metadata values in the SAME language as the query to ensure proper matching
+
+Available metadata fields:
+- content_type: ["instruction", "narrative", "definition", "list", "procedure", "process", "technical", "clinical", "medical", "documentation"]
+- hierarchical_tags: Swedish docs: ["Beslutsstöd", "Journalintegration", "Remissprocess"] | English docs: ["Decision support", "Journal integration", "Referral process"]
+- clinical_domain: Swedish docs: ["Kardiologi", "Endokrinologi", "Lipidmetabolism", "Primärvården"] | English docs: ["Cardiology", "Endocrinology", "Lipid metabolism", "Primary care"]
+- keywords: Generate in same language as query
+
+Now analyze: "{query}"
+Return ONLY valid JSON, no other text.
+"""
+
+    try:
+        # Use your existing provider logic
+        if config.MCP_PROVIDER_OLLAMA:
+            llm = ChatOllama(
+                model=config.MCP_AGENT_MODEL_NAME,
+                temperature=0.1,
+                base_url=config.OLLAMA_BASE_URL
+            )
+        elif config.MCP_PROVIDER_OPENAI:
+            llm = ChatOpenAI(
+                model=config.MCP_AGENT_MODEL_NAME,
+                temperature=0.1,
+                api_key=os.environ.get("OPENAI_API_KEY")
+            )
+        elif config.MCP_PROVIDER_MISTRAL:
+            llm = ChatMistralAI(
+                model=config.MCP_AGENT_MODEL_NAME,
+                temperature=0.1,
+                streaming=False,
+                mistral_api_key=os.environ.get("MISTRAL_API_KEY"),
+                endpoint=config.MISTRAL_BASE_URL
+            )
+        else:
+            if config.DEBUG:
+                print("No LLM provider configured for metadata filtering")
+            return None
+
+        messages = [
+            SystemMessage(
+                content="You are a metadata filter generator. Generate metadata values in the same language as the query. Return only valid JSON."),
+            HumanMessage(content=prompt)
+        ]
+
+        if config.DEBUG:
+            print(f"Generating metadata filter using provider for query: {query}")
+
+        response = await llm.ainvoke(messages)
+        response_content = response.content.strip()
+
+        if config.DEBUG:
+            print(f"LLM metadata response: {response_content}")
+
+        metadata_config = json.loads(response_content)
+
+        if config.DEBUG:
+            print(f"Parsed metadata config: {metadata_config}")
+
+        return build_qdrant_filters_from_config(metadata_config)
+
+    except json.JSONDecodeError as e:
+        if config.DEBUG:
+            print(f"JSON parsing failed for metadata filter: {e}")
+            print(f"Response was: {response_content}")
+        return None
+    except Exception as e:
+        if config.DEBUG:
+            print(f"LLM metadata filtering failed: {e}")
+        return None
+
+
+def build_qdrant_filters_from_config(metadata_config: dict) -> Optional[rest.Filter]:
+    """Convert LLM-generated metadata config to Qdrant filters"""
+    should_conditions = []
+
+    for field_name, values in metadata_config.items():
+        if not values:
+            continue
+
+        field_key = f"metadata.{field_name}"
+
+        if isinstance(values, list) and values:
+            should_conditions.append(
+                rest.FieldCondition(
+                    key=field_key,
+                    match=rest.MatchAny(any=values)
+                )
+            )
+        elif isinstance(values, str) and values.strip():
+            should_conditions.append(
+                rest.FieldCondition(
+                    key=field_key,
+                    match=rest.MatchText(text=values)
+                )
+            )
+
+    if config.DEBUG and should_conditions:
+        print(f"Built {len(should_conditions)} metadata filter conditions")
+
+    return rest.Filter(should=should_conditions) if should_conditions else None
 
 
 async def enhanced_multi_strategy_retrieval(
@@ -373,7 +307,7 @@ async def enhanced_multi_strategy_retrieval(
         k: int = None,
         min_score: float = 0.6
 ) -> List:
-    """Fully async multi-strategy retrieval with intelligent metadata filtering across all strategies"""
+    """Fully async multi-strategy retrieval with zero sync operations"""
 
     # Use config defaults if not provided
     k = k or config.QDRANT_RESULT_LIMIT
@@ -399,25 +333,21 @@ async def enhanced_multi_strategy_retrieval(
         if config.DEBUG:
             print(f"Using embedding with {len(query_embedding)} dimensions")
 
-        # Generate metadata filters with different strictness levels
-        strict_metadata_filter = intelligent_metadata_filter(query, strictness="high")
-        moderate_metadata_filter = intelligent_metadata_filter(query, strictness="medium") 
-        loose_metadata_filter = intelligent_metadata_filter(query, strictness="low")
-
-        if config.DEBUG:
-            print("Generated metadata filters for all strategies")
-
-        # Define three async search strategies with progressive metadata filtering
+        # Define three async search strategies
         async def high_precision_search():
             try:
+                # metadata_filter = intelligent_metadata_filter(query)
+                metadata_filter = await llm_intelligent_metadata_filter(query)
+
                 response = await qdrant_client.query_points(
                     collection_name=collection_name,
                     query=query_embedding,
-                    query_filter=strict_metadata_filter,
+                    query_filter=metadata_filter,
                     limit=k,
                     score_threshold=0.7
                 )
                 return [(hit, "high_precision") for hit in response.points]
+
             except Exception as e:
                 if config.DEBUG:
                     print(f"High precision search failed: {e}")
@@ -428,7 +358,6 @@ async def enhanced_multi_strategy_retrieval(
                 response = await qdrant_client.query_points(
                     collection_name=collection_name,
                     query=query_embedding,
-                    query_filter=moderate_metadata_filter,
                     limit=k,
                     score_threshold=0.5
                 )
@@ -443,7 +372,6 @@ async def enhanced_multi_strategy_retrieval(
                 response = await qdrant_client.query_points(
                     collection_name=collection_name,
                     query=query_embedding,
-                    query_filter=loose_metadata_filter,
                     limit=k,
                     score_threshold=0.3
                 )
@@ -455,7 +383,7 @@ async def enhanced_multi_strategy_retrieval(
 
         # Execute all strategies in parallel
         if config.DEBUG:
-            print("Executing 3 search strategies in parallel with metadata filtering")
+            print("Executing 3 search strategies in parallel")
 
         results = await asyncio.gather(
             high_precision_search(),
@@ -464,51 +392,24 @@ async def enhanced_multi_strategy_retrieval(
             return_exceptions=True
         )
 
-        # Process results with enhanced early success detection
+        # Process results with first success termination
         all_hits = []
-        strategy_names = ["high_precision", "medium_precision", "broad_fallback"]
-        
         for i, result in enumerate(results):
             if isinstance(result, Exception):
                 if config.DEBUG:
-                    print(f"Strategy {strategy_names[i]} failed with exception: {result}")
+                    print(f"Strategy {i} failed with exception: {result}")
                 continue
 
             if result:
-                # Enhanced early success logic - prioritize metadata-filtered results
-                high_quality = [hit for hit, _ in result if hit.score > 0.8]
-                metadata_matched = [hit for hit, _ in result if hit.score > 0.6]  # Lower threshold for metadata matches
-                
-                # Early termination if we have sufficient high-quality, metadata-filtered results
-                if len(high_quality) >= k // 2 and i == 0:  # High precision strategy
-                    if config.DEBUG:
-                        print(f"Early success from {strategy_names[i]} with {len(high_quality)} high-quality hits")
-                    all_hits = result
-                    break
-                elif len(metadata_matched) >= k and i <= 1:  # High or medium precision
-                    if config.DEBUG:
-                        print(f"Early success from {strategy_names[i]} with {len(metadata_matched)} metadata-matched hits")
-                    all_hits = result
-                    break
-                
                 all_hits.extend(result)
 
-        # Deduplicate with strategy preference (higher precision strategies preferred)
+        # Deduplicate and sort
         seen_ids = set()
         unique_hits = []
-        strategy_priority = {"high_precision": 3, "medium_precision": 2, "broad_fallback": 1}
-        
-        # Sort by strategy priority first, then by score
-        all_hits.sort(key=lambda x: (strategy_priority.get(x[1], 0), x[0].score), reverse=True)
-        
         for hit, strategy in all_hits:
             hit_id = getattr(hit, 'id', id(hit))
             if hit_id not in seen_ids:
                 seen_ids.add(hit_id)
-                # Add strategy info to hit for debugging
-                if hasattr(hit, 'payload'):
-                    hit.payload = hit.payload or {}
-                    hit.payload['_retrieval_strategy'] = strategy
                 unique_hits.append(hit)
 
         # Sort by score and apply minimum score filter
@@ -517,12 +418,7 @@ async def enhanced_multi_strategy_retrieval(
         final_hits = filtered_hits[:k]
 
         if config.DEBUG:
-            strategy_counts = {}
-            for hit in final_hits:
-                strategy = getattr(hit, 'payload', {}).get('_retrieval_strategy', 'unknown')
-                strategy_counts[strategy] = strategy_counts.get(strategy, 0) + 1
             print(f"Retrieved {len(final_hits)} hits after dedup and filtering (min_score: {min_score})")
-            print(f"Strategy breakdown: {strategy_counts}")
 
         return final_hits
 
