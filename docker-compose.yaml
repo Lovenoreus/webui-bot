@@ -1,4 +1,80 @@
 services:
+
+  ollama:
+    volumes:
+      - ollama:/root/.ollama
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: unless-stopped
+    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
+    ports:
+      - "11435:11434"
+    networks:
+      - mcp-network
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 10
+      start_period: 120s
+
+  ollama-model-puller:
+    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
+    container_name: ollama-model-puller
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_LLM_MODEL=${OLLAMA_LLM_MODEL:-llama3.2}
+      - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+    networks:
+      - mcp-network
+    entrypoint: ["/bin/bash"]
+    command: >
+      -c "
+        echo '=== OLLAMA MODEL PULLER STARTING ===' &&
+        echo 'Current time:' $$(date) &&
+        echo 'Environment variables:' &&
+        echo '  OLLAMA_LLM_MODEL: $${OLLAMA_LLM_MODEL}' &&
+        echo '  OLLAMA_EMBEDDING_MODEL: $${OLLAMA_EMBEDDING_MODEL}' &&
+        echo '  OLLAMA_HOST: $${OLLAMA_HOST}' &&
+        echo '' &&
+        echo 'Waiting for Ollama to be fully ready...' &&
+        sleep 5 &&
+        echo 'Testing Ollama connection...' &&
+        OLLAMA_HOST=$${OLLAMA_HOST} ollama list || { echo 'ERROR: Cannot connect to Ollama'; exit 1; } &&
+        echo 'Ollama API is responding successfully!' &&
+        echo '' &&
+        echo '=== PULLING LLM MODEL ===' &&
+        echo '🔄 Starting download for model: $${OLLAMA_LLM_MODEL}' &&
+        echo '⏰ Timestamp:' $$(date) &&
+        echo '📥 This may take several minutes depending on model size...' &&
+        echo '' &&
+        OLLAMA_HOST=$${OLLAMA_HOST} ollama pull $${OLLAMA_LLM_MODEL} &&
+        echo '' &&
+        echo '✅ LLM model pull completed at:' $$(date) &&
+        echo '' &&
+        echo '=== PULLING EMBEDDING MODEL ===' &&
+        echo '🔄 Starting download for embedding model: $${OLLAMA_EMBEDDING_MODEL}' &&
+        echo '⏰ Timestamp:' $$(date) &&
+        echo '📥 This may take several minutes depending on model size...' &&
+        echo '' &&
+        OLLAMA_HOST=$${OLLAMA_HOST} ollama pull $${OLLAMA_EMBEDDING_MODEL} &&
+        echo '' &&
+        echo '✅ Embedding model pull completed at:' $$(date) &&
+        echo '' &&
+        echo '=== VERIFYING MODELS ===' &&
+        echo '📋 Listing all available models:' &&
+        OLLAMA_HOST=$${OLLAMA_HOST} ollama list &&
+        echo '' &&
+        echo '🎉 ALL MODELS PULLED SUCCESSFULLY! 🎉' &&
+        echo '⏰ Process completed at:' $$(date)
+      "
+    restart: "no"
+
+      
   open-webui:
     build:
       context: .
@@ -10,6 +86,8 @@ services:
       - open-webui:/app/backend/data
     depends_on:
       - mcp_server
+      - ollama
+      - ollama-model-puller
     ports:
       - ${OPEN_WEBUI_PORT-3000}:8080
     environment:
@@ -47,10 +125,14 @@ services:
     build:
       context: ./docker
       dockerfile: DockerFIle.mcp
+    container_name: mcp_server
     ports:
       - "8009:8009"
     depends_on:
       - database_server
+      - postgres
+      - ollama
+      - ollama-model-puller
     environment:
       - DATABASE_URL=http://database_server:8762
       - PYTHONPATH=/app
@@ -60,6 +142,16 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
       - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      # PostgreSQL configuration for rag2.py
+      - PG_HOST=postgres
+      - PG_PORT=5432
+      - PG_DATABASE=vectordb
+      - PG_USERNAME=postgres
+      - PG_PASSWORD=password
+      # Ollama configuration for rag2.py
+      - OLLAMA_LLM_MODEL=${OLLAMA_LLM_MODEL:-llama3.2}
+      - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
     volumes:
       - .:/app
     restart: unless-stopped
@@ -85,12 +177,29 @@ services:
       compose.service: qdrant
     networks:
       - mcp-network
+      
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: postgres
+    environment:
+      POSTGRES_DB: vectordb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - mcp-network
+    restart: unless-stopped
 
 volumes:
   qdrant_storage: {}
   ollama: {}
   open-webui: {}
-  mcp_db_data:
+  mcp_db_data: {}
+  postgres_data: {}
 
 networks:
   mcp-network:

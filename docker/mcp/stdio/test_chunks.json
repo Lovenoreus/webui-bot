@@ -1,0 +1,66 @@
+[
+  {
+    "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+    "section": "Introdu ktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Dokumentet beskriver hur CDS FH Referral fungerar som stöd för att identifiera och remittera patienter med misstänkt familjär hyperkolesterolemi, inklusive automatiserad dataimport, beslutsgenerering och rekommendationer.",
+    "keywords": [
+      "familjär hyperkolesterolemi",
+      "CDS FH Referral",
+      "remiss",
+      "DLCN-kriterier",
+      "automatiserad dataimport",
+      "diagnos",
+      "läkemedel",
+      "journalanteckning",
+      "beslutsstöd"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslutsstöd",
+      "Journalintegration",
+      "Remissprocess",
+      "Familjär hyperkolesterolemi",
+      "Medicinsk software"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Endokrinologi",
+      "Lipidmetabolism",
+      "Primärvården"
+    ],
+    "text": "Detta dokument beskriver beslutstödet Cambio Clinical Decision Support (CDS) FH Referral (härefter CDS FH Referral), dess funktioner och egenskaper ur en slutanvändares perspektiv. Läsaren förutsätts ha god datorvana och grundläggande kunskaper i COSMIC. Information om applicerbara och kompatibla versioner mellan beslutsstödet och underliggande journalsystem är angivet i dokumentets versionshistorik. Beslutsstödet CDS FH Referral , dvs. remiss för familjär hyperkolesterolemi, syftar till att hjälpa användare att utvärdera om det föreligger misstanke om familjär hyperkolesterolemi eller ej. Det är utvecklat och baserat på de holländska Dutch Lipid Clinic Network -kriterier na (DLCN) vilka beskriver hur patienter med risk för familjär hyperkolesterolemi ska behandlas [ 1] [2]. Klinisk data som redan finns tillgänglig i journalsystemet , och som krävs av beslutsstödet för att genomföra en bedömning , importeras automatiskt (födelsedatum, kön och minst ett provsvar för LDL - eller totalkolesterol). Annan klinisk data ( journalanteckningar, läkemedelslista, diagnos - och åtgärdskoder) som beslutsstödet kan nyttja för bedömning inhämtas , förutsatt att den finns i journalsystemet . Även denna inhämtning av information görs automatiskt. Om det föreligger en välgrundad misstanke om familjär hyperkolesterolemi presenteras detta tydligt och beslutsstödet underlättar remittering till specialist genom att automatiskt generera en remisstext innehållande information om varför patienten remitterats. Utöver remissen ska en journalanteckning genereras automatiskt som användaren kan spara i patientens journal. Om misstanke ej föreligger, alternativt om beslutsstödet inte erhållit tillräckligt med information för att genomföra en bedömning, ska beslutsstödet inte aktiveras. Beslutsstödet ger rekommendationer som endast skall betraktas som understöd för användaren, då dennes kunskap om patienten alltid är avgörande för beslutet. Beslutsstödet ersätter därmed inte beslutsfattaren. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 5(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "Versionshistoriken i dokumentet visar hur och när innehållet har ändrats över tid, samt vilka beslutsstöd- och COSMIC-versioner som är kompatibla med varje uppdatering.",
+    "keywords": [
+      "versionshistorik",
+      "ändringar",
+      "dokumentsystem",
+      "beslutsstöd",
+      "COSMIC",
+      "versioner",
+      "kompatibilitet",
+      "revidering",
+      "uppdatering"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumentation",
+      "Versionshistorik",
+      "Beslutsstöd",
+      "Journalintegration"
+    ],
+    "clinical_domain": [
+      "Generell"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid samt kompatibla versioner mellan beslutsstödet och underliggande journalsystem. Version Datum Beskrivning 1.0 2020 -07-07 Första version. Dokumentet gäller från beslutsstödsversion 5.1.x och COSMIC R8.2.03. 2.0 2020 -09-04 Avsnitt 3.3.2 och 3.4.4 uppdaterade. Dokumentet gäller från beslutsstödsversion 5.3.x och COSMIC R8.2.03. 2.1 2020 -09-09 Avsnitt 3.4.4 uppdaterat. 3.0 2020 -09-21 Avsnitt 3.4.4 uppdaterat. Dokumentet gäller från beslutsstödsversion 5.4.x och COSMIC R8.2.03. 4.0 2020 -10-28 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 5.5.x och COSMIC R8.2.03. 5.0 2020 -12-08 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 6.0.x och COSMIC R8.2.07. 6.0 2021 -03-24 Avsnitt 3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 7.0.x och COSMIC R8.2.07. 7.0 2021 -10-27 Avsnitt 3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 8.0.x och COSMIC R8.3.03. 8.0 2021 -12-07 Avsnitt 3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 8.1.x och COSMIC R8.3.03. 9.0 2022 -06-15 Avsnitt 3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 8.2.x och COSMIC R8.3.04. 9.1 2022 -11-01 Avsnitt 3.4 uppdaterat. 9.2 2023 -04-27 Kapitel 2 tillagt. 10.0 2023 -08-31 Avsnitt 3.2 och 3.4.2 tillagda samt avsnitt 1.1, 3.3.1 - 3.3.4 och 3.4.3 uppdaterade. Dokumentet gäller från beslutsstödsversion 9.0.x och COSMIC 3.8.0. 10.1 2023 -10-24 Dokumentet reviderat och uppdaterat. 10.2 2024-01-31 Kapitel 2 uppdaterat. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 6(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  }
+]
