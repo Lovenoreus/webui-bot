@@ -221,3 +221,8 @@ volumes:
 networks:
   mcp-network:
     driver: bridge
+
+
+# docker exec -it mcp_server /bin/bash
+# cd docker/mcp/stdio
+# python rag2.py --embed path/to_json_file.json

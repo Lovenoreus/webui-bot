@@ -15,6 +15,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from sqlalchemy.pool import QueuePool
 from urllib.parse import quote_plus
+import config
 
 # Load configuration from JSON file
 def load_config():
@@ -118,9 +119,14 @@ def initialize_models():
     """Initialize LLM and embedding models based on configuration"""
     global llm, embeddings
     
+    print("🚀 Initializing AI models...")
+    print(f"📊 Provider status: OpenAI={settings.use_openai}, Ollama={settings.use_ollama}, Mistral={settings.use_mistral}")
+    
     # Initialize LLM - prioritize based on configuration
     if settings.use_openai and settings.openai.api_key:
         try:
+            print(f"🔧 Initializing OpenAI LLM with model: {settings.openai.llm_model}")
+            print(f"🔗 Base URL: {settings.openai.api_base_url}")
             llm = ChatOpenAI(
                 model=settings.openai.llm_model,
                 api_key=settings.openai.api_key,
@@ -133,6 +139,23 @@ def initialize_models():
             
     elif settings.use_ollama:
         try:
+            print(f"🔧 Initializing Ollama LLM with model: {settings.ollama.llm_model}")
+            print(f"🔗 Base URL: {settings.ollama.direct_url}")
+            # Test Ollama connectivity first
+            import requests
+            try:
+                response = requests.get(f"{settings.ollama.direct_url}/api/tags", timeout=10)
+                if response.status_code == 200:
+                    available_models = [model['name'] for model in response.json().get('models', [])]
+                    print(f"📋 Available Ollama models: {available_models}")
+                    if settings.ollama.llm_model not in available_models:
+                        print(f"⚠️  Warning: Model '{settings.ollama.llm_model}' not found in available models")
+                else:
+                    print(f"⚠️  Warning: Ollama API returned status {response.status_code}")
+            except requests.exceptions.RequestException as req_e:
+                print(f"⚠️  Warning: Could not connect to Ollama API: {req_e}")
+                print(f"💡 Make sure Ollama is running at: {settings.ollama.direct_url}")
+            
             llm = OllamaLLM(
                 model=settings.ollama.llm_model,
                 base_url=settings.ollama.direct_url,
@@ -145,13 +168,26 @@ def initialize_models():
     # Initialize embeddings - prioritize based on configuration
     if settings.use_openai and settings.openai.api_key:
         try:
+            print(f"🔧 Initializing OpenAI embeddings with model: {settings.openai.embedding_model}")
+            print(f"🔗 Base URL: {settings.openai.api_base_url}")
+            # Test API key validity
+            test_headers = {"Authorization": f"Bearer {settings.openai.api_key}"}
+            import requests
+            try:
+                test_response = requests.get(f"{settings.openai.api_base_url}/models", 
+                                           headers=test_headers, timeout=10)
+                if test_response.status_code == 200:
+                    print("✅ OpenAI API key validation successful")
+                else:
+                    print(f"⚠️  Warning: OpenAI API returned status {test_response.status_code}")
+            except requests.exceptions.RequestException as req_e:
+                print(f"⚠️  Warning: Could not validate OpenAI API key: {req_e}")
+            
             embeddings = OpenAIEmbeddings(
                 model=settings.openai.embedding_model,
                 api_key=settings.openai.api_key,
-                base_url=settings.openai.api_base_url,
-                timeout=30,  # Set timeout to 30 seconds
-                max_retries=3,  # Set max retries
-                request_timeout=30  # Request timeout
+                # base_url=settings.openai.api_base_url
+                # Removed timeout and max_retries as they are not valid arguments
             )
             print(f"✅ OpenAI embeddings initialized: {settings.openai.embedding_model}")
         except Exception as e:
@@ -170,6 +206,21 @@ def initialize_models():
                     
     elif settings.use_ollama:
         try:
+            print(f"🔧 Initializing Ollama embeddings with model: {settings.ollama.embedding_model}")
+            print(f"🔗 Base URL: {settings.ollama.direct_url}")
+            # Test embedding model availability
+            import requests
+            try:
+                response = requests.get(f"{settings.ollama.direct_url}/api/tags", timeout=10)
+                if response.status_code == 200:
+                    available_models = [model['name'] for model in response.json().get('models', [])]
+                    if settings.ollama.embedding_model not in available_models:
+                        print(f"⚠️  Warning: Embedding model '{settings.ollama.embedding_model}' not found")
+                        print(f"📋 Available models: {available_models}")
+                        print(f"💡 You may need to pull the model: ollama pull {settings.ollama.embedding_model}")
+            except requests.exceptions.RequestException:
+                pass  # Already warned above
+                
             embeddings = OllamaEmbeddings(
                 model=settings.ollama.embedding_model, 
                 base_url=settings.ollama.direct_url
@@ -177,20 +228,28 @@ def initialize_models():
             print(f"✅ Ollama embeddings initialized: {settings.ollama.embedding_model}")
         except Exception as e:
             print(f"❌ Error initializing Ollama embeddings: {e}")
+            print(f"💡 Troubleshooting steps:")
+            print(f"   1. Check if Ollama is running: curl {settings.ollama.direct_url}/api/tags")
+            print(f"   2. Pull the embedding model: ollama pull {settings.ollama.embedding_model}")
+            print(f"   3. Check network connectivity to {settings.ollama.direct_url}")
     
     # Verify at least one model is initialized
     if llm is None:
         print("❌ No LLM model could be initialized")
+        print("💡 Check your configuration in config.json or environment variables")
         exit(1)
     if embeddings is None:
         print("❌ No embedding model could be initialized")
+        print("💡 Check your configuration and service availability")
         exit(1)
+        
+    print("🎉 Model initialization completed successfully!")
 
 # Initialize models
 initialize_models()
 
 
-def check_collection_exists(collection_name="json_documents_collection"):
+def check_collection_exists(collection_name=config.COSMIC_DATABASE_COLLECTION_NAME):
     """Check if a collection exists in the PGVector database"""
     try:
         import psycopg2
@@ -235,7 +294,7 @@ def check_collection_exists(collection_name="json_documents_collection"):
         return False, f"Error checking collection: {e}"
 
 
-def log_collection_status(collection_name="json_documents_collection"):
+def log_collection_status(collection_name=config.COSMIC_DATABASE_COLLECTION_NAME):
     """Log the status of a collection during startup"""
     exists, message = check_collection_exists(collection_name)
     
@@ -257,6 +316,98 @@ def log_collection_status(collection_name="json_documents_collection"):
 
 # Check default collection at startup
 log_collection_status()
+
+
+def diagnose_connection_issues():
+    """Diagnose potential connection issues with embedding providers"""
+    print("\n🔍 Running connection diagnostics...")
+    
+    # Check Ollama connectivity
+    if settings.use_ollama:
+        print(f"\n📡 Testing Ollama connection to {settings.ollama.direct_url}")
+        try:
+            import requests
+            response = requests.get(f"{settings.ollama.direct_url}/api/tags", timeout=5)
+            if response.status_code == 200:
+                models = response.json().get('models', [])
+                print(f"✅ Ollama is accessible with {len(models)} models")
+                model_names = [model['name'] for model in models]
+                if settings.ollama.embedding_model in model_names:
+                    print(f"✅ Embedding model '{settings.ollama.embedding_model}' is available")
+                else:
+                    print(f"❌ Embedding model '{settings.ollama.embedding_model}' not found")
+                    print(f"📋 Available models: {model_names}")
+                    print(f"💡 Run: ollama pull {settings.ollama.embedding_model}")
+            else:
+                print(f"❌ Ollama returned status {response.status_code}")
+        except requests.exceptions.ConnectionError:
+            print(f"❌ Cannot connect to Ollama at {settings.ollama.direct_url}")
+            print("💡 Make sure Ollama is running and accessible")
+        except Exception as e:
+            print(f"❌ Ollama connection error: {e}")
+    
+    # Check OpenAI connectivity
+    if settings.use_openai and settings.openai.api_key:
+        print(f"\n📡 Testing OpenAI connection to {settings.openai.api_base_url}")
+        try:
+            import requests
+            headers = {"Authorization": f"Bearer {settings.openai.api_key}"}
+            response = requests.get(f"{settings.openai.api_base_url}/models", 
+                                  headers=headers, timeout=10)
+            if response.status_code == 200:
+                print("✅ OpenAI API is accessible")
+                models = response.json().get('data', [])
+                model_ids = [model['id'] for model in models]
+                if settings.openai.embedding_model in model_ids:
+                    print(f"✅ Embedding model '{settings.openai.embedding_model}' is available")
+                else:
+                    print(f"⚠️  Embedding model '{settings.openai.embedding_model}' not found in model list")
+                    print("💡 This might still work - OpenAI doesn't always list all models")
+            else:
+                print(f"❌ OpenAI API returned status {response.status_code}")
+                if response.status_code == 401:
+                    print("💡 Check your OPENAI_API_KEY")
+                elif response.status_code == 429:
+                    print("💡 Rate limited - try again later")
+        except requests.exceptions.ConnectionError:
+            print(f"❌ Cannot connect to OpenAI at {settings.openai.api_base_url}")
+            print("💡 Check internet connectivity and API base URL")
+        except Exception as e:
+            print(f"❌ OpenAI connection error: {e}")
+    
+    # Check PostgreSQL connectivity
+    print(f"\n📡 Testing PostgreSQL connection to {settings.postgres.pg_host}:{settings.postgres.pg_port}")
+    try:
+        import psycopg2
+        conn = psycopg2.connect(
+            host=settings.postgres.pg_host,
+            port=settings.postgres.pg_port,
+            database=settings.postgres.pg_database,
+            user=settings.postgres.pg_username,
+            password=settings.postgres.pg_password,
+            connect_timeout=5
+        )
+        cursor = conn.cursor()
+        cursor.execute("SELECT version();")
+        version = cursor.fetchone()[0]
+        print(f"✅ PostgreSQL is accessible: {version}")
+        
+        # Check for pgvector extension
+        cursor.execute("SELECT EXISTS(SELECT 1 FROM pg_extension WHERE extname = 'vector');")
+        has_vector = cursor.fetchone()[0]
+        if has_vector:
+            print("✅ pgvector extension is installed")
+        else:
+            print("❌ pgvector extension not found")
+            print("💡 Install with: CREATE EXTENSION vector;")
+        
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"❌ PostgreSQL connection error: {e}")
+        print("💡 Check database credentials and connectivity")
+    
+    print("\n" + "="*50)
 
 
 def load_json_file(file_path):
@@ -380,7 +531,7 @@ def load_jsons_as_documents(dir_path, limit=100, chunk_size=1000, overlap=200):
     return documents
 
 
-def get_vectorstorage(docs, embeddings, collection_name="json_documents_collection"):
+def get_vectorstorage(docs, embeddings, collection_name=config.COSMIC_DATABASE_COLLECTION_NAME):
     """Create vector storage from documents"""
     return PGVector.from_documents(
         documents=docs,
@@ -390,20 +541,68 @@ def get_vectorstorage(docs, embeddings, collection_name="json_documents_collecti
         connection_string=CONNECTION_STR)
 
 
-def save_to_pgvector(documents, embeddings, collection_name="json_documents_collection"):
+def save_to_pgvector(documents, embeddings, collection_name=config.COSMIC_DATABASE_COLLECTION_NAME):
     """Save documents to PGVector database with progress tracking"""
     import time
     
     try:
         print(f"🚀 Generating embeddings for {len(documents)} documents...")
+        print(f"🔧 Using embedding provider: {type(embeddings).__name__}")
+        
+        # Test embedding connection first
+        try:
+            print("🔍 Testing embedding connection...")
+            test_embedding = embeddings.embed_documents(["test connection"])
+            print(f"✅ Embedding connection successful! Dimensions: {len(test_embedding[0])}")
+        except Exception as test_e:
+            print(f"❌ Embedding connection test failed: {test_e}")
+            print("🔄 Attempting to reinitialize embeddings...")
+            
+            # Try to reinitialize embeddings
+            global settings
+            if settings.use_openai and settings.openai.api_key:
+                try:
+                    print("🔄 Reinitializing OpenAI embeddings...")
+                    from langchain_openai import OpenAIEmbeddings
+                    embeddings = OpenAIEmbeddings(
+                        model=settings.openai.embedding_model,
+                        api_key=settings.openai.api_key,
+                        base_url=settings.openai.api_base_url
+                    )
+                    # Test again
+                    test_embedding = embeddings.embed_documents(["test connection"])
+                    print(f"✅ OpenAI embeddings reinitialized successfully!")
+                except Exception as openai_e:
+                    print(f"❌ OpenAI reinitialize failed: {openai_e}")
+                    raise
+                    
+            elif settings.use_ollama:
+                try:
+                    print("🔄 Reinitializing Ollama embeddings...")
+                    from langchain_ollama.embeddings import OllamaEmbeddings
+                    embeddings = OllamaEmbeddings(
+                        model=settings.ollama.embedding_model,
+                        base_url=settings.ollama.direct_url
+                    )
+                    # Test again
+                    test_embedding = embeddings.embed_documents(["test connection"])
+                    print(f"✅ Ollama embeddings reinitialized successfully!")
+                except Exception as ollama_e:
+                    print(f"❌ Ollama reinitialize failed: {ollama_e}")
+                    print(f"💡 Make sure Ollama is running at: {settings.ollama.direct_url}")
+                    print(f"💡 Check if model '{settings.ollama.embedding_model}' is available")
+                    raise
+            else:
+                print("❌ No embedding provider available for reinitialization")
+                raise test_e
         
         # Extract texts for embedding
         texts = [doc.page_content for doc in documents]
         
         # Generate embeddings with progress bar
         embedded_texts = []
-        batch_size = 5  # Smaller batch size to avoid rate limits
-        max_retries = 3
+        batch_size = 3  # Even smaller batch size for better reliability
+        max_retries = 5  # More retries
         
         for i in tqdm(range(0, len(texts), batch_size), desc="Generating embeddings", unit="batch"):
             batch_texts = texts[i:i + batch_size]
@@ -412,9 +611,9 @@ def save_to_pgvector(documents, embeddings, collection_name="json_documents_coll
             # Try batch processing with retries
             for retry in range(max_retries):
                 try:
-                    # Add a small delay between batches to avoid rate limiting
+                    # Add a progressive delay between batches
                     if i > 0:
-                        time.sleep(1)
+                        time.sleep(min(2 + (i // 10), 5))  # Progressive delay, max 5 seconds
                     
                     # Generate embeddings for this batch
                     batch_embeddings = embeddings.embed_documents(batch_texts)
@@ -422,9 +621,20 @@ def save_to_pgvector(documents, embeddings, collection_name="json_documents_coll
                     batch_success = True
                     break
                 except Exception as e:
+                    error_msg = str(e).lower()
                     print(f"❌ Error generating embeddings for batch {i//batch_size + 1}, retry {retry + 1}: {e}")
-                    if retry < max_retries - 1:
-                        time.sleep(2 ** retry)  # Exponential backoff
+                    
+                    # Different retry strategies based on error type
+                    if "connection" in error_msg or "timeout" in error_msg:
+                        wait_time = min(5 * (2 ** retry), 30)  # Exponential backoff, max 30 seconds
+                        print(f"🔄 Connection issue detected, waiting {wait_time}s before retry...")
+                        time.sleep(wait_time)
+                    elif "rate limit" in error_msg or "quota" in error_msg:
+                        wait_time = min(10 * (2 ** retry), 60)  # Longer wait for rate limits
+                        print(f"🔄 Rate limit detected, waiting {wait_time}s before retry...")
+                        time.sleep(wait_time)
+                    else:
+                        time.sleep(2 ** retry)  # Standard exponential backoff
                     
             # If batch failed, try individual documents
             if not batch_success:
@@ -473,7 +683,7 @@ def save_to_pgvector(documents, embeddings, collection_name="json_documents_coll
         raise
 
 
-def embedd_and_store_json_documents(json_path, limit=100, chunk_size=1000, overlap=200, collection_name="json_documents_collection"):
+def embedd_and_store_json_documents(json_path, limit=100, chunk_size=1000, overlap=200, collection_name=config.COSMIC_DATABASE_COLLECTION_NAME):
     """Main function to embed and store JSON documents"""
     print(f"📂 Processing: {json_path}")
     
@@ -511,7 +721,7 @@ def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
 
-def retrieve_similar_documents(user_prompt, top_k=3, collection_name="json_documents_collection"):
+def retrieve_similar_documents(user_prompt, top_k=3, collection_name=config.COSMIC_DATABASE_COLLECTION_NAME):
     """Retrieve similar documents and generate answer"""
     vectorstore = PGVector(
         embedding_function=embeddings,
@@ -574,7 +784,6 @@ Examples:
   python rag2.py --embed /path/to/file.json --collection my_collection
         """
     )
-    
     # Main action arguments
     parser.add_argument(
         "--embed", 
@@ -613,7 +822,7 @@ Examples:
     parser.add_argument(
         "--collection", 
         type=str, 
-        default="json_documents_collection", 
+        default=config.COSMIC_DATABASE_COLLECTION_NAME, 
         help="Collection name in vector database (default: json_documents_collection)"
     )
     
@@ -639,7 +848,18 @@ Examples:
         help="Enable verbose output"
     )
     
+    parser.add_argument(
+        "--diagnose", 
+        action="store_true", 
+        help="Run connection diagnostics and exit"
+    )
+    
     args = parser.parse_args()
+    
+    # Handle diagnostics mode
+    if args.diagnose:
+        diagnose_connection_issues()
+        return
     
     # Validate arguments
     if not args.embed and not args.query:
@@ -658,6 +878,10 @@ Examples:
         print(f"Embedding documents from: {args.embed}")
         print(f"Chunk size: {args.chunk_size}, Overlap: {args.overlap}")
         print(f"Collection: {args.collection}")
+        
+        # Run diagnostics if verbose mode is enabled
+        if args.verbose:
+            diagnose_connection_issues()
         
         embedd_and_store_json_documents(
             json_path=args.embed,
@@ -697,7 +921,7 @@ Examples:
         print(f"\n📋 Final Answer:\n{answer}")
 
 
-def retrieve_similar_documents_with_language(user_prompt, top_k=3, collection_name="json_documents_collection", language="Answer in Swedish"):
+def retrieve_similar_documents_with_language(user_prompt, top_k=3, collection_name=config.COSMIC_DATABASE_COLLECTION_NAME, language="Answer in Swedish"):
     """Retrieve similar documents and generate answer with custom language"""
     vectorstore = PGVector(
         embedding_function=embeddings,
