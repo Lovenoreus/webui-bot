@@ -8,25 +8,25 @@
   },
   "ollama": {
     "enabled": false,
-    "agent_model_name": "qwen3:latest",
+    "agent_model_name": "gpt-oss:20b",
     "embeddings_model_name": "jeffh/intfloat-multilingual-e5-large:q8_0",
-    "host": "http://localhost",
+    "host": "http://vs2153.vll.se",
     "port": 11434
   },
   "openai": {
-    "enabled": false,
+    "enabled": true,
     "agent_model_name": "gpt-4o-mini",
-    "embeddings_model_name": "text-embedding-3-small"
+    "embeddings_model_name": "text-embedding-3-large"
   },
   "mistral": {
-    "enabled": true,
+    "enabled": false,
     "model_name": "devstral-small-2507",
     "base_url": "https://api.mistral.ai/v1",
     "embeddings_model_name": "text-embedding-3-small",
     "chat_completion_endpoint": "/chat/completions"
   },
   "qdrant": {
-    "host": "qdrant",
+    "host": "localhost",
     "port": 6333,
     "result_limit": 6
   },
@@ -61,20 +61,20 @@
     "database_server_url": "http://localhost:8762",
     "docker_database_server_url": "http://database_server:8762",
     "provider": {
-        "openai": false,
+        "openai": true,
         "ollama": false,
-        "mistral": true
+        "mistral": false
     },
     "mcp_ollama":{
         "enabled": false,
         "model_name": "qwen2.5:3b-instruct"
     },
     "mcp_openai":{
-        "enabled": false,
+        "enabled": true,
         "model_name": "gpt-4o-mini"
     },
     "mcp_mistral":{
-        "enabled": true,
+        "enabled": false,
         "model_name": "devstral-small-2507"
     }
   }
