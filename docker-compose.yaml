@@ -5,7 +5,7 @@ services:
       args:
         OLLAMA_BASE_URL: '/ollama'
       dockerfile: Dockerfile
-    container_name: open-webui
+    container_name: open-webui  
     volumes:
       - open-webui:/app/backend/data
     depends_on:
@@ -80,3 +80,4 @@ volumes:
 networks:
   mcp-network:
     driver: bridge
+#docker cp certs/fw.cer open-webui:/usr/local/share/ca-certificates/company-ca.crt
