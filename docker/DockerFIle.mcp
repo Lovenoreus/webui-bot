@@ -28,5 +28,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
 
-# Run the app server (use uvicorn/gunicorn if applicable for production)
-CMD ["sh", "-c", "cd /app/docker/mcp/stdio && python server_new.py"]
+# Run startup script followed by the app server
+CMD ["sh", "-c", "cd /app/docker/mcp/stdio && ./startup.sh && python server_new.py"]

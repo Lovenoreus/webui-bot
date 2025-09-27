@@ -827,6 +827,7 @@ from typing import List
 import requests
 import config
 from typing import List, Generator
+from langchain.docstore.document import Document
 
 
 # load_dotenv()
@@ -1216,7 +1217,11 @@ async def enhanced_multi_strategy_retrieval(
 
 async def cosmic_database_tool(query: str) -> str:
     """
-    Enhanced async cosmic database search with multi-strategy retrieval.
+    Enhanced async cosmic database search with conditional vector database backend.
+    
+    Uses PostgreSQL/pgvector when config.COSMIC_DATABASE_USE_PGVECTOR is True,
+    otherwise uses Qdrant. The collection name and embedding model are read from config.
+    This allows for flexible deployment while maintaining the same tool interface.
 
     Args:
         query (str): The query to search for in the cosmic database.
@@ -1226,8 +1231,29 @@ async def cosmic_database_tool(query: str) -> str:
     """
 
     if config.DEBUG:
+        vector_db_type = "PostgreSQL/pgvector" if config.COSMIC_DATABASE_USE_PGVECTOR else "Qdrant"
         print(f"Searching cosmic database for query: {query}")
+        print(f"Using vector database: {vector_db_type}")
+        print(f"Collection: {config.COSMIC_DATABASE_COLLECTION_NAME}")
+        print(f"Embedding model: {config.EMBEDDINGS_MODEL_NAME}")
 
+    try:
+        # Branch based on configured vector database
+        if config.COSMIC_DATABASE_USE_PGVECTOR:
+            return await _cosmic_database_pgvector_search(query)
+        else:
+            return await _cosmic_database_qdrant_search(query)
+
+    except Exception as e:
+        error_msg = f"Error searching cosmic database: {e}"
+        if config.DEBUG:
+            print(f"ERROR: {error_msg}")
+            print(f"Traceback: {traceback.format_exc()}")
+        return f"An error occurred while searching the cosmic database: {str(e)}"
+
+
+async def _cosmic_database_qdrant_search(query: str) -> str:
+    """Search cosmic database using Qdrant backend"""
     try:
         # Initialize async Qdrant client
         qdrant_client = AsyncQdrantClient(
@@ -1244,9 +1270,8 @@ async def cosmic_database_tool(query: str) -> str:
             )
 
         if config.DEBUG:
-            print(f"Using collection: {config.COSMIC_DATABASE_COLLECTION_NAME}")
+            print(f"Qdrant search - Host: {config.QDRANT_HOST}:{config.QDRANT_PORT}")
             print(f"Result limit: {config.QDRANT_RESULT_LIMIT}")
-            print(f"Qdrant host: {config.QDRANT_HOST}:{config.QDRANT_PORT}")
 
         # Perform enhanced multi-strategy retrieval
         results = await enhanced_multi_strategy_retrieval(
@@ -1259,60 +1284,9 @@ async def cosmic_database_tool(query: str) -> str:
         )
 
         if config.DEBUG:
-            print(f"Found {len(results)} results in cosmic database")
+            print(f"Qdrant search found {len(results)} results")
 
-        # Process results and build response
-        if results:
-            content_list = []
-            sources = []
-
-            for result in results:
-                if hasattr(result, 'payload') and result.payload:
-                    # The content is stored in 'text' field, not 'content'
-                    content = result.payload.get("text", "").strip()
-
-                    # Get metadata - some fields might be at root level of payload
-                    source_file = result.payload.get("source_file", "unknown")
-                    section = result.payload.get("section", "unknown")
-                    page = result.payload.get("page", "unknown")
-                    context_summary = result.payload.get("context_summary", "")
-
-                    if content:
-                        # Track sources
-                        if source_file not in sources:
-                            sources.append(source_file)
-
-                        # Build enhanced content with metadata
-                        score = result.score
-
-                        enhanced_content = f"[Source: {source_file} | Section: {section} | Page: {page} | Score: {score:.3f}]\n{content}"
-
-                        if context_summary:
-                            enhanced_content += f"\n[Context: {context_summary}]"
-
-                        content_list.append(enhanced_content)
-
-            if config.DEBUG:
-                print(f"Processing {len(content_list)} content chunks from {len(sources)} sources")
-
-                for i, content in enumerate(content_list[:3]):  # Show first 3
-                    print(f"Chunk {i + 1} preview: {content[:200]}...")
-
-                print(f"Sources: {sources}")
-
-            # Join all content with clear separators
-            if content_list:
-                final_content = "\n\n" + "=" * 50 + "\n\n".join(content_list)
-                return final_content
-            else:
-                return "No content could be extracted from the search results."
-
-    except Exception as e:
-        error_msg = f"Error searching cosmic database: {e}"
-        if config.DEBUG:
-            print(f"ERROR: {error_msg}")
-            print(f"Traceback: {traceback.format_exc()}")
-        return f"An error occurred while searching the cosmic database: {str(e)}"
+        return _process_qdrant_results(results)
 
     finally:
         # Clean up async client
@@ -1322,3 +1296,162 @@ async def cosmic_database_tool(query: str) -> str:
         except Exception as e:
             if config.DEBUG:
                 print(f"Error closing Qdrant client: {e}")
+
+
+async def _cosmic_database_pgvector_search(query: str) -> str:
+    """Search cosmic database using PostgreSQL/pgvector backend"""
+    from urllib.parse import quote_plus
+    from langchain_community.vectorstores import PGVector
+    from langchain_community.vectorstores.pgvector import DistanceStrategy
+    from langchain_ollama.embeddings import OllamaEmbeddings
+    from langchain_openai import OpenAIEmbeddings
+    from langchain.schema import Document
+    
+    try:
+        # Build PostgreSQL connection string
+        connection_string = (
+            f"postgresql+psycopg2://"
+            f"{quote_plus(config.PGVECTOR_USERNAME)}:"
+            f"{quote_plus(config.PGVECTOR_PASSWORD)}@"
+            f"{config.PGVECTOR_HOST}:"
+            f"{config.PGVECTOR_PORT}/"
+            f"{config.PGVECTOR_DATABASE}"
+        )
+        
+        # Initialize embeddings based on configured provider
+        embeddings = None
+        if config.USE_OLLAMA:
+            embeddings = OllamaEmbeddings(
+                model=config.EMBEDDINGS_MODEL_NAME,
+                base_url=config.OLLAMA_BASE_URL
+            )
+        elif config.USE_OPENAI:
+            embeddings = OpenAIEmbeddings(
+                model=config.EMBEDDINGS_MODEL_NAME,
+                api_key=config.OPENAI_API_KEY
+            )
+        elif config.USE_MISTRAL:
+            # For Mistral, fallback to OpenAI embeddings
+            embeddings = OpenAIEmbeddings(
+                model=config.EMBEDDINGS_MODEL_NAME,
+                api_key=config.OPENAI_API_KEY
+            )
+        else:
+            raise ValueError("No embedding provider configured. Enable OLLAMA, OPENAI, or MISTRAL in config.")
+
+        if config.DEBUG:
+            print(f"PGVector search - Connection: {config.PGVECTOR_HOST}:{config.PGVECTOR_PORT}")
+            print(f"Database: {config.PGVECTOR_DATABASE}")
+            print(f"Embedding provider: {config.USE_OLLAMA and 'Ollama' or config.USE_OPENAI and 'OpenAI' or 'Mistral'}")
+
+        # Create vector store connection
+        vectorstore = PGVector(
+            embedding_function=embeddings,
+            collection_name=config.COSMIC_DATABASE_COLLECTION_NAME,
+            connection_string=connection_string,
+            distance_strategy=DistanceStrategy.COSINE
+        )
+        
+        # Perform similarity search
+        docs = vectorstore.similarity_search_with_score(
+            query, 
+            k=config.QDRANT_RESULT_LIMIT  # Use same limit as Qdrant for consistency
+        )
+
+        if config.DEBUG:
+            print(f"PGVector search found {len(docs)} results")
+
+        return _process_pgvector_results(docs)
+
+    except Exception as e:
+        if config.DEBUG:
+            print(f"PGVector search error: {e}")
+        raise
+
+
+def _process_qdrant_results(results) -> str:
+    """Process Qdrant search results"""
+    if not results:
+        return "No relevant information found in the cosmic database."
+
+    content_list = []
+    sources = []
+
+    for result in results:
+        if hasattr(result, 'payload') and result.payload:
+            # The content is stored in 'text' field, not 'content'
+            content = result.payload.get("text", "").strip()
+
+            # Get metadata - some fields might be at root level of payload
+            source_file = result.payload.get("source_file", "unknown")
+            section = result.payload.get("section", "unknown")
+            page = result.payload.get("page", "unknown")
+            context_summary = result.payload.get("context_summary", "")
+
+            if content:
+                # Track sources
+                if source_file not in sources:
+                    sources.append(source_file)
+
+                # Build enhanced content with metadata
+                score = result.score
+
+                enhanced_content = f"[Source: {source_file} | Section: {section} | Page: {page} | Score: {score:.3f}]\n{content}"
+
+                if context_summary:
+                    enhanced_content += f"\n[Context: {context_summary}]"
+
+                content_list.append(enhanced_content)
+
+    if config.DEBUG:
+        print(f"Processing {len(content_list)} content chunks from {len(sources)} sources")
+
+    # Join all content with clear separators
+    if content_list:
+        final_content = "\n\n" + "=" * 50 + "\n\n".join(content_list)
+        return final_content
+    else:
+        return "No content could be extracted from the search results."
+
+
+def _process_pgvector_results(docs) -> str:
+    """Process PostgreSQL/pgvector search results"""
+    if not docs:
+        return "No relevant information found in the cosmic database."
+
+    content_list = []
+    sources = []
+
+    for doc, score in docs:
+        if isinstance(doc, Document):
+            content = doc.page_content.strip()
+            metadata = doc.metadata or {}
+
+            # Get metadata fields
+            source_file = metadata.get("source_file", metadata.get("source", "unknown"))
+            section = metadata.get("section", "unknown")
+            page = metadata.get("page", "unknown")
+            context_summary = metadata.get("context_summary", "")
+
+            if content:
+                # Track sources
+                if source_file not in sources:
+                    sources.append(source_file)
+
+                # Build enhanced content with metadata (lower score is better for cosine distance)
+                enhanced_content = f"[Source: {source_file} | Section: {section} | Page: {page} | Distance: {score:.3f}]\n{content}"
+
+                if context_summary:
+                    enhanced_content += f"\n[Context: {context_summary}]"
+
+                content_list.append(enhanced_content)
+
+    if config.DEBUG:
+        print(f"Processing {len(content_list)} content chunks from {len(sources)} sources")
+
+    # Join all content with clear separators
+    if content_list:
+        final_content = "\n\n" + "=" * 50 + "\n\n".join(content_list)
+        return final_content
+    else:
+        return "No content could be extracted from the search results."

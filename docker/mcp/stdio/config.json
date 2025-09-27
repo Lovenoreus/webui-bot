@@ -10,16 +10,16 @@
     "enabled": false,
     "agent_model_name": "qwen3:latest",
     "embeddings_model_name": "jeffh/intfloat-multilingual-e5-large:q8_0",
-    "host": "http://localhost",
+    "host": "http://ollama",
     "port": 11434
   },
   "openai": {
-    "enabled": false,
+    "enabled": true,
     "agent_model_name": "gpt-4o-mini",
     "embeddings_model_name": "text-embedding-3-large"
   },
   "mistral": {
-    "enabled": true,
+    "enabled": false,
     "model_name": "devstral-medium-2507",
     "base_url": "https://api.mistral.ai/v1",
     "embeddings_model_name": "text-embedding-3-small",
@@ -53,9 +53,11 @@
   },
   "cosmic_database":{
     "collection_name":"cosmic_documents_group2",
-    "document_path":"C:/RemoteRepos/omnigate/cosmic_documents"
-
-
+    "document_path":"C:/RemoteRepos/omnigate/cosmic_documents",
+    "vector_database": {
+      "use_pgvector": true,
+      "use_qdrant": false
+    }
   },
   "mcp":{
     "database_path": "C:/Users/shahw/OneDrive/Desktop/Langgraph/multi_agent/Healthbot-agentic/database_data",

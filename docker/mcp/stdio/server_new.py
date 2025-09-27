@@ -31,6 +31,9 @@ from active_directory import ActiveDirectory
 from active_directory import CreateUserPayload, PasswordProfile
 from vector_database_tools import cosmic_database_tool
 
+# RAG imports - temporarily commented out to focus on cosmic_database_tool
+# from rag_tools import retrieve_documents_tool, get_rag_tool_schema, RAGRetrieveRequest
+
 # ++++++++++++++++++++++++++++++++
 # ACTIVE DIRECTORY PYDANTIC MODELS START
 # ++++++++++++++++++++++++++++++++
@@ -175,6 +178,9 @@ class HospitalSupportQuestionsRequest(BaseModel):
     query: str = Field(..., description="The support question to search for in the hospital support knowledge base")
 
 
+# RAG request model is now imported from rag_tools
+
+
 def extract_sql_from_json(llm_output: str) -> str:
     """Extract SQL from LLM JSON response"""
     try:
@@ -202,6 +208,8 @@ DATABASE_SERVER_URL = get_database_server_url()
 
 if DEBUG:
     print(f"[MCP DEBUG] Database server URL: {DATABASE_SERVER_URL}")
+
+# RAG models are now initialized in the rag_tools module
 
 
 async def execute_query(query: str):
@@ -889,6 +897,9 @@ async def cosmic_database_endpoint(request: CosmicDatabaseRequest):
             "query": request.query,
             "error": str(e)
         }
+
+
+# RAG endpoint is now handled by the rag_tools module through MCP tools
 
 
 # # ++++++++++++++++++++++++++++++++
@@ -2478,6 +2489,7 @@ async def mcp_tools_list():
                 "required": ["thread_id", "conversation_topic", "description", "location", "queue", "priority", "department", "name", "category"]
             }
         ),
+        MCPTool(**get_rag_tool_schema()),
     ]
 
     return MCPToolsListResponse(tools=tools)
@@ -2636,6 +2648,18 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
+        elif tool_name == "retrieve_documents":
+            # Use the new rag_tools module
+            result = await retrieve_documents_tool(
+                query=arguments.get("query"),
+                top_k=arguments.get("top_k", 3),
+                collection_name=arguments.get("collection_name", "json_documents_collection"),
+                language=arguments.get("language", "Answer in English")
+            )
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=result)]
+            )
+
         else:
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=f"Unknown tool: {tool_name}")],
@@ -2702,7 +2726,8 @@ async def root():
             "ad_remove_group_member",
             "ad_get_group_members",
             "search_cosmic_database",
-            "hospital_support_questions_tool"
+            "hospital_support_questions_tool",
+            "rag_retrieve_documents"
         ],
         "docs": "/docs",
         "mcp_compatible": True

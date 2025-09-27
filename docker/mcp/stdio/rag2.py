@@ -5,17 +5,57 @@ from tqdm import tqdm
 
 from langchain_ollama.llms import OllamaLLM
 from langchain_ollama.embeddings import OllamaEmbeddings
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 
 from langchain.schema import Document
-from langchain.vectorstores.pgvector import PGVector
-from langchain.vectorstores.pgvector import DistanceStrategy
+from langchain_community.vectorstores import PGVector
+from langchain_community.vectorstores.pgvector import DistanceStrategy
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from sqlalchemy.pool import QueuePool
 from urllib.parse import quote_plus
 
-# Simple configuration classes - no external dependencies
+# Load configuration from JSON file
+def load_config():
+    """Load configuration from config.json"""
+    config_path = os.path.join(os.path.dirname(__file__), 'config.json')
+    try:
+        with open(config_path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"⚠️  Warning: Could not load config.json: {e}")
+        return {}
+
+# Load the configuration
+app_config = load_config()
+print(f"App version: {app_config.get('app', {}).get('version', 'Unknown')}")
+
+# Determine cosmic database collection name
+cosmic_config = app_config.get('cosmic_database', {})
+collection_base_name = cosmic_config.get('collection_name', 'cosmic_documents_group2')
+embedding_model = app_config.get('openai', {}).get('embeddings_model_name', 'text-embedding-3-large')
+cosmic_collection_name = f"{collection_base_name}-{embedding_model}"
+print(f"Using cosmic database collection name: {cosmic_collection_name}")
+
+# Check database type
+vector_db_config = cosmic_config.get('vector_database', {})
+use_pgvector = vector_db_config.get('use_pgvector', True)
+use_qdrant = vector_db_config.get('use_qdrant', False)
+
+if use_pgvector:
+    print("Cosmic database will use: PostgreSQL/pgvector")
+elif use_qdrant:
+    print("Cosmic database will use: Qdrant")
+else:
+    print("No vector database configured")
+
+# Check if RAG is enabled in features
+features = app_config.get('features', {})
+rag_enabled = features.get('cosmic_agent', False)
+print(f"RAG configuration: enabled={rag_enabled}")
+
+# Enhanced configuration classes with multi-provider support
 class PostgresSettings:
     pg_host = os.getenv("PG_HOST", "localhost")  # Use "postgres" when running in Docker
     pg_port = os.getenv("PG_PORT", "5432")
@@ -28,10 +68,28 @@ class OllamaSettings:
     embedding_model = os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
     direct_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")  # Use "http://ollama:11434" in Docker
 
+class OpenAISettings:
+    api_key = os.getenv("OPENAI_API_KEY", "")
+    api_base_url = os.getenv("OPENAI_API_BASE_URL", "https://api.openai.com/v1")
+    llm_model = os.getenv("OPENAI_LLM_MODEL", "gpt-4o-mini")
+    embedding_model = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-large")
+
 class Settings:
     def __init__(self):
         self.postgres = PostgresSettings()
         self.ollama = OllamaSettings()
+        self.openai = OpenAISettings()
+        
+        # Check configuration from config.py if available
+        try:
+            self.use_ollama = getattr(config, 'USE_OLLAMA', False)
+            self.use_openai = getattr(config, 'USE_OPENAI', False)
+            self.use_mistral = getattr(config, 'USE_MISTRAL', False)
+        except:
+            # Fallback to environment variables
+            self.use_ollama = os.getenv("USE_OLLAMA", "true").lower() == "true"
+            self.use_openai = os.getenv("USE_OPENAI", "false").lower() == "true"
+            self.use_mistral = os.getenv("USE_MISTRAL", "false").lower() == "true"
 
 # Initialize settings
 settings = Settings()
@@ -40,6 +98,7 @@ print(f"   - Database: {settings.postgres.pg_host}:{settings.postgres.pg_port}/{
 print(f"   - Ollama: {settings.ollama.direct_url}")
 print(f"   - LLM Model: {settings.ollama.llm_model}")
 print(f"   - Embedding Model: {settings.ollama.embedding_model}")
+print(f"   - Provider settings: Ollama={settings.use_ollama}, OpenAI={settings.use_openai}, Mistral={settings.use_mistral}")
 
 # Build connection string
 CONNECTION_STR = (
@@ -51,22 +110,153 @@ CONNECTION_STR = (
     f"{settings.postgres.pg_database}"
 )
 
-# Initialize Ollama models with error handling
-try:
-    llm = OllamaLLM(
-        model=settings.ollama.llm_model,
-        base_url=settings.ollama.direct_url,
-        temperature=0.0
-    )
-    embeddings = OllamaEmbeddings(
-        model=settings.ollama.embedding_model, 
-        base_url=settings.ollama.direct_url
-    )
-    print(f"✅ Ollama models initialized successfully")
-except Exception as e:
-    print(f"❌ Error initializing Ollama models: {e}")
-    print("Please ensure Ollama is running and accessible")
-    exit(1)
+# Initialize models based on configuration with error handling
+llm = None
+embeddings = None
+
+def initialize_models():
+    """Initialize LLM and embedding models based on configuration"""
+    global llm, embeddings
+    
+    # Initialize LLM - prioritize based on configuration
+    if settings.use_openai and settings.openai.api_key:
+        try:
+            llm = ChatOpenAI(
+                model=settings.openai.llm_model,
+                api_key=settings.openai.api_key,
+                base_url=settings.openai.api_base_url,
+                temperature=0.0
+            )
+            print(f"✅ OpenAI LLM initialized: {settings.openai.llm_model}")
+        except Exception as e:
+            print(f"❌ Error initializing OpenAI LLM: {e}")
+            
+    elif settings.use_ollama:
+        try:
+            llm = OllamaLLM(
+                model=settings.ollama.llm_model,
+                base_url=settings.ollama.direct_url,
+                temperature=0.0
+            )
+            print(f"✅ Ollama LLM initialized: {settings.ollama.llm_model}")
+        except Exception as e:
+            print(f"❌ Error initializing Ollama LLM: {e}")
+    
+    # Initialize embeddings - prioritize based on configuration
+    if settings.use_openai and settings.openai.api_key:
+        try:
+            embeddings = OpenAIEmbeddings(
+                model=settings.openai.embedding_model,
+                api_key=settings.openai.api_key,
+                base_url=settings.openai.api_base_url,
+                timeout=30,  # Set timeout to 30 seconds
+                max_retries=3,  # Set max retries
+                request_timeout=30  # Request timeout
+            )
+            print(f"✅ OpenAI embeddings initialized: {settings.openai.embedding_model}")
+        except Exception as e:
+            print(f"❌ Error initializing OpenAI embeddings: {e}")
+            # Fallback to Ollama if available
+            if settings.use_ollama:
+                print("🔄 Falling back to Ollama embeddings...")
+                try:
+                    embeddings = OllamaEmbeddings(
+                        model=settings.ollama.embedding_model, 
+                        base_url=settings.ollama.direct_url
+                    )
+                    print(f"✅ Ollama embeddings initialized as fallback: {settings.ollama.embedding_model}")
+                except Exception as fallback_e:
+                    print(f"❌ Error initializing Ollama embeddings fallback: {fallback_e}")
+                    
+    elif settings.use_ollama:
+        try:
+            embeddings = OllamaEmbeddings(
+                model=settings.ollama.embedding_model, 
+                base_url=settings.ollama.direct_url
+            )
+            print(f"✅ Ollama embeddings initialized: {settings.ollama.embedding_model}")
+        except Exception as e:
+            print(f"❌ Error initializing Ollama embeddings: {e}")
+    
+    # Verify at least one model is initialized
+    if llm is None:
+        print("❌ No LLM model could be initialized")
+        exit(1)
+    if embeddings is None:
+        print("❌ No embedding model could be initialized")
+        exit(1)
+
+# Initialize models
+initialize_models()
+
+
+def check_collection_exists(collection_name="json_documents_collection"):
+    """Check if a collection exists in the PGVector database"""
+    try:
+        import psycopg2
+        conn = psycopg2.connect(
+            host=settings.postgres.pg_host,
+            port=settings.postgres.pg_port,
+            database=settings.postgres.pg_database,
+            user=settings.postgres.pg_username,
+            password=settings.postgres.pg_password
+        )
+        cursor = conn.cursor()
+        
+        # Check if the langchain_pg_collection table exists and has our collection
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT 1 FROM information_schema.tables 
+                WHERE table_name = 'langchain_pg_collection'
+            );
+        """)
+        table_exists = cursor.fetchone()[0]
+        
+        if not table_exists:
+            cursor.close()
+            conn.close()
+            return False, "PGVector tables not initialized"
+        
+        cursor.execute("""
+            SELECT COUNT(*) FROM langchain_pg_collection 
+            WHERE name = %s;
+        """, (collection_name,))
+        collection_count = cursor.fetchone()[0]
+        
+        cursor.close()
+        conn.close()
+        
+        if collection_count > 0:
+            return True, f"Collection '{collection_name}' exists with documents"
+        else:
+            return False, f"Collection '{collection_name}' does not exist"
+            
+    except Exception as e:
+        return False, f"Error checking collection: {e}"
+
+
+def log_collection_status(collection_name="json_documents_collection"):
+    """Log the status of a collection during startup"""
+    exists, message = check_collection_exists(collection_name)
+    
+    if exists:
+        print(f"✅ Collection Status: {message}")
+    else:
+        print(f"⚠️ Collection Status: {message}")
+        print(f"💡 To initialize this collection, run:")
+        print(f"   python rag2.py --embed <path_to_json_files> --collection {collection_name}")
+        
+        # Check provider-specific advice
+        if settings.use_openai and settings.openai.api_key:
+            print(f"🔧 Using OpenAI embeddings: {settings.openai.embedding_model}")
+        elif settings.use_ollama:
+            print(f"🔧 Using Ollama embeddings: {settings.ollama.embedding_model}")
+            print(f"   Make sure Ollama is running at: {settings.ollama.direct_url}")
+        else:
+            print("❌ No embedding provider configured!")
+
+# Check default collection at startup
+log_collection_status()
 
 
 def load_json_file(file_path):
@@ -202,6 +392,8 @@ def get_vectorstorage(docs, embeddings, collection_name="json_documents_collecti
 
 def save_to_pgvector(documents, embeddings, collection_name="json_documents_collection"):
     """Save documents to PGVector database with progress tracking"""
+    import time
+    
     try:
         print(f"🚀 Generating embeddings for {len(documents)} documents...")
         
@@ -210,25 +402,56 @@ def save_to_pgvector(documents, embeddings, collection_name="json_documents_coll
         
         # Generate embeddings with progress bar
         embedded_texts = []
-        batch_size = 10  # Process embeddings in batches to show progress
+        batch_size = 5  # Smaller batch size to avoid rate limits
+        max_retries = 3
         
         for i in tqdm(range(0, len(texts), batch_size), desc="Generating embeddings", unit="batch"):
             batch_texts = texts[i:i + batch_size]
-            try:
-                # Generate embeddings for this batch
-                batch_embeddings = embeddings.embed_documents(batch_texts)
-                embedded_texts.extend(batch_embeddings)
-            except Exception as e:
-                print(f"❌ Error generating embeddings for batch {i//batch_size + 1}: {e}")
-                # Fallback: generate embeddings one by one for this batch
-                for text in batch_texts:
-                    try:
-                        embedding = embeddings.embed_documents([text])
-                        embedded_texts.extend(embedding)
-                    except Exception as single_error:
-                        print(f"❌ Error embedding single document: {single_error}")
-                        # Use zero vector as fallback
-                        embedded_texts.append([0.0] * 1536)  # Assuming 1536 dimensions for nomic-embed-text
+            batch_success = False
+            
+            # Try batch processing with retries
+            for retry in range(max_retries):
+                try:
+                    # Add a small delay between batches to avoid rate limiting
+                    if i > 0:
+                        time.sleep(1)
+                    
+                    # Generate embeddings for this batch
+                    batch_embeddings = embeddings.embed_documents(batch_texts)
+                    embedded_texts.extend(batch_embeddings)
+                    batch_success = True
+                    break
+                except Exception as e:
+                    print(f"❌ Error generating embeddings for batch {i//batch_size + 1}, retry {retry + 1}: {e}")
+                    if retry < max_retries - 1:
+                        time.sleep(2 ** retry)  # Exponential backoff
+                    
+            # If batch failed, try individual documents
+            if not batch_success:
+                print(f"🔄 Falling back to individual processing for batch {i//batch_size + 1}")
+                for j, text in enumerate(batch_texts):
+                    individual_success = False
+                    for retry in range(max_retries):
+                        try:
+                            time.sleep(0.5)  # Small delay between individual requests
+                            embedding = embeddings.embed_documents([text])
+                            embedded_texts.extend(embedding)
+                            individual_success = True
+                            break
+                        except Exception as single_error:
+                            print(f"❌ Error embedding document {i + j + 1}, retry {retry + 1}: {single_error}")
+                            if retry < max_retries - 1:
+                                time.sleep(1)
+                    
+                    # Use zero vector as fallback if all retries failed
+                    if not individual_success:
+                        print(f"⚠️  Using zero vector for document {i + j + 1}")
+                        dimensions = 1536  # Default for OpenAI models
+                        if settings.use_ollama and "nomic" in settings.ollama.embedding_model.lower():
+                            dimensions = 768  # nomic-embed-text uses 768 dimensions
+                        elif settings.use_openai and "text-embedding-3-large" in settings.openai.embedding_model:
+                            dimensions = 3072  # text-embedding-3-large uses 3072 dimensions
+                        embedded_texts.append([0.0] * dimensions)
         
         print(f"✅ Generated {len(embedded_texts)} embeddings")
         print(f"💾 Storing documents in PGVector database...")
@@ -451,6 +674,9 @@ Examples:
         print(f"\n🔍 Searching for: '{args.query}'")
         print(f"Top K: {args.top_k}, Collection: {args.collection}")
         
+        # Check collection status before querying
+        log_collection_status(args.collection)
+        
         # Update prompt template based on language
         language_prompts = {
             "Swedish": "Answer in Swedish",
@@ -499,7 +725,7 @@ def retrieve_similar_documents_with_language(user_prompt, top_k=3, collection_na
     
     # Create the RAG Chain
     rag_chain = (
-        {{"context": retriever | format_docs, "query": RunnablePassthrough()}}
+        {"context": retriever | format_docs, "query": RunnablePassthrough()}
         | custom_rag_prompt
         | llm
         | StrOutputParser()
