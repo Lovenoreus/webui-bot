@@ -1,0 +1,1402 @@
+[
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Beskrivning av CDS FH Referral, ett beslutstödsverktyg för familjär hyperkolesterolemi, dess funktioner, automatiskt dataimport och remissgenerering, samt hur det bör användas som stöd utan att ersätta kliniker.",
+    "keywords": [
+      "CDS",
+      "FH Referral",
+      "familjär hyperkolesterolemi",
+      "remiss",
+      "automatiskt",
+      "LDL",
+      "diagnostisk bedömning",
+      "Dutch Lipid Clinic Network",
+      "remissgenerering",
+      "journalinmatning"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "Beslutstöd",
+      "Familjär hyperkolesterolemi",
+      "Journalinmatning",
+      "Remissprocess"
+    ],
+    "clinical_domain": [
+      "Kardiovaskulär",
+      "Endokrinologi",
+      "Lipidprofil",
+      "Metabolism"
+    ],
+    "text": "Detta dokument beskriver beslutstödet Cambio Clinical Decision Support (CDS) FH Referral (härefter CDS FH Referral) , dess funktioner och egenskaper ur en slutanvändares perspektiv. Läsaren förutsätts ha god datorvana och grundläggande kunskaper i COSMIC. Information om applicerbara och kompatibla versioner mellan beslutsstödet och underliggande journalsystem är angivet i dokumentets versionshistorik. Beslutsstödet CDS FH Referral , dvs. remiss för familjär hyperkolesterolemi, syftar till att hjälpa användare att utvärdera om det föreligger misstanke om familjär hyperkolesterolemi eller ej. Det är utvecklat och baserat på de holländska Dutch Lipid Clinic Network-kriterierna (DLCN) vilka beskriver hur patienter med risk för familjär hyperkolesterolemi ska behandlas [ 1] [2]. Klinisk data som redan finns tillgänglig i journalsystemet , och som krävs av beslutsstödet för att genomföra en bedömning , importeras automatiskt (födelsedatum, kön och minst ett provsvar för LDL - eller totalkolesterol). Annan klinisk data (journalanteckningar, läkemedelslista, diagnos - och åtgärdskoder) som beslutsstödet kan nyttja för bedömning inhämtas , förutsatt att den finns i journalsystemet . Även denna inhämtning av information görs automatiskt. Om det föreligger en välgrundad misstanke om familjär hyperkolesterolemi presenteras detta tydligt och beslutsstödet underlättar remittering till specialist genom att automatiskt generera en remisstext innehållande information om varför patienten remitterats. Utöver remissen ska en journalanteckning genereras automatiskt som användaren kan spara i patientens journal. Om misstanke ej föreligger, alternativt om beslutsstödet inte erhållit tillräckligt med information för att genomföra en bedömning, ska beslutsstödet inte aktiveras. Beslutsstödet ger rekommendationer som endast skall betraktas som understöd för användaren, då dennes kunskap om patienten alltid är avgörande för beslutet. Beslutsstödet ersätter därmed inte beslutsfattaren. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 5(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "Versionshistoriken beskriver ändringar och uppdateringar av dokumentet samt kompatibilitet med beslutsstöd och journalsystem över tid.",
+    "keywords": [
+      "versionshistorik",
+      "ändringar",
+      "kompatibilitet",
+      "beslutsstöd",
+      "journalsystem",
+      "COSMIC",
+      "avsnitt",
+      "uppdatering",
+      "revidering",
+      "kapitel"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Versionshistorik",
+      "Dokumentation",
+      "Beslutsstöd",
+      "Journalintegration",
+      "COSMIC",
+      "Utvecklingslogg"
+    ],
+    "clinical_domain": [
+      "Klinisk beslutsstöd",
+      "Allmänmedicin",
+      "EHR"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid samt kompatibla versioner mellan beslutsstödet och underliggande journalsystem. Version Datum Beskrivning 1.0 2020-07-07 Första version. Dokumentet gäller från beslutsstödsversion 5.1.x och COSMIC R8.2.03. 2.0 2020-09-04 Avsnitt 3.3.2 och 3.4.4 uppdaterade. Dokumentet gäller från beslutsstödsversion 5.3.x och COSMIC R8.2.03. 2.1 2020-09-09 Avsnitt 3.4.4 uppdaterat. 3.0 2020-09-21 Avsnitt 3.4.4 uppdaterat. Dokumentet gäller från beslutsstödsversion 5.4.x och COSMIC R8.2.03. 4.0 2020-10-28 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 5.5.x och COSMIC R8.2.03. 5.0 2020-12-08 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 6.0.x och COSMIC R8.2.07. 6.0 2021-03-24 Avsnitt 3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 7.0.x och COSMIC R8.2.07. 7.0 2021-10-27 Avsnitt 3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 8.0.x och COSMIC R8.3.03. 8.0 2021-12-07 Avsnitt 3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 8.1.x och COSMIC R8.3.03. 9.0 2022-06-15 Avsnitt 3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 8.2.x och COSMIC R8.3.04. 9.1 2022-11-01 Avsnitt 3.4 uppdaterat. 9.2 2023-04-27 Kapitel 2 tillagt. 10.0 2023-08-31 Avsnitt 3.2 och 3.4.2 tillagda samt avsnitt 1.1, 3.3.1 - 3.3.4 och 3.4.3 uppdaterade. Dokumentet gäller från beslutsstödsversion 9.0.x och COSMIC 3.8.0. 10.1 2023-10-24 Dokumentet reviderat och uppdaterat. 10.2 2024-01-31 Kapitel 2 uppdaterat. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 6(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "Tabell som visar termer, förkortningar och akronymer som används i dokumentet, t.ex. CDS, FH och LDL.",
+    "keywords": [
+      "term",
+      "förkortning",
+      "akronym",
+      "CDS",
+      "FH",
+      "LDL",
+      "familjär hyperkolesterolemia"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "terminologi",
+      "förkortningar",
+      "akronymer",
+      "CDS",
+      "FH",
+      "LDL",
+      "kardiovaskulär hälsa",
+      "sjukhusdiagnostik"
+    ],
+    "clinical_domain": [
+      "kardiovaskulär hälsa",
+      "lipidprofil",
+      "ärftliga sjukdomar"
+    ],
+    "text": "Följande tabell beskriver de termer, förkortningar och akronymer som används i detta dokument. Term Beskrivning CDS Clinical Decision Support FH Familiar Hypercholesterolemia (Familjär hyperkolesterolemi) LDL Low-Density Lipoprotein"
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.4.1",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver de typografiska och stilistiska konventionerna som används i dokumentet, inklusive fetstil för gränssnitts­termer, kursiv för modul­namn, färger för värden och Courier New för systemkommandon.",
+    "keywords": [
+      "fetstil",
+      "kursiv",
+      "modulnamn",
+      "filnamn",
+      "kataloger",
+      "webblänkar",
+      "färg",
+      "systemkommandon",
+      "kodexempel",
+      "utskrifter"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "typografi",
+      "gränssnittsdesign",
+      "dokumentation",
+      "designnormer"
+    ],
+    "clinical_domain": [
+      "sjukvårdsinformatik",
+      "hälsoinformatik",
+      "patientvårdsinformation"
+    ],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger , Properties.txt eller https://customer.cambio.se . Färg. värden, namn, typer och sökvägar. Exempel: där ersätts med namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.4.2",
+    "main_section_id": 3,
+    "context_summary": "Detta avsnitt beskriver hur ikoner används för att flagga viktig information, tips och varningar inom ett dokument, samt vad som gäller för konfiguration, extra kostnader och tredjepartslicens.",
+    "keywords": [
+      "ikoner",
+      "information",
+      "tips",
+      "viktig information",
+      "konfiguration",
+      "extra kostnader",
+      "tredjepartslicens",
+      "CDS FH",
+      "referral",
+      "gränssnitt"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "ikoner",
+      "information",
+      "användargränssnitt",
+      "klinikprogramvara",
+      "bedömning",
+      "uppmärksamhet"
+    ],
+    "clinical_domain": [
+      "Klinisk beslutsstöd",
+      "Medicinsk informationsteknik",
+      "Allmän hälsa"
+    ],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. En tredjepartslicens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 7(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om CDS FH Referral"
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "Programvaran CDS FH Referral upptäcker patienter med höjt LDL eller totalkolesterol och tidig hjärt-KS, enligt Dutch Lipid Clinic Network kriterier, och stödjer vårdpersonal med att skicka remisser till specialistvården.",
+    "keywords": [
+      "CDS FH Referral",
+      "LDL",
+      "totalkolesterol",
+      "prematur kranskärlssjukdom",
+      "familjär hyperkolesterolemi",
+      "Dutch Lipid Clinic Network",
+      "remisser",
+      "specialistvården",
+      "hälso- och sjukvårdspersonal"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Kliniska beslutsstödssystem",
+      "Medicinsk informatik",
+      "Cholesterolbehandling",
+      "Familjär hyperkolesterolemi",
+      "Epidemiologi"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Endokrinologi",
+      "Lipidprofil",
+      "Familjemedicin"
+    ],
+    "text": "Cambio Clinical Decision Support (CDS) FH Referral (härefter CDS FH Referral) är en klinisk beslutsstödsapplikation designad för att upptäcka patienter med ökat low - density lipoprotein (LDL-) och/eller total- kolesterol och tecken på prematur kranskärlssjukdom som misstänks ha familjär hyperkolesterolemi (FH), baserat på en lokal version av internationella Dutch Lipid Clinic Network kriterierna (DLCN). Vidare stödjer CDS FH Referral hälso- och sjukvårdspersonalen med att skapa remisser till specialistvården för identifierade individer."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Försiktighetsåtgärder",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver att CDS FH Referral Application inte bör användas som enda källa för diagnos eller behandling, inte ersätter patientobservation eller klinisk bedömning och att en manual ska läsas först.",
+    "keywords": [
+      "CDS FH Referral Application",
+      "diagnos",
+      "behandling",
+      "vitalparametrar",
+      "patientobservation",
+      "klinisk bedömning",
+      "realtidsövervakning",
+      "användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Försiktighetsåtgärder",
+      "Klinisk rådgivning",
+      "Digitala beslutsstöd"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Klinisk diagnostik",
+      "Digitala hälsosystem"
+    ],
+    "text": "Följande försiktighetsåtgärder skall beaktas: CDS FH Referral Application bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. CDS FH Referral Application är inte avsett för realtidsövervakning av vitala fysiologiska parametrar. CDS FH Referral Application ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. Observera att användarmanualen för CDS FH Referral Application bör läsas innan användning."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Risker med användning av CDS",
+    "page": 1,
+    "section_id": "2.3",
+    "main_section_id": 2,
+    "context_summary": "Sammanfattning visar att riskerna för CDS uppstår när data saknas, är inkorrekt eller korrumperad, när nya uppgifter läggs till efter inladdning eller när det finns nätverks- och serverproblem, och att användaren måste förlita sig på klinisk kunskap.",
+    "keywords": [
+      "risker",
+      "beslutsstöd",
+      "indata",
+      "patientdata",
+      "inkorrekt data",
+      "korrumperad data",
+      "klinikkunskap",
+      "nätverk",
+      "nätverksproblem",
+      "CDS Runtime",
+      "serverproblem"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Risker",
+      "CDS",
+      "Patientdata",
+      "Kvalitet",
+      "Klinisk beslut",
+      "Nätverk",
+      "Serverproblem"
+    ],
+    "clinical_domain": [
+      "Allmänmedicin",
+      "Medicinsk IT",
+      "Vårdsystem"
+    ],
+    "text": "Nedan följer en sammanfattning av de risker som medföljer denna produkt: Om beslutsstödet saknar nödvändig indata för att utföra en bedömning kommer en rekommendation inte kunna ges, detta betyder inte att det inte föreligger några hälsorelaterade risker för patienten. Om beslutsstödet blir matad med inkorrekt eller korrumperad data från journalsystemet kan en felaktig rekommendation genereras av beslutsstödstjänsten. Som användare måste den kliniska kunskap och allmänna kännedom som användaren har om patienten alltid föregå det som genererats av beslutsstödet. Detta är tydligt beskrivit i denna användarmanual. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 8(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Beslutsstödet kommer bara ha tillgång till den patientdata som fanns i journalen när patienten laddades i journalsystemet. Om ny patientdata registrerats i patientens journal efter patientladdning finns det en risk att relevant information missas av beslutsstödet. Beslutsstödet kan vara oåtkomlig ifall det föreligger lokala anslutningsproblem till nätverket eller om beslutsstödstjänsten ligger nere på grund av CDS Runtime serverproblem."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Produkt- och kontaktinformation",
+    "page": 1,
+    "section_id": "2.4",
+    "main_section_id": 2,
+    "context_summary": "Denna sektion beskriver produktetiketts innehåll, kontaktdetaljer till tillverkare, CE-märkning och registreringskrav samt hur dokumentation och incidentrapportering ska hanteras för Cambio CDS beslutsstöd.",
+    "keywords": [
+      "produktnamn",
+      "produktetikett",
+      "beslutsstöd",
+      "Cambio",
+      "Läkemedelsverket",
+      "incident",
+      "rapport",
+      "version",
+      "datum",
+      "kontakt",
+      "tillverkare",
+      "adress",
+      "CE-märkning",
+      "EG-direktiv",
+      "kods",
+      "unik identifiering",
+      "dokumentation",
+      "kunskapsbank",
+      "medicinteknisk produkt"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Produktinformation",
+      "Kontaktdetaljer",
+      "Kundsupport",
+      "Regulatoriska krav",
+      "Dokumentation",
+      "Software",
+      "Medicinteknisk produkt"
+    ],
+    "clinical_domain": [
+      "Allmänna sjukvårdsprodukter",
+      "Klinisk beslutsstöd",
+      "Medicinteknik"
+    ],
+    "text": "I beslutsstödets användargränssnitt visas en produktetikett via knappen . Den innehåller följande information: Produktnamn uppdelat i tre nivåer Cambio CDS - Clinical Decision Support Cambio CDS Runtime ( system) Beslutsstödets namn ( software item ) 1 https://www.lakemedelsverket.se Alla allvarliga produktrelaterade incidenter ska rapporteras till Cambio och behörig myndighet (Läkemedelsverket1). CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 9(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Produktversioner för beslutsstödet som software item och CDS Runtime som system. Adress (fysisk och internetadress) för ansvarig tillverkare , tillverkningsdatum och tillverkarens registreringsnummer (SRN). Cambio Healthcare Systems AB Gamla Tanneforsvägen 92 582 54 Linköping +46 13 20 03 00 https://www.cambiogroup.com/ SRN#: SE-MF-000001229 Dokumentation. Läs och följ anvisningarna i produktens introduktion & användarmanual. Via länken https://kb.cambio.se/ öppnas Kunskapsbanken med tillgång till dokumentation och övrig information. Medicinteknisk produkt. CE-märkning. Produkten uppfyller applicerbara krav i EG-direktiv 93/42/EEG. Unik produktidentifiering (produktspecifik kod). CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 10(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Att arbeta med CDS FH Referral"
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Regler",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": "2",
+    "context_summary": "Beslutsstödets regler för LDL‑kolesterol och totalkolesterol aktiveras först efter användarens godkännande. Systemet visar automatiskt en dialogruta när förhöjda nivåer upptäcks och bedömmer risken för prematur kranskärlssjukdom genom diagnostiska koder, men tillåter användaren att manuellt ange information. Uppdateringar i journalsystemet gällande beslutsstödet kräver en omladdning. Behörigheten styrs av journalsystemet.",
+    "keywords": [
+      "Beslutsstöd",
+      "LDL-kolesterol",
+      "totalkolesterol",
+      "dialogruta",
+      "prematur kranskärlssjukdom",
+      "diagnos- och åtgärdskoder",
+      "journal",
+      "behörigheter",
+      "användarpåverkan"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Regler",
+      "Beslutsstöd",
+      "Kranskärlssjukdom",
+      "Laboratorieanalys",
+      "Behörighet"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Journalteknologi",
+      "Laboratorjeanalys",
+      "Medicinsk beslutstöd"
+    ],
+    "text": "Beslutsstödets underliggande regler exekveras inte förrän användaren klickar för att vidimera antingen LDL-kolesterol eller totalkolesterol alternativt båda. Beslutsstödet kommer automatiskt visas i e n dialogruta, med journalsystemet i bakgrunden, när de t upptäcker att en patient har förhöjda värden av LDL -kolesterol eller totalkolesterol då en användare försöker vidimera provsvar för dessa. Så länge en patient inte exkluderas av beslutsstödets regler , se avsnitt 3.4.3, kommer en dialogruta visas förutsatt att en förhöjning av LDL -kolesterol eller totalkolesterol kan identifieras. En del av det innehåll som visas i denna dialogruta utgörs av en bedömning som ligger till grund för den givna misstanken. Bedömningen beskriver varför beslutsstödet aktiverats baserat på de provsvar som blivit importerade. Beslutsstödet kommer automatiskt att undersöka huruvida patienten tidigare haft tecken på prematur kranskärlssjukdom genom analys av patientens registrerade diagnos- och åtgärdskoder. Om tecken på prematur kranskärlssjukdom inte finns registrerat i journalen kan användaren själv ange denna information i beslutsstödets huvudfönster. I följande avsnitt beskrivs kort de bakomliggande funktioner som används i systemet, samt hur verktyget används. Beslutsstödet arbetar utifrån befintlig information i patientens journal; om information uppdateras i journalsystemet medan beslutsstödet används kommer den nya informationen inte finnas tillgänglig i beslutsstödet förrän det laddas om på nytt. Vem som ska ha tillgång till CDS FH Referral styrs av journalsystemets behörighetsinställningar."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Tillgång till CDS FH Referral",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "En varning visas i journalsystemet när CDS FH Referral aktiveras och kan öppnas via dialogrutan.",
+    "keywords": [
+      "CDS FH Referral",
+      "varning",
+      "journalsystem",
+      "beslutsstöd",
+      "muspekare",
+      "Öppna beslutsstöd",
+      "kolesterol",
+      "prövning",
+      "diagnostik"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Kliniskt beslutstöd",
+      "CDS",
+      "Patientjournal",
+      "Diagnostik",
+      "Kolesterol",
+      "Hyperkolesterolemi"
+    ],
+    "clinical_domain": [
+      "Endokrinologi",
+      "Laboratorieundersökningar"
+    ],
+    "text": "Om kriterier för aktivering av CDS FH Referral uppfylls, se information i de följande avsnitten, kommer en varning att visas i journalsystemet. Varning om att beslutsstödet har aktiverats indikeras med en CDS-ikon i patientlisten samt med en dialogruta i journalsystemets gränssnitt. I dialogrutan listas de beslutsstöd som har aktiverats . Användaren kan få ytterligare information om varningen via en text som visas när muspekaren hålls över i-ikonen. Användaren kan klicka på knappen Öppna beslutsstöd för att visa beslutsstödets huvudfönster där beslut om vidare handläggning kan fattas . CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 11(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om användaren väljer att stänga dialogrutan och ignorera varningen, kommer varningen att visas igen vid nästa försök att vidimera provsvaren. Bild 1 -Varning för CDSRemiss för familjär hyperkolesterolemi i COSMIC 3.8.0 . Bild 2 - Användaren kan läsa mer om varningen genom en text som visas när muspekaren hålls över \"i\" -ikonen CDS FH Referral kan inte nås från journalsystemets meny, utan det krävs en aktivering vid vidimering av kolesterolrelaterade provsvar. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 12(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.3.1",
+    "main_section_id": 3,
+    "context_summary": "Riskbedömning startas automatiskt vid hög LDL eller kolesterol; beslutsstödet genererar misstanke eller ingen misstanke, visar dialogruta; vid öppning visas huvudfönster med bedömning, grund för bedömning, beslut och remiss, samt journalanteckning.",
+    "keywords": [
+      "riskbedömning",
+      "beslutsstöd",
+      "kolesterol",
+      "LDL",
+      "diagnos",
+      "åtgärdskoder",
+      "patientdata",
+      "dialogruta",
+      "remiss",
+      "journalanteckning",
+      "vidimering"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslutsstödssystem",
+      "Kardiologi",
+      "Laboratoriebedömning",
+      "Patientdata",
+      "Riskbedömning"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Laboratorieanalys",
+      "Primärvård"
+    ],
+    "text": "För att en riskbedömning ska göras krävs en automatisk start av beslutsstödet som sker vid detektering av förhöjda kolesterolvärden i en vidimeringsprocess. Beslutsstödet kan generera två olika bedömningar baserat på denna information: Misstanke ( beslutsstödets dialogruta visas) Ingen misstanke (beslutsstödets dialogruta visas ej) Vid vidimeringsförsök av LDL - eller totalkolesterol (eller båda) startas beslutsstödet och patientens födelsedatum, kön, journalanteckningar, läkemedelslista, registrerade diagnos- och åtgärdskoder samt de provsvar som valts för vidimering analyseras. Om dialogrutan visas och användaren väljer att öppna beslutsstödet visas beslutsstödets huvudfönster som är indelat i två olika block: Bedömning och grund för bedömning Beslut och utkast till remiss och journalanteckning Varje block behandlas i separata avsnitt av denna användarmanual , se avsnitt 3.3.2 och 3.3.3 . En översiktsbild av beslutsstödet i sin helhet visas i Bild 3. Bild 3 - Översiktsbild av beslutsstödet CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 13(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Bedömning och grund för bedömning",
+    "page": 1,
+    "section_id": "3.3.2",
+    "main_section_id": 3,
+    "context_summary": "Manualen beskriver hur misstankegraden för familjär hyperkolesterolemi bedöms, hur LDL‑kolesterol korrigeras vid statin och ezetimib samt vilka villkor som påverkar remittering, exempelvis prematur kranskärlssjukdom och familjehistoria.",
+    "keywords": [
+      "familjär hyperkolesterolemi",
+      "LDL‑kolesterol",
+      "statin",
+      "ezetimib",
+      "korrigering",
+      "remiss",
+      "prematur kranskärlssjukdom",
+      "följsamhet",
+      "kärlsjukdom",
+      "lipidprofil"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Familjär hyperkolesterolemi",
+      "Lipidprofil",
+      "Statinpatisering",
+      "Ezetimibbehandling",
+      "LDL‑korrigering",
+      "Remissbedömning",
+      "Prematur kranskärlssjukdom",
+      "Familjehistoria",
+      "Kärlsjukdom"
+    ],
+    "clinical_domain": [
+      "Lipidmedicin",
+      "Kärlsjukdom",
+      "Internmedicin"
+    ],
+    "text": "Bedömning av misstankegraden av familjär hyperkolesterolemi grundas på den information som automatiskt inhämtas från patientens journal. Om användaren anger ytterligare information i detta block kommer den angivna informationen läggas till i den automatiskt genererade remisstexten samt journalanteckningen. Direkt under rubriken Bedömning presenteras vad beslutsstödet identifierat, se Bild 4. Bild 4 - Bedömning Även provsvaren i patientens lipidprofil (i detta fall: LDL-kolesterol, totalkolesterol och triglycerider) som användaren valt att vidimera visas. Om en patient är under en aktiv statinbehandling och/eller aktiv behandling med ezetimib som startade innan eller samtidigt som patientens LDL-kolesterolprov togs, ska beslutsstödet utföra en korrigering av det inhämtade LDL - kolesterolvärdet. Ingen korrigering kommer ske om behandlingen inte längre är aktiv, inklusive om dosen ändrats efter provtagningstillfället , när provsvaret vidimeras. I detta fall beräknas det korrigerade värdet baserat på vilken statin som används samt dos och/eller på ezetimib. De korrigeringsekvationer som tillämpas av beslutsstödet är beskrivna i den tredje referensartikeln [ 3]. I ett fall då en korrigering av LDL -kolesterolvärdet görs, kommer beslutsstödet utföra bedömningen baserat på det korrigerade LDL -kolesterolvärdet och dessutom visa denna information under rubriken Bedömning . CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 14(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Utöver detta kommer det korrigerade så väl som det okorrigerade LDL - kolesterolvärdet visas under rubriken Patientens lipidprofil , se Bild 5 Bild 5 - Om en korrigering av LDL- kolesterolvärdet har gjorts visas både det korrigerade och det okorrigerade LDL-kolesterolvärde t under rubriken \"Patientens lipidprofil\" Vid korrigering av LDL- kolesterolvärde bör användaren kontrollera patientens följsamhet till statinordinationen och/eller ordinationen av ezetimib. Det korrigerade LDL- kolesterolvärdet är mindre giltigt om en patient inte följer rekommendationerna angående sin statinbehandling och/eller behandling med ezetimib. Nödvändigheten att remittera en patient till specialist bör noggrant kontrolleras i fall av oföljsamhet, speciellt om patientens okorrigerade LDL - kolesterolvärde ligger under gränsvärdet. I följande tabell presenteras de läkemedel som beslutsstödet tar hänsyn till. ATC-kod Läkemedel C10AX09 Ezetimib C10AA03 Pravastatin C10AA01 Simvastatin C10BA02 Simvastatin + Ezetimib C10AA05 Atorvastatin C10BA05 Atorvastatin + Ezetimib C10AA07 Rosuvastatin C10BA06 Rosuvastatin + Ezetimib CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 15(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Användaren ombeds att ange om det finns tecken på prematur kranskärlssjukdom genom att svara på frågan Tecken på kranskärlssjukdom . Användaren kan ta del av information om vilka diagnoser och åtgärder som motsvarar kranskärlssjukdom genom att klicka på i-ikonen vid frågan, se Bild 6. Bild 6 - Fråga \"Tecken på kranskärlssjukdom\" och informationstext om diagnos - och åtgärdskoder som motsvarar kranskärlssjukdom . Kranskärlssjukdom föreligger om patienten haft minst ett av följande tecken: Perkutan koronarintervention (PCI) Koronar-bypass (CABG) Anginösa bröstsmärtor (kärlkramp i bröstet) (ICD10 -I200) Akut hjärtinfarkt (ICD10 -I21) Reinfarkt (återinsjuknande i akut hjärtinfarkt) (ICD10 -I22) Vissa komplikationer till akut hjärtinfarkt (ICD10 -I23) Andra akuta ischemiska hjärtsjukdomar (ICD10 -I24) Kronisk ischemisk hjärtsjukdom (ICD10 -I25) Förekomst av aortokoronar -bypass-graft (ICD10-Z951) Förekomst av angioplastiskt koronarimplantat och koronargraft (ICD10 -Z955) Prematur kranskärlssjukdom definieras här olika baserat på patientens kön. Om patienten är kvinna ska patienten ha haft minst ett av ovanstående tecken innan 60 års ålder. Om patienten är man ska patienten ha haft minst ett av ovanstående tecken innan 55 års ålder. Om denna data redan finns tillgänglig i journalsystemet men inte lett till aktivering av beslutsstödet, ska frågan automatiskt förifyllas med Ja, men användaren får fortfarande besvara frågan manuellt. Om denna data redan finns tillgänglig i journalsystemet och har lett till aktivering av beslutsstödet, kommer frågan om prematur kranskärlssjukdom inte längre visas för användaren. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 16(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Därefter ombeds användaren ange om det finns känd förstagradsärftlighet (hos förälder, syskon eller barn) för prematur kranskärlssjukdom eller hyperlipidemi. Användaren kan läsa om vilka diagnoser eller åtgärder som motsvarar kranskärlssjukdom genom att klicka på i-ikonen vid frågan . Om användaren markerar svarsalternativen Nej eller Okänd, visas inga ytterligare frågor i det första blocket oc h man kan gå vidare till det andra blocket , se avsnitt"
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Om svarsalternativet Ja markeras måste ytterligare information om",
+    "page": 1,
+    "section_id": "3.3.3",
+    "main_section_id": 3,
+    "context_summary": "När alternativet Ja väljs måste användaren ange ärftlighetsinformation genom att kryssa i minst en ruta i Specificera‑blocket. Annars går man vidare till nästa block.",
+    "keywords": [
+      "ärftlighet",
+      "kryssruta",
+      "Specificera",
+      "Bild 7",
+      "block",
+      "svarsalternativ",
+      "användarinteraktion"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användning",
+      "Interaktion",
+      "Information",
+      "Kryssmarkering",
+      "Bladmarkering"
+    ],
+    "clinical_domain": [
+      "Genetik",
+      "Familjehistoria",
+      "Diagnos"
+    ],
+    "text": "ärftligheten anges för att gå vidare till det andra blocket . Detta genom att markera minst en kryssruta under Specificera , se Bild 7. Bild 7 - Användaren ombeds ange ytterligare information om ärftligheten för att gå vidare till den andra blocket ."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Beslut och utkast till remiss och journalanteckning",
+    "page": 1,
+    "section_id": "3.3.3",
+    "main_section_id": 3,
+    "context_summary": "Blocket beskriver hur beslutsstödet presenterar en rekommendation om att remittera patienten till en specialist. Användaren måste ange om en remiss skickas eller avstå, och vid avvikelse krävs en motivering. Ytterligare inställningar för tolkbehov och provavl visas beroende på konfiguration.",
+    "keywords": [
+      "remiss",
+      "journalanteckning",
+      "beslutsstöd",
+      "tolkbehov",
+      "avvikelse",
+      "motivering",
+      "signera",
+      "vidimering",
+      "specialist",
+      "skicka vårdbegäran",
+      "provsvarta"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslut",
+      "Remiss",
+      "Journalanteckning",
+      "Tolkbehov",
+      "Specialist",
+      "Signering",
+      "Provavl"
+    ],
+    "clinical_domain": [
+      "Kardiologi",
+      "Klinisk beslutstöd"
+    ],
+    "text": "I blocket Beslut och utkast till remiss och journalanteckning presenteras beslutsstödets rekommendation att remittera patienten till en specialist baserat på vad som angivits i tidigare block, se avsnitt 3.3.2. Användaren tar här ställning till huruvida en remiss ska skickas eller ej genom att besvara frågan Skicka vårdbegäran där Ja markeras för att skicka en remiss och Nej för att avstå . Bild 8 - Blocket Beslut och utkast till remiss och journalanteckning CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 17(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. I samband med rekommendationstexten visas denna fråga förifylld av beslutsstödet beroende på hur användaren har svarat på frågorna i första blocket. Användaren får alltid ta ställning till om remissen ska skickas, och det förifyllda svarsalternativet kan alltid ändras manuellt. Om användarens svar går emot beslutsstödet rekommendationer behöver en motivering anges innan beslutet kan signeras. Det går även att lägga till kompletterande uppgifter i fritextformat. All angiven fritext blir inkluderad i den automatiskt genererade remisstexten och journalanteckning. Svaren om prematur kranskärlssjukdom och ärftlighet som angivits i det första blocket kommer också att inkluderas i remisstexten och journalanteckningen, se Bild 9. Bild 9 - Svar från användar e och all angiven fritext blir inkluderad i den automatiskt genererade remisstexten och journalanteckning. Om användaren väljer att skicka en remiss måste information om tolkbehov anges under Tolkbehov? . Denna fråga visas endast om funktionen är aktiverad . Den kan inaktiveras och presenteras då inte i beslutsstödet. Det är systemförvaltningens beslut om detta ska göras och styrs av en inställning konfigureras av administratör. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 18(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Visas frågan Tolkbehov? klickar man på Ja om patienten har behov av tolk, annars på Nej. Om Ja valts måste ett språk anges i fritextrutan , se Bild 10. Den angivna informationen inkluderas i remisstexten som beslutsstödet genererar. Bild 10 - Om användaren väljer att skicka en remiss måste information om tolkbehov anges, förutsatt att funktionen är aktiverad. Följande bekräftelsemeddelande visas när användaren väljer att skicka remiss, vidimera provsvar och avsluta beslutsstödet genom att klicka på knappen SKICKA VÅRDBEGÄRAN OCH VIDIMERA PROVSVAR . Bild 11 Bekräftels emeddelande för att skicka en vårdbegäran och signera en journalanteckning Användaren kan då välja att klicka på knappen AVBRYT vilket resulterar i att användaren återgår till beslutsstödets huvudfönster. Alternativt kan användaren klicka på knappen SKICKA VÅRDBEGÄRAN OCH VIDIMERA PROVSVAR vilket resulterar i att remissen skickas till en specialistavdelning, journalanteckningen signeras samt att de kolesterolrelaterade provsvar som markerats för vidimering innan beslutsstödets start blir vidimerade. Val av specialistenhet (som beslutsstödet använder som remissmottagare) konfigureras i journalsystemets övergripande inställningar av administratör . CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 19(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om man av viker från beslutsstödet rekommendationer genom att skicka en vårdbegäran då det inte rekommenderas eller genom att avstå från att skicka en remiss då det rekommenderas, kommer beslutsstödet be om en förklaring till varför användaren avvek från rekommendationerna . Bild 12 - Användaren ombeds ange en anledning för att kunna signera ett beslut som avviker från rekommendationerna När en anledning inte är angiven kommer beslutsstödet inte ge användaren möjlighet att spara journalanteckningen eller vidimera de förmarkerade provsvaren. Knappen SIGNERA JOURNALANTECKNING OCH VIDIMERA PROVSVAR är visas som grå och är ej klickbar. Bild 13 - När obligatorisk information saknas är knappen SIGNERA JOURNALANTECKNING OCH VIDIMERA PROVSVAR grå och inaktiv. Då användaren anger en motivering till avvikelsen från rekommendationerna kommer den att inkluderas i journalanteckningen. Bild 14 - Den angivna anledningen inkluderas i den genererade journalanteckningen CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 20(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Knappen för att signera och vidimera visas som blå och är klickbar, se Bild 15 Bild 15 - Då all information har angivits är knappen SIGNERA JOURNALANTECKNING OCH VIDIMERA PROVSVAR knappen blå och aktiv Om användaren väljer att signera journalanteckningen och vidimera provsvaren genom att klicka på knappen kommer dialogrutan Signera journalanteckning och vidimera provsvar? att visas. Det går att klicka på knappen AVBRYT för att stänga dialogrutan och visa beslutsstödets huvudfönster igen, eller på knappen SIGNERA JOURNALANTECKNINGEN OCH VIDIMERA PROVSVAR för att signera journalanteckningen bli signerad och vidimera provsvaren. Användaren blir då tillbakaskickad till journalsystemets bakomliggande fönster. Bild 16 - Bekräftelserutan för att signera en journalanteckning och vidimera provsvaren"
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Stänga beslutsstödet",
+    "page": 1,
+    "section_id": "3.3.4",
+    "main_section_id": 3,
+    "context_summary": "Beslutstödet kan när som helst avslutas utan att data sparas. Vid stängning visas en bekräftelse-dialog; \"STÄNG\" stänger fönstret och rensar tidigare användardata. Vid återstart måste alla uppgifter fyllas i på nytt.",
+    "keywords": [
+      "beslutstöd",
+      "stängning",
+      "dialogruta",
+      "återstart",
+      "patientdata",
+      "provsvär",
+      "förmarkerade provsvar",
+      "information",
+      "system"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslutsstöd",
+      "Användargränssnitt",
+      "Dialogruta",
+      "Patientdata",
+      "Datahantering"
+    ],
+    "clinical_domain": [
+      "Diagnostik",
+      "Labordning",
+      "Patientvård"
+    ],
+    "text": "Beslut behöver inte fattas i direkt anslutning till aktuell bedömning. En pågående bedömning kan när som helst stängas och påbörjas på nytt i ett senare skede. Om användaren stänger ned beslutsstödet kommer ingen information att sparas, ingen vårdbegäran skickas och de förmarkerade provsvaren som beslutsstödet använder som grund för bedömning kommer ej vidimeras. För att stänga ned beslutsstödets fönster klickar användaren på knappen STÄNG. Dialogrutan Stäng beslutstödet ? visas med information om av en nedstängning innebär, se Bild 17. Bild 17 - Bekräftelseruta för att stänga beslutsstödet. Klickar användaren på knappen AVBRYT stängs dialogrutan och beslutsstödets huvudfönster visas igen. Klickar användaren på knappen STÄNG kommer dialogrutan och beslutsstödets fönste r att stängas och det bakomliggande fönstret visas. När användaren försöker vidimera patientens provsvar på nytt kommer beslutsstödet dialogruta visas på nytt, förutsatt att den importerade patientdatan ger upphov till en aktivering av beslutsstödet. I detta fall behöver användaren ange nödvändig information på nytt då informationen inte sparats vid föregående användning av beslutsstödet. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 21(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.4.1",
+    "main_section_id": 3,
+    "context_summary": "CDS FH Referral är ett kliniskt beslutsstöd som genererar rekommendationer utan att fatta egna beslut; användaren bör kombinera stödet med sin kliniska kompetens.",
+    "keywords": [
+      "beslutsstöd",
+      "CDS FH",
+      "rekommendationer",
+      "klinisk kompetens",
+      "regler",
+      "data"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Klinisk beslutsstöd",
+      "Manual",
+      "Kundinformation"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Klinisk beslutsstöd",
+      "Sjukvård"
+    ],
+    "text": "CDS FH Referral är ett kliniskt beslutsstöd, vilket innebär att inmatad data bearbetas i enlighet med redan skrivna regler i syfte att ge kliniker stöd i beslutsfattande som ska leda till bättre behandling och hälsa för patienten. De bedömningar och förslag som genereras av beslutsstödet är enbart rekommendationer. Verktyget fattar inga egna beslut, och användaren bör alltid nyttja sin kliniska kompetens i kombination med beslutsstödet för att ta beslut om handläggning. I följande avsnitt ges förenklad information om hur rekommendationerna genereras; detta dokument syftar dock ej till att beskriva konfiguration och logik bakom aktuella regler."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Hämtning av signerad patientdata",
+    "page": 1,
+    "section_id": "3.4.2",
+    "main_section_id": 3,
+    "context_summary": "CDS FH Referral hämtar endast signerad klinisk data; icke‑signerade uppgifter är ej tillgängliga.",
+    "keywords": [
+      "signerad klinisk data",
+      "journalanteckningar",
+      "ordinationer",
+      "diagnos",
+      "åtgärdskoder",
+      "CDS FH",
+      "beslutsstöd",
+      "patientdata"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "datahämtning",
+      "beslutsstöd",
+      "patientinformation",
+      "signering",
+      "journal"
+    ],
+    "clinical_domain": [
+      "Klinisk data",
+      "Medicinsk information",
+      "Patientvård"
+    ],
+    "text": "CDS FH Referral inhämtar bara signerad klinisk data från journalsystemet (signerade journalanteckningar, signerade ordinationer i läkemedelslista och signerade diagnos- och åtgärdskoder). Detta innebär alltså att patientuppgifter som exempelvis sparats, men inte signerats, inte kommer utgöra tillgängligt informationsunderlag för beslutsstödet."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Identifiering av patient utan misstanke om familjär",
+    "page": 1,
+    "section_id": "3.4.3",
+    "main_section_id": 3,
+    "context_summary": "Beslutsstödet aktiveras inte om ett av fyra exkluderingskriterier, såsom ålder >80, familjär hyperkolesterolemi, triglycerider >2,5 mmol/L, eller tidigare CDS FH Referral, är uppfyllda.",
+    "keywords": [
+      "hyperkolesterolemi",
+      "familjär hyperkolesterolemi",
+      "triglycerider",
+      "ålder",
+      "CDS FH Referral"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Klinik",
+      "Klinisk dokumentation",
+      "Patientdiagnos",
+      "Riskbedömning",
+      "Familjär hyperkolesterolemi"
+    ],
+    "clinical_domain": [
+      "Kardiovaskulär hälsa",
+      "Endokrinologi",
+      "Laboratorietester"
+    ],
+    "text": "hyperkolesterolemi Om ett av följande fyra exkluderingskriterier är uppfyllda kommer beslutsstödet inte aktiveras, oavsett angivna kriterier i avsnitt 3.3.3: 1. Den beräknade åldern på patienten är > 80 år. 2. Patienten har en aktiv dokumenterad diagnos för familjär hyperkolesterolemi i journalen. 3. Patienten har ett triglyceridvärde på > 2.5 mmol/L i plasman, förutsatt att ett triglyceridresultat är en del av de provsvar som användaren försöker vidimera. 4. Patienten har ett tidigare beslut via CDS FH Referral dokumenterat i journalen. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 22(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Identifiering av patient med misstanke om familjär",
+    "page": 1,
+    "section_id": "3.4.4",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver kriterier för när en remiss för genetisk undersökning av familjär hyperkolesterolemi bör skickas, samt listor med laboratorieundersökningars kodnummer som beslutsstödet använder. Kriterierna är baserade på LDL‑, totalkolesterol‑ och triglyceridvärden, ålder och tidigare hjärtkärlsproblem. Beslutstödets regler justeras vid korrigering av LDL‑värden.",
+    "keywords": [
+      "Familjär hyperkolesterolemi",
+      "LDL",
+      "totalkolesterol",
+      "triglycerider",
+      "ålder",
+      "prematur kranskärlssjukdom",
+      "remiss",
+      "laboratoriekoder",
+      "beslutstöd",
+      "NPU",
+      "CDS",
+      "FH"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Lipidprofil",
+      "Familjär hyperkolesterolemi",
+      "Kranskärlssjukdom",
+      "Diagnostik",
+      "Laboratorie",
+      "Beslutstöd"
+    ],
+    "clinical_domain": [
+      "Kardiovaskulär",
+      "Endokrinologi",
+      "Laboratorie",
+      "Förebyggande"
+    ],
+    "text": "hyperkolesterolemi Förutsatt att ing a av de tidigare exkluderingskriterierna är uppfyll da ska beslutsstödet generera bedömningen att en remiss bör skickas om minst ett av följande kriterier är uppfyllda: 1. LDL-kolesterol >= 5.5 mmol/L eller totalkolesterol >= 8.0 mmol/L; och ålder > 29 år. 2. LDL-kolesterol >= 5.0 mmol/L och en dokumenterad historia av prematur kranskärlssjukdom eller ingrepp för kranskärlssjukdom för man < 55 år eller kvinna < 60 år vid tiden för dokumenterad prematur kranskärlssjukdom eller ingrepp. 3. LDL-kolesterol >= 4.1 mmol/L och ålder >= 18 år och ålder =< 29 år. 4. LDL-kolesterol >= 4.96 mmol/L och kvinna ålder >= 9 år och ålder < 18 år. 5. LDL-kolesterol >= 3.64 mmol/L och man ålder >= 9 år och ålder < 18 år. 6. LDL-kolesterol >= 2.55 mmol/L och kvinna ålder >= 0.5 år och ålder < 9 år. 7. LDL-kolesterol >= 2.81 mmol/L och man ålder >= 0.5 år och ålder < 9 år. 8. Totalkolesterol >= 6.07 mmol/L och kvinna ålder >= 3 år och ålder < 18 år. 9. Totalkolesterol >= 6.01 mmol/L och man ålder >= 3 år och ålder < 18 år. 10. Totalkolesterol >= 5.05 mmol/L och kvinna ålder >= 0.5 år och ålder < 3 år. 11. Totalkolesterol >= 5.66 mmol/L och man ålder >= 0.5 år och ålder < 3 år. 12. Totalkolesterol >= 8 mmol/L och ålder >= 18 år och ålder =< 29 år. Om beslutsstödet gör en korrigering av LDL -kolesterolvärdet kommer det korrigerade värdet vara det som analyseras mot ovannämnda kriterier. I följande tabell nedan presenteras de koder för laboratorieundersökningar som beslutsstödet tar hänsyn till. LDL-kolesterol, totalkolesterol eller triglycerid Kod för laboratorieundersökning PKolesterol NPU01566 PLDL-kolesterol NPU01568 fPLDL-kolesterol NPU10171 PLDL-kolesterol SWE05408 PLDL-kolesterol JOK02835 PTriglycerid NPU04094 fPTriglycerid NPU03620 PTriglycerid JOK02834 CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 23(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Passivt beslutsstöd",
+    "page": 1,
+    "section_id": "3.4.5",
+    "main_section_id": 3,
+    "context_summary": "Beslutsstödet aktiveras inte om kriteriet 3.3.3 inte uppfylls eller exkluderingskriteriet i 3.3.2 uppfylls, eller om nödvändig information saknas; då förblir stödet passivt.",
+    "keywords": [
+      "beslutsstöd",
+      "familjär hyperkolesterolemi",
+      "exkluderingskriterier",
+      "LDL",
+      "totalkolesterol",
+      "patientprofil",
+      "födelsedatum",
+      "kön",
+      "remiss",
+      "aktivering",
+      "passivt"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Beslutsstöd",
+      "HDL-LDL",
+      "Familjär hyperkolesterolemi",
+      "Klinisk regler",
+      "Patientinformation",
+      "Exkluderingskriterier",
+      "Remissprocess"
+    ],
+    "clinical_domain": [
+      "Kardiovaskulär",
+      "Lipidprofil",
+      "Primärvård",
+      "Diagnostik"
+    ],
+    "text": "Beslutsstödet kommer ej aktiveras om patienten inte uppfyller de kriterier som nämnts i avsnitt 3.3.3 alternativt uppfyller minst ett exkluderingskriterium som nämnts i 3.3.2. Om födelsedatum eller kön saknas i patientens journalprofil, eller om användaren inte startar en vidimeringsprocess av LDL- eller totalkolesterol, kommer beslutsstödet inte kunna generera en misstanke om familjär hyperkolesterolemi eller en rekommendation om att skicka remiss. Beslutsstödet förblir passivt då det finns otillräcklig information."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Hantering av spärrad information",
+    "page": 1,
+    "section_id": "3.4.6",
+    "main_section_id": 3,
+    "context_summary": "Patienter med spärrad information exkluderas från CDS FH Referral; beslutet styrs via en inställning i journalsystemet och regionens rutiner gäller för hur spärrar hanteras.",
+    "keywords": [
+      "spärrad information",
+      "CDS FH Referral",
+      "systemförvaltning",
+      "inställning",
+      "regionens rutiner",
+      "patientdata",
+      "sjukvårdsinformation",
+      "informationstillgång"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Informationstillgång",
+      "Sjukvårdsinformationssystem",
+      "Sekretess",
+      "Patientdata",
+      "Regelverk",
+      "Kvalitetssäkring"
+    ],
+    "clinical_domain": [
+      "Allmänmedicin",
+      "Patientinformation",
+      "Hälso- och sjukvårdsteknik"
+    ],
+    "text": "Patienter med spärrad information exkluderas från CDS FH Referral . Det är systemförvaltningens beslut om detta skall göras och styrs av en inställning som konfigureras av administratör i det lokala journalsystemet. I övrigt är det regionens egna rutiner som gäller för hur spärrar kring beslutsstödet ska hanteras."
+  },
+  {
+    "source_file": "Cosmic manual CDS FH v10.2.pdf",
+    "section": "Felhantering",
+    "page": 1,
+    "section_id": "3.5",
+    "main_section_id": 2,
+    "context_summary": "Beslutsstödet inaktiveras när felaktig data tas emot från journalsystemet; ett felmeddelande visas för användaren.",
+    "keywords": [
+      "felhantering",
+      "beslutsstöd",
+      "journalsystem",
+      "felmeddelande",
+      "patienten"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslutsstöd",
+      "Felhantering",
+      "Journalintegration",
+      "Användargränssnitt",
+      "Kvalitetskontroll"
+    ],
+    "clinical_domain": [
+      "Familial hyperkolesterolemi",
+      "Kardiologi"
+    ],
+    "text": "Om beslutsstödet erhåller felaktig data från journalsystemet kommer beslutsstödet att inaktiveras varpå beslutsstödet inte kan användas för den aktuella patienten. Ett självförklarande felmeddelande kommer då att visas för användaren. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024-01-31 ©2024 Cambio Healthcare Systems AB 24(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.\nAppendix A - Referenser [1] Civeira F, International Panel on Management of Familial Hypercholesterolemia. Guidelines for the diagnosis and management of heterozygous familial hypercholesterolemia. Atherosclerosis. 2004 Mar 31;173(1):55-68. [2] World Health Organization. Familial hypercholesterolaemia (FH). Report of a second WHO consultation. Geneva, Switz: World Health Organization; 1999. [3] Haralambos K, Whatley S.D., Edwards R, et al. Clinical experience of scoring criteria for Familial Hypercholesterolaemia (FH) genetic testing in Wales. Atherosclerosis. 2015; May 1;240(1):190-96."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Introduktion till CDS Nursing Support - Oral Health, beskriver syfte, målgrupp och hur verktyget används för att bedöma risk för munrelaterade vårdskador hos äldre patienter.",
+    "keywords": [
+      "CDS",
+      "Nursing Support",
+      "Oral Health",
+      "munhälsa",
+      "riskbedömning",
+      "ROAG-J",
+      "vårdhjälp",
+      "aldersgrupp",
+      "patientrisk",
+      "evidensbaserad"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Kliniskt beslutsstöd",
+      "Munhälsa",
+      "Sjuksköterskepraxis",
+      "Riskbedömning",
+      "Vårdkvalitet"
+    ],
+    "clinical_domain": [
+      "Oralhälsa",
+      "Sjuksköterskefrågor",
+      "Evidensbaserad vård"
+    ],
+    "text": "Detta dokument beskriver Cambio Clinical Decision Support (CDS) Nursing Support - Oral Health (härefter CDS Nursing Support - Oral Health) och dess funktioner ur ett användarperspektiv. Läsaren förutsätts ha grundläggande kunskaper i COSMIC samt av datoranvändning generellt. Information om applicerbara och kompatibla versioner mellan beslutsstödet och underliggande journalsystem är angivet i dokumentets versionshistorik. CDS Nursing Support - Oral Health är ett kliniskt beslutsstöd utvecklat för att hjälpa vårdgivare att utvärdera patienters risk för vårdskador relaterade till ohälsa i munnen och för att underlätta skapandet av en individuell vårdplan. Skalan Revised Oral Assessment Guide Jönköping (ROAG -J) ligger till grund för riskbedömningen [1]. Applikationen riktar sig huvudsakligen till inneliggande patienter från 65 års ålder eftersom det föreligger begränsat med evidens för tillämpning av riskskattningsskalan på yngre patientgrupper. Beslutsstödet ger rekommendationer som endast skall betraktas som understöd för användaren, då dennes kunskap om patienten alltid är avgörande för beslutet. Beslutsstödet ersätter därmed inte beslutsfattaren."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver dokumentets revisionshistorik, datum, beskrivningar samt vilka systemversioner dokumentet gäller för.",
+    "keywords": [
+      "versionshistorik",
+      "revision",
+      "systemversion",
+      "Cosmic",
+      "CDS",
+      "munhälsa",
+      "diagnos",
+      "vårdkontroll"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumentation",
+      "Versionshistorik",
+      "Beslutsstöd",
+      "Journalinformer"
+    ],
+    "clinical_domain": [
+      "Munhälsa"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid samt kompatibla versioner mellan beslutsstödet och underliggande journalsystem. Version Datum Beskrivning 1.0 2019-06-10 Första version. Dokumentet gäller från beslutsstödsversion 1.0.x och COSMIC R8.2.03. 1.1 2019-07-15 Dokumentet reviderat och uppdaterat. 1.2 2019-07-30 Dokumentet reviderat och uppdaterat. 2.0 2021-04-27 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 8.0.x och COSMIC R8.3.01. 2.1 2024-01-16 Kapitel 2 uppdaterat. CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 5(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "Tabellen definierar termer och akronymer som används, inklusive CDS, ROAG-J och Vårdskadeprevention i munhälsa.",
+    "keywords": [
+      "termer",
+      "förkortningar",
+      "akronymer",
+      "CDS",
+      "ROAG-J",
+      "Nursing Support Oral Health",
+      "Vårdskadeprevention",
+      "munhälsa"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Oralhälsa",
+      "Terminologi",
+      "Riskbedömning",
+      "Vårdskadeprevention",
+      "Kliniskt Beslutsstöd"
+    ],
+    "clinical_domain": [
+      "Munhälsa",
+      "Sjukvård",
+      "Riskbedömning"
+    ],
+    "text": "Följande tabell beskriver de termer, förkortningar och akronymer som används i detta dokument. Term Beskrivning CDS Clinical Decision Support ROAG-J Revised Oral Assessment Guide Jönköping Riskbedömningsinstrument för identifiering av vårdskador relaterade till ohälsa i munnen. Nursing Support Oral Health Vårdskadeprevention - Munhälsa"
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.4.1",
+    "main_section_id": 3,
+    "context_summary": "Denna sektion beskriver de typografiska konventionerna i dokumentet: fetstil används för termer i gränssnittet, kursiv stil för modul- och filnamn samt webblänkar, färg för värden och sökvägar, och typsnittet Courier New för systemkommandon och kodexempel.",
+    "keywords": [
+      "typografi",
+      "fetstil",
+      "kursiv",
+      "färg",
+      "Courier New",
+      "systemkommandon",
+      "kodexempel",
+      "dokumentation"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "typografi",
+      "styling",
+      "dokumentation",
+      "användargränssnitt",
+      "systemkommandon",
+      "kodexempel"
+    ],
+    "clinical_domain": [
+      "hälsoinformatik",
+      "e-hälsa"
+    ],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger , Properties.txt eller https://customer.cambio.se . Färg. värden, namn, typer och sökvägar. Exempel: där ersätts med namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.4.2",
+    "main_section_id": 3,
+    "context_summary": "Avsnittet beskriver användningen av ikoner för att markera viktig information, tips och andra typer av meddelanden i dokumentet. Det nämns att vissa funktioner kräver tredjepartslicens och att vissa avsnitt kan ha extra kostnader beroende på kundavtal.",
+    "keywords": [
+      "ikoner",
+      "information",
+      "tips",
+      "tredjepartslicens",
+      "kostnad",
+      "CDS",
+      "nursing support",
+      "oral health",
+      "version",
+      "R8.2.03"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumentation",
+      "Kodning",
+      "Interaktion",
+      "Användargränssnitt",
+      "Licensinformation"
+    ],
+    "clinical_domain": [
+      "Oral vård",
+      "Munhälsa",
+      "Nursing",
+      "Patientvård",
+      "Sjukvård"
+    ],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. En tredjepartslicens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 6(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om CDS Nursing Support - Oral Health"
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "CDS Nursing Support – Oral Health är en klinisk beslutsstödsapplikation för riskbedömning och förebyggande vård mot dålig munhälsa hos vuxna inneliggande patienter 65 år och äldre, baserad på ROAG‑J. Appen stödjer skapandet av individuella vårdplaner med fördefinierade åtgärder från Swedish Senior Alert registret.",
+    "keywords": [
+      "CDS",
+      "munhälsa",
+      "riskbedömning",
+      "förebyggande vård",
+      "vuxna",
+      "inneliggande patienter",
+      "ROAG-J",
+      "Senior Alert",
+      "vårdplan",
+      "åtgärder"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Munhälsa",
+      "Klinisk beslutsstödsapplikation",
+      "Riskbedömning",
+      "Förebyggande vård",
+      "Vårdplan",
+      "Seniorer"
+    ],
+    "clinical_domain": [
+      "Munhälsa",
+      "Gerontologi",
+      "Tandvård"
+    ],
+    "text": "Cambio Clinical Decision Support (CDS) Nursing Support - Oral Health (härefter CDS Nursing Support - Oral Health ) är en klinisk beslutsstödsapplikation utvecklad för att stödja kliniker med riskbedömningar och förebyggande vård för att minska risken för biverkningar orsakade av dålig munhälsa hos vuxna inneliggande patienter från 65 års ålder, baserat på den standar diserade Revised Oral Assessment Guide - Jönköping (ROAG -J) klinisk bedömningsskala. CDS Nursing Support - Oral Health underlättar också skapandet av individuella vårdplaner, där mål och åtgärder manuellt kan läggas till från en lista av fördefinierade vårdåtgärder enligt riktlinjer från svenska Senior Alert registret."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Säkerhetsföreskrifter",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Säkerhetsföreskrifter för användning av CDS Nursing Support – Oral Health: inte en enda informationskälla, ersätt inte patientobservation eller klinisk bedömning, och bör användas efter läsning av manualen.",
+    "keywords": [
+      "CDS Nursing Support",
+      "Oral Health",
+      "patientobservation",
+      "realtidsövervakning",
+      "diagnostik",
+      "användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Säkerhet",
+      "Information",
+      "Medicinsk teknik",
+      "Nursing support"
+    ],
+    "clinical_domain": [
+      "Tandvård",
+      "Sjukvård"
+    ],
+    "text": "Följande säkerhetsföreskrifter skall beaktas: CDS Nursing Support - Oral Health bör aldrig användas som den enda informations- källan för att diagnostisera eller behandla en specifik patient. CDS Nursing Support - Oral Health är inte avsett för realtidsövervakning av vitala fysiologiska parametrar. CDS Nursing Support - Oral Health ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. Användarmanualen för CDS Nursing Support - Oral Health bör läsas innan användning."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Risker med användning av CDS",
+    "page": 1,
+    "section_id": "2.3",
+    "main_section_id": 2,
+    "context_summary": "I denna sektion beskrivs riskerna med att använda CDS, särskilt när beslutsstödet saknar data eller blir otillgängligt. Användaren måste alltid använda klinisk bedömning före systemets rekommendationer, och allvarliga incidenter ska rapporteras till myndigheter.",
+    "keywords": [
+      "CDS",
+      "beslutsstöd",
+      "data",
+      "anslutningsproblem",
+      "patientrisk",
+      "incidentrapportering",
+      "läkemedelsverket",
+      "netverksproblem"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "risker",
+      "säkerhet",
+      "digital hälsa",
+      "beslutsstöd",
+      "användarmanual"
+    ],
+    "clinical_domain": [
+      "munhälsa"
+    ],
+    "text": "Nedan följer en sammanfattning av de risker som medföljer denna produkt: Om beslutsstödet saknar nödvändig indata för att utföra en bedömning kommer en rekommendation inte kunna ges, detta betyder inte att det inte föreligger några hälsorelaterade risker för patienten. Som användare måste den kliniska kunskap och allmänna kännedom som användaren har om patienten alltid föregå det som genererats av beslutsstödet. Detta är tydligt beskrivit i denna användarmanual. Beslutsstödet kan vara oåtkomlig ifall det föreligger lokala anslutningsproblem till nätverket eller om beslutsstödstjänsten ligger nere på grund av CDS Runtime serverproblem. 1 https://www.lakemedelsverket.se Alla allvarliga produktrelaterade incidenter ska rapporteras till Cambio och behörig myndighet (Läkemedelsverket1). CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 7(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Produkt- och kontaktinformation",
+    "page": 1,
+    "section_id": "2.4",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver innehållet på produktetiketten för CDS‑lösningen, tillverkarsinformation, CE‑märkning och hur man får tillgång till produktdokumentation.",
+    "keywords": [
+      "produktetikett",
+      "CDS Runtime",
+      "Cambio Healthcare Systems",
+      "CE-märkning",
+      "SRN",
+      "produktversion",
+      "tillverkningsdatum",
+      "källwebb",
+      "diagnostisk stöd",
+      "medicinteknisk produkt"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "produktinformation",
+      "kontaktdetaljer",
+      "CE-märkning",
+      "CDS",
+      "kvalitet",
+      "tillverkningsdatum"
+    ],
+    "clinical_domain": [
+      "Medicinteknik",
+      "Oral hälsa",
+      "Vårdteknik"
+    ],
+    "text": "I beslutsstödets användargränssnitt kan en produktetikett visas via knappen . Den innehåller följande information: Produktnamn uppdelat i tre nivåer Cambio CDS - Clinical Decision Support Cambio CDS Runtime ( system) Beslutsstödets namn ( software item ) Produktversioner för beslutsstödet som software item och CDS Runtime som system. Adress (fysisk och internetadress) för ansvarig tillverkare, tillverkningsdatum och tillverkarens registreringsnummer (SRN). Cambio Healthcare Systems AB Gamla Tanneforsvägen 92 582 54 Linköping +46 13 20 03 00 https://www.cambiogroup.com/ SRN#: SE-MF-000001229 CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 8(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Dokumentation. Läs och följ anvisningarna i produktens introduktion & användarmanual. Via länken https://kb.cambio.se/ öppnas Kunskapsbanken med tillgång till dokumentation och övrig information. Medicinteknisk produkt. CE-märkning. Produkten uppfyller applicerbara krav i EG -direktiv 93/42/EEG. Unik produktidentifiering (produktspecifik kod). CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 9(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Att arbeta med CDS Nursing Support Oral Health"
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Tillgång till CDS Nursing Support Oral Health",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": 2,
+    "context_summary": "Manualen beskriver hur användaren manuellt öppnar CDS beslutsstödet via huvudmenyn för riskbedömning inom munhälsa.",
+    "keywords": [
+      "RS",
+      "CDS",
+      "beslutsstöd",
+      "riskbedömning",
+      "munhälsa",
+      "Vårdskadeprevention",
+      "Revised Oral Assessment Guide",
+      "Jönköping",
+      "behörighet"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Medicinsk anvisning",
+      "Munhälsa",
+      "Riskbedömning",
+      "Beslutsstöd",
+      "CDS",
+      "Vårdplan"
+    ],
+    "clinical_domain": [
+      "OralHälsa",
+      "Vårdskadeprevention",
+      "Riskbedömning"
+    ],
+    "text": "För att genomföra en riskbedömning måste beslutsstödet öppnas manuellt av användaren via huvudmenyn i COSMIC. Tillgång till beslutsstödet styrs av lokala behörighetsinställningar. Via menyalternativet Munhälsa öppnas fönstret Vårdskadeprevention Munhälsa i vilket användaren anger information under de olika blocken Riskbedömning (Revised Oral Assessment Guide - Jönköping) , Resultat och Vårdplan ."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Grundläggande arbetsflöde",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "Beskriver processen att starta beslutsstödet Vårdskadeprevention Munhälsa, registrera patientens orala status, utföra riskbedömning, visa resultat samt möjligheten att skapa en individuell vårdplan vid hög risk.",
+    "keywords": [
+      "beslutsstöd",
+      "riskbedömning",
+      "Vårdskadeprevention",
+      "munhälsa",
+      "patientstatus",
+      "Riskbedömning",
+      "Resultat",
+      "Bedömning",
+      "Vårdplan",
+      "ROAG-J",
+      "medgivande"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Vårdsstöd",
+      "Riskbedömning",
+      "Munhälsa",
+      "Patientdata",
+      "Vårdplan"
+    ],
+    "clinical_domain": [
+      "Munhälsa",
+      "Vård",
+      "Riskhantering"
+    ],
+    "text": "Efter att ha startat beslutsstödet visas fönstret Vårdskadeprevention Munhälsa i vilket en riskbedömning kan utföras genom att hantera information under de olika blocken Se avsnitt 3.3 Översikt över blocken i fönstret Vårdskadeprevention - Munhälsa för ytterligare information om dessa. Bild 1 Fönstret Vårdskadeprevention - Munhälsa CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 10(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Uppgifter om patientens orala status registreras i blocket Riskbedömning . När samtliga obligatoriska frågor besvarats genereras en bedömning baserad på de dessa. Bedömningen visas i blocket Resultat. Under rubriken Resultat presenteras antal områden med hög risk (grad 2 och grad 3 enligt ROAG -J) och under rubriken Bedömning den risk som patienten har för vårdskador relaterade till oral hälsa. Det är alltid användarens ansvar att ta ställning till om det är medicinskt lämpligt att använda beslutsstödet för att genomföra en riskbedömning hos patienterna. Beslutsstödet ska inte användas om användaren bedömer att det inte är medicinskt motiverat eller om patienten inte ger sitt samtycke till att medverka. I blocket Vårdplan kan en individuell vårdplan skapas för en patient. Detta block är endast tillgängligt när applikationen automatiskt tillgängliggjort blocket vid hög risk för ohälsa i munnen alternativt när användaren aktiverat vårdplansblocket vid låg risk för ohälsa i munnen."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Översikt över blocken i fönstret",
+    "page": 1,
+    "section_id": "3.3",
+    "main_section_id": 2,
+    "context_summary": "Vårdskadeprevention innebär förebyggande åtgärder för att minska riskerna för skador i munhälsovården.",
+    "keywords": [
+      "Vårdskadeprevention",
+      "Munhälsa",
+      "vårdskada",
+      "prevention"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Vårdskadeprevention",
+      "Munhälsa",
+      "Hälso- och sjukvård",
+      "Oral vård"
+    ],
+    "clinical_domain": [
+      "Munhälsa",
+      "Oral hälsa",
+      "Vårdskadehantering"
+    ],
+    "text": "Vårdskadeprevention - Munhälsa"
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Riskbedömning (Revised Oral Assessment Guide - Jönköping )",
+    "page": 1,
+    "section_id": "3.3.1",
+    "main_section_id": 3,
+    "context_summary": "Blocket visar frågor i ROAG-J riskskattningsskala; svar på obligatoriska frågor avgör risknivå (hög, måttlig, låg) och resulterar i rekommendationer för vårdplan och tandvårdskontakt.",
+    "keywords": [
+      "riskbedömning",
+      "ROAG-J",
+      "munhälsa",
+      "risknivå",
+      "vårdplan",
+      "tandvård",
+      "obligatoriska frågor",
+      "frivilliga frågor"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Riskbedömning",
+      "Oralhälsa",
+      "ROAG-J",
+      "Vårdplan",
+      "Tandvård",
+      "Bedömningsskalor"
+    ],
+    "clinical_domain": [
+      "Munhälsa"
+    ],
+    "text": "I blocket visas frågor som ingår i riskskattningsskalan Revised Oral Assessment Guide - Jönköping (ROAG-J). Dessa frågor utgör grunden för riskbedömningen. Bild 2 Blocket Riskbedömning (Revised Oral Assessment Guide Jönköping) CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 11(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Riskbedömningen baseras sålunda på användarens svar på de obligatoriska frågorna ( ), d.v.s. dessa måste besvaras för att beslutsstödet ska kunna generera en bedömning om hög, måttlig eller låg risk föreligger för ohälsa i munnen. Bild 3 Riskbedömning frågor Övriga frågor är frivilliga att besvara och svaren ges som kompletterande information, d.v.s. krävs ej för att genomföra riskbedömningen . Baserat på de besvarade obligatoriska frågorna kan följande tre olika bedömningar genereras: Hög risk för ohälsa i munnen Användaren rekommenderas att skapa en individuell vårdplan samt initiera kontakt med tandvården. En vårdplan kan skapas direkt i fönstret och den sparas i journalsystemet. Måttlig risk för ohälsa i munnen Användaren rekommenderas att skapa en individuell vårdplan. En vårdplan kan skapas direkt i fönstret och den sparas i journalsystemet. Låg risk för ohälsa i munnen Ingen rekommendation då det i normala fall inte krävs att en individuell vårdplan upprättas. Användaren har dock möjlighet att skapa en vårdplan vid låg risk enligt ROAG-J, efter att ha angett en anledning till beslutet. Bedömningen presenteras sedan i blocket Resultat. CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 12(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Resultat",
+    "page": 1,
+    "section_id": "3.3.2",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver hur resultatsektionen i beslutsstödet presenterar riskbedömning för munhälsa, genererade rekommendationer, orsaker, planering av nästa bedömning och aktivering av vårdplan samt processen för att signera bedömningen.",
+    "keywords": [
+      "riskbedömning",
+      "ohälsa",
+      "munhälsa",
+      "riskområden",
+      "rekommendation",
+      "orsak",
+      "riskfaktor",
+      "vårdplan",
+      "signera bedömning"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Munhälsa",
+      "Riskbedömning",
+      "Vårdplan",
+      "Beslutsstöd",
+      "Journal",
+      "Signering"
+    ],
+    "clinical_domain": [
+      "Munhälsa",
+      "Klinisk bedömning",
+      "Vårdplan"
+    ],
+    "text": "I detta block visas d en genererade bedömningen av risk för ohälsa i munnen med information om antal riskområden klassificer ade som grad 2 respektive 3 enligt ROAG-J. Bild 4 Blocket Resultat Baserat på antal riskområden genereras även en rekommendation av beslutsstödet som visas under rubriken Rekommendation . Bild 5 Rekommendation Informationen uppdateras när nya svar anges i blocket Riskbedömning , förutsatt att alla obligatoriska fält är ifyllda. Det går att klicka på knappen NOLLSTÄLL för att återställa alla fält till deras ursprungliga värden för att starta om riskbedömningen. Under rubriken Orsaker presenteras en lista av möjliga orsaker/riskfaktorer som kan påverka risken för ohälsa i munnen. Det är inte obligatoriskt att ange orsak. Den eller de orsaker som markeras i listan kommer att ingå i journalanteckningen som skapas av beslutsstödet. Bild 6 Orsaker CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 13(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Under rubriken Nästa bedömningstillfälle kan ett datum anges för nästa planerade bedömningstillfälle. Det kommer att ingå i journalanteckningen som skapas av beslutsstödet. Bild 7 Nästa riskbedömningstillfälle Under rubriken Aktivering av vårdplan anges om en vårdplan ska skapas eller inte genom att klicka på alternativet Ja eller Nej. Vid hög eller måttlig risk för ohälsa i munnen är a lternativet Ja är förvalt och blocket Vårdplan är tillgängligt. För att inte skapa en vårdplan kan man klicka på alternativet Nej. Bild 8 Dialogrutan Aktivering av vårdplan Vid låg risk för ohälsa i munnen är a lternativet Nej är förvalt . En vårdplan kan upprättas även om risken är satt till låg genom att markera alternativet Ja och därefter ange en anledning i fritext i textrutan Anledning till att skapa vårdplan . . Blocket Vårdplan kommer att visas när detta angivits. Bild 9 Skapa vårdplan Bild 10 Anledning till att skapa vårdplan Beslutsstödet skall endast betraktas som ett stöd för användaren. Användaren har själv ansvar för samtliga kliniska beslut som fattas. Användarens kliniska bedömning skall alltid prioriteras före beslutsstödets bedömningar och rekommendationer. Om en patient med låg risk för ohälsa i munnen, alternativt med hög eller måttlig risk och användaren har avaktiverat blocket Vårdplan , går det att dokumentera riskbedömningen (obligatoriskt) samt orsaker och datum för nästa planerade riskbedömningstillfälle (valfria) genom att klicka på knappen SIGNERA BEDÖMNING Bild 11 Knappen Signera bedömning CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 14(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. I dialogrutan Signera bedömning ? som visas ges information och användaren får bekräfta att en signerad journalanteckning ska skapas genom att klicka på knappen SIGNERA BEDÖM NING. Bild 12 Dialogrutan Signera bedömning"
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Vårdplan",
+    "page": 1,
+    "section_id": "3.3.3",
+    "main_section_id": 3,
+    "context_summary": "I blocket får användaren skapa en individuell vårdplan efter en komplett riskbedömning och val av mål. Aktivitetsskalor markeras och fylls i innan signering och skapande i journalsystemet.",
+    "keywords": [
+      "vårdplan",
+      "riskbedömning",
+      "mål",
+      "aktiviteter",
+      "signering",
+      "journal",
+      "kryssrutor",
+      "friktext",
+      "COSMIC",
+      "manuell"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Vårdplan",
+      "Riskbedömning",
+      "Patientvård",
+      "Journalhantering",
+      "Signering"
+    ],
+    "clinical_domain": [
+      "Oral",
+      "Patientvård",
+      "Sjukvård"
+    ],
+    "text": "I blocket kan användare skapa en individuell vårdplan för patienten. Det är endast tillgängligt när applikationen automatiskt tillgängliggjort blocket (hög eller måttlig risk för ohälsa i munnen ) eller när användaren aktiverat det (låg risk för ohälsa i munnen enligt ROAG-J). Bild 13 Blocket Vårdplan För att skapa en vårdplan krävs att följande två moment har genomförts: En komplett riskbedömning har g jorts. Användaren har valt minst ett mål för vårdplanen . CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 15(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. När dessa genomförts går det att välja de aktiviteter som ska ingå i vårdplanen genom att markera önskade kryssrutor. För vald aktivitet visas en fritextruta med möjlighet att ange ytterligare information. Bild 14 Vårdplan - aktiviteter Därefter kan vårdplanen skapas i journalsystemet genom att klicka på knappen SIGNERA BEDÖMNING & SKAPA VÅRDPLAN . Den är endast tillgänglig om komplett riskbedömning gjorts och en mål satts för vårdplanen. Bild 15 Knappen Signera bedömning & skapa vårdplan I dialogrutan Signera bedömning och skapa vårdplan? som visas ges information och användaren får bekräfta att en signerad journalanteckning med bedömning samt vårdplan ska skapas genom att klicka på knappen SIGNERA BEDÖMNING & SKAPA VÅRDPLAN . Bild 16 Dialogrutan Signera bedömning och skapa vårdplan CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 16(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Observera följande : Det går endast att skapa nya vårdplaner genom beslutsstödet, d .v.s. det går inte att importera och ta del av befintliga vårdplaner i applikationen. Beslutsstödet detekterar inte om en vårdplan redan har skapats för patienten vid ett tidigare tillfälle. Om en vårdplan behöver uppdateras genomförs detta lämpligen genom att redigera vårdplanen direkt i COSMIC. Om vårdplanen av någon anledning inte kan skapas via beslutsstödet skall användaren skapa en vårdplan manuellt i COSMIC."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.4.1",
+    "main_section_id": 3,
+    "context_summary": "Detta avsnitt beskriver CDS Nursing Support - Oral Health som ett kliniskt beslutsstöd som analyserar inmatade data för att identifiera patienter med risk för munhälsa och föreslår individuella vårdplaner utan att fatta egna beslut.",
+    "keywords": [
+      "CDS Nursing Support",
+      "Oral Health",
+      "kliniskt beslutsstöd",
+      "patientrisk",
+      "vårdplan",
+      "munhälsa",
+      "vårdlägesbedömning",
+      "rekommendation"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Klinisk beslutsstöd",
+      "Oral hälsa",
+      "Patientrisk",
+      "Vårdplan"
+    ],
+    "clinical_domain": [
+      "Munhälsa",
+      "Vårdplanering",
+      "Klinisk beslutsstöd"
+    ],
+    "text": "CDS Nursing Support - Oral Health är ett kliniskt beslutsstöd, vilket innebär att inmatad data bearbetas i enlighet med fördefinierade regler i syfte att underlätta för vårdpersonal att identifiera patienter med risk för ohälsa i munnen och att minimera risken för vårdskador under vårdtiden genom upprättandet av en individuell vårdplan. Bedömningar och förslag som genereras av beslutsstödet är enbart rekommendationer. Verktyget fattar inga egna beslut; användaren ska alltid nyttja sin kliniska kompetens för att fatta beslut om adekvat handläggning. I följande avsnitt ges en förenklad beskrivning över hur rekommendationerna genereras men konfiguration och logik bakom aktuella regler beskrivs ej."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Risknivåer",
+    "page": 1,
+    "section_id": "3.4.2",
+    "main_section_id": 3,
+    "context_summary": "Beslutsstödet ger riskbedömning (låg, måttlig, hög) för munhälsa baserat på antal riskområden graderade 2 eller 3 och rekommenderar om och när en vårdplan ska upprättas och kontakten med tandvården initieras.",
+    "keywords": [
+      "risknivå",
+      "ROAG-J",
+      "låg risk",
+      "måttlig risk",
+      "hög risk",
+      "vårdplan",
+      "tandvård",
+      "patientbedömning",
+      "grad 2",
+      "grad 3"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Riskbedömning",
+      "Vårdplan",
+      "Oral Health",
+      "Patientbedömning",
+      "Preventiv vård"
+    ],
+    "clinical_domain": [
+      "Munhälsa",
+      "Oral medicin",
+      "Patientvårdsplan",
+      "Vårdplanering"
+    ],
+    "text": "För att beslutsstödet ska generera en bedömning krävs att samtliga obligatoriska fält för riskskattningsskalan ROAG-J har besvarats. Beslutsstödet genererar en bedömning om patienten har låg, måttlig eller hög risk för ohälsa i munnen baserat på vilken grad (0 -3) som riskområdena har skattats till av användaren. Följande tabell ger en beskrivning av risknivåerna. Antal riskområden som motsvarar grad 2 eller 3 enligt ROAG-J Risknivå Rekommendation Inga riskområden som motsvarar grad 2 eller 3. Låg risk för ohälsa i munnen. Ingen rekommendation. Vid låg risknivå behö ver inte en vårdplan upprättas i normala fall. Den kan dock skapas om a nvändaren bedömer att risk föreligger . CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 17(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Antal riskområden som motsvarar grad 2 eller 3 enligt ROAG-J Risknivå Rekommendation Minst ett riskområde som motsvarar grad 2 men ingen grad 3. Måttlig risk för ohälsa i munnen. Skapa vårdplan . Rekommendationen är att användaren upprättar en individuell vårdplan. Blocket Vårdplan tillgängliggör s automatiskt. Minst ett riskområde som motsvarar grad 3. Hög risk för ohälsa i munnen. Skapa vårdplan och initiera kontakt med tandvården . Rekommendationen är att användaren u pprättar en individuell vårdplan. Blocket Vårdplan tillgängliggörs automatiskt."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Hantering av spärrad information",
+    "page": 1,
+    "section_id": "3.4.3",
+    "main_section_id": "3",
+    "context_summary": "Texten beskriver hur patienter med spärrad information hanteras i CDS Nursing Support – Oral Health, där systemförvaltaren vid lokal konfiguration kan välja att exkludera sådana patienter och följa vårdgivarens rutiner.",
+    "keywords": [
+      "spärrad information",
+      "patienter",
+      "CDS Nursing Support",
+      "Oral Health",
+      "systemförvaltning",
+      "administratör",
+      "vårdgivare",
+      "rutiner"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "patientinformation",
+      "spärrar",
+      "systemadministrering",
+      "vårdgivarens rutiner",
+      "kvalitetssäkring"
+    ],
+    "clinical_domain": [
+      "Oral hälsa",
+      "Hälsoinformatik",
+      "Patientvård"
+    ],
+    "text": "Patienter med spärrad information kan selektivt exkluderas från CDS Nursing Support - Oral Health . Det är systemförvaltningens beslut om detta skall göras och styrs av en inställning lokalt konfigurerad av administratör. I övrigt är det vårdgivarens egna rutiner som gäller för hur spärrar kring beslutsstödet skall hanteras."
+  },
+  {
+    "source_file": "Cosmic manual CDS munhälsa v.2.0.pdf",
+    "section": "Felhantering",
+    "page": 1,
+    "section_id": "3.5",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver hur ett tekniskt fel påverkar användningen av CDS Nursing Support – Oral Health, att beslutsstödet inaktiveras och ett felmeddelande visas, vilket gör att stödet inte kan användas för den aktuella patienten.",
+    "keywords": [
+      "felhantering",
+      "tekniskt fel",
+      "beslutsstöd",
+      "CDS Nursing Support",
+      "Oral Health",
+      "patient",
+      "felmeddelande",
+      "inaktivering"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Teknik",
+      "Patientvård",
+      "Bristning",
+      "Klinisk stöd",
+      "Munhälsa"
+    ],
+    "clinical_domain": [
+      "Munhälsa",
+      "Klinisk informatik",
+      "Geriatrisk vård"
+    ],
+    "text": "Om det uppstår ett tekniskt fel vid användning av CDS Nursing Support - Oral Health kommer beslutsstödet att inaktiveras och ett felmeddelande visas. Det innebär att beslutsstödet inte kommer att kunna användas för den aktuella patienten. CDS Nursing Support - Oral Health - Introduktion & Användarmanual Version: 2.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 18(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix A - Referenser [1] Riskbedömning Munhälsa [Internet]. Senior Alert [cited 2019 June]. Available from: https://plus.rjl.se/info_files/infosida43977/ROAG.pdf. [2] Munhälsa - Översikt [Internet]. Vårdhandboken; 2018 [cited 2019 June]. Available from: https://www.vardhandboken.se/vard-och-behandling/basal-och- preventivomvardnad/munhalsa/oversikt/. [3] Andersson P, Hallberg IR, Renvert S. Inter-rater reliability of an oral assessment guide for elderly patients residing in a rehabilitation ward. Spec Care Dentist. 2002 SepOct;22(5)181-6."
+  }
+]

@@ -1,0 +1,3185 @@
+[
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "En översikt över COSMICs gemensamma funktioner, användningsområden och referensguider för ikoner samt kortkommandon, samt en förklaring av vilka funktioner som finns i COSMIC EHR.",
+    "keywords": [
+      "COSMIC",
+      "gemensamma funktioner",
+      "arbetsarea",
+      "hjälpfunktioner",
+      "kommandon",
+      "knappar",
+      "tabeller",
+      "ikoner",
+      "användare",
+      "hälsovård",
+      "EHR",
+      "kortkommandon",
+      "referensguider"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Översikt",
+      "Användarmanual",
+      "COSMIC",
+      "Gemensamma funktioner",
+      "Hjälp"
+    ],
+    "clinical_domain": [
+      "Hälsovård",
+      "Elektronisk Hälsojournal",
+      "IT-system"
+    ],
+    "text": "Detta dokument syftar till att ge en översikt över allmänna funktioner och egenskaper i COSMIC. Med gemensamma funktioner menas de delar som inte hör till en specifik modul, t.ex. arbetsarea, hjälpfunktioner, kommandon, knappar, tabeller och ikoner. Det riktar sig till användare med grundläggande datorkunskaper, kunskap och erfarenhet av hälsovård samt av COSMIC och dess arbetsflöden. Dokumentet är avsett att läsas tillsammans med modulspecifika användarmanualer, COSMIC <modul> Introduktion & Användarmanual . En översikt över ikoner och kortkommandon i COSMIC finns i referensguiderna Ikoner i COSMIC Referensguide respektive Kortkommandon i COSMIC Referensguide . Detta dokument beskriver de funktioner som finns i COSMIC EHR . Alla funktioner, egenskaper och val finns inte i alla konfigurationer."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": "2",
+    "context_summary": "Versionshistoriken visar hur COSMIC-manualen har uppdaterats, med datum, beskrivningar och vilka delar av dokumentet som lagts till eller ändrats.",
+    "keywords": [
+      "version",
+      "datum",
+      "beskrivning",
+      "kapitel",
+      "avsnitt",
+      "giltigt",
+      "COSMIC",
+      "ändring",
+      "uppdatering",
+      "tillagning"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "versionshistorik",
+      "manual",
+      "cosmic",
+      "sjukvårdsinformation",
+      "uppdateringar"
+    ],
+    "clinical_domain": [
+      "Hälso- och sjukvård",
+      "Sjukvårdsinformationssystem",
+      "Mjukvaruutveckling inom hälso- och sjukvård"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid. Version Datum Beskrivning 1.0 5.0 2016 - 2022 Tidigare publicerade versioner. Dokumentet är giltigt till COSMIC 3.7.0. 6.0 2023-04-03 Kapitel 6 och 10 samt avsnitt 1.4, 5.7.5, 9.1 och 9.3 tillagda. Dokumentet är giltigt från COSMIC 3.9.0. 6.1 2023-06-26 Avsnitt 9.4 och 9.5 tillagda. 7.0 2023-09-28 Kapitel 10 och avsnitt 2.3, 2.4, 4.3 samt 5.8 tillagda. Kapitel 8 och avsnitt 1.1, 1.3.2, 2.1, 2.2, 2.5, 3.1, 4.2, 5.2 - 5.4, 5.6, 5.7.1, 7.1.1 och 7.1.3 uppdaterade. Dokumentet är giltigt från COSMIC 3.10.0. 7.1 2023-10-26 Avsnitt 2.5 uppdaterat. 8.0 2024-05-01 Avsnitt 10.2 är tillagt. Dokumentet är giltigt från COSMIC 3.11.0. 9.0 2024-05-07 Avsnitt 2.5 uppdaterat. Dokumentet är giltigt från COSMIC 3.12.0. 9.1 2024-06-17 Avsnitt 3.1 uppdaterat. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 6(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.3.1",
+    "main_section_id": 3,
+    "context_summary": "Den här sektionen beskriver typografiska konventioner som används i dokumentet, inklusive fetstil för interfacer, kursiv för modul- och filnamn samt färg och typsnitt för olika element.",
+    "keywords": [
+      "typografi",
+      "fetstil",
+      "kursiv",
+      "färg",
+      "Courier New",
+      "systemkommandon",
+      "kodexempel"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumentstil",
+      "Typografi",
+      "Konventioner",
+      "Användargränssnitt",
+      "Systemkommandon"
+    ],
+    "clinical_domain": [
+      "IT",
+      "Hälsoinformatik"
+    ],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger, Properties.txt eller https://customer.cambio.se. Färg. namn, typer och sökvägar. Exempel: Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter . Exempel: SET USERID=<user id>."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.3.2",
+    "main_section_id": 3,
+    "context_summary": "Ikoner används för att flagga olika typer av information i dokumentet, inklusive viktig information, tips, krav på tredjepartslicenser, tillgänglighet och extra kostnader beroende på kundavtal.",
+    "keywords": [
+      "Ikoner",
+      "information",
+      "tips",
+      "tredjepartslisens",
+      "konfiguration",
+      "kostnad",
+      "gränssnitt",
+      "marknad",
+      "anpassning",
+      "område",
+      "användarmanual",
+      "COSMIC",
+      "version 9.1"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumentation",
+      "Ikoner",
+      "Informationshantering",
+      "COSMIC",
+      "Manual",
+      "Version 9.1"
+    ],
+    "clinical_domain": [],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips En tredjepartslicens krävs för att använda denna produkt/funktion. Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. Information för vyer med gränssnitt införda från R8.2.03. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 7(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.4",
+    "main_section_id": "2",
+    "context_summary": "Texten beskriver termer och definitioner som används i COSMIC‑manualen, inklusive enhets- och vårdgivaridentifierare, vård- och arbetsenheter samt begrepp kring patientdata, nämligen Patientdatalagen, sammantullad journalföring och spärrar. Den ger också exempel på användning av widget och olika typer av öppning och hävning av spärrar.",
+    "keywords": [
+      "Arbetsenhet",
+      "Vårdenhet",
+      "Vårdgivare",
+      "Hälso- och sjukvårdspersonal",
+      "Nödöppning",
+      "Patientdatalagen",
+      "PDL",
+      "Sammanhållen journalföring",
+      "Spärrar",
+      "Öppna spärr",
+      "Tillfällig hävning",
+      "Widget"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Termer",
+      "Patientdata",
+      "Spärr",
+      "EHR",
+      "Vårdkonfiguration"
+    ],
+    "clinical_domain": [
+      "Hälso- och sjukvård",
+      "Patientdatalagen",
+      "Vårdgivare",
+      "Spärrar"
+    ],
+    "text": "Termtabellen beskriver de termer, akronymer och förkortningar som används i detta dokument. Term Beskrivning Arbetsenhet Enheten där användaren loggar in och ges rättigheter baserat på roll och enhet. Hälso- och sjukvårdspersonal Hälso- och sjukvårdspersonal som arbetar med patientvård inom landsting, sjukhus eller vårdcentral. Nödöppning Att öppna och få tillgång till spärrad information utan patientens samtycke, exempelvis på grund av att patienten är medvetslös och i behov av omedelbar vård. PDL PDL = Patientdatalagen. Patientdatalagen reglerar behandlingen av personuppgifter inom hälso - och sjukvård. Sammanhållen journalföring Socialdepartementets definition: Ett elektroniskt system, som gör det möjligt för en vårdgivare att ge eller få direktåtkomst till personuppgifter hos en annan vårdgivare. SFS nr: 2022:913 . Om inga spärrar satts kommer patientinformation att vara direkt åtkomlig via den sammanhållna journalföringen. Spärrar Inre och yttre spärrar Båda kan sättas för att ge en begränsning av åtkomst till information om en patient. Det är alltid patienten som beslutar om och begär spärren. Öppna spärr En inre spärr kan öppnas om patienten gett sitt samtycke eller genom att åberopa en nödsituation. Öppningen gäller under inloggad session. Tillfällig hävning En patient kan begära att en inre och yttre spärr hävs under en begränsad tidsperiod. Tillfällig hävning görs i den externa tjänsten. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 8(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Term Beskrivning Vårdenhet En organisatorisk enhet som ger vård inom en vårdgivare, till exempel en vårdcentral, sjukhus, klinik eller vårdavdelning. Begreppet vårdenhet definieras inte i patientdatalagen, men förekommer i regler om till exempel spärrar inom en vårdgivare1 och elektronisk åtkomst1. Alla enheter i COSMIC konfigureras med identifieraren HSA_Vårdenhet . Denna identifierare används för att definiera vilken vårdenhet som enheter tillhör. Vårdgivare Den som bedriver hälso - och sjukvårdsverksamhet eller tandvårdsverksamhet är en vårdgivare. Det gäller både privat och offentligt finansierad verksamhet. En vårdgivare kan till exempel vara en statlig myndighet, region, kommun, annan juridisk person eller en enskild näringsidkare som bedriver hälso - och sjukvårdsverksamhet. Term definierad och använd i PDL. Alla enheter i COSMIC ska konfigureras med identifieraren HSA_Vårdgivare . Denna identifierare används för att definiera vilken vårdgivare som den faktiska enheten tillhör. Widget En självständig och interaktiv informationsbehållare i vilken det går att visa och hantera information från en eller flera moduler i COSMIC. 1 https://www.socialstyrelsen.se/ Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 9(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om Cambio COSMIC EHR"
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "COSMIC EHR är ett elektroniskt journalsystem som stödjer hälso- och sjukvårdspersonal att dokumentera, lagra, aggregera och dela klinisk patientinformation för diagnos, behandling och uppföljning. Det kan användas i både in- och öppenvård samt för läkemedelsförskrivning och dosberäkning med varningar.",
+    "keywords": [
+      "COSMIC EHR",
+      "elektroniskt journalsystem",
+      "patientinformation",
+      "diagnos",
+      "behandling",
+      "uppföljning",
+      "in- och öppenvård",
+      "läkemedelsförskrivning",
+      "dosberäkning",
+      "varningar"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Journalssystem",
+      "Patientdata",
+      "Läkemedelsförskrivning",
+      "Diagnos",
+      "Behandling",
+      "Uppföljning"
+    ],
+    "clinical_domain": [
+      "Klinisk vård",
+      "Patientjournaler",
+      "Farmaci",
+      "Internmedicin"
+    ],
+    "text": "Cambio COSMIC EHR (härefter COSMIC EHR ) är ett elektroniskt journalsystem utformat för att stödja hälso - och sjukvårdspersonal i att dokumentera, lagra, aggregera, fjärrvisa och dela aktuell och historisk klinisk patientinformation som används för att stödja diagnostisering och diagnosuppföljn ing, behandling och patientvård. COSMIC EHR kan användas inom slutenvård och öppenvård, inom flera vårdmiljöer, såsom akut, primär, sekundär och hemsjukvård. COSMIC EHR kan användas för hantering av läkemedelsförskrivning, eftersom den stöder import av läkemedelsinformation från nationella databaser, beräkning av läkemedelsdosering och vätskebalans, och den visar varningar."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Försiktighetsåtgärder",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Detta avsnitt beskriver viktiga försiktighetsåtgärder vid användning av COSMIC EHR, inklusive att inte ersätta klinisk bedömning och att läsa användarmanualen.",
+    "keywords": [
+      "COSMIC EHR",
+      "diagnostisering",
+      "behandling",
+      "real‑tidsövervakning",
+      "patientobservation",
+      "patientbedömning",
+      "användarmanual",
+      "försiktighetsåtgärder"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "EHR",
+      "Patientvård",
+      "Klinisk praxis",
+      "Informationshantering",
+      "Säkerhet"
+    ],
+    "clinical_domain": [
+      "Klinisk informationsteknik",
+      "Patientvård",
+      "Medicinsk dokumentation"
+    ],
+    "text": "Följande försiktighetsåtgärder gäller: COSMIC EHR bör aldrig användas som den enda informationskälla n för att diagnostisera eller behandla en specifik patient. COSMIC EHR är inte avse tt för realtidsövervakning av vitala fysiologiska parametrar. COSMIC EHR ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. Observera att användarmanualen bör läsas innan användning av COSMIC EHR. Om fler försiktighetsåtgärder identifieras kommer dessa att tillhandahållas i den kommande versionen av detta dokument."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Kvarvarande risker",
+    "page": 1,
+    "section_id": "2.3",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att säkerställa korrekt patientidentitet vid registrering av data i COSMIC EHR och undvika förväxling av patienter.",
+    "keywords": [
+      "patientidentitet",
+      "COSMIC EHR",
+      "datainmatning",
+      "patientfönster",
+      "risk för förväxling",
+      "registrering",
+      "säkerhet",
+      "version",
+      "datum"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientadministration",
+      "Datainmatning",
+      "Riskhantering"
+    ],
+    "clinical_domain": [
+      "Patientadministration",
+      "Informationshantering",
+      "Elektroniska vårdjournaler"
+    ],
+    "text": "Innan patientdata registreras i COSMIC EHR , bör man alltid se till att data anges för rätt patientidentitet, särskilt om flera patientfönster är öppna samtidigt . Detta för att undvika risken att patienter blandas ihop. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 10(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Påståenden angående klinisk säkerhet och",
+    "page": 1,
+    "section_id": "2.4",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver kliniska påståenden för COSMIC EHR:s säkerhet och prestanda, inklusive diagnostisk och behandlingsinformation, läkemedelshantering, varningssystem och laboratoriehantering för att förbättra patientsäkerheten.",
+    "keywords": [
+      "diagnostik",
+      "behandling",
+      "patientvård",
+      "läkemedel",
+      "varningar",
+      "labb",
+      "röntgen",
+      "EHR",
+      "säkerhet",
+      "prestanda"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Säkerhet",
+      "Prestanda",
+      "Diagnostik",
+      "Behandlingsstöd",
+      "Läkemedelshantering",
+      "Varningssystem",
+      "Laboratoriehantering",
+      "Patientvård"
+    ],
+    "clinical_domain": [
+      "Diagnostik",
+      "Behandling",
+      "Farmaci",
+      "Laboratorie",
+      "Radiologi",
+      "Patientvård"
+    ],
+    "text": "Följande kliniska påståenden om säkerhet och prestanda för COSMIC EHR stöds: Tillhandahålla information som kan användas för att fatta beslut om diagnos. Tillhandahålla information som kan användas för att fatta beslut om behandling. Tillhandahålla information som kan användas för att fatta beslut om patientvård/hantering. Stödja hanteringen av läkemedelsförskrivningar (inkl. t.ex. beställning, expediering, administrering och uppföljning av läkemedel). Stödja import av läkemedelsinformation från nationella databaser. Stöd beräkningen av läkemedelsdos och vätskebalans (inkl. t.ex. dosberäkning baserad på vikt -, kroppsyta- och laboratorieresultatberoende doser). Visning av varningar (inkl. t.ex. läkemedelsinducerade allergiska reaktioner, läkemedelsinteraktioner, dubbla läkemedel, maximala dagliga doser, patientspecifik överkänslighet mot utvalda läkemedel, graviditets - och amningsvarningar och avvikelser inom det tillåtna dosintervallet eller maximalt ackumulerat daglig dos i recepten för pediatriska patienter). Hantera laboratorie- och röntgenbeställningar och remisser. Bidrar till patientsäkerheten. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 11(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Produkt- och kontaktinformation",
+    "page": 1,
+    "section_id": "2.5",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver hur COSMIC‑klienters menyval öppnar en dialogruta med flikar, där fliken Produktmärkning visar produkt‑ och kontaktinformation: produktnamn, mjukvaruversion, tillverkares adress, kontaktdetaljer, lanseringsdatum, länk till Kunskapsbank samt MD‑ och CE‑märken och unik produktidentifiering. Rapportering av allvarliga incidenter till Läkemedelsverket nämns.",
+    "keywords": [
+      "COSMIC",
+      "Produktmärkning",
+      "Mjukvaruversion",
+      "Tillverkare",
+      "Kontaktinformation",
+      "MD‑märkning",
+      "CE‑märkning",
+      "Produktidentifiering",
+      "Läkemedelsverket",
+      "Cambio Kunskapsbank"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Systeminformation",
+      "Produktinformation",
+      "Kontaktdetaljer",
+      "Regelverk"
+    ],
+    "clinical_domain": [
+      "Medicinsk teknik",
+      "Hälso- och sjukvård",
+      "Läkemedel"
+    ],
+    "text": "Via COSMIC-klienters menyval Om Cambio COSMIC öppnas en dialogruta bestående av ett antal flikar med uppgifter om systemet. Denna information visas direkt när nya användare loggar in i COSMIC . Uppgifter om produkt- och kontaktinformation presenteras i fliken Produktmärkning. I denna visas produktnamn, mjukvaruversion, tillverkarens adress och kontaktinformation samt datum då produkten släppts på marknaden. Det finns även en länk till Cambio Kunskapsbank med tillgång till dokument och övrig information. Avslutningsvis visas sy mboler för MD (Medical Device) och CE -märkning, samt den unika produktidentifieringen. 2 https://www.lakemedelsverket.se Alla allvarliga produktrelaterade incidenter ska rapporteras till Cambio och behörig myndighet (Läkemedelsverket2). Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 12(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 COSMIC Produktdokumentation"
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Dokumenttyper",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": "2",
+    "context_summary": "Denna del beskriver COSMIC EHR:s dokumenttyp‑struktur och riktar sig till tekniker, systemadministratörer och användare med exempel på installationsguider, tekniska dokument, systemadministrationsguider, introduktioner och produktnyhetsbrev.",
+    "keywords": [
+      "COSMIC EHR",
+      "dokumenttyper",
+      "installationsguide",
+      "systemadministration",
+      "användarmanual",
+      "produktnyhetsbrev",
+      "tekniska dokument",
+      "releaser",
+      "support",
+      "version",
+      "moduler"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Produktdokumentation",
+      "Dokumenttyp",
+      "Installation",
+      "Systemadministration",
+      "Användarmanual",
+      "Release Notes",
+      "Produktinformation"
+    ],
+    "clinical_domain": [
+      "Hälso- och sjukvård",
+      "Operation",
+      "Psykiatri",
+      "Mödravård"
+    ],
+    "text": "Det digitala journalsystemet COSMIC EHR används av personal inom hälso - och sjukvård. I systemet ingår applikationer för områden som vårdadministration, läkemedelshantering, operation, psykiatri, remisser, mödravård, m.m. Dessa olika områden indelas i något som kallas för moduler. De är fristående, men informationen synkroniseras med övriga. Produktdokumentationen för COSMIC EHR består av olika manualer och guider som syftar till att beskriva de olika modulerna från olika användares behov. Det finns dokument som riktar sig till tekniker, administratörer respektive användare , t.ex. läkare och sjuksköterskor . Dokumenten beskriver hur man installerar, uppdaterar, konfigurerar , underhåller och använder de olika modulerna. Tekniker Installationsguider, tekniska dokument och produktnyhetsbrev. Systemadministratörer Systemadministrationsguider, referensguider och produktnyhetsbrev Användare Introduktion & Användarmanualer, referensguider och produktnyhetsbrev Varje enskild modul har en uppsättning dokument som kan bestå av en installationsguide, en systemadministrationsguide och en introduktion & användarmanual. Dessa kompletteras med olika typer av tekniska respektive systemadministrativa dokument, referensguider samt produktnyhetsbrev som beskriver införda förändringar i produkten mellan releaser . Följande tabell ger en översikt över olika dokumenttyper, innehåll och till vem de riktar sig i första hand . Dokumenttyp Målgrupp Innehåll Exempel Installationsguide3 Tekniker Beskriver installations- och uppgraderingsprocesser. COSMIC Messenger - Installation Guide COSMIC 3.7.0 - Installation Guide Tekniska dokument3 Beskriver uppgraderingar, test, hårdvarukrav, tredjepartsprodukter, m.m. COSMIC 3.7.0 - Certified and Supported Third Party Products 3Dokument är avsett för tekniker/systemadministratörer som installerar, uppgraderar och konfigurerar systemet. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 13(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Dokumenttyp Målgrupp Innehåll Exempel Systemadministrations- guide3 System- administratör Beskriver konfiguration och administrativa processer i COSMIC. COSMIC Messenger - System Administration Guide Introduktion & Användarmanual Användare Beskriver modul, gränssnitt och handhavande i form av steg-för-steg-instruktioner. COSMIC Messenger - Introduktion & användarmanual Referensguide System- administratör Sammanställer och beskriver modulers olika inställningar , urval, termer, behörigheter, etc. i systemet. Läses med fördel tillsammans med olika systemadministrations- guider. Settings in COSMIC Reference Guide Access Rights in COSMIC Reference Guide Användare Sammanställer och beskriver modulers olika ikoner och kortkommandon som kan användas i fönstren . Läses med fördel tillsammans med introduktion & användarmanualer. Ikoner i COSMIC Referensguide Kortkommandon i COSMIC - Referensguide Produktnyhetsbrev Tekniker System- administratör Användare Beskriver införda förändringar sedan senaste release som berör installation, konfiguration respektive användande . News in COSMIC 3.7.0 - Technical Release Notes News in COSMIC 3.7.0 - Configuration Release Notes Nyheter i COSMIC 3.7.0 - Funktionellt Produktnyhetsbrev Dokument för inaktiva produktversioner avpubliceras men en digital kopia kan beställas via info@cambio.se . Papperskopior av dokument kan begäras utan extra kostnad genom att sända en förfrågan till info@cambio.se . Papperskopior kommer att tillhandahållas inom 7 kalenderdagar. Observera att pappersutskrifter kan bli inaktuella, för aktuell version vid varje given tidpunkt, se den digitala versionen. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 14(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Produkters namngivning i dokumentationen",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver hur modul- och produktnamn för COSMIC bör formateras och förkortas inom dokumentation, inklusive användning av COSMIC‑prefix och referenser till versioner.",
+    "keywords": [
+      "COSMIC",
+      "namngivning",
+      "modul",
+      "produkt",
+      "förkortning",
+      "versionskontroll",
+      "dokumentation",
+      "referensguide",
+      "Ikoner",
+      "inloggning",
+      "Användarmanual"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumentation",
+      "Modulnamn",
+      "Produktnamn",
+      "Systemnamn"
+    ],
+    "clinical_domain": [
+      "Klinisk informatik",
+      "Vårdadministration",
+      "Elektronisk vård"
+    ],
+    "text": "En moduls fullständiga namn är Cambio COSMIC följt av modulens namn , t.ex. Cambio COSMIC Link . I produktdokumentation förkortas Cambio COSMIC till COSMIC, dvs. Cambio COSMIC Link skrivs följaktligen som COSMIC Link . COSMIC används också som titel i dokument som innehåller information om produkter ur hela produktsviten, t.ex. Ikoner i COSMIC Referensguide . Moduler som ingår i COSMIC EHR skrivs som COSMIC <modulnamn> och övriga produkter anges med dess fullständigt namn , t.ex. Cambio Clinicial Decision Support . Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 15(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 4 Inloggning i COSMIC"
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Lösenord/SITHS -kort",
+    "page": 1,
+    "section_id": "4.1",
+    "main_section_id": 2,
+    "context_summary": "Inloggning med användarnamn/lösenord eller SITHS-kort, urval av roll och enhet. Möjlighet att komma ihåg val och återställa via Byt profil. Skärmsläckare startar efter inaktivitet; låsning/olåsning sker automatiskt, vilket möjliggör samtidig inloggning på flera datorer.",
+    "keywords": [
+      "användarnamn",
+      "lösenord",
+      "SITHS kort",
+      "inloggning",
+      "användarroll",
+      "arbetsenhet",
+      "menyprofil",
+      "kom ihåg",
+      "byt profil",
+      "skärmsläckare",
+      "automatisk logga ut",
+      "låsning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Säkerhet",
+      "Användarhantering",
+      "Inloggning",
+      "Systemadministration"
+    ],
+    "clinical_domain": [
+      "IT",
+      "Säkerhet",
+      "Personaladministration"
+    ],
+    "text": "Användare loggar in med sitt användarnamn och lösenord eller SITHS -kort. Dessa tillhandahålls av den användarens organisation. Under inloggningsprocessen måste användare välja användarroll och arbetsenhet. Användare kan ha olika menyprofiler, t.ex. en elle r flera roller på olika enheter. Genom att markera kryssrutan Kom ihåg detta val till nästa gång kommer tidigare angiven roll och enhet automatiskt att väljas nästa inloggning. Den här inställningen kan återställas genom att klicka på ikonen Byt profil . En skärmsläckare startas automatiskt efter en tids inaktivitet, tiden ställs in av en systemadministratör. Man kan vara inloggad på flera datorer samtidigt, eftersom en automatisk utloggning sker när datorn är inaktiv och skärmsläckaren aktiveras. När datorn låses upp loggas man in igen automatiskt."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "COSMIC eID",
+    "page": 1,
+    "section_id": "4.2",
+    "main_section_id": 2,
+    "context_summary": "Genom COSMIC eID får man stark autentisering för journalsystem med ett SITHS‑kort och PIN‑kod, automatiskt certifikat, SSO via Net‑iD4 och kortkommandon för fönsterhändelser.",
+    "keywords": [
+      "COSMIC eID",
+      "stark autentisering",
+      "SITHS‑kort",
+      "PIN‑kod",
+      "certifikat",
+      "Net‑iD4",
+      "SSO",
+      "journalsystem",
+      "kortkommandon",
+      "inloggning"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "autentisering",
+      "SSO",
+      "journalsystem",
+      "certifikat",
+      "SITHS"
+    ],
+    "clinical_domain": [
+      "Hälso- och sjukvården"
+    ],
+    "text": "Genom COSMIC eID implementeras stöd för stark autentisering, vilket är ett nationellt direktiv för journalsystem. Vid inloggning med COSMIC eID används ett SITHS -kort med en PIN-kod. Inloggningsuppgifter och giltiga certifikat hämtas automatiskt från användarens SITHS-kort. Lösningen är baserad på Net -iD4 och tillhandahåller SSO (Single Sign On) även för andra tjänster som använder Net -iD för autentisering. Kortkommandot Ctrl + F6 används för att växla mellan öppna fönster och F5 för att uppdatera informationen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "COSMIC Launcher via Windows startmeny",
+    "page": 1,
+    "section_id": "4.3",
+    "main_section_id": "2",
+    "context_summary": "Texten beskriver hur COSMIC Launcher öppnas via Windows startmeny och nämner att programmet tillhandahålls av SecMaker. Den innehåller även information om version och datum.",
+    "keywords": [
+      "COSMIC Launcher",
+      "Windows-startmeny",
+      "SecMaker",
+      "version",
+      "datum",
+      "Arbetsytan"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Programvara",
+      "Windows",
+      "Funktioner",
+      "SecMaker"
+    ],
+    "clinical_domain": [],
+    "text": "COSMIC Launcher öppnas via Windows startmeny och alternativet ger tillgång till COSMIC. 4 Tillhandahålls av SecMaker®, se https://www.secmaker.com/ Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 16(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 5 Arbetsytan i COSMIC"
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Översikt över dess delar",
+    "page": 1,
+    "section_id": "5.1",
+    "main_section_id": "2",
+    "context_summary": "Visar arbetsyta efter inloggning: patientlista, vänsterpanel, arbetsarea, menyalternativ, knappfunktioner, fönsterpanel och alternativpanel i COSMIC. Text beskriver hur man navigerar och använder gränssnittet.",
+    "keywords": [
+      "patientlista",
+      "arbetsyta",
+      "meny",
+      "sök",
+      "applikation",
+      "favorit",
+      "taligenkänning",
+      "COSMIC Messenger",
+      "inloggning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användargränssnitt",
+      "Arbetsyta",
+      "Patientinformation",
+      "Meny",
+      "Fönsterhantering"
+    ],
+    "clinical_domain": [
+      "Allmänt"
+    ],
+    "text": "Efter att ha loggat in i COSMIC visas en arbetsyta bestående av patientlisten, en vänsterpanel och arbetsarea. Meny Välja/söka fram och öppna fönster. Patientlisten Söka fram patient, visa patientdata, uppmärksamhetssignal och kontextberoende ikoner. Knappar för att visa detaljerade patientuppgifter, rensa information, patientlistor samt välja mellan patient - och gruppinformation. Arbetsarea Visar namn på valt fönster, dess innehåll där det går att ta del av information samt utföra olika uppgifter. Fönsterpanel Listar fönster tillagda som favoriter samt de som är öppna i arbetsarean. Alternativpanel Val för att behålla fönster, använda flera bildskärmar, visa kontexthanterare, öppna applikationen för taligenkänning, öppna COSMIC Messenger s amt avsluta, lås, logga ut och byta profil. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 17(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Meny",
+    "page": 1,
+    "section_id": "5.2",
+    "main_section_id": "2",
+    "context_summary": "Öppnar fönster via menyn genom att klicka på knapp, välja eller söka. Kortkommandon visas och varje användare har en egen menyprofil som sätts upp av systemadministratören.",
+    "keywords": [
+      "Meny",
+      "fönster",
+      "knapp",
+      "sök",
+      "kortkommandon",
+      "admin",
+      "profil",
+      "Konfiguration",
+      "COSMIC"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "användargränssnitt",
+      "menyer",
+      "funktioner",
+      "konfiguration",
+      "applikation"
+    ],
+    "clinical_domain": [],
+    "text": "Fönster öppnas via Meny genom att klicka på knappen och därefter välja önskat fönster i listan alternativt, söka fram det via textfältet Sök i menyn . Information om det kortkommando som kan användas visas till höger om fönsternamnet , t.ex. Ctrl + shift + R . Varje användare har sin egen menyprofil som består av en uppsättning menyer i COSMIC. Dessa konfigureras av en systemadministratör."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Patientlisten",
+    "page": 1,
+    "section_id": "5.3",
+    "main_section_id": "2",
+    "context_summary": "Beskrivning av funktioner för att välja och visa patientinformation samt hantera patientlistor i COSMIC-systemet.",
+    "keywords": [
+      "patientinformation",
+      "patientlista",
+      "kontaktuppgifter",
+      "visning",
+      "radig bakgrund",
+      "skyddad identitet",
+      "rensa",
+      "listor",
+      "flikar",
+      "Min patientlista",
+      "Pågående vårdkontakter",
+      "Senaste patienterna",
+      "COSMIC"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Patientinformation",
+      "Patientlista",
+      "Användargränssnitt",
+      "COSMIC",
+      "Kommando",
+      "Visning"
+    ],
+    "clinical_domain": [
+      "Allmänmedicin",
+      "Vårdhantering",
+      "Patientadministration"
+    ],
+    "text": "Används för att välja och visa patientinformation för en patient eller grupp av patienter. Uppmärksamhetssignalen och ikonerna visar olika typer av information för vald patient. Bakgrundsf ärgen indikerar en patients status, t.ex. en patient med skyddad identitet visas mot en randig bakgrund. Knappar: Via visas kontaktuppgifter för patienten och anhöriga. Via knappen Rensa rensas patientlisten och en ny patient kan väljas. Via knappen Listor visas ett dialogfönster med flikar. Under dessa kan man hantera patientlistor i flikarna Min patientlista , Pågående vårdkontakter och Senaste patienterna . Via respektive kan man byta visningsläge mellan enskild patient och grupp av patienter. För ytterligare information om de olika alternativen, se dokumentet Patientinformation i COSMIC Introduktion & Användarmanual. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 18(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Arbetsarea",
+    "page": 1,
+    "section_id": "5.4",
+    "main_section_id": 2,
+    "context_summary": "Denna sektion beskriver hur arbetsområdet i ett fönster fungerar, med funktioner och menyer som styrs av användarbehörighet, systeminställningar och MS Windows‑standard. Användaren kan filtrera, söka, anpassa vy och få mer information via kontextberoende kontroller och tooltip‑text.",
+    "keywords": [
+      "fönster",
+      "användarbehörighet",
+      "systemadministratör",
+      "MS Windows",
+      "kontextberoende knappar",
+      "högre klickmeny",
+      "ikon",
+      "filter",
+      "sökkriterier",
+      "tooltips",
+      "arbetarea",
+      "modulspecifika dokument"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Arbetsyta",
+      "Meny",
+      "Konfiguration",
+      "Användarbehörighet",
+      "MS Windows",
+      "Filter och sökning",
+      "Tooltips"
+    ],
+    "clinical_domain": [],
+    "text": "Visar ett valt fönsters innehåll . Det är inte identiskt för alla användare . Tillgängliga funktioner, objekt och val styrs bland annat av användarbehörighet, hur det konfigurerats av systemadministratör samt de uppgifter man ska utföra. Navigeringstekniker, egenskaper och kommandon följer MS Windows® -standard. Information och uppgifter nås via kontextberoende knappar, högerklickmenyer, ikoner, etc. Filter och sökkriterier kan användas för att välja ut vad som ska visas. Tooltips ( skärmtips ) ger kompletterande detaljer. Det går även att anpassa fönstren i arbetsarean för att passa önskat arbetssätt och tillfälle, t.ex. ändra detalj - och zoomnivå, visa/dölj menyn eller andra områden. Detaljerad information finns i de modulspecifika dokumenten, COSMIC <namn> - Introduktion & Användarmanual ."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Fönsterpanel",
+    "page": 1,
+    "section_id": "5.5",
+    "main_section_id": 2,
+    "context_summary": "Fönsterpanelen visar en lista över favoriter och öppna fönster, där öppna visas mot vit bakgrund.",
+    "keywords": [
+      "fönsterpanel",
+      "favoriter",
+      "öppna fönster",
+      "lista",
+      "vit bakgrund",
+      "visa"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "användargränssnitt",
+      "fönster",
+      "panel",
+      "favoritlista"
+    ],
+    "clinical_domain": [],
+    "text": "Fönsterpanelen visar en lista över de fönster som man valt att lägga till som favoriter ( ) samt öppnade fönster . De senare visas mot vit bakgrund."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Alternativpanel",
+    "page": 1,
+    "section_id": "5.6",
+    "main_section_id": "2",
+    "context_summary": "Texten beskriver vad som kan göras via Alternativpanel i COSMIC‑mjukvaran: att hålla och stänga fönster vid patientbyte, visa arbetsytan på flera bildskärmar, hantera favoriter, öppna inkorg, taligenkänning och logga ut eller byta profil.",
+    "keywords": [
+      "panel",
+      "fönster",
+      "patient",
+      "kryssruta",
+      "behåll",
+      "stäng",
+      "multi-monitor",
+      "favorit",
+      "inkorg",
+      "taligenkänning",
+      "profil",
+      "logga ut",
+      "COSMIC"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "GUI",
+      "fönsterhantering",
+      "inställningar",
+      "systemfunktion",
+      "patientinformation",
+      "flervärde",
+      "favoriter"
+    ],
+    "clinical_domain": [
+      "Patienthantering",
+      "Informationssystem",
+      "Arbetsflöde"
+    ],
+    "text": "Via panelen kan man välja följande inställningar och val: Kryssrutan Behåll fönster Påverkar endast fönster som är sk patientbundna, dvs visar patientspecifik information. Om markerad, och man väljer en annan patient, uppdateras fönstrets innehåll och visar den nya patientens uppgifter. Om omarkerad så stängs fönstret när patienten ändras. Ikonen Flera bildskärmar Via ikonen kan man välja att visa arbetsytan på flera bildskärmar under förutsättning att minst två bildskärmar är tillgängliga. MINA GENVÄGAR Listar de fönster som lagts till som favoriter för snabb åtkomst . För att lägga tillett fönster som favorit, klicka på den transparenta stjärnan före fönstrets namn , alternativt dra fönsternamn et från området med öppnade fönster. För att ta bort, för muspekaren över fönsternamnet och klicka på knappen som då visas. Öppnade fönster Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 19(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Ikon för COSMIC Messenger Via ikonen öppnas fönstret Inkorg där meddelanden kan hanteras. Ikonen för taligenkänning Via ikonen öppnas möjlighet att använda funktionen taligenkänning under förutsättning att COSMIC Connect Speech Recognition används. Ikonerna för att avsluta, logga ut, byta profil och lås. Klicka på Byt profil för att byta användarroll och arbetsenhet utan att behöva ange inloggningsuppgifterna på nytt."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Egenskaper och funktioner",
+    "page": 1,
+    "section_id": "5.7.1",
+    "main_section_id": 3,
+    "context_summary": "I detta avsnitt beskrivs hur fönster öppnas, sparas som favoriter och hur innehållet styrs av systemkonfiguration, modul och användarbehörighet. Användaren kan filtrera och uppdatera tabeller för att visa relevanta uppgifter.",
+    "keywords": [
+      "fönster",
+      "meny",
+      "kortkommando",
+      "favoriter",
+      "titel",
+      "patient",
+      "personnummer",
+      "modul",
+      "systemkonfiguration",
+      "kryssrutor",
+      "filter",
+      "Uppdatera",
+      "tabell",
+      "sortera",
+      "gruppera"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "systemfunktion",
+      "gränssnitt",
+      "användargränssnitt",
+      "filtrering",
+      "uppdatering",
+      "visning"
+    ],
+    "clinical_domain": [
+      "patientinformation",
+      "sekretess",
+      "användarbehörighet"
+    ],
+    "text": "Fönster öppnas via menyn eller kortkommando, t.ex. Ctrl + Alt + Y. De fönster man använder ofta kan sparas som favoriter. Namnet på ett öppnat fönster visas i fönstrets titel. I patientrelaterade fönster visas även vald patients personnummer och namn. De olika fönstrens innehåll, utseende, funktioner, egenskaper och val styrs av vald modul, systemkonfiguration, yrkesroll, användarbehörighet, sekretess, status, aktuellt sammanhang, m.m. Det går att specificera den information som ska presenteras i fönster, t.ex. visa uppgifter för en vald patient eller för alla patienter, för en viss enhet och vårdkontakt. Valen görs i en filtreringspanel som består av fält, ikoner, listrutor, kryssrutor och alternativknappar. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 20(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Efter att ha angett önskade val, klickar man i vissa fönster på knappen Uppdatera varpå uppgifterna visas i en tabell vars innehåll kan sorteras och grupperas om så önskas."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Flikar",
+    "page": 1,
+    "section_id": "5.7.2",
+    "main_section_id": 3,
+    "context_summary": "Flikarna i COSMIC visar fönsterinformation med namn som speglar innehållet. De är anpassade efter användare och systemkonfiguration och kan arrangeras, t.ex. sida vid sida.",
+    "keywords": [
+      "flikar",
+      "fönsterinformation",
+      "systemkonfiguration",
+      "användare",
+      "arrangera",
+      "ikon",
+      "sida vid sida",
+      "COSMIC",
+      "manual",
+      "version"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "interfacen",
+      "användargränssnitt",
+      "funktioner",
+      "konfiguration",
+      "anpassning",
+      "display",
+      "COSMIC"
+    ],
+    "clinical_domain": [
+      "Allmänt"
+    ],
+    "text": "Fönsterinformation presenteras ofta under olika flikar med namn som indikerar dess innehåll. Alla användare ser inte samma uppsättning av flikar eftersom de styrs av bl.a. hur systemet konfigurerats. I vissa fönster går det att arrangera flikarna på önskat sätt via ikonen , t.ex. visa dem sida vid sida. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 21(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Tabeller",
+    "page": 1,
+    "section_id": "5.7.3",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver hur sök- och filtreringsresultat visas i tabeller och vilka standardfunktioner och kommandon i Windows som stöder sortering, gruppering, kolumnordning och radmarkering.",
+    "keywords": [
+      "tabeller",
+      "sortering",
+      "grupp",
+      "kolumnrubriker",
+      "högerklick",
+      "drag och släpp",
+      "markera",
+      "Ctrl",
+      "Skift"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "tabellfunktioner",
+      "dataorganisation",
+      "användargränssnitt"
+    ],
+    "clinical_domain": [
+      "Medicinsk informationsteknik"
+    ],
+    "text": "Sökning och filtreringsresultat visas ofta i tabeller, t.ex. remisser och läkemedelsmallar. Följande standardfunktioner och kommandon i MS Windows® stöds: Kolumnrubriker kan sorteras i fallande eller stigande ordning. En liten pil indikerar vald sorteringsordning. Innehåll kan grupperas baserat på en vald kolumn. Högerklicksmenyer med olika menyval för att visa information och utföra uppgifter. Kolumnordningen kan ändras genom att dra och släppa en kolumn på ny plats i tabellen. En eller flera rader kan väljas för vidare hantering i relaterade fönster. Markera flera poster genom att klicka på dessa med t angenten Skift alternativt Ctrl nedtryckt samtidigt."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Högerklicksmenyer",
+    "page": 1,
+    "section_id": "5.7.4",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver hur kontextberoende högerklicksmenyer ger tillgång till andra fönster, uppgifter och vanliga kommandon i COSMIC-systemet.",
+    "keywords": [
+      "högerklicksmenyer",
+      "kontextberoende",
+      "fönster",
+      "uppgifter",
+      "kommandon",
+      "COSMIC"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "navigering",
+      "menyer",
+      "händelsehantering",
+      "användargränssnitt"
+    ],
+    "clinical_domain": [
+      "sjukhus IT",
+      "hälsoinformatik",
+      "patienthantering"
+    ],
+    "text": "Kontextberoende högerklicksalternativ ger tillgång till exempelvis andra fönster, uppgifter och vanliga kommandon. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 22(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Widgets",
+    "page": 1,
+    "section_id": "5.7.5",
+    "main_section_id": 3,
+    "context_summary": "En widget presenterar information från en eller flera moduler, filtrerbar per enhet eller alla vårdgivare, med lista som visar titel, filtrering och ikon för flervalsmeny; innehållet visas i text eller grafik, och menyerna innehåller aktiviteter och tooltips.",
+    "keywords": [
+      "widget",
+      "information",
+      "filtrering",
+      "enhet",
+      "vårdgivare",
+      "lista",
+      "titel",
+      "ikon",
+      "flervalsmeny",
+      "fönster",
+      "externa applikationer",
+      "text",
+      "grafik",
+      "mall",
+      "tidsbegränsning",
+      "högerklicksmeny",
+      "tooltip",
+      "infovåning"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "widgets",
+      "gränssnitt",
+      "information",
+      "filtrering",
+      "menyer",
+      "tidsbegränsning",
+      "tooltip"
+    ],
+    "clinical_domain": [
+      "vård",
+      "patientinformation",
+      "hälsa"
+    ],
+    "text": "En widget presenterar information från en eller flera moduler. Informationen kan vara filtrerad på den egna enheten eller visa information från alla vårdgivare. Den består av en list med uppgift om titel (A), aktuell filtrering (B) samt den klickbara ikonen (C) för att öppna flervalsmenyn, vilken ger åtkomst till fönster och externa applikationer. Under listen presenteras sedan innehållet i text eller grafiskt format. En del widgets visar information utifrån en mall medan andra visar alla värden, ibland med en tidsbegränsning. Detta visas i berörda widgets som en text under innehållet. Högerklicksmenyer och flervalsmenyn (via klickbara ikonen ) visar de aktiviteter man kan utföra för vald widget och informationstyp. Tooltip visas för ikoner och de texter som inte kan visas i sin helhet. Informationsrutor med ytterligare detaljer kan visas för vissa informationsmängder. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 23(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Översikter",
+    "page": 1,
+    "section_id": "5.8",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver vilka översiktsfönster som finns i COSMIC och var man kan hitta information om dem i introduktion- och användarmanualerna samt en lista över gemensamma funktioner.",
+    "keywords": [
+      "COSMIC",
+      "översikter",
+      "vattbalans",
+      "patientöversikt",
+      "verksamhetsöversikt",
+      "gemensamma funktioner",
+      "användarmanual",
+      "klinik",
+      "förbindelse"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Översikter",
+      "Modul",
+      "Manual",
+      "Introduktion",
+      "Användarmanual",
+      "Vattbalans",
+      "Patientöversikt",
+      "Verksamhetsöversikt",
+      "Klinisk Översikt",
+      "Gemensamma Funktioner"
+    ],
+    "clinical_domain": [
+      "Vattbalans",
+      "Patienthantering",
+      "Klinisk Översikt",
+      "Vårdtjänster"
+    ],
+    "text": "I COSMIC finns ett antal fönster som visar information från olika moduler. Dessa fönster kallas även för översikter. Följande tabell specificerar i vilka introduktion & användarmanualer som man kan hitta information om de olika översikterna. Fönster/Översikt Manual Referens Vätskebalans COSMIC Fluid Balance Introduktion & Användarmanual Analysyta COSMIC Overviews Introduktion & Användarmanual Patientöversikt Verksamhetsöversikt Min översikt Anslutningsöversikt COSMIC Connection Overview Introduktion & Användarmanual Dynamiska översikter COSMIC Overview Module Client Introduktion & Användarmanual Klinisk översikt avdelning Klinisk översikt mottagning Vårdprocessöversikt Kontaktöversikt Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Avsnitt 9.1. Osignerat och Ovidimerat Avsnitt 9.2. Vårdtjänster Avsnitt 9.4. Vårdåtagande Avsnitt 9.5. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 24(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Kortkommandon",
+    "page": 1,
+    "section_id": "5.9",
+    "main_section_id": "2",
+    "context_summary": "Kortkommandon möjliggör snabb öppning av menyer och fönster, exempelvis Alt+F8; huvudmenyn visar kortkommandot efter fönstrets namn. För mer information hänvisas till COSMIC Referensguide och Microsofts webbsida.",
+    "keywords": [
+      "kortkommandon",
+      "meny",
+      "fönster",
+      "Alt+F8",
+      "tangentbordskombination",
+      "COSMIC Referensguide",
+      "MS Windows"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användning",
+      "Kortkommandon",
+      "Menyhantering",
+      "Systemgränssnitt"
+    ],
+    "clinical_domain": [],
+    "text": "Menyer och fönster kan öppnas med tangentbordskombinationer, t.ex. Alt + F8. I huvudmenyn visas kortkommandot efter fönstrets namn. För information om kortkommandon, se dokumentet Kortkommandon i COSMIC Referensguide och för kortkommandon i MS Windows® se www.microsoft.com"
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "5.10",
+    "main_section_id": 2,
+    "context_summary": "Beskriver hur ikoner används i arbetsytan och andra fönster för att visa status, varningar och andra uppgifter, samt att vissa är klickbara för mer detaljer.",
+    "keywords": [
+      "Ikoner",
+      "arbetsyta",
+      "status",
+      "varningar",
+      "klickbara",
+      "information",
+      "widgets",
+      "grafisk gränssnitt"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Ikoner",
+      "Användargränssnitt",
+      "Visualisering",
+      "Interaktion",
+      "Informationsindikatorer"
+    ],
+    "clinical_domain": [],
+    "text": "Ikoner visas i arbetsytan samt i de olika fönstren, vyer, widgets, m.m. för att indikera olika typer av information som t.ex. status och varningar. Vissa ikoner är klickbara och presenterar ytterligare detaljer eller kan användas för att utföra olika uppgifter. För ytterligare information, se dokumentet Ikoner i COSMIC - Referensguide ."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Notifieringar i COSMIC",
+    "page": 1,
+    "section_id": "5.11",
+    "main_section_id": "2",
+    "context_summary": "Detta avsnitt beskriver hur notifieringar visas i COSMIC-systemet samt färgkodade meddelantyper (blå för information, orange för varning, röd för fel).",
+    "keywords": [
+      "notifieringar",
+      "COSMIC",
+      "information",
+      "varning",
+      "felmeddelande",
+      "användargränssnitt",
+      "system",
+      "skärm"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "gränssnitt",
+      "notifieringar",
+      "systeminformation",
+      "användargränssnitt"
+    ],
+    "clinical_domain": [
+      "IT",
+      "Klinisk information"
+    ],
+    "text": "Generella a llmänna upplysningar, information och varningar för COSMIC visas på skärmen. Dessa kan innehålla olika uppmaningar , som till exempel att omstart krävs. Notifieringarna visas högst upp i högra hörnet och listen på vänster sida signalerar via färg vilken typ av meddelande det är : Informationsmeddelande Blå Varningsmeddelande Orange Felmeddelande Röd Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 25(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 6 Patientsäkerhet"
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Patientdatalagen",
+    "page": 1,
+    "section_id": "6.1",
+    "main_section_id": 2,
+    "context_summary": "Patientdatalagen (PDL) ger direkt tillgång till patientinformation mellan vårdgivare och gör det möjligt för flera att dela journal. Patienten får också kontroll över vem som får tillgång till medicinsk information.",
+    "keywords": [
+      "Patientdatalagen",
+      "PDL",
+      "hälsodata",
+      "tillgång",
+      "patientens rätt",
+      "vårdgivare",
+      "journal",
+      "information",
+      "gräns",
+      "integritet"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "personuppgifter",
+      "sjukvårdsförvaltning",
+      "datautbyte",
+      "patienträtt",
+      "hälsotjänst"
+    ],
+    "clinical_domain": [
+      "sjukvårdsIT",
+      "patientinformation",
+      "patienträtt"
+    ],
+    "text": "Patientdatalagen (PDL) tillåter direkt tillgång till hälsoinformation mellan vårdgivare. Det gör det möjligt för flera olika vårdgivare att på ett enkelt sätt ta del av en patients journal. Med anledning av tillgången till hälsoinformation har PDL också utökat möjligheten för patienten att begränsa åtkomsten till information. Detta innebär att patienten har rätt att bestämma om informationen, som har skapats hos en vårdgivare, ska vara tillgänglig för användare hos en annan vårdgivare eller inte. Patienten kan också bestämma över hur information som skapas inom en vårdgivare ska hanteras."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Spärrar",
+    "page": 1,
+    "section_id": "6.2.1",
+    "main_section_id": "3",
+    "context_summary": "Texten beskriver hur spärrar hanteras i COSMIC genom NPÖ, vilka typer av spärrar som finns (inre och yttre), hur de kan hävas, och hur spärrinformation visas i systemet.",
+    "keywords": [
+      "spärrar",
+      "NPÖ",
+      "personnummer",
+      "samordningsnummer",
+      "nationella reservnummer",
+      "inre spärr",
+      "yttre spärr",
+      "hävning",
+      "patientinformation",
+      "COSMIC",
+      "journalföring",
+      "patientkort",
+      "tidsperiod"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Patientdata",
+      "Informationshantering",
+      "Sekretess",
+      "Säkerhet",
+      "Patientinformation",
+      "Systemadministration"
+    ],
+    "clinical_domain": [
+      "Patientsekretess",
+      "Vårdprocesser",
+      "Journalföring"
+    ],
+    "text": "Spärrar skapas och tas bort i en extern tjänst Nationell Patientöversikt5 (NPÖ) som COSMIC hämtar information ifrån. Spärrar kan tillämpas på patienter med personnummer, samordningsnummer och nationella reservnummer. Om spärrad information finns visas en ikon på dess plats. Spärrar kan även visas i fönstret Patientkort i fliken Övrig information och styrs av en inställning. Följande två spärrar kan användas: Inre spärr Spärrar information mellan vårdenheter inom en vårdgivare. Yttre spärr Spärrar information mellan vårdgivare som använder elektroniska system för sammanhållen journalföring. Patienter kan tillfälligt häva spärrar genom den externa tjänsten under en definierad tidsperiod. Spärrar kan hävas både för en viss enhet eller för en specifik användare på den enheten. Information i COSMIC som är synlig på grund av tillfällig hävning visas som om det inte fanns någon spärr alls. Både inre och yttre spärrar kan tillfälligt hävas. En sammanfattning av olika modulers och områdens utvärderingar av spärrar samt datum och tid som omfattas av en spärr presenteras i tabellen i 10.2. För modul - och fönsterspecifik information om spärrar, se respektive moduls Introduktion & Användarmanual . 5 www.inera.se Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 26(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Inre spärr",
+    "page": 1,
+    "section_id": "6.2.2",
+    "main_section_id": 3,
+    "context_summary": "I COSMIC används inre spärrar för att begränsa tillgången till patientinformation till en enskild vårdgivare. Spärren kan vara tidsbegränsad, kräver patientsamman­tycke för öppning och kan öppen temporärt via nöd­öppning. Detta fungerar också som en yttre spärr mot andra vårdgivare.",
+    "keywords": [
+      "inre spärr",
+      "patientens samtycke",
+      "temporär öppning",
+      "nödöppning",
+      "vårdgivare",
+      "patientinformation",
+      "dataskydd",
+      "spärrikon",
+      "tooltip",
+      "öppna spärr"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "patientsekretess",
+      "inre_spärr",
+      "patientens_samtycke",
+      "temporär_öppning",
+      "vårdgivare",
+      "spärrfunktion",
+      "informationsteknik"
+    ],
+    "clinical_domain": [
+      "Patientinformation",
+      "Dataskydd",
+      "Vårdinformation"
+    ],
+    "text": "Inre spärrar används när patienten önskar dölja information inom en vårdgivare. Detta innebär att informationen kommer att döljas för alla användare utanför den enhet där informationen skrevs. Patienten kan bestämma ett tidsintervall för hur länge en spärr ska gälla för viss information. I annat fall kommer spärren att gälla till dess patienten vill ändra den. Information som är dold med en inre spärr i COSMIC visas med en ikon för inre spärr . Användaren kan få ytterligare information om spärren från ett tooltip. En utomstående vårdgivare kan inte få tillgång till spärrad information för en patient hos en annan vårdgivare. På så vis fungerar den inre spärren också som en yttre spärr. Inre spärrar kan öppnas temporärt i flera fönster i COSMIC. Detta görs via högerklick salternativet Öppna spärr (alternativt med dubbelklick ) vilket öppnar dialogfönstret Öppna spärr(ar) . Temporär öppning av en spärr. För att öppna en inre spärr krävs patientens samtycke. I de fall patienten inte kan ge sitt samtycke, till exempel på grund av medicinska skäl, kan nödöppning användas. Spärren förblir öppen tills användaren loggar ut från systemet. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 27(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. I COSMIC Care Documentation (vyerna Kronologisk vy och Sökordsbaserade vy ) samt i fönstret Vårdprocessöversikt kan flera spärrar öppnas samtidigt med patientens samtycke eller via nödöppning. Temporär öppning av flera spärrar."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Yttre spärr",
+    "page": 1,
+    "section_id": "6.2.3",
+    "main_section_id": 3,
+    "context_summary": "Denna del beskriver hur yttre spärrar fungerar i COSMIC, vilka aktörer som har tillgång, hur ikonen indikerar spärren och vilka procedurer som behövs för att låsa upp spärrad information.",
+    "keywords": [
+      "yttre spärr",
+      "patient",
+      "vårdgivare",
+      "journalföring",
+      "tillgång",
+      "ikonen",
+      "tooltip",
+      "nödsituation",
+      "spärr"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "journalföring",
+      "spärr",
+      "patienträtt",
+      "externt åtkomst"
+    ],
+    "clinical_domain": [
+      "patientinformation",
+      "sjukvård",
+      "patienträtt"
+    ],
+    "text": "Yttre spärrar används när en patient väljer att inte ingå i sammanhållen journalföring. Detta innebär att ingen användare utanför den vårdgivare där spärren skapades kan få direkt tillgång till patientens spärrade information. En yttre spärr i COSMIC indikeras med ikonen . Man kan erhålla ytterligare information om ikonen via ett tooltip. En yttre spärr kan inte öppnas från COSMIC. Vid försök att öppna spärrad information visas ett meddelande. För att få tillgång till information som är dold med en yttre spärr finns det två olika sätt. Det ena kräver att patienten själv begär att spärren ska öppnas och det andra uppstår vid en nödsituation där vårdgivaren kan begära att den vårdgivare som satt spärren tillfälligt häver den. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 28(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 7 Hjälpfunktioner"
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Onlinehjälp",
+    "page": 1,
+    "section_id": "7.1.1",
+    "main_section_id": 3,
+    "context_summary": "Onlinehjälpen är tillgänglig i alla COSMIC-fönster via F1, kopplar till kb.cambio.se för manualer och guider, inklusive introduktioner, användarmanualer och referensguider. Användaren kan söka eller navigera katalogstrukturen för att välja och öppna dokument i PDF, med versionhantering.",
+    "keywords": [
+      "Onlinehjälp",
+      "F1",
+      "Cambio Kunskapsbank",
+      "manualer",
+      "användarmanualer",
+      "referensguider",
+      "PDF",
+      "sök"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Hjälp",
+      "Dokumentation",
+      "Nedladdning",
+      "Versionhantering",
+      "Sökfunktion"
+    ],
+    "clinical_domain": [],
+    "text": "Onlinehjälpen kan öppnas från samtliga fönster i en COSMIC-klient via tangenten F1. Därifrån länkas man till Cambio Kunskapsbank6 där samtliga manualer, referensguider och nyhetsbrev finns publicerade. Introduktion & användarmanualer kan nås antingen genom att söka på dokumentnamnet i sökfältet ( 1), eller genom att navigera genom katalogstrukturen via knappen Dokumentation (2). Genom att välja katalogerna Dokumentation > COSMIC > Introduktion och Användarmanual visas en sida där samtliga introduktion & användarmanualer finns listade. 6 https://kb.cambio.se/ Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 29(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Genom att klicka på önskat dokument öppnas en artikel som listar de olika versionerna av dokumentet som gäller för respektive COSMIC -release. För att öppna det PDF-dokument, som gäller för den COSMIC -release som man använder , klickar man på det länkade filnamnet. I PDF -dokumentet är det möjligt att göra fritextsökningar och utskrifter. För att kunna avgöra vilken mjukvaruversion av COSMIC som används se avsnitt 2.5. Referensguiderna Ikoner i COSMIC Referensguide och Kortkommandon i COSMIC Referensguide hittar man genom att söka efter dem eller via katalogstrukturen Dokumentation > COSMIC > Referensguide."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Tooltips",
+    "page": 1,
+    "section_id": "7.1.2",
+    "main_section_id": 3,
+    "context_summary": "Tooltips ger extra information när muspekaren hålls över ett område eller en ikon.",
+    "keywords": [
+      "tooltips",
+      "skärmtips",
+      "information",
+      "muspekaren",
+      "ikon",
+      "objekt",
+      "områden"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Användargränssnitt",
+      "interaktivitet",
+      "hjälpverktyg",
+      "informationsteknik"
+    ],
+    "clinical_domain": [],
+    "text": "Tooltips ( skärmtips) erbjuder ytterligare information om ämnen , objekt, områden, etc. De visas när muspekaren hålls över området eller en ikon."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Stavningskontroll",
+    "page": 1,
+    "section_id": "7.1.3",
+    "main_section_id": 3,
+    "context_summary": "Stavningskontroll analyserar text i ett fritextfält, markerar fel och använder både ett globalt lexikon och en användardefinierad ordlista, där användarordlistan får förträde vid konflikter.",
+    "keywords": [
+      "stavningskontroll",
+      "lexikon",
+      "ordlista",
+      "globalt lexikon",
+      "användarordlista",
+      "felstavning",
+      "systemadministratör"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Språkverktyg",
+      "Textbehandling",
+      "Systemfunktioner",
+      "Användargränssnitt"
+    ],
+    "clinical_domain": [],
+    "text": "Stavningskontrollen analyserar text som angetts i fritextfält och markerar felstavade ord. Kontrollen använder sig av ett globalt lexikon, vilket underhålls av systemadministratör en, samt en användardefinierad ordlista. Skulle samma ord finnas i båda äger användarens ordlista företräde."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Autotext",
+    "page": 1,
+    "section_id": "7.1.4",
+    "main_section_id": 3,
+    "context_summary": "Detta avsnitt beskriver hur förkortningsfraser (autotext) hanteras i COSMIC, inklusive hur användaren kan skriva åtkomstkoder, tabulera mellan platshållare och ändra resultat. Det nämns också hur systemadministratörer behandlar förkortningar och länkorade fraser.",
+    "keywords": [
+      "autotext",
+      "förkortning",
+      "fylls in automatiskt",
+      "Tab-tangente",
+      "systemadministratörer",
+      "frånsat",
+      "placeholder",
+      "användarinteraktion"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användargränssnitt",
+      "Textinmatning",
+      "Akronton",
+      "Autofyll",
+      "Konfigurationshantering"
+    ],
+    "clinical_domain": [
+      "IT-system",
+      "Dokumenthantering",
+      "Patientdata"
+    ],
+    "text": "Ofta använda fraser kan tilldelas en akronym/förkortning som fylls i automatiskt när akronymen anges i ett fritextfält. Exempelvis, genom att skriva trb anges och trycka Enter fylls frasen \"transport behövs\" i automatiskt. Om en fras kan ändras av användaren, indikeras det med . _.. Om den har mer än en . _., används Tab- tangenten för att flytta markören till den följande, t.ex. 'blt' visas som Blodtryck: ._./._. där användaren anger det första värdet, trycker på Tab -tangenten för att fylla i det andra värdet. Akronymer och länkade fraser hanteras av systemadministratörer. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 30(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 8 Utskrifter Utskrifter kan göras från merparten av alla fönster. De kan förhandsgranskas, sändas till fönstret Utskriftshanterare för samlade utskrifter eller skrivas ut direkt. I läsläge tillåts endast direkta utskrifter. Om förhandsgranskning är aktiverat, kan utskrifterna sparas i format som xls, pdf och rtf. Speciella utskriftsfunktioner finns för bl.a. vårdbegäran, kallelser, p atientuppgifter och journalkopior. Om fönstret Utskriftshanterare används sparas utskrifterna och visas i en översikt där dokument väljs för utskrift. Möjlighet att återskapa en utskrift finns i de fall utskrifterna hanterats i utskriftshanteraren, via dialogfönstret Skriv ut, eller om funktionen för att återskapa utskrift är påslagen för det fönst er utskriften initieras ifrån. För att återskapa och skriva ut markeras ett dokument i listan och därefter klickar man på knappen Visa. Olika filtreringsalternativ kan väljas för att söka fram önskade utskrifter. Alla utskrifter i samma körning erhåller samma nummer, statusen ändras till Utskrivet och ett datum/tid sätts. Lista med utskrivna dokument i fönstret Utskriftshanterare . För ytterligare information om aktivering av utskriftsfunktioner, se dokumentet Printouts in COSMIC System Administration Guide . Utskrifter och utskriftshistorik kan spåras från fönstret Utskriftshistorik . Fönstret hanterar utskrifter för den valda patienten i patientlisten. Aktiviteter som utför s i detta fönster loggas. Den xml-fil som ligger bakom utskrift och förhandsgransknin g är krypterad. Fönstret Utskriftshanterare kommer fortsättningsvis att innehålla spårning av vissa utskrifter (t.ex. Remiss och Journalanteckning ) men för de flesta andra utskrifter hanteras utskriftsspårningen i fönstret Utskriftshistorik . Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 31(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 9 Gemensamma fönster"
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Fönstret Kontaktöversikt",
+    "page": 1,
+    "section_id": "9.1",
+    "main_section_id": 2,
+    "context_summary": "Fönstret visar planerade och bokade besök samt operationer, öppnas med Ctrl+Alt+K. Informationen hämtas från COSMIC Resource Planning och Theatre Management, och kan visas i två flikar eller en gemensam vy beroende på admininställning. Flikar filtrerar på enhet och operation, medan högerklick och knappar ger tillgång till relaterade fönster och uppgifter.",
+    "keywords": [
+      "kontaktöversikt",
+      "planerade besök",
+      "bokade operationer",
+      "COSMIC Resource Planning",
+      "COSMIC Theatre Management",
+      "Ctrl+Alt+K",
+      "flikar",
+      "filter",
+      "högerklick",
+      "administratörskonfiguration"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "fönster",
+      "kontaktöversikt",
+      "planering",
+      "operationer",
+      "systemgränssnitt",
+      "användarmanual"
+    ],
+    "clinical_domain": [
+      "patientbesök",
+      "kirurgi",
+      "vårdplanering"
+    ],
+    "text": "Fönstret öppnas via huvudmenyn eller med kortkommandot Ctrl + Alt + K . Här visas en patients planerade och bokade besök och operationer. Informationen hämtas från COSMIC Resource Planning respektive COSMIC Theatre Management . Innehållet kan presenteras i två flikar alternativt i en gemensam vy beroende på hur systemet konfigurerats av administratör en. Delad fönstervy. Flikar Via filtreringsareornas list-och kryssrutor kan man välja vad som ska visas, till exempel besök för en vald enhet eller utförda operationer. Högerklicksalternativ och knappar ger åtkomst till relaterade fönster och uppgifter. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 32(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "9.2.1",
+    "main_section_id": 3,
+    "context_summary": "Fönstret används för att visa, signera och vidimera poster och skicka patientmeddelanden med filtreringsalternativ och möjlighet att välja patienter eller hela patientgrupper. Informationen presenteras i ett arbetsområde till höger och hämtas från flera COSMIC-moduler.",
+    "keywords": [
+      "fönster",
+      "signera",
+      "vidimera",
+      "patientmeddelanden",
+      "filteralternativ",
+      "patientval",
+      "posthantering",
+      "arbetsområde",
+      "COSMIC Care Documentation",
+      "COSMIC Medication",
+      "COSMIC Order Management",
+      "COSMIC Psychiatry",
+      "COSMIC Referral",
+      "COSMIC Theatre Management"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Gemensamma Funktioner",
+      "Fönster",
+      "Patientmeddelanden",
+      "Filteralternativ",
+      "Posthantering"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Dokumentation",
+      "Klinisk kommunikation"
+    ],
+    "text": "Fönstret används för att visa, signera och vidimera poster i status osignerade respektive ovidimerade7. Det går även att skicka patientrelaterade meddelanden. I vänsterpanelens övre del kan olika filtreringsalternativ väljas. Om dessa är dolda, klicka på knappen Visa filteralternativ . Välj någon av alternativknapparna Vald patient eller Alla patienter och därefter önskade listrutealternativ, till exempel vårdpersonal och enhet. Informationen visas under rubrikerna Frågor och Svar , Ovidimerade respektive Osignerade . För att ta del av innehållet för en specifik post, klicka på raden varpå informationen presenteras i arbetsområdet till höger. 7 Information hämtas från COSMIC Care Documentation, COSMIC Medication, COSMIC Order Management, COSMIC Psychiatry, COSMIC Referral och COSMIC Theatre Management. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 33(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Spärrar",
+    "page": 1,
+    "section_id": "9.2.2",
+    "main_section_id": 3,
+    "context_summary": "Informat om spärrar med ikoner för inre och yttre spärr, samt hänvisning till avsnitt 6.2 för mer info.",
+    "keywords": [
+      "spärrar",
+      "inre spärr",
+      "yttre spärr",
+      "ikoner",
+      "avsnitt 6.2",
+      "information"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "systemfunktion",
+      "användargränssnitt",
+      "säkerhet",
+      "systeminställningar"
+    ],
+    "clinical_domain": [],
+    "text": "Information i detta fönster kan visas som spärrad med ikonerna (inre spärr) eller (yttre spärr) . För ytterligare information om spärrar se avsnitt 6.2."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Fönstret Patientsökning",
+    "page": 1,
+    "section_id": "9.3",
+    "main_section_id": 2,
+    "context_summary": "Fönstret tillåter sökning efter patienter registrerade på en vald enhet. Det visar grundläggande information, delningsstatus, inskrivningsdatum och enheter samt ger möjlighet att filtrera och skriva ut listan.",
+    "keywords": [
+      "patientersökning",
+      "enhet",
+      "filtrera",
+      "utskrift",
+      "delningsstatus",
+      "inskrivningsdatum"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användargränssnitt",
+      "Patientinformation",
+      "Filtrering",
+      "Utskrift"
+    ],
+    "clinical_domain": [
+      "Patientadministration",
+      "Sjukhusadministration"
+    ],
+    "text": "Används för att söka fram patienter som är inskrivna på en önskad enhet. Fönstret visar grundläggande patientuppgifter, om patientinformationen kan delas eller ej samt uppgift om inskrivningsdatum och enheter. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 34(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Önskad enhet väljs i listrutan Välj enhet och innehållet uppdateras via knappen Uppdatera . Listan över patienter kan begränsas genom att filtrera på ett eller flera tecken som anges i fältet Söktext. Det går att skriva ut en filtrerad list a via knappen Skriv ut."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Fönstret Vårdtjänster",
+    "page": 1,
+    "section_id": "9.4",
+    "main_section_id": 2,
+    "context_summary": "Fönstret Vårdtjänster visar enhets vårdtjänster och används för planering, bokning och schemaläggning. Vårdtjänster kan hanteras via knapparna Lägg till eller Ändra i fönstret Enhetens vårdtjänster.",
+    "keywords": [
+      "vårdtjänster",
+      "planering",
+      "bokning",
+      "schemaläggning",
+      "enhetsvårdtjänster",
+      "lägga till",
+      "ändra"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "fönster",
+      "användargränssnitt",
+      "vårdtjänster",
+      "planering"
+    ],
+    "clinical_domain": [
+      "patientvård",
+      "vårdsplanering",
+      "bokning",
+      "schemaläggning"
+    ],
+    "text": "Fönstret öppnas via huvudmenyn. Det visar en enhets vårdtjänster och kan användas för planering, bokning och schemaläggning av aktiviteter. Vårdtjänster kan hanteras i fönstret Enhetens vårdtjänster vilket öppnas från fönstret Vårdtjänster via knapparna Lägg till eller Ändra. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 35(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Fönstret Vårdåtagande",
+    "page": 1,
+    "section_id": "9.5",
+    "main_section_id": 2,
+    "context_summary": "Översikt och filtrering av vårdåtaganden för patient(er), med möjlighet att sortera efter status, datum, enhet och vårdpersonal.",
+    "keywords": [
+      "vårdåtagande",
+      "patient",
+      "status",
+      "filtrering",
+      "datum",
+      "enhet",
+      "vårdpersonal",
+      "nytt",
+      "pågående",
+      "avslutat",
+      "utskrift"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Vård",
+      "Patienthantering",
+      "Filtrering",
+      "Status",
+      "Datum",
+      "Enhet",
+      "Personal"
+    ],
+    "clinical_domain": [
+      "Vård och vårdadministration"
+    ],
+    "text": "Fönstret Vårdåtagande består av en översikt över vårdåtaganden för en vald patient eller alla patienter. Informationen kan filtreras på status, till exempel nytt, pågående eller avslutat, samt valda sökvillkor som datum, enhet och vårdpersonal. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 36(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 10 Instruktioner"
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Stavningskontrollera ett ord",
+    "page": 1,
+    "section_id": "10.1.1",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att stavningskontrollera ett ord i programmet, inklusive alternativ för att välja ersättningar och lägga till ord i ordlistor.",
+    "keywords": [
+      "stavningskontroll",
+      "ordlista",
+      "ersättning",
+      "högerklick",
+      "global ordlista",
+      "Spara i ordlista"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användargränssnitt",
+      "Språkfunktion",
+      "Ortografi",
+      "Personliga produkter",
+      "Mjukvara"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd 1. Högerklicka på ordet och välj något av de föreslagna ersättningsorden i högerklicksmenyn. 2. Lägg till ett ord i ordlistan genom att högerklicka på det och via högerklicksmenyn välja alternativet Spara i global ordlista eller Spara i ordlista ."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Stavningskontrollera ett ord eller en mening",
+    "page": 1,
+    "section_id": "10.1.2",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver hur man använder stavningskontroll i COSMIC-programmet, med steg för att placera markören, trycka F7, välja ord och noterar att funktionen kräver systemadministratörsinställning.",
+    "keywords": [
+      "stavningskontroll",
+      "F7",
+      "Skift+F10",
+      "dialogfönster",
+      "systemadministratör",
+      "COSMIC",
+      "textruta"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Stavning",
+      "Styrning",
+      "Teknik",
+      "Användning",
+      "Systemadministration"
+    ],
+    "clinical_domain": [
+      "Hälso- och sjukvård",
+      "Informationsteknik"
+    ],
+    "text": "Denna stavningskontroll är endast tillgän glig i vissa fönster som t.ex. Skicka remiss och Bokningsunderlag . Steg Åtgärd 1. Placera markören i textrutan där den mening eller det ord som ska stavningskontrolleras finns. 2. Tryck på F7-tangenten och utför stavningsgranskning i dialogfönstret Stavning. 3. Välj ord bland de föreslagna i listan Förslag eller tryck på Skift + F10 för att välja föreslaget ord i menyn Stavning8. 8 Funktionen måste konfigureras av systemadministratör. Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 37(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual gemensamma funktioner v9.1.pdf",
+    "section": "Skärminställning",
+    "page": 1,
+    "section_id": "10.2",
+    "main_section_id": "2",
+    "context_summary": "Instruktion för att lösa pixelbildning eller suddiga vyer när zoom över 100 % används genom att justera DPI‑skalning i CosmicClient.exe eller kontakta systemadministratör vid Citrix.",
+    "keywords": [
+      "pixelbildning",
+      "suddighet",
+      "zoom",
+      "DPI",
+      "skärminställning",
+      "CosmicClient.exe",
+      "Citrix",
+      "systemadministratör",
+      "hög DPI",
+      "kompatibilitet"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "Skärminställning",
+      "DPI",
+      "Citrix",
+      "Windows"
+    ],
+    "clinical_domain": [
+      "IT-support",
+      "Hälsoinformation"
+    ],
+    "text": "Om pixelbildning eller suddighet uppträder när mer än 100 % zoom används: Om COSMIC applikationen är lokalt installerad på datorn, följ instruktionerna för skärminställning. Om Citrix används, vänd er till ansvarig Systemadministratör.\nSteg Åtgärd 1.\nÖppna dialogfönstret Egenskaper för CosmicClient.exe genom att högerklicka på COSMIC ikonen .\n2. Välj fliken Kompatibilitet .\n3. Klicka på knappen Ändra inställningar för hög DPI .\n4. Markera kryssrutan Åsidosätt hög DPI -skalning.\n5.\n6. Klicka på knappen Verkställ och sen OK.\nGemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 38(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.\nAppendix A - Spärrutvärdering per modul/område Följande tabell presenterar olika modulers eller områdens utvärderingar av spärrar samt datum och tid som omfattas av en spärr.\nModul/Område Informations- typ Utvärdering av spärr (vårdkontakt/enhet) Datum/tid som omfattas\nAktivitets - översikter i COSMIC\nAktiviteter Rör aktiviteter i fönstret\nAtt göra\nPatient som checklista, start/stopp, fritext, kliniska parametrar och specialiteter. Både aktiviteter och historiklogg kan spärras. Vid utvärdering används enhet men ej vårdkontakt.\nEj tillämpbart.\nAktiviteter\nAktivitet Status Enhet Checklista, start/stopp och fritext Alla, utom Utförande Planerad utförande\nKliniska parametrar Utförande Planerad utförande\nSpecialiteter\nTestresultat/ undersök - ningar kopplade till beställande och mottagande enheter. Mot- tagande\nGemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 39(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.\nModul/Område Informations- typ Utvärdering av spärr (vårdkontakt/enhet) Datum/tid som omfattas\nAktiviteter Historiklogg Aktivitet Status Enhet Checklista, start/stopp och fritext Alla, utom Utförande Beställ- ande Kliniska parametrar Alla, utom Utförande Beställ- ande Cambio CDS Ej tillämpbart. CDS (Cambio Clinical Decision Support) är exkluderat för en patient om spärr har satts.\nCOSMIC Attention Signal Registrering Vid utvärdering används vårdkontakt och om den saknas, medicinskt ansvarig enhet. Datum/tid vid registrering av uppmärksamhetssignal.\nCOSMIC Care Documentation Journal- anteckningar Rör journalanteckningar i fönstret Ny anteckning (CD Inmatning v.2 ) samt fönstret Journal. Vid utvärdering kan vårdkontakt och enhet användas. Vårdkontakt om/när den är kopplad journalanteckningen. Den enhet som används är den som angetts i anteckningen när den skapades. Datum/tid när journalanteckningen skapades.\nCOSMIC Birth Hanteras enligt COSMIC Care Documentations regelverk för spärrar. (Spärrar används inte för värden i partogram.)\nCOSMIC Dictation Diktat Vid utvärdering används vårdkontakt och medicinskt ansvarig enhet. Om koppling mellan diktat och vårdkontakt saknas, används den enhet där diktatet sparades. Datum/tid när diktatet skapades.\nGemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 40(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.\nModul/Område Informations- typ Utvärdering av spärr (vårdkontakt/enhet) Datum/tid som omfattas\nCOSMIC Forms Formulär Vid utvärdering används vårdkontakt och om sådan saknas, enheten där formuläret sparades. Datum/tid när formuläret skapades.\nCOSMIC Growth Chart Tillväxtvärde Tillväxtkurvan hämtar värden från journalanteckningar och hanteras enligt COSMIC Care Documentations regelverk för spärrar.\nCOSMIC Insight Via frågor presenteras information från andra moduler i COSMIC. COSMIC Insight använder en egen logik för utvärdering där frågorna utvärderas i relation till aktuell modul, t.ex. en vårdkontakt om den ingår i frågan. Endast inre spärrar används eftersom visade information hämtas från den vårdgivare som man är inloggad på.\nCOSMIC Medication Läkemedels - behandling (inklusive vaccination) Vid utvärdering används vårdkontakt och om sådan saknas, medicinskt ansvarig enhet för förskrivningar, recept och rekvisitioner. Datum/tid för skapande av förskrivning, recept eller rekvisition. Nutritions- produkter och förbruknings - artiklar (recept/rekvisi tion) Läkemedels - berättelse Vid utvärdering används vårdkontakt och om sådan saknas, medicinsk ansvarig enhet där läkemedelsberättelsen skapades. Datum/tid för skapande av läkemedels - berättelse. Läkemedels - genomgång Vid utvärdering används inloggad enhet Datum/tid för skapande av läkemedels - genomgång. Godkännande av admini- strering och läkemedels - genomgång Vid utvärdering används inloggad enhet. Datum/tid för godkännande. COSMIC Medical Record Table Ej tillämpbart. PDL används inte i COSMIC Medical Record Table . Arketypers värden visas som spärrade i text.\nGemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 41(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.\nModul/Område Informations- typ Utvärdering av spärr (vårdkontakt/enhet) Datum/tid som omfattas\nCOSMIC Order Management Beställning Vid utvärdering används beställningens mottagande enhet. Datum/tid för olika specialiteter: - Klinisk kemi, immunologi, lokala analyser och radiologi Tidpunkt för senaste uppdatering av en beställning (fram till - Patologi Tidpunkt för skapande av en patologibeställning. Rapport Vid utvärdering används rapportens mottagande enhet. Datum/tid för olika specialiteter: - Klinisk kemi, immunologi och lokala analyser I rapporten angiven tidpunkt för provtagningsunder- lag. - Patologi Tidpunkt för skapande av beställning. - Radiologi I rapporten angiven tidpunkt för undersökning\nCOSMIC Referral Remiss och svar Vid utvärdering används beställande medicinskt ansvarig enhets vårdkontakt. Oavsett om vårdkontakt används eller inte sker utvärdering mot remissers beställande och mottagande enheter. Eftersom en remiss kan ha flera enheter (både beställande och mottagande) skickas spärrhanteringen . Remissdatum och tid Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Version: 9.1 Datum:2024-06-17 ©2024 Cambio Healthcare Systems AB 42(42) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.\nModul/Område Informations- typ Utvärdering av spärr (vårdkontakt/enhet) Datum/tid som omfattas\nCOSMIC Fluid Balance Arketyper Rör registrering av arketyper i fönstret Vätskebalans . Vid utvärdering används den enhet där arketypen registrerats. Datum/tid för registrering av arketyp."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Introduktion till Cambio COSMIC Health Issue, beskriver modulens funktioner, krav på licens och målgruppen med grundläggande dator- och hälsovårdkunskaper.",
+    "keywords": [
+      "Cambio COSMIC Health Issue",
+      "licens",
+      "användare",
+      "dator",
+      "hälsovård",
+      "modul",
+      "funktioner",
+      "arbetsflöden",
+      "användarinstruktioner",
+      "användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Modul",
+      "Användarmanual",
+      "Hälsa",
+      "COSMIC",
+      "Funktioner"
+    ],
+    "clinical_domain": [
+      "Hälsa",
+      "Sjukvård",
+      "Allmän hälsa"
+    ],
+    "text": "Detta dokument beskriver Cambio COSMIC Health Issue (fortsättningsvis kallad COSMIC Health Issue) , dess funktioner och egenskaper. Licens krävs för att använda denna modul. Det riktar sig till användare med grundläggande dator kunskaper, kunskap och erfarenhet av hälsovård samt av COSMIC och dess arbetsflöden . Dokumentet inleds med en introduktion till modulen, dess fönster och funktioner. Det avslutande kapitlet består av användarinstruktioner för vanligt förekommande uppgifter. Detta dokument beskriver funktioner som finns i COSMIC Health Issue . Alla funktioner finns inte i alla konfigurationer. Denna introduktion & användarmanual fokuserar på modulspecifika funktioner. Den ska användas tillsammans med Gemensamma Funktioner i COSMIC Introduktion & Användarmanual och referensguider för ikoner och kortkommandon."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "Versionshistoriken beskriver datum, beskrivningar och giltighetsintervall för dokumentets revisioner, med information om nya och uppdaterade avsnitt samt COSMIC-versioner.",
+    "keywords": [
+      "versionshistorik",
+      "revision",
+      "datum",
+      "ändring",
+      "giltighet",
+      "COSMIC",
+      "avsnitt",
+      "kapitel",
+      "uppdatering"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "versionshistorik",
+      "dokumentrevision",
+      "COSMIC",
+      "ändringar",
+      "giltighet"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "hälsoinformation",
+      "mjukvarugestion"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid. Version Datum Beskrivning 1.0-2.0 2022-11-18 2023-01-09 Tidigare publicerade versioner. Dokumentet är giltigt till COSMIC 3.8.0. 3.0 2023-03-31 Avsnitt 1.3, 3.4.1 och 3.11 uppdaterat. Avsnitt 3.14 , 4.1.2, 4.1.3 och 4.1.4 tillagda. Dokumentet är giltigt från COSMIC 3.9.0. 4.0 2023-09-20 Kapitel 3.11 är tillagt och avsnitten 3.1, 3.3, 3.4.2, 3.6, 3.9, 3.10.2, 3.13, 4.1.2 och 4.1.5 uppdaterade. Dokumentet är giltigt från COSMIC 3.10.0 . 5.0 2024-02-16 Avsnitt 1.5.2 och 3.3 uppdaterat. Dokumentet är giltigt från COSMIC 3.11.0 . 6.0 2024-05-02 Avsnitt 3.3.2 tillagt och avsnitten 3.1, 3.3, 3.11, 3.12 och 3.13 uppdaterade. Dokumentet är giltigt från COSMIC 3.12.0. 7.0 2024-10-16 Avsnitt 3.6 och CE märkning uppdaterat. Dokumentet är giltigt från COSMIC 4.0.0. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 6(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Relaterade dokument",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "I detta avsnitt presenteras en lista över relaterade dokument som är kopplade till COSMIC manualen, omfattande introduktioner, användarmanualer, referensguider och relaterade funktioner.",
+    "keywords": [
+      "COSMIC",
+      "handbok",
+      "introduktion",
+      "användarmanual",
+      "referensguide",
+      "resursplanering",
+      "unit",
+      "gemensamma funktioner",
+      "ikoner",
+      "kortkommandon"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "manual",
+      "relaterade dokument",
+      "COSMIC",
+      "hälsovård"
+    ],
+    "clinical_domain": [
+      "Administration",
+      "Resursplanering",
+      "Patienthantering"
+    ],
+    "text": "Följande relaterade dokument finns tillgängliga: COSMIC Care Administration Introduktion & Användarmanual COSMIC Referral Introduktion & Användarmanual COSMIC Resource Planning Introduktion & Användarmanual COSMIC Unit Overview Introduktion & Användarmanual Gemensamma Funktioner i COSMIC Introduktion & Användarmanual Ikoner i COSMIC Referensguide Kortkommandon i COSMIC Referensguide"
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.4",
+    "main_section_id": "2",
+    "context_summary": "Tabellen listar termer, akronymer och förkortningar som används i dokumentet, inklusive definitionen av hälsoärende.",
+    "keywords": [
+      "termer",
+      "akronymer",
+      "förkortningar",
+      "hälsoärende",
+      "ärende",
+      "vårddokumentation",
+      "individanpassade vårdprocesser"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "definition",
+      "terminologi",
+      "förkortning",
+      "vårdgivning"
+    ],
+    "clinical_domain": [
+      "Vårdadministration",
+      "Klinisk dokumentation",
+      "Vårdhistorik"
+    ],
+    "text": "Tabellen beskriver termer, akronymer och förkortningar som används i detta dokument. Term Beskrivning Hälsoärende Ärende som håller samman vårddokumentation från en eller flera relaterade individanpassade vårdprocesser ."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.5.1",
+    "main_section_id": 3,
+    "context_summary": "En översikt över typografiska konventioner i dokumentet, inklusive användning av fetstil för gränssnittstermer, kursiv för modulnamn och länkar, färg för värden och Courier New för kodexempel.",
+    "keywords": [
+      "fetstil",
+      "kursiv stil",
+      "typografiska konventioner",
+      "gränssnitt",
+      "systemkommandon",
+      "kodexempel",
+      "färgvärden",
+      "COSMIC",
+      "Patientöversikt",
+      "Avbryt",
+      "Properties.txt",
+      "webblänk"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Typografi",
+      "Dokumentstil",
+      "Användarmanual",
+      "Gränssnitt",
+      "Kod och kommandon"
+    ],
+    "clinical_domain": [
+      "Hälsa",
+      "Patientinformation",
+      "Systemadministration"
+    ],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger, Properties.txt eller https://customer.cambio.se. Färg. värden, namn, typer och sökvägar. Exempel: namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 7(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.5.2",
+    "main_section_id": 3,
+    "context_summary": "Information om krav på tredjepartslicens för vissa funktioner i COSMIC Health Issue, samt uppdaterings‑ och gränssnittsdetaljer.",
+    "keywords": [
+      "tredjepartslicens",
+      "funktion",
+      "konfiguration",
+      "kostnad",
+      "gränssnitt",
+      "COSMIC Health Issue",
+      "uppdatering",
+      "version",
+      "digital version"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "licenskrav",
+      "funktionalitet",
+      "systemuppdatering",
+      "gränssnittsintegration",
+      "produktinformation"
+    ],
+    "clinical_domain": [
+      "hälsoinformatik",
+      "sjukvårdsinformationssystem",
+      "patientdata"
+    ],
+    "text": "Viktig information för ökad förståelse och korrekt användning . Tips En tredjepartslicens krävs för att använda denna produkt/fun ktion. Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. Information för vyer med gränssnitt införda från R8.2.03. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 8(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om COSMIC Health Issue"
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Avsedd a nvändning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "Mjukvara som stöder vårdpersonal att skapa och följa upp patientens hälsoärenden genom att läsa, bedöma, dokumentera och länka relaterade journal- och remissdata.",
+    "keywords": [
+      "mjukvara",
+      "hälsoärenden",
+      "sjukvårdspersonal",
+      "bedömning",
+      "dokumentation",
+      "remisser",
+      "journalanteckningar",
+      "vårdprocess",
+      "patient",
+      "undersökningar",
+      "utredningar"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "hälsoärenden",
+      "sjukvårdsvåning",
+      "digital hälsa",
+      "patientjournal",
+      "klinisk dokumentation"
+    ],
+    "clinical_domain": [
+      "allmänmedicin",
+      "sjukvård",
+      "patienthälsa"
+    ],
+    "text": "COSMIC Health Issue är en mjukvara med syfte att ge hälso - och sjukvårdspersonal stöd vid arbetet med att bilda sig en uppfattning om en patients hälsoärenden genom att läsa, bedöma och dokumentera patientens pågående och avslutade hälsoärenden. Hälsoärendet kan gälla ett symtom, ett tillstånd eller en sjukdom och startas när patienten söker vård för något av dessa. Hälsoärendet utvecklas under vårdprocessen genom att nya bedömningar görs baserat på undersökningar /utredningar av patienten. COSMIC Health Issue ger möjlighet att länka remisser, kontakter och journalanteckningar till ett eller flera hälsoärenden. Det i sin tur möjliggör presentation av dessa utifrån en specifik vårdprocess och möjligheten att följa hälsoärendets utveckling över tid ."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Försiktighetsåtgärder",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Försiktighetsåtgärder och begränsningar vid användning av COSMIC Health Issue.",
+    "keywords": [
+      "COSMIC Health Issue",
+      "diagnostik",
+      "behandling",
+      "vitalparametrar",
+      "patientobservation",
+      "klinisk bedömning",
+      "användarmanual",
+      "Version 7.0",
+      "real‑tidsövervakning"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Manuell",
+      "Säkerhet",
+      "Behandlingsrekommendation",
+      "Instruktion",
+      "Klinisk användning"
+    ],
+    "clinical_domain": [
+      "Diagnostik",
+      "Behandling",
+      "Klinisk Övervakning",
+      "Patientvård"
+    ],
+    "text": "Följande försiktighetsåtgärder gäller: COSMIC Health Issue bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. COSMIC Health Issue är inte avsett för realtidsövervakning av vitala fysiologiska parametrar. COSMIC Health Issue ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. Observera att användarmanualen bör läsas innan användning av COSMIC Health Issue. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 9(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Hantera h älsoärende n"
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Fönstret Hälsoärendeärendeöversikt",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": "2",
+    "context_summary": "Fönstret Hälsoärendeärendeöversikt visar information om patientens hälsoärenden, inklusive status, filtrering efter enheter och förlopp. Det ger sammandrag och detaljer i widgetar så att användaren kan följa och hantera ärenden.",
+    "keywords": [
+      "Hälsoärende",
+      "Fönster",
+      "Filter",
+      "Sammanfattning",
+      "Förlopp",
+      "Journalanteckningar",
+      "Enhetsfiltrering",
+      "Status",
+      "Kronisk",
+      "Stängd",
+      "Makulerad",
+      "Avslutad",
+      "Vårdgivare"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsoärende",
+      "Fönster",
+      "Användarmanual",
+      "Filtrering",
+      "Sammanfattning",
+      "Förlopp",
+      "Journalanteckningar",
+      "Enhetsfiltrering",
+      "Status",
+      "Kronisk",
+      "Stängd",
+      "Makulerad",
+      "Avslutad"
+    ],
+    "clinical_domain": [
+      "Hälso- och sjukvård",
+      "Patientvård",
+      "Journalhantering",
+      "Kronisk vård",
+      "Vårdgivare"
+    ],
+    "text": "Fönstret Hälsoärendeöversikt används för att få information om en patients hälsoärenden. Det presenterar information om pågående, makulerade eller avslutade ärenden, en sammanfattning med journalanteckningar för hälsoärendet samt hälsoärendets förlopp inom den enhetsfiltrering som gjorts på sidan. I fönstret kan två enhetsfiltreringar göras. Dels en första filtrering för att filtrera patientens hälsoärenden i den vänstra panelen, dels en ytterligare filtrering när ett hälsoärende är valt för informationen inom det valda hälsoärendet. Fönstret Hälsoärendeöversikt Följande information visas i fönstrets olika sektioner: Hälsoärenden (A) Navigeringslista med valbara hälsoärenden. De hälsoärenden som visas basera s på de enheter som ingår i det aktiva val som valts ( se A1). Det förvalda valet kommer vara Mina enheter . Navigeringen består av fyra sektioner: kroniska, andra pågåend e, stängda och makulerade hälsoärenden. Varje hälsoärende presenteras med startdatum samt vilken eller vilka enheter som är involverade i ärendet. Hantera valt hälsoärende (B) När ett hälsoärende har valts kan informationen inom hälsoärendet (både sammanfattning och förlopp) filtreras utifrån ett aktivt val. Det förvalda värdet är Min vårdgivare . Då visas information som är skapat på enheter inom det urvalet. När ett hälsoärende är valt går det också att hantera via knapparna till höger, se avsnitt 3.5 - 3.9. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 10(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Sammanfattning (C) När ett hälsoärende är valt visas utvalda sökord i widgeten Sammanfattning . Senaste värden för respektive sökord visas baserat på registreringar i journalanteckningar som ha r länkats till det valda hälsoärendet . Via de klickbara ikonerna och visas sökordsinformation respektive historiska värden. Det går att uppdatera sammanfattningen direkt från widgeten på tre olika sätt: Klicka på ikonen Dubbelklicka på ett sökord. Klicka på ikonen Oavsett vilket sätt som väljs, kommer fönstr et Ny anteckning (CD Inmatning v.2) att öppnas med det valda hälsoärendet förvalt. Det går inte att lägga till eller ändra hälsoärende för den här anteckningen. Anteckningen innehåller en dokumentationsmall med samma sökord som visas i widgeten. Förlopp (D) När ett hälsoärende är valt visas widgeten Förlopp. På en tidslinje går det att se hur hälsoärendet har utvecklats över tid . I tidslinjen visas upp till de senaste 200 händelserna och de nästkommande fem händelserna. Följande information visas : Nya bedömningar Markering som kronisk Sammanslagning med annat h älsoärende Uppdelning från annat hälsoärende Avslut av hälsoärende Makulering av hälsoärende Tidslinjen innehåller också följande information som är länkad till hälsoärendet : Vårdkontakter Remisser Remissvar Journalanteckningar Detaljinformation (E) När en journalanteckning, remiss eller ett remissvar markeras i widgeten Förlopp visas ytterligare information upp i sektionen med detaljinformation. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 11(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Widgeten Hälsoärenden",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "Widgeten visar en lista över en patients pågående och avslutade hälsoärenden. Den kan användas i andra COSMIC‑fönster och dashba­rd, och med ikoner skapa nya ärenden, öppna menyer och snabbåtkomst till översikt. Funktioner varierar beroende på status och kroniskhet.",
+    "keywords": [
+      "hälsoärende",
+      "widget",
+      "patient",
+      "kronisk",
+      "bedömning",
+      "avsluta",
+      "öppna",
+      "meny",
+      "dashboard",
+      "översikt",
+      "COSMIC"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientinformation",
+      "Hälsoärenden",
+      "Widget",
+      "Navigering",
+      "Dashboard",
+      "UI"
+    ],
+    "clinical_domain": [
+      "Patientjournal",
+      "Hälsoärende",
+      "Medicinsk dokumentation"
+    ],
+    "text": "Widgeten Hälsoärenden visar en lista på en patients pågående och avslutade hälsoärenden. Widgeten kan används i andra fönster i COSMIC och kan finnas tillgänglig i olika dashboards i fönstret Patientöversikt . Ett nytt hälsoärende kan skapas genom att klicka på ikonen . Varje hälsoärende visas upp med sitt senaste namn. Genom att klicka på ikonen intill ett hälsoärende öppnas en meny där ytterligare funktioner finns t illgängliga. För samtliga hälsoärenden finns ett snabbval för att öppna fönstret Hälsoärendeöversikt . Andra tillgängliga funktioner beror på hälsoärendets status och om det är kroniskt eller inte. För kroniska: Ny bedömning Avmarkera som kronisk För andra pågående : Ny bedömning Markera som kronisk Avsluta ärende För avslutade : Återöppna ärende COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 12(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Involverade enheter i hälsoärende",
+    "page": 1,
+    "section_id": "3.3",
+    "main_section_id": 2,
+    "context_summary": "Beskriver villkoren för vilka enheter som räknas som involverade i ett hälsoärende och hur länkningen sker via remisser och vårdkontakter.",
+    "keywords": [
+      "involverad enhet",
+      "remiss",
+      "hälsoärende",
+      "vårdbegäran",
+      "remitterande enhet",
+      "mottagande enhet",
+      "vårdkontakt",
+      "status"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "vården",
+      "hälsoärenden",
+      "remisser",
+      "kvalitet"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "patientvård",
+      "vårdinformation",
+      "kvalitetsarbete"
+    ],
+    "text": "Ett hälsoärende har alltid minst en involverad enhet. För att en enhet ska bli involverad ska vissa villkor vara uppfyllda . Exempelvis, så länge det finns en aktiv remiss hos enheten som är knuten till ett hälsoärende kommer den enheten anses vara involverad i hälsoärendet. I tabellen beskrivs villkoren för hur en enhet är involverad baserat på remisser och vårdkontakters olika status. En kontakt kan inte ha en direkt länkning till hälsoärendet . Länkningen sker istället via den remiss som är registrerad på kontakten och enligt tabellens kriterier. Kontaktens enhet läggs till som involverad utöver remissens enheter. Om det finns en: Status Involverad enhet Privat vårdbegäran Obedömd, Bedömning pågår, Accepterad, Pågående Mottagande enhet Avslutad, Makulerad, Avvisad, Avregistrerad Ingen involverad enhet Remiss Obedömd, Bedömning pågår Mottagande och remitterande enhet Accepterad, Pågående Mottagande enhet Avslutad, Makulerad, Avvisad, Avregistrerad Ingen involverad enhet Vårdkontakt Ny, Planerad, Anlänt, Pågående Medicinskt ansvarig, vårdande och teknisk enhet Utebliven, Makulerad Ingen involverad enhet Om det inte finns någo n aktiv privat vårdbegäran, remiss eller vårdkontakt länkad till hälsoärendet som visar vilken enhet som är involverad, kommer den enhet som var involverad sist fortfarande vara det. Detta gäller även när ett hälsoärende är avslutat och f ör att den involverade enheten ska uppdateras igen behöver ärendet återöppnas. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 13(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Aktiva val",
+    "page": 1,
+    "section_id": "3.3.1",
+    "main_section_id": 3,
+    "context_summary": "Detta avsnitt förklarar att hälsoärenden som visas i Hälsoärendeöversikt baseras på filtreringen av enheter från patientinformation, Mina enheter, Min vårdgivare och Alla vårdgivare, där enheter är involverade vid varje tillfälle.",
+    "keywords": [
+      "hälsoärende",
+      "Hälsoärendeöversikt",
+      "patientinformation",
+      "Mina enheter",
+      "Min vårdgivare",
+      "Alla vårdgivare",
+      "involverade",
+      "filtrering",
+      "enheter"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Patientinformation",
+      "Filtrering",
+      "Enheter",
+      "Översikt"
+    ],
+    "clinical_domain": [
+      "Patientdata",
+      "Vårdkoordinering"
+    ],
+    "text": "De hälsoärenden som visas i fönstret Hälsoärendeöversikt baseras på de enheter som ingår i filtreringen för patientinformation, Mina enheter , Min vårdgivare och Alla vårdgivare och som är ansedda som involverade vid varje tillfälle."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Spärrhantering",
+    "page": 1,
+    "section_id": "3.3.2",
+    "main_section_id": 3,
+    "context_summary": "Beskriver hur en spärr påverkar ett hälsoärende när en enhet har aktiverat spärr, med särskilda regler för involverade och icke involverade enheter samt hur information i ärendet hanteras.",
+    "keywords": [
+      "spärr",
+      "hälsoärende",
+      "enhet",
+      "involverad",
+      "journalanteckning",
+      "remis",
+      "aktiverad"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "spärrhantering",
+      "hälsoärende",
+      "enhetsinvolvering",
+      "information",
+      "adminstration"
+    ],
+    "clinical_domain": [
+      "sjukhusadministration",
+      "patienthälsa",
+      "informationsteknik"
+    ],
+    "text": "När en spärr aktiveras på ett hälsoärende s namn så är det villkoren för hur en enhet är involverad som följs. Se avsnitt 3.3 för tabell över villkoren. Om någon av de involverade enheterna i hälsoärendet har en aktiverad spärr gäller följande: För de enheter som inte är involverade i hälsoärendet kommer hälsoärende ts namn vara spärrat . För de enheter som är involverade i hälsoärendet kommer hälsoärende ts namn inte att vara spärrat . Information inom ett hälsoärende kommer att vara spärra d om exempelvis journalanteckningen eller remissen tillhör en enhet som har a ktiverad spärr."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Via sökorsak",
+    "page": 1,
+    "section_id": "3.4.1",
+    "main_section_id": 3,
+    "context_summary": "När en patient söker vård för ett nytt hälsoproblem skapas ett hälsoärende automatiskt efter registrerad sökorsak.",
+    "keywords": [
+      "hälsoärende",
+      "sökorsak",
+      "vårdkontakt",
+      "nytt hälsoproblem",
+      "automatiskt",
+      "bokning",
+      "planering",
+      "systemadministratör",
+      "lokala inställningar"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Vårdprocess",
+      "Föregående vårdkontakt",
+      "Systemregler",
+      "Dokumentation"
+    ],
+    "clinical_domain": [
+      "Allmänmedicin",
+      "Patientvård",
+      "Hälsoadministration"
+    ],
+    "text": "Ett hälsoärende skapas automatiskt när en patient söker vård för ett nytt hälsoproblem. Det sker då en sökorsak registreras i samband med att en vårdkontakt skapas. Det kan ske på olika sätt i systemet. Exempelvis via listrutan Vårdkontakt i fönstret Ny anteckning , direktregistrering av en kontakt, en bokning eller planering av ett besök. När en sökorsak väljs i listrutan Aktuell remiss och kontakten sparas i något av fönstren Bokningsunderlag, Snabbokningsunderlag, Vårdkontakt- och efterregistrering eller Vårdkontakts information (som öppnas från fönstret Enhetsöversikt ), skapas ett hälsoärende med samma namn som d en valda sökorsakstermen. För telefonkontakter skapas hälsoärendet när man skapar en ny sökorsak i samband med att den privata vårdbegäran skapas. Se sektion 4.1 . Vilka sökorsaker som automatiskt skapar ett nytt hälsoärende styrs av lokala inställningar , som hanteras av en systemadministratör. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 14(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Manuellt",
+    "page": 1,
+    "section_id": "3.4.2",
+    "main_section_id": 3,
+    "context_summary": "Beskrivning av hur man manuellt skapar ett hälsoärende när automatiserad sökordstjänst inte används, inklusive användning av fönster, fördefinierade ärenden och obligatoriska fält som remiss och startdatum.",
+    "keywords": [
+      "hälsoredskap",
+      "manuell skapning",
+      "sökords‑bort",
+      "fördefinierade termer",
+      "remiss",
+      "startdatum",
+      "kroniskt ärende"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsoärende",
+      "Manuell skapning",
+      "Patientöversikt",
+      "Uppföljning"
+    ],
+    "clinical_domain": [
+      "Vård",
+      "Juridik",
+      "Administration"
+    ],
+    "text": "När sökorsak inte används kan ett hälsoärende skapas manuellt. Dessa ärenden skapas i fönstret Hälsoärendeöversikt eller Patientöversikt i dialogrutan Skapa hälsoärende som öppnas med funktionen Nytt. Det går även att använda genvägen Skapa nytt hälsoärende i Patientlistens utökade läge. Det går att välja ett namn från listan med fördefinierade ärenden , eller fylla i ett eget namn om hälsoärendet saknas. I första hand bör fördefinierade termer användas eftersom det möjliggör uppföljning i efterhand. Remiss och startdatum för hälsoärendet är obligatoriskt. Det går även att ange om det är ett kroniskt hälsoärende."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Göra en ny bedömning av hälsoärende",
+    "page": 1,
+    "section_id": "3.5",
+    "main_section_id": 2,
+    "context_summary": "När mer information finns kan hälsoärendet återbedömas och namnändras – från symptom till sjukdom – via Hälsoärendeöversikt eller widgeten Hälsoärenden. Ny bedömning kräver vårdkontakt och namnet väljs från fördefinierade ärenden eller skräddarsys.",
+    "keywords": [
+      "ny bedömning",
+      "hälsoärende",
+      "namnändring",
+      "vårdkontakt",
+      "fördefinierade ärenden"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsoärendehantering",
+      "Bedömning",
+      "Dokumentation",
+      "Vårdkontakt",
+      "Namnändring"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Diagnostik",
+      "Vårdplanering"
+    ],
+    "text": "När ytterligare information är tillgänglig kan en ny bedömning av hälsoärendet göras. Hälsoärendets namn kan då uppdateras, t.ex. från ett symptom till sjukdomen som orsakade symptomet. Funktionen Ny bedömning finns i fönstret Hälsoärendeöversikt eller widgeten Hälsoärenden och ändringen av namnet görs i dialogrutan Ny bedömning. Det går att välja ett namn från listan med fördefinierade ärenden , eller fylla i ett eget namn om hälsoärendet saknas. I första hand bör fördefinierade termer användas eftersom det möjliggör uppföljning i efterhand. Vårdkontakt för den nya bedömningen är obligatoriskt. Det nya namnet visas på hälsoärendet i navigeringslistan Hälsoärende och det tidigare namnet i widgeten Förlopp i fönstret Hälsoärendeöversikt ."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Slå ihop och dela på hälsoärenden",
+    "page": 1,
+    "section_id": "3.6",
+    "main_section_id": "2",
+    "context_summary": "Texten beskriver hur två öppna eller två stängda hälsoärenden som rör samma tillstånd kan slås ihop eller delas upp, och hur involverade enheter, länkad information och remisser hanteras vid dessa operationer.",
+    "keywords": [
+      "sammanslagning",
+      "delning",
+      "hälsoärende",
+      "öppet ärende",
+      "stängt ärende",
+      "involverade enheter",
+      "länkad information",
+      "remisser",
+      "administration"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "hälsa",
+      "ärendehantering",
+      "sammanslagning",
+      "delning",
+      "administration"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "ärendehantering",
+      "klinik"
+    ],
+    "text": "Om två hälsoärenden rör samma problem eller tillstånd så kan de slås ihop. Detsamma gäller för eventuella dubbletter. Efter sammanslagningen hanteras de som ett och samma ärende; det hälsoärende som det första slås ihop med blir det som lever vidare. Med detta menas om Hälsoärende 1 med involverad enhet A slås ihop med Hälsoärende 2 med involverad enhet B, kommer både enhet A och B vara involverade i Hälsoärende 2 efter sammanslagning. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 15(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. De involverade enheterna för hälsoärendet kommer att valideras från de båda sammanslagna hälsoärendena . Om det senare skulle visa sig att det trots allt inte rörde sig om samma tillstånd, går det att dela på ärendet och de hanteras återigen som två separata ärenden. Hur informationen delas upp mellan de separerade hälsoärende na beror på hur de är länkade. Har det tillkommit länkad information efter hopslagningen, till exempel ny anteckning, kommer dessa att sparas på det primära hälsoärendet. Har eventuella remisser från det sekundära hälsoärendet använts för att exemp elvis boka kontakter kommer de att vara länkade till det hälsoärendet efter att det delats upp. Öppna ärenden kan endast slås ihop med andra öppna ärenden, och stängda enbart med andra stängda. Under menyn Mer finns meny val för att Dela, Slå ihop och Makulera."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Avsluta och återöppna hälsoärende",
+    "page": 1,
+    "section_id": "3.7",
+    "main_section_id": "2",
+    "context_summary": "Hälsoärendet avslutas när problemet är botnat och kan återöppnas om det återkommer; avslutade ärenden listas i Avslutade-sidan.",
+    "keywords": [
+      "hälsoärende",
+      "avslutas",
+      "återöppnas",
+      "problem",
+      "tillstånd",
+      "patient",
+      "lista",
+      "Avslutade"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "ärendehantering",
+      "patientärenden",
+      "avslut",
+      "återöppning",
+      "administration"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Administrativ hälsohantering",
+      "Patienttillstånd"
+    ],
+    "text": "Ett hälsoärende kan avslutas om en patient inte längre har kvar det problem eller tillstånd som hälsoärendet rör . Skulle samma problem återkomma kan hälsoärendet öppnas på nytt. Avslutade ärenden visas i sektionen Avslutade i listan Hälsoärenden ."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Makulera hälsoärende",
+    "page": 1,
+    "section_id": "3.8",
+    "main_section_id": 2,
+    "context_summary": "Behörighet att makulera ett felmänt hälsoärende; åtgärden är permanent och påverkar inte andra data.",
+    "keywords": [
+      "makulera",
+      "hälsoärende",
+      "missöde",
+      "ångra",
+      "journalanteckningar",
+      "länkad information",
+      "inaktuell utskrift"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "hälsa",
+      "ärendehantering",
+      "datauthensitet",
+      "radering",
+      "information"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "patientinformation"
+    ],
+    "text": "Ett ärende som skapats av misstag kan makuleras. Notera att det enbart är hälsoärendet som makuleras ; journalanteckningar eller annan information som är länkad till hälsoärendet påverkas inte . En makulering kan inte ångras. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 16(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Kroniska hälsoärenden",
+    "page": 1,
+    "section_id": "3.9",
+    "main_section_id": "2",
+    "context_summary": "Anvisning om hur kroniska hälsoärenden markeras, avmarkeras och varför de inte kan avslutas förrän de är avmarkerade i navigeringslistan.",
+    "keywords": [
+      "kroniskt",
+      "hälsotjänster",
+      "navigeringslista",
+      "avmarkera",
+      "avsluta",
+      "COSMIC",
+      "patientinformation"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsotjänster",
+      "Kroniska",
+      "Användarmanual",
+      "Patientinformation",
+      "Navigering"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Vårdplanering",
+      "Diagnos",
+      "Behandling"
+    ],
+    "text": "I navigeringslistan Hälsoärenden visas kroniska och andra pågående hälsoärenden. Ett hälsoärende som markerats som kroniskt visas överst i listan bland pågående hälsoärenden och kan inte avslutas. För att avsluta det måste det först avmarkeras som kroniskt. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 17(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Hälsoärende Graviditet",
+    "page": 1,
+    "section_id": "3.10.1",
+    "main_section_id": 3,
+    "context_summary": "Detta avsnitt beskriver de specifika reglerna för hälsoärendet Graviditet – hur man skapar, avslutar, återöppnar eller makulerar ärenden, vilka begränsningar som gäller och hur ett avslut sker automatiskt efter 60 veckor. Det hänvisar även till COSMIC Care Documentation för mer information.",
+    "keywords": [
+      "Graviditet",
+      "hälsoproblem",
+      "vårdbegäran",
+      "kontakt",
+      "avsluta",
+      "automatiskt avslut",
+      "60 veckor",
+      "journal",
+      "COSMIC",
+      "regler",
+      "kronisk",
+      "makulera",
+      "återöppna"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "hälsa",
+      "graviditet",
+      "vårdbestyrning",
+      "regler",
+      "manual",
+      "COSMIC"
+    ],
+    "clinical_domain": [
+      "Reproduktiv hälsa",
+      "Obstetrik",
+      "Vårdadministration"
+    ],
+    "text": "Följande tabell beskriver de särskilda regler som gäller för hälsoärendet Graviditet. Funktion Kommentar Skapa nytt Det kan bara finnas en pågående graviditet. Om sökorsak Graviditet anges och pågående hälsoärende Graviditet finns, länkas privat vårdbegäran och eventuell kontakt till det befintliga hälsoärendet. Ny bedömning Det går inte att göra en ny bedömning. Markera som kronisk Det går inte att markera en graviditet som kronisk. Slå ihop Det går inte att slå ihop en graviditet med ett annat hälsoärende. Ett annat hälsoärende kan slås ihop med en graviditet. Dela Inga restriktioner Avsluta När en graviditet avslutas anges en avslutningsorsak. Hälsoärende Graviditet avslutats automatiskt efter 60 veckor, en automatiskt avslutad graviditet har ingen avslutningsorsak. Det går även att avsluta Hälsoärende Graviditet i fönstret Journal. För ytterligare information, se dokumentet COSMIC Care Documentation Introduktion & Användarman ual. Återöppna Hälsoärende Graviditet kan återöppnas, men enbart om det inte finns ett annat pågående Hälsoärende Graviditet. Det går även att återöppna Hälsoärende Graviditet i fönstret Journal. För ytterligare information, se dokumentet COSMIC Care Documentation Introduktion & Användarman ual. Makulera Inga restriktioner. Det går även att makulera Hälsoärende Graviditet i fönstret Journal. För ytterligare information, se dokumentet COSMIC Care Documentation Introduktion & Användarman ual. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 18(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Hälsoärende Barnhälsovård",
+    "page": 1,
+    "section_id": "3.10.2",
+    "main_section_id": 3,
+    "context_summary": "Tabell med särskilda regler för Barnhälsovård – endast ett ärende per patient, ingen ny bedömning, inga kroniska markeringar, inga slås ihop, öppnings- och avslutasregler samt möjlighet att göra i Journal.",
+    "keywords": [
+      "hälsovård",
+      "barnhälsovård",
+      "ärende",
+      "patient",
+      "tabell",
+      "regler",
+      "avslutning",
+      "öppning",
+      "annullering",
+      "journal",
+      "kronisk",
+      "bedömning",
+      "slå ihop"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "hälsovård",
+      "barnhälsovård",
+      "ärendehantering",
+      "regler",
+      "journal",
+      "avsluta",
+      "återöppna",
+      "avbryt"
+    ],
+    "clinical_domain": [
+      "Barnhälsovård",
+      "Patienthantering"
+    ],
+    "text": "Följande tabell beskriver de särskilda regler som gäller för hälsoärendet Barnhälsovård. Funktion Kommentar Skapa nytt Det kan bara finnas ett h älsoärende Barnhälsovård för en patient. Om ett avslutat ärende finns kan inte ett nytt skapas. I detta fall ska det tidigare hälsoärendet återöppnas. Ny bedömning Det går inte att göra en ny bedömning. Markera som kronisk Det går inte att markera som kronisk. Slå ihop Det går inte att slå ihop med ett annat hälsoärende. Dela Inga restriktioner. Avsluta När hälsoärende Barnhälsovård avslutas anges en avslutningsorsak. Det går även att avsluta hälsoärende Barnhälsovård i fönstret Journal. Återöppna Inga restriktioner. Makulera Inga restriktioner. Det går även att makulera h älsoärende Barnhälsovård i fönstret Journal."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Hälsoärende i Patientlisten",
+    "page": 1,
+    "section_id": "3.11",
+    "main_section_id": 2,
+    "context_summary": "Beskrivning av hur hälsorådgivningsärenden visas i Patientlisten, med upp till fem ärenden synliga och indikation av fler ärenden genom ett antal. Förtydligas också hur ärenden utanför filter visas.",
+    "keywords": [
+      "Patientlisten",
+      "hälsorådgivning",
+      "ärenden",
+      "remisser",
+      "filtrering",
+      "enhetsbegränsning",
+      "organisation"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Kundgränssnitt",
+      "Patientinformation",
+      "Ärendehantering",
+      "Remiss",
+      "Filtrering"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "remiss",
+      "patientdata"
+    ],
+    "text": "I de fönster där informationen kan länkas till ett hälsoären de är Patientlisten utvidgad och visar patientens hälsoärenden. Detta är till exempel i fönstret Ny anteckning och i fönster för hantering av remisser. I Patientlisten visas upp till fem pågående hälsoärenden som patienten har. Finns det fler hälsoärenden, antingen inom den valda enhetsbegränsningen eller inom en annan organisation, indikeras detta med en siffra i knappen . Till exempel, om den sparade remissen är länkad till ett hälsoärende som inte är inom den aktuella filtreringen visas detta som ett hälsoärende med texten Dold i Patientlisten. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 19(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Förvalt hälsoärende",
+    "page": 1,
+    "section_id": "3.11.1",
+    "main_section_id": 3,
+    "context_summary": "Om hälsoärenden är länkade till en remiss, kontakt eller anteckning visas de förvalda i listan och kan avmarkeras för att ta bort länkningen.",
+    "keywords": [
+      "hälsoärende",
+      "länkade",
+      "remiss",
+      "kontakt",
+      "anteckning",
+      "förvalt",
+      "avmarkera",
+      "länkning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsoärende",
+      "Länkning",
+      "Datamanagement",
+      "Remiss",
+      "Anteckning"
+    ],
+    "clinical_domain": [
+      "Sjukvård"
+    ],
+    "text": "Om det redan finns länkade hälsoärenden till de n remiss, kontakt eller anteckning man jobbar med, kommer dessa vara förvalda i listen. Det går att avmarkera detta hälsoärende för att ta bort länkningen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Dialogruta patientlisten",
+    "page": 1,
+    "section_id": "3.11.2",
+    "main_section_id": 3,
+    "context_summary": "Beskriver hur en klick på \"Mer\" öppnar en dialogruta med de senaste hälsoärenden, visar deras status och tillåter uppdatering av enhetsfiltrering samt ger genvägar till översikt och skapande av nya hälsoärenden.",
+    "keywords": [
+      "Mer",
+      "dialogruta",
+      "hälsoärenden",
+      "enhetsfiltrering",
+      "patientlista",
+      "Hälsoärendeöversikt",
+      "Skapa nytt",
+      "kroniska",
+      "pågående",
+      "avslutade",
+      "kategorier"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användarmanual",
+      "Hälsoärende",
+      "Patientlista",
+      "Dialogruta",
+      "Enhetsfiltrering",
+      "UI-design"
+    ],
+    "clinical_domain": [
+      "Övervakning",
+      "Patientvård",
+      "Hälsoärenden",
+      "Kronisk sjukdom",
+      "Medicinsk data"
+    ],
+    "text": "När knappen Mer väljs visas en dialogruta. I denna dialogruta visas alla kroniska, pågående och upp till de fem senast avslutade hälsoärenden inom den valda enhetsfiltreringen. De siffror som står bredvid kategorierna indikerar hur många som är synliga av det totala antal hälsoärend en inom den kategorin (visar 1 av 3). Det är i dialogrutan som enhetsfiltreringen kan uppdateras för Patientlisten och dialogrutan. Det förvalda värdet för aktiva val kommer att vara knappen Mina enheter. I dialogrutan finns det också två genvägar till Hälsoärendeöversikt och Skapa nytt hälsoärende . COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 20(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Länka hälsoärende till remiss",
+    "page": 1,
+    "section_id": "3.12",
+    "main_section_id": 2,
+    "context_summary": "Kort beskrivning av hur remisser kan länkas till ett eller flera hälsoärenden via flera fönster och hur länkningen kan uppdateras senare.",
+    "keywords": [
+      "remiss",
+      "hälsoärende",
+      "patientlisten",
+      "länka",
+      "Skicka remiss",
+      "Registrera remiss",
+      "Hantera inkommande remisser",
+      "widget",
+      "Förlopp"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "remisshantering",
+      "hänvisningar",
+      "patientinformation",
+      "hälsosystem"
+    ],
+    "clinical_domain": [
+      "internmedicin",
+      "rehabilitering",
+      "remiss",
+      "patientvård"
+    ],
+    "text": "När en remiss skickas via fönstret Skicka remiss , kan den länkas till ett eller flera hälsoärenden genom att välja hälsoärenden som visas i Patientlisten. Om patienten har fler än fem pågående hälsoärenden visas resten under knappen . När en remiss länkas till ett hälsoärende kommer remiss en att visas i widgeten Förlopp för hälsoärende t i fönstret Hälsoärendeöversikt . Det går också att länka ett eller flera hälsoärenden i fönstret Registrera remiss . Tillvägagångssättet är de tsamma som via fönstret Skicka remiss . När en remiss hanteras i fönstret Hantera inkommande remisser kan länkningen till ett hälsoärende uppdateras. Patientens pågående hälsoärenden visas som klickbar a alternativ i Patientlisten."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Länka hälsoärende till ny journalanteckning",
+    "page": 1,
+    "section_id": "3.13",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för hur man länkar en journalanteckning från fönstret Ny anteckning till ett eller flera hälsoärenden via Patientlisten, samt hur länken visas i widgeten för hälsoärendeöversikt.",
+    "keywords": [
+      "journalanteckning",
+      "hälsosituation",
+      "hälsosärende",
+      "Patientlisten",
+      "länkning",
+      "widget",
+      "förlopp",
+      "ny anteckning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Journalanteckning",
+      "Hälsoärende",
+      "Patientlisten",
+      "Länkning",
+      "Widget",
+      "Ny anteckning"
+    ],
+    "clinical_domain": [
+      "Klinisk dokumentation",
+      "Patienthantering"
+    ],
+    "text": "När en journalanteckning skrivs i fönstret Ny anteckning kan den länkas till ett eller flera hälsoärenden genom att välja hälsoärenden i Patientlisten. Patientens pågående hälsoärenden visas som klickbar a alternativ i Patientlisten. Om patienten har många pågående hälsoärenden visas de fem senaste som klickbara alternativ i Patientlisten. Om patienten har fle r än fem pågående hälsoärenden visas resten av dem under menyn . När en anteckning länkas till ett hälsoärende kommer anteckningen att visas i widgeten Förlopp för hälsoärende t i fönstret Hälsoärendeöversikt . COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 21(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Länka hälsoärende till ny vård kontakt",
+    "page": 1,
+    "section_id": "3.14",
+    "main_section_id": 2,
+    "context_summary": "Detta avsnitt förklarar hur ett nytt vårdkontakt knyts till ett befintligt hälsoärende genom att välja rätt remiss i Aktuell remiss, där remissen representerar hälsoärendet i olika fönster.",
+    "keywords": [
+      "hälsoärende",
+      "remiss",
+      "aktuell remiss",
+      "vårdkontakt",
+      "bokningsunderlag",
+      "snabbbokningsunderlag",
+      "vårdkontaktinformation",
+      "lokala inställningar",
+      "systemadministratör"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Sjukvård",
+      "Vårdplanering",
+      "Patienthantering",
+      "Remisshantering",
+      "Systemadministration"
+    ],
+    "clinical_domain": [
+      "Allmänmedicin",
+      "Primärvård",
+      "Vårdkoordinering"
+    ],
+    "text": "När en ny vårdkontakt skapas för ett befintligt hälsoärende ska den remiss som är kopplad till hälsoärendet väljas i listrutan Aktuell remiss . Hälsoärendets namn visas på remissen vilket gör det enklare att upptäcka om fler remisser finns för patienten. Detta styrs av lokala inställningar som hanteras av en systemadministratör. Remissen är inte detsamma som ett hälsoärende, utan enbart en representation av hälsoärendet, och förekommer i fönster där en vård kontakt kan skapas. Exempel på fönster är Bokningsunderlag , Snabbokningsunderlag , Vårdkontakt och efterregistrering och Vårdkontaktsinformation."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Länka hälsoärende till jou rnalanteckning i läsvyn",
+    "page": 1,
+    "section_id": "3.15",
+    "main_section_id": 2,
+    "context_summary": "Det är möjligt att länka en existerande journalanteckning till ett eller flera hälsoärenden via högerklicksmenyn i journalansvaret.",
+    "keywords": [
+      "hänsoärende",
+      "journalanteckning",
+      "länka",
+      "högerklick",
+      "fönster journal",
+      "COSMIC",
+      "instruktioner"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "journalhantering",
+      "hänsoärende",
+      "länkskapning",
+      "funktion",
+      "användarmanual"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Sjukhusadministration",
+      "Elektronisk journal"
+    ],
+    "text": "Det är möjligt att länka en existerande journalanteckning till ett eller flera hälsoärenden i fönstret Journal. Via högerklicksmenyn i anteckningshuvudet kan man länka eller länka om till relevanta hälsoärenden . COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 22(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 4 Instruktioner"
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Via sökorsak i fönstret Vårdkontakt - och efterregistrering",
+    "page": 1,
+    "section_id": "4.1.1",
+    "main_section_id": 3,
+    "context_summary": "Steg för att välja ett Sökorsak i fönstret Vårdkontakt‑och efterregistrering och sedan spara kontakten.",
+    "keywords": [
+      "Vårdkontakt",
+      "efterregistrering",
+      "Sökorsak",
+      "remissväljare",
+      "Spara"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "hantering",
+      "registrering",
+      "remiss"
+    ],
+    "clinical_domain": [
+      "hälsovård",
+      "sjukvård"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Vårdkontakt- och efterregistrering. 2. I remissväljaren, välj Sökorsak. 3. I listrutan Remiss, välj ett av de listade alternativen som sökorsak. 4. Fyll i annan relevant information för kontaktregistreringen . 5. Klicka på Spara."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Via sökorsak i fönstret Ny anteckning",
+    "page": 1,
+    "section_id": "4.1.2",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg-instruktion för att öppna fönstret Ny anteckning och skapa ett hälsoärende genom att välja \"Sökorsak\".",
+    "keywords": [
+      "sökorsak",
+      "fönstret Ny anteckning",
+      "vårdkontakt",
+      "remissväljare",
+      "kontaktregistrering",
+      "hälsoregister",
+      "spara"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Dokumentation",
+      "Hälsoärende",
+      "Registrering",
+      "Remiss"
+    ],
+    "clinical_domain": [
+      "Övervakning",
+      "Diagnostik",
+      "Klinisk registrering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Ny anteckning . (CD Inmatning v.2) 2. I listrutan Vårdkontakt 3. I remissväljaren, välj Sökorsak. 4. I listrutan Remiss, välj ett av de listade alternativen som sökorsak . 5. Fyll i annan relevant information för kontaktregistreringen . 6. Klicka på Spara. Ett hälsoärende skapas med samma namn som sökorsaken."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Via sökorsak i fönstre t Bokningsunderlag eller",
+    "page": 1,
+    "section_id": "4.1.3",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att skapa ett hälsoärende genom att välja en sökorsak i fönstret Bokningsunderlag eller Snabbokningsunderlag.",
+    "keywords": [
+      "sökorsak",
+      "bokningsunderlag",
+      "snabbokningsunderlag",
+      "remissväljaren",
+      "remiss",
+      "spara",
+      "hälsovårde",
+      "användarmanual",
+      "COSMIC",
+      "hälsoärende"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Bokningsunderlag",
+      "Sökorsak",
+      "Hälsoärende",
+      "Navigering",
+      "Digitalt verktyg",
+      "Patienthantering"
+    ],
+    "clinical_domain": [
+      "ärendesystem",
+      "remissbehandling",
+      "sjukvård",
+      "hälsoupplysning"
+    ],
+    "text": "Snabbokningsunderlag Steg Åtgärd 1. Öppna fönstret Bokningsunderlag eller Snabbokningsunderlag . 2. I remissväljaren , välj Sökorsak. 3. I listrutan Remiss, välj ett av de listade alternativen som sökorsak. 4. Klicka på Spara. Ett hälsoärende skapas med samma namn som sökorsaken. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 23(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "På akutmottagning via sökorsak i fönstret",
+    "page": 1,
+    "section_id": "4.1.4",
+    "main_section_id": "3",
+    "context_summary": "Beskrivning av steg för att skapa ett hälsoärende i akutmottagningen genom att välja sökorsak i fönstret och spara informationen.",
+    "keywords": [
+      "fönster",
+      "vårdkontaktsinformation",
+      "sökorsak",
+      "remiss",
+      "kontaktinfo",
+      "välja",
+      "spara",
+      "hälsovårdsärende"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Akutmottagning",
+      "Sökorsak",
+      "Remiss",
+      "Vårdkontaktsinformation",
+      "Öppna fönster",
+      "Spara",
+      "Skapa hälsoärende"
+    ],
+    "clinical_domain": [
+      "Allmänmedicin",
+      "Akutvård",
+      "Elektronisk journal"
+    ],
+    "text": "Vårdkontaktsinformation Steg Åtgärd 1. Öppna fönstret Enhetsöversikt . 2. Öppna fönstret Vårdkontaktsinformation genom att klicka på Kontaktinfo . 3. I remissväljaren, välj Sökorsak. 4. I listrutan Remiss välj ett av de listade alternativen som sökorsak. 5. Fyll i annan relevant information i respektive fält. 6. Klicka på Spara. Ett hälsoärende skapas med samma namn som sökorsaken."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "I fönstret Hälsoärendeöversikt",
+    "page": 1,
+    "section_id": "4.1.5.1",
+    "main_section_id": 4,
+    "context_summary": "Steg för att öppna fönstret Hälsoärendeöversikt, skapa nytt hälsoärende, ställa in startdatum, välja namn, markera som kronisk och spara.",
+    "keywords": [
+      "hälsoärende",
+      "fönster",
+      "remiss",
+      "startdatum",
+      "kronisk",
+      "spara",
+      "ny hälsoärende"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsovård",
+      "Processer",
+      "Öppna fönster",
+      "Remisshantering",
+      "Kronisk hantering"
+    ],
+    "clinical_domain": [
+      "Hälsa",
+      "Kronisk sjukdom",
+      "Remisshantering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Hälsoärendeöversikt . 2. Klicka på knappen Nytt. 3. I remissväljaren, välj Remiss. 4. I fältet Startdatum , välj startdatum för hälsoärendet . 5. I listrutan Välj namn för det nya hälsoärendet , välj ett namn genom att söka fram det i listan eller ange ett namn i fritext. 6. Ange om hälsoärendet är kroniskt genom att markera kryssrutan Markera som kronisk 7. Klicka på knappen Spara."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "I widgeten Hälsoärenden",
+    "page": 1,
+    "section_id": "4.1.5.2",
+    "main_section_id": 4,
+    "context_summary": "Steg-för-steg-instruktion för att öppna och skapa ett nytt hälsoärende i COSMIC-systemet.",
+    "keywords": [
+      "Patientöversikt",
+      "Hälsoärende",
+      "plusikon",
+      "remissvägara",
+      "startdatum",
+      "kroniskt",
+      "Spara"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsoärende",
+      "Widget",
+      "Navigering",
+      "Datainmatning"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Telemedicin",
+      "Kronisk sjukdom"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Patientöversikt . 2. I widgeten Hälsoärende n, klicka på plusikonen till höger om rubriken. 3. I remissväjaren, välj Remiss. 4. I fältet Startdatum , välj startdatum för hälsoärendet. 5. I listrutan Välj namn för det nya hälsoärendet , välj ett namn genom att söka fram det i listan eller ange ett namn i fritext. 6. Ange om hälsoärendet är kroniskt genom att markera kryssrutan Markera som kronisk 7. Klicka på knappen Spara. COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 24(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "I fönstret Hälsoärendeöversikt",
+    "page": 1,
+    "section_id": "4.2.1",
+    "main_section_id": 3,
+    "context_summary": "Steg för att öppna fönstret Hälsoärendeöversikt, välja ett hälsoärende, skapa en ny bedömning och uppdatera.",
+    "keywords": [
+      "öppna",
+      "fönster",
+      "Hälsoärendeöversikt",
+      "välja hälsoärende",
+      "ny bedömning",
+      "vårdkontakt",
+      "namn",
+      "uppdatera"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsa",
+      "Fönsterhantering",
+      "Bedömning",
+      "Hälsoärende"
+    ],
+    "clinical_domain": [
+      "Hälsoärendehantering",
+      "Patientvård"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Hälsoärendeöversikt . 2. I navigeringslistan Hälsoärenden , välj det relevanta hälsoärendet. 3. Klicka på knappen Ny bedömning . 4. I listrutan Vårdkontakt , välj vårdkontakt . 5. I listrutan Välj namn för det nya hälsoärendet , välj ett namn genom att söka fram det i listan eller ange ett namn i fritext. 6. Klicka på knappen Uppdatera."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "I widgeten Hälsoärenden",
+    "page": 1,
+    "section_id": "4.2.2",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att skapa och uppdatera ett nytt hälsoärende genom widgeten Hälsoärenden i patientöversikt.",
+    "keywords": [
+      "Patientöversikt",
+      "Hälsoärende",
+      "Ny bedömning",
+      "Vårdkontakt",
+      "Listruta",
+      "Button",
+      "Uppdatera",
+      "Widget"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientdata",
+      "Hälsoärende",
+      "Användargränssnitt",
+      "Bedömning",
+      "Uppdatering"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Klinisk bedömning",
+      "Uppdatering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Patientöversikt . 2. I widgeten Hälsoärende n, klicka på ikonen för valt hälsoärende och välj menyalternativet Ny bedömning . 3. I listrutan Vårdkontakt , välj vårdkontakt . 4. I listrutan Välj namn för det nya hälsoärendet , välj ett namn genom att söka fram det i listan eller ange ett namn i fritext. 5. Klicka på knappen Uppdatera."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "I fönstret Hälsoärendeöversikt",
+    "page": 1,
+    "section_id": "4.3.1",
+    "main_section_id": "3",
+    "context_summary": "Instruktion för att öppna fönstret Hälsoärendeöversikt, välja ett hälsoärende och markera det som kronisk.",
+    "keywords": [
+      "Öppna",
+      "fönstret",
+      "Hälsoärendeöversikt",
+      "navigeringslista",
+      "Hälsoärenden",
+      "välj",
+      "relevant",
+      "kronisk",
+      "steg"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsoärende",
+      "Fönster",
+      "Navigering",
+      "Kronisk märkning"
+    ],
+    "clinical_domain": [
+      "Kronisk sjukdom",
+      "Patienthantering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Hälsoärendeöversikt . 2. I navigeringslistan Hälsoärenden , välj det relevanta hälsoärendet . 3. Klicka på knappen Markera som kronisk ."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "I widgeten Hälsoärenden",
+    "page": 1,
+    "section_id": "4.3.2",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steginstruktion för att öppna Patientöversikt, välja ett hälsoärende i widgeten och markera det som kroniskt.",
+    "keywords": [
+      "patientöversikt",
+      "hälsoärende",
+      "widget",
+      "ikonen",
+      "menyalternativ",
+      "kronisk"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsoärende",
+      "Patientöversikt",
+      "Vårdsystem",
+      "Användarguide"
+    ],
+    "clinical_domain": [
+      "Vård",
+      "Primärvård",
+      "Patientadministration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Patientöversikt . 2. I widgeten Hälsoärende n, klicka på ikonen för valt hälsoärende . 3. Välj menyalternativet Markera som kronisk . COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 25(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Slå ihop två hälsoärenden",
+    "page": 1,
+    "section_id": "4.4",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att slå ihop två hälsoärenden genom att öppna översikt, välja ärenden och klicka \"Slå ihop\".",
+    "keywords": [
+      "hälsoärende",
+      "slå ihop",
+      "översikt",
+      "menyalternativ",
+      "klicka",
+      "kombinera",
+      "navigering"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsoärendehantering",
+      "Arbete med ärenden",
+      "Process steg",
+      "Sammanfogning",
+      "Översikt"
+    ],
+    "clinical_domain": [
+      "Hälso- och sjukvård",
+      "Juridiska ärenden",
+      "Ärendehantering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Hälsoärendeöversikt . 2. I navigeringslistan Hälsoärenden , välj det hälsoärende som ska slås ihop med ett annat ärende . 3. Klicka på ikonen och välj menyalternativet Slå ihop. 4. Välj ärende att slå ihop med. Det är namnet på detta ärende som kommer att bli namnet på det hopslagna hälsoärendet. 5. Klicka på knappen Slå ihop."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Dela på två hälsoärenden",
+    "page": 1,
+    "section_id": "4.5",
+    "main_section_id": 2,
+    "context_summary": "Instruktioner för att dela ett hälsoärende i två separata ärenden.",
+    "keywords": [
+      "hälsobehov",
+      "ärendehantering",
+      "delning",
+      "Hälsoärendeöversikt",
+      "Dela",
+      "Dela upp",
+      "navigeringslista"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "ärendehantering",
+      "delning",
+      "hälsoärende",
+      "procedur",
+      "workflow"
+    ],
+    "clinical_domain": [
+      "sjukvårdsadministration",
+      "ärendebearbetning"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Hälsoärendeöversikt . 2. I navigeringslistan Hälsoärenden , välj det hälsoärende som ska delas. 3. Klicka på ikonen och välj menyalternativet Dela. 4. Välj vilket av de hopslagna ärendena som åter ska hanteras som ett separat hälsoärende . 5. Klicka på knappen Dela upp."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "I fönstret Hälsoärendeöversikt",
+    "page": 1,
+    "section_id": "4.6.1",
+    "main_section_id": 3,
+    "context_summary": "Steg för att öppna fönstret Hälsoärendeöversikt, välja ett hälsoärende och avsluta ärendet.",
+    "keywords": [
+      "öppna fönstret",
+      "hälsoärende",
+      "välja",
+      "avsluta ärende",
+      "navigeringslista",
+      "knapp"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "sjukvård",
+      "ärendehantering",
+      "fönstret",
+      "gränssnitt"
+    ],
+    "clinical_domain": [
+      "medicinska ärenden",
+      "hälsoadmin",
+      "sjukdomshantering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Hälsoärendeöversikt . 2. I navigeringslistan Hälsoärenden , välj det relevanta hälsoärendet . 3. Klicka på knappen Avsluta ärende."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "I widgeten Hälsoärenden",
+    "page": 1,
+    "section_id": "4.6.2",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg-instruktion för att öppna patientöversikten, välja ett hälsoärende och avsluta det med ett menyalternativ.",
+    "keywords": [
+      "patientöversikt",
+      "hälsoärende",
+      "widget",
+      "avsluta ärende",
+      "ikon",
+      "menyalternativ",
+      "COSMIC",
+      "Cambio Healthcare Systems",
+      "versionsinformation"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientinformation",
+      "Hälsoärende",
+      "Manual",
+      "Användargränssnitt",
+      "Process"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Klinisk hantering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Patientöversikt . 2. I widgeten Hälsoärende , välj relevant ärende. 3. Klicka på ikonen och välj menyalternativet Avsluta ärende . COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 26(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "I fönstret Hälsoärendeöversikt",
+    "page": 1,
+    "section_id": "4.7.1",
+    "main_section_id": 3,
+    "context_summary": "Steg-för-steg-instruktion för att öppna fönstret Hälsoärendeöversikt, välja ett hälsoärende, avmarkera det som kroniskt och avsluta ärendet.",
+    "keywords": [
+      "fönster",
+      "Hälsoärendeöversikt",
+      "navigeringslista",
+      "avmarkera",
+      "kronisk",
+      "avsluta",
+      "ärende"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsoärende",
+      "Öppna fönster",
+      "Navigering",
+      "Kronisk",
+      "Avsluta ärende"
+    ],
+    "clinical_domain": [
+      "Kronisk sjukdom",
+      "Patienthantering",
+      "Vårdadministration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Hälsoärendeöversikt . 2. I navigeringslistan Hälsoärenden , välj relevant hälsoärende . 3. Klicka på knappen Avmarkera som kronisk . 4. Klicka på knappen Avsluta ärende ."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "I widgeten Hälsoärenden",
+    "page": 1,
+    "section_id": "4.7.2",
+    "main_section_id": 3,
+    "context_summary": "Steg för att avmarkera kronisk och avsluta ett hälsoärende i widgeten Hälsoärenden.",
+    "keywords": [
+      "patientöversikt",
+      "hälsoärende",
+      "avmarkera",
+      "kronisk",
+      "avsluta ärende",
+      "widget"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "patientöversikt",
+      "ärendehantering",
+      "kronisk",
+      "stegvisa",
+      "uppgift"
+    ],
+    "clinical_domain": [
+      "patientdata",
+      "ärendestyrning",
+      "kronisk sjukdom"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Patientöversikt . 2. I widgeten Hälsoärende , välj relevant ärende. 3. Klicka på ikonen och välj menyalternativet Avmarkera som kronisk . 4. Klicka på ikonen igen och välj menyalternativet Avsluta ärende ."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "I fönstret Hälsoärendeöversikt",
+    "page": 1,
+    "section_id": "4.8.1",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för att öppna fönstret Hälsoärendeöversikt, välja en avslutad hälsoärende och återöppna den.",
+    "keywords": [
+      "öppna",
+      "fönstret",
+      "Hälsoärendeöversikt",
+      "navigeringslista",
+      "Avslutade",
+      "återöppna",
+      "hälsorapport"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hälsoärenden",
+      "Öppna fönster",
+      "Återöppna hälsoärende",
+      "Navigering",
+      "Avslutade",
+      "Händelsehantering"
+    ],
+    "clinical_domain": [
+      "Hälso- och sjukvård",
+      "Patienthantering",
+      "Arbetsmiljö"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Hälsoärendeöversikt . 2. I navigeringslistan Hälsoärenden , expandera sektionen Avslutade och välj relevant hälsoärend e. 3. Klicka på knappen Återöppna ."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "I widgeten Hälsoärenden",
+    "page": 1,
+    "section_id": "4.8.2",
+    "main_section_id": 3,
+    "context_summary": "Instruktion för hur man öppnar ett avslutat hälsoärende i patientöversiktswidgeten och återöppnar det.",
+    "keywords": [
+      "åtgärd",
+      "patientöversikt",
+      "hälsa",
+      "hälsoärende",
+      "widget",
+      "avslutade",
+      "återöppna",
+      "COSMIC"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "hälsa",
+      "patientvård",
+      "digitalt system",
+      "widget",
+      "hälsostatus"
+    ],
+    "clinical_domain": [
+      "Allmänmedicin",
+      "Patientvård",
+      "Digital hälsosystem"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Patientöversikt . 2. I widgeten Hälsoärende n, expandera sektionen Avslutade och välj relevant hälsoärende . 3. Klicka på ikonen och välj menyalternativet Återöppna . COSMIC Health Issue Introduktion & Användarmanual Version: 7.0 Datum: 2024-10-16 ©2024 Cambio Healthcare Systems AB 27(27) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Makulera ett hälsoärende",
+    "page": 1,
+    "section_id": "4.9",
+    "main_section_id": 2,
+    "context_summary": "Steg-för-steg-instruktion för att makulera ett hälsoärende via sökfunktion, navigeringslista och knapppuls.",
+    "keywords": [
+      "hälsoärende",
+      "maku",
+      "makulera",
+      "öppna",
+      "navigering",
+      "ikon",
+      "menyalternativ",
+      "knapp"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "hälsa",
+      "ärendehantering",
+      "systemadministration",
+      "digitalt"
+    ],
+    "clinical_domain": [
+      "Hälso- och sjukvård",
+      "Ärendehantering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Hälsoärendeöversikt . 2. I navigeringslistan Hälsoärenden , välj relevant hälsoärende . 3. Klicka på ikonen och välj menyalternativet Makulera . 4. Klicka på knappen Makulera ."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Länka remiss till hälsoärende",
+    "page": 1,
+    "section_id": "4.10",
+    "main_section_id": 2,
+    "context_summary": "Steg-för-steg-guide för att länka en remiss till ett hälsoärende: öppna fönstret, välj rätt ärende, fyll i data och signera.",
+    "keywords": [
+      "remiss",
+      "hälsa",
+      "patientlista",
+      "signera",
+      "skriv ut",
+      "länka",
+      "öppna fönster",
+      "välja ärende"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "patientadministration",
+      "remisshantering",
+      "process",
+      "läkaren"
+    ],
+    "clinical_domain": [
+      "Vård",
+      "Hälsoförvaltning",
+      "Administrativ vård"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Skicka Remiss. 2. Välj relevant h ä lsoärende i Patientlisten. Om fel hälsoärende är förvalt, klicka på det för att avmarkera. 3. Fyll i resten av remissinformationen. 4. Klicka på knappen Signera och skicka/Signera och skriv ut ."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Länka ny journalanteckning till h älsoärende",
+    "page": 1,
+    "section_id": "4.11",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att lägga till och signera en ny journalanteckning i ett specificerat hälsoärende.",
+    "keywords": [
+      "journalanteckning",
+      "hälsa",
+      "patientlista",
+      "hälsorende",
+      "signera",
+      "ny anteckning",
+      "avmarkera",
+      "förvalt"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Journalföring",
+      "Patienthantering",
+      "Digitala verktyg"
+    ],
+    "clinical_domain": [
+      "Hälsojournal",
+      "Patientadministration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Ny anteckning. 2. I Patientlisten, välj relevant hälsoärende . Om fel hälsoärende är förvalt, avmarkera det valet. 3. Skriv anteckningen. 4. Klicka på knappen Signera."
+  },
+  {
+    "source_file": "Cosmic manual hälsoärende v7.0.pdf",
+    "section": "Länka journalanteckning till h älsöärende i",
+    "page": 1,
+    "section_id": "4.12",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att länka en journalanteckning till ett eller flera hälsoärenden via journalfönstret, med steg för att öppna fönstret, högerklicka, välja länkalternativ och spara.",
+    "keywords": [
+      "journal",
+      "länka",
+      "hälsosituation",
+      "anteckning",
+      "uppdatera",
+      "länk",
+      "steg",
+      "spara",
+      "högerklicka",
+      "meny"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "journal",
+      "systematik",
+      "hälsoregister",
+      "administration",
+      "digitalisering"
+    ],
+    "clinical_domain": [
+      "Hälso- och sjukvård",
+      "Digital vård"
+    ],
+    "text": "fönstret Journal Steg Åtgärd 1. Öppna fönstret Journal. 2. Högerklicka på anteckningshuvudet i den relevanta anteckningen. 3. Välj menyalternativet Länka/uppdatera länk till hälsoärende n. 4. Markera ett eller flera hälsoärende n som journal anteckningen ska länkas till . 5. Klicka på knappen Spara."
+  }
+]

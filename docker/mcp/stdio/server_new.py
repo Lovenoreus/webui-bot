@@ -23,9 +23,16 @@ from langchain_core.messages import SystemMessage, HumanMessage
 
 import config
 # Reuse your existing class/models
+
+from vector_mistral_tool import hospital_support_questions_tool
+from create_jira_ticket import create_jira_ticket
+
 from active_directory import ActiveDirectory
 from active_directory import CreateUserPayload, PasswordProfile
 from vector_database_tools import cosmic_database_tool
+
+# RAG imports - temporarily commented out to focus on cosmic_database_tool
+# from rag_tools import retrieve_documents_tool, get_rag_tool_schema, RAGRetrieveRequest
 
 # ++++++++++++++++++++++++++++++++
 # ACTIVE DIRECTORY PYDANTIC MODELS START
@@ -105,6 +112,25 @@ class MCPServerInfo(BaseModel):
     capabilities: Dict[str, bool]
 
 
+class ThreadTicketRequest(BaseModel):
+    thread_id: str
+# Existing models currently used in the code
+class KnownProblemsRequest(BaseModel):
+    query: str
+    ticket_id: Optional[str] = None  # Add optional ticket_id field
+
+class CreateJiraRequest(BaseModel):
+    thread_id: str
+    conversation_topic: str
+    description: str
+    location: str
+    queue: str
+    priority: str
+    department: str
+    name: str
+    category: str
+
+
 ad = ActiveDirectory()
 
 ADMIN_API_KEY = os.getenv("MCP_ADMIN_API_KEY")  # set to enable header guard
@@ -148,6 +174,12 @@ class WeatherRequest(BaseModel):
 class CosmicDatabaseRequest(BaseModel):
     query: str = Field(..., description="The search query to find relevant information in the cosmic database")
 
+class HospitalSupportQuestionsRequest(BaseModel):
+    query: str = Field(..., description="The support question to search for in the hospital support knowledge base")
+
+
+# RAG request model is now imported from rag_tools
+
 
 def extract_sql_from_json(llm_output: str) -> str:
     """Extract SQL from LLM JSON response"""
@@ -176,6 +208,8 @@ DATABASE_SERVER_URL = get_database_server_url()
 
 if DEBUG:
     print(f"[MCP DEBUG] Database server URL: {DATABASE_SERVER_URL}")
+
+# RAG models are now initialized in the rag_tools module
 
 
 async def execute_query(query: str):
@@ -864,9 +898,806 @@ async def cosmic_database_endpoint(request: CosmicDatabaseRequest):
             "error": str(e)
         }
 
+
+# RAG endpoint is now handled by the rag_tools module through MCP tools
+
+
+# # ++++++++++++++++++++++++++++++++
+# # TICKET ENDPOINTS START
+# # ++++++++++++++++++++++++++++++++
+
+
+# @app.post("/ticket/create_jira")
+# async def create_jira_endpoint(request: CreateJiraRequest):
+#     """
+#     Create a hospital support ticket for technical, equipment, software, or facility issues.
+
+#     This endpoint collects and validates all required ticket fields, including:
+#       - conversation_topic: A brief summary of the issue (ticket title)
+#       - description: Detailed description of the problem
+#       - location: Where the issue is occurring (e.g., room, department)
+#       - queue: The hospital support queue to route the ticket (must be a valid queue)
+#       - priority: Urgency level (e.g., Critical, High, Normal)
+#       - department: Department responsible or affected
+#       - name: Name of the person reporting the issue
+#       - category: Type of issue (e.g., hardware, software, facility)
+
+#     The endpoint ensures all information is complete and the queue is valid before creating the ticket. On success, it returns a confirmation and ticket reference for follow-up. If required fields are missing or invalid, it returns an error with details.
+
+#     Returns:
+#         success (bool): True if the ticket was created successfully, False otherwise.
+#         result (dict): Ticket creation confirmation and reference details if successful.
+#         error (str, optional): Error message if ticket creation failed.
+#     """
+#     try:
+#         payload = request.model_dump()
+#         thread_id = payload.get("thread_id")
+
+#         # Keep asyncio.to_thread for synchronous create_jira_ticket function
+#         result = await asyncio.to_thread(create_jira_ticket, **payload)
+
+#         # Mark the ticket as completed after successful JIRA creation
+#         # if thread_id:
+#         #     await thread_ticket_manager.complete_ticket(thread_id)
+#         #     # Or even better, add a new status like "jira_created"
+#         #     # await thread_ticket_manager.update_field(thread_id, "status", "jira_created")
+
+#         #     if DEBUG:
+#         #         print(f"[CREATE_JIRA] Marked ticket as completed for thread: {thread_id}")
+
+#         return {"success": True, "result": result}
+#     except Exception as e:
+#         return {"success": False, "error": str(e)}
+
+
+# @app.post("/ticket/hospital_support_questions_tool")
+# async def hospital_support_questions_endpoint(request: HospitalSupportQuestionsRequest):
+#     """
+#     Identify support protocols, diagnostic questions, and routing information for hospital technical issues.
+
+#     This endpoint is used by a hospital technical support assistant to:
+#     - Analyze user problem reports (equipment, software, facility issues)
+#     - Return structured protocols, diagnostic questions, and recommended queue/department for ticket routing
+#     - Enforce strict workflow: ALL protocol diagnostic questions must be asked and answered sequentially before ticket creation
+#     - Ensure queue selection is always from the allowed QUEUE_CHOICES list
+#     - Never mention tool names, agent names, or internal components to the user
+#     - Return responses in the following format:
+#         - success (bool): Whether the tool executed successfully
+#         - message (str): Human-readable confirmation or error message
+#         - response (dict): Protocols, diagnostic questions, and routing info
+
+#     Usage rules:
+#     - Call this endpoint ONCE per new issue report
+#     - Pass the user's query exactly as written
+#     - Use the returned protocol to guide all diagnostic questioning (one question at a time)
+#     - Do NOT proceed to ticket creation until all protocol questions are answered
+#     - Always validate queue selection against QUEUE_CHOICES before creating a ticket
+#     - Never ask for information already provided in conversation history or stored fields
+#     - Never offer to skip protocol questions
+#     - Be friendly, conversational, and empathetic in all user interactions
+#     """
+#     try:
+#         if DEBUG:
+#             print(f"[HOSPITAL SUPPORT] Searching hospital support for query: {request.query}")
+#         result = await hospital_support_questions_tool(request.query)
+#         return {
+#             "success": True,
+#             "query": request.query,
+#             "result": result
+#         }
+#     except Exception as e:
+#         if DEBUG:
+#             print(f"[HOSPITAL SUPPORT] Error: {e}")
+#         return {
+#             "success": False,
+#             "query": request.query,
+#             "error": str(e)
+#         }
+
+
+# # ++++++++++++++++++++++++++++++++
+# # TICKET ENDPOINTS END
+# # ++++++++++++++++++++++++++++++++
+
+
+
+# +++++++++++++++++++++++++++
+# TICKET AGENT ENDPOINTS START
+# +++++++++++++++++++++++++++
+
+# Thread-based ticket storage - each thread has its own ticket data
+thread_tickets = {}
+
+
+class ThreadTicketManager:
+    def __init__(self):
+        self._tickets = {}  # thread_id -> ticket_data
+        self._lock = asyncio.Lock()
+
+    async def get_or_create_ticket(self, thread_id: str) -> Dict[str, Any]:
+        """Get existing ticket or create new one for thread"""
+        async with self._lock:
+            if thread_id not in self._tickets:
+                self._tickets[thread_id] = {
+                    "thread_id": thread_id,
+                    "description": "",
+                    "location": "",
+                    "priority": "",
+                    "category": "",
+                    "queue": "",
+                    "department": "",
+                    "name": "",
+                    "conversation_topic": "",
+                    "created_at": datetime.now().isoformat(),
+                    "last_updated": datetime.now().isoformat(),
+                    "status": "draft",
+                    "is_active": True,
+                    "field_entries": []
+                }
+                if DEBUG:
+                    print(f"[THREAD_TICKET] Created new ticket for thread: {thread_id}")
+
+            return self._tickets[thread_id]
+
+    async def has_active_ticket(self, thread_id: str) -> tuple[bool, Dict[str, Any]]:
+        """Check if thread has an active ticket"""
+        async with self._lock:
+            if thread_id in self._tickets:
+                ticket = self._tickets[thread_id]
+                is_active = ticket.get("is_active", False) and ticket.get("status") != "completed"
+                return is_active, ticket
+            return False, {}
+
+    async def complete_ticket(self, thread_id: str) -> Dict[str, Any]:
+        """Mark ticket as completed and ready for creation"""
+        async with self._lock:
+            if thread_id in self._tickets:
+                self._tickets[thread_id]["status"] = "completed"
+                self._tickets[thread_id]["completed_at"] = datetime.now().isoformat()
+                self._tickets[thread_id]["is_active"] = False
+                if DEBUG:
+                    print(f"[THREAD_TICKET] Completed ticket for thread: {thread_id}")
+                return self._tickets[thread_id]
+            return {}
+
+    async def update_field(self, thread_id: str, field_name: str, field_value: str) -> Dict[str, Any]:
+        """Update a field for specific thread"""
+        ticket = await self.get_or_create_ticket(thread_id)
+
+        async with self._lock:
+            old_value = ticket.get(field_name, "")
+            ticket[field_name] = field_value
+            ticket["last_updated"] = datetime.now().isoformat()
+
+            # Add to field entries log
+            ticket["field_entries"].append({
+                "timestamp": datetime.now().isoformat(),
+                "field": field_name,
+                "old_value": old_value,
+                "new_value": field_value,
+                "action": "update"
+            })
+
+            if DEBUG:
+                print(f"[THREAD_TICKET] Updated {field_name} for thread {thread_id}: '{old_value}' -> '{field_value}'")
+
+            return ticket
+
+    async def append_to_description(self, thread_id: str, text: str) -> Dict[str, Any]:
+        """Append text to description for specific thread"""
+        ticket = await self.get_or_create_ticket(thread_id)
+
+        async with self._lock:
+            old_description = ticket["description"]
+
+            if ticket["description"]:
+                ticket["description"] += f"\n\n{text}"
+            else:
+                ticket["description"] = text
+
+            ticket["last_updated"] = datetime.now().isoformat()
+
+            # Add to field entries log
+            ticket["field_entries"].append({
+                "timestamp": datetime.now().isoformat(),
+                "field": "description",
+                "old_value": old_description,
+                "new_value": ticket["description"],
+                "action": "append",
+                "appended_text": text
+            })
+
+            if DEBUG:
+                print(f"[THREAD_TICKET] Appended to description for thread {thread_id}")
+
+            return ticket
+
+    async def is_complete(self, thread_id: str) -> tuple[bool, list]:
+        """Check if ticket is complete for specific thread"""
+        ticket = await self.get_or_create_ticket(thread_id)
+
+        required_fields = ["description", "category", "priority"]
+        missing = []
+
+        for field in required_fields:
+            value = ticket.get(field, "").strip()
+            if not value:
+                missing.append(field)
+
+        is_complete_status = len(missing) == 0
+
+        if DEBUG:
+            print(f"[THREAD_TICKET] Thread {thread_id} complete: {is_complete_status}, missing: {missing}")
+
+        return is_complete_status, missing
+
+
+# Global thread ticket manager
+thread_ticket_manager = ThreadTicketManager()
+
+
+@app.post("/ticket/known_problems")
+async def known_problems_endpoint(request: KnownProblemsRequest):
+    """
+    Get known problems based on a query. Handle both new tickets and existing ticket updates.
+    If ticket_id is provided, this is an existing ticket - return continuation message.
+    If ticket_id is None, this is a new issue - process with Qdrant and LLM.
+    """
+    try:
+        # Get thread_id from request
+        thread_id = getattr(request, 'thread_id', None) or request.dict().get('thread_id', 'default')
+
+        if DEBUG:
+            print(f"[KNOWN_PROBLEMS] Processing query for thread: {thread_id}")
+
+        # This is a new ticket - proceed with full Qdrant + LLM flow
+        if DEBUG:
+            print(f"[API DEBUG] New ticket - Querying Qdrant for: {request.query}")
+
+        # Step 1: Query Qdrant for hospital support protocols
+        qdrant_result = await hospital_support_questions_tool(request.query)
+
+        if DEBUG:
+            print(f"[API DEBUG] Qdrant result: {qdrant_result}")
+
+        # Step 2: Select LLM provider based on configuration
+        if config.MCP_PROVIDER_OLLAMA:
+            provider = "ollama"
+            llm = ChatOllama(
+                model=config.MCP_AGENT_MODEL_NAME,
+                temperature=0,
+                base_url=config.OLLAMA_BASE_URL
+            )
+        elif config.MCP_PROVIDER_OPENAI:
+            provider = "openai"
+            api_key = os.environ.get("OPENAI_API_KEY")
+            if not api_key:
+                raise ValueError("OPENAI_API_KEY environment variable is required for OpenAI provider")
+            llm = ChatOpenAI(
+                model=config.MCP_AGENT_MODEL_NAME,
+                temperature=0,
+                api_key=api_key
+            )
+        elif config.MCP_PROVIDER_MISTRAL:
+            provider = "mistral"
+            api_key = os.environ.get("MISTRAL_API_KEY")
+            llm = ChatMistralAI(
+                model=config.MCP_AGENT_MODEL_NAME,
+                temperature=0,
+                mistral_api_key=api_key,
+                endpoint=config.MISTRAL_BASE_URL
+            )
+        else:
+            raise ValueError("Unsupported provider")
+
+        if DEBUG:
+            print(f"[API DEBUG] Using LLM provider: {provider}")
+
+        QUEUE_CHOICES = [
+            'Technical Support',  # General technical issues, equipment problems
+            'Servicedesk',  # First-line support, basic user assistance
+            '2nd line',  # Escalated technical issues requiring specialist knowledge
+            'Cambio JIRA',  # Cambio system-specific issues
+            'Cosmic',  # Cosmic system-related problems
+            'Billing Payments',  # Payment processing, billing inquiries
+            'Account Management',  # User account issues, access management
+            'Product Inquiries',  # Questions about products/services
+            'Feature Requests',  # New feature suggestions
+            'Bug Reports',  # Software bugs and defects
+            'Security Department',  # Security incidents, access violations
+            'Compliance Legal',  # Regulatory compliance, legal matters
+            'Service Outages',  # System downtime, service interruptions
+            'Onboarding Setup',  # New user setup, initial configuration
+            'API Integration',  # API-related issues and integrations
+            'Data Migration',  # Data transfer and migration issues
+            'Accessibility',  # Accessibility compliance and support
+            'Training Education',  # Training requests, educational support
+            'General Inquiries',  # Non-specific questions
+            'Permissions Access',  # Permission changes, access requests
+            'Management Department',  # Management-level issues
+            'Maintenance Department',  # Facility maintenance, equipment servicing
+            'Logistics Department',  # Supply chain, logistics issues
+            'IT Department',  # IT infrastructure, network issues
+        ]
+
+        # Step 3: Prepare LLM prompt for analyzing Qdrant response
+        system_prompt = """
+        You are an expert hospital support system analyzer. Your job is to process user queries and provide complete ticket information.
+
+        INPUT:
+        - User Query: {user_query}
+        - Available Protocols: {qdrant_response}
+        - Available Queues: {queue_choices}
+
+        TASK:
+        You will receive multiple hospital support protocols from the database. You must ALWAYS return a successful response by either:
+        1. SELECTING the most relevant protocol from the available options, OR
+        2. GENERATING your own response if none of the protocols are relevant enough
+
+        EVALUATION CRITERIA:
+        - Compare user query keywords with protocol keywords
+        - Match query intent with protocol issue_category and description
+        - Consider match_score from database (higher is better)
+        - Look for alignment between query type and protocol clinical_domain
+
+        RESPONSE RULES:
+        1. ALWAYS return success: true
+        2. If you SELECT a protocol, use its exact values for all fields
+        3. If you GENERATE, create appropriate values based on hospital operations knowledge
+        4. All questions must be specific, actionable, and relevant to hospital support
+        5. Queue must be one of the provided available queues: {queue_choices}
+        6. Priority levels: "low", "medium", "high", "critical"
+
+        OUTPUT FORMAT (JSON ONLY - NO MARKDOWN, NO EXPLANATIONS):
+
+        For SELECTED protocol:
+        {{
+          "success": true,
+          "source": "protocol",
+          "questions": [protocol's questions_to_ask array],
+          "issue_category": "protocol's issue_category",
+          "queue": "protocol's queue", 
+          "priority": "protocol's urgency_level",
+          "ticket_id": "will be generated separately"
+        }}
+
+        For GENERATED response:
+        {{
+          "success": true,
+          "source": "generated",
+          "questions": ["question1", "question2", "question3"],
+          "issue_category": "appropriate category for the issue",
+          "queue": "appropriate queue from available options",
+          "priority": "low|medium|high|critical",
+          "ticket_id": "will be generated separately"
+        }}
+
+        CRITICAL: Respond with valid JSON only. No additional text, no markdown blocks, no explanations.
+        """
+
+        messages = [
+            SystemMessage(content=system_prompt.format(
+                user_query=request.query,
+                qdrant_response=str(qdrant_result),
+                queue_choices=str(QUEUE_CHOICES)
+            ))
+        ]
+
+        # Step 4: Call LLM to analyze Qdrant response
+        if DEBUG:
+            print(f"[API DEBUG] Calling LLM to analyze Qdrant response for new ticket")
+
+        llm_response = llm.invoke(messages)
+
+        # Step 5: Process LLM response
+        try:
+            response_content = llm_response.content.strip()
+
+            if DEBUG:
+                print(f"[API DEBUG] Raw LLM response: {response_content}")
+
+            # Handle potential code block formatting
+            if response_content.startswith("```json"):
+                response_content = response_content.replace("```json", "").replace("```", "").strip()
+
+            elif response_content.startswith("```"):
+                response_content = response_content.replace("```", "").strip()
+
+            # Try to parse as JSON
+            try:
+                llm_output = json.loads(response_content)
+
+                if DEBUG:
+                    print(f"[API DEBUG] Parsed JSON successfully: {llm_output}")
+
+                # Generate ticket ID for new tickets (both success and clarification cases)
+                if llm_output.get("success") or llm_output.get("questions"):
+                    ticket_id = str(uuid.uuid4())
+
+                    llm_output["ticket_id"] = ticket_id
+                    llm_output["is_new_ticket"] = True
+
+                    # Create ticket in thread manager
+                    await thread_ticket_manager.get_or_create_ticket(thread_id)
+
+                    if DEBUG:
+                        print(f"[API DEBUG] Generated new ticket ID: {ticket_id}")
+
+                return llm_output
+
+            except json.JSONDecodeError as json_err:
+                if DEBUG:
+                    print(f"[API DEBUG] JSON parse failed: {json_err}")
+
+                # Try to extract JSON pattern from response
+                import re
+                json_pattern = r'\{.*\}'
+                match = re.search(json_pattern, response_content, re.DOTALL)
+
+                if match:
+                    try:
+                        llm_output = json.loads(match.group(0))
+
+                        # Generate ticket ID for extracted JSON too
+                        if llm_output.get("success") or llm_output.get("questions"):
+                            ticket_id = str(uuid.uuid4())
+                            llm_output["ticket_id"] = ticket_id
+                            llm_output["is_new_ticket"] = True
+
+                            # Create ticket in thread manager
+                            await thread_ticket_manager.get_or_create_ticket(thread_id)
+
+                        if DEBUG:
+                            print(f"[API DEBUG] Extracted JSON pattern successfully: {llm_output}")
+                        return llm_output
+                    except json.JSONDecodeError:
+                        pass
+
+                # If all JSON parsing fails, return error
+                return {
+                    "success": False,
+                    "error": f"Could not parse LLM response as JSON: {json_err}",
+                    "raw_response": response_content,
+                    "trigger_fallback": True
+                }
+
+        except Exception as e:
+            if DEBUG:
+                print(f"[API DEBUG] General error processing LLM response: {e}")
+            return {
+                "success": False,
+                "error": f"Error processing LLM response: {str(e)}",
+                "trigger_fallback": True
+            }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[API DEBUG] Known problems error: {e}")
+
+        return {
+            "success": False,
+            "error": str(e),
+            "trigger_fallback": True
+        }
+
+
+@app.post("/ticket/check_active")
+async def check_active_ticket_endpoint(request: ThreadTicketRequest):
+    """
+    Check if a thread has an active ticket.
+
+    Returns information about active tickets to prevent multiple concurrent tickets
+    and provide context about ongoing ticket creation process.
+    """
+    try:
+        thread_id = request.thread_id
+
+        if DEBUG:
+            print(f"[CHECK_ACTIVE] Checking active ticket for thread: {thread_id}")
+
+        has_active, ticket_data = await thread_ticket_manager.has_active_ticket(thread_id)
+
+        if has_active:
+            # Check if ticket is ready for completion
+            is_complete, missing_fields = await thread_ticket_manager.is_complete(thread_id)
+
+            response = {
+                "success": True,
+                "has_active_ticket": True,
+                "ticket_status": ticket_data.get("status", "draft"),
+                "is_complete": is_complete,
+                "missing_fields": missing_fields,
+                "created_at": ticket_data.get("created_at"),
+                "last_updated": ticket_data.get("last_updated"),
+                "field_count": len(ticket_data.get("field_entries", [])),
+                "message": "Active ticket found. Continue with this ticket or complete it to create a new one."
+            }
+
+            if is_complete:
+                response["message"] = "Ticket is complete and ready for JIRA creation."
+                response["ready_for_creation"] = True
+            else:
+                response["message"] = f"Active ticket in progress. Missing fields: {', '.join(missing_fields)}"
+                response["ready_for_creation"] = False
+
+            if DEBUG:
+                print(
+                    f"[CHECK_ACTIVE] Active ticket found - Status: {response['ticket_status']}, Complete: {is_complete}")
+
+            return response
+        else:
+            if DEBUG:
+                print(f"[CHECK_ACTIVE] No active ticket found for thread: {thread_id}")
+
+            return {
+                "success": True,
+                "has_active_ticket": False,
+                "message": "No active ticket found. Ready to create new ticket.",
+                "ready_for_new_ticket": True
+            }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[CHECK_ACTIVE] Error: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+@app.post("/ticket/complete")
+async def complete_ticket_endpoint(request: ThreadTicketRequest):
+    """Mark a ticket as completed and ready for JIRA creation"""
+    try:
+        thread_id = request.thread_id
+
+        if DEBUG:
+            print(f"[COMPLETE_TICKET] Completing ticket for thread: {thread_id}")
+
+        # Check if ticket exists and is complete
+        is_complete, missing_fields = await thread_ticket_manager.is_complete(thread_id)
+
+        if not is_complete:
+            return {
+                "success": False,
+                "error": f"Cannot complete ticket. Missing required fields: {', '.join(missing_fields)}",
+                "missing_fields": missing_fields
+            }
+
+        # Mark as completed
+        completed_ticket = await thread_ticket_manager.complete_ticket(thread_id)
+
+        if DEBUG:
+            print(f"[COMPLETE_TICKET] Ticket completed successfully for thread: {thread_id}")
+
+        return {
+            "success": True,
+            "message": "Ticket marked as completed and ready for JIRA creation",
+            "completed_at": completed_ticket.get("completed_at"),
+            "ready_for_jira": True
+        }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[COMPLETE_TICKET] Error: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+# ======================================
+# TICKET FIELD MANAGEMENT ENDPOINTS
+# ======================================
+
+@app.get("/ticket/{thread_id}")
+async def get_ticket_endpoint(thread_id: str):
+    """Get current ticket state for a thread"""
+    try:
+        if DEBUG:
+            print(f"[TICKET] Getting ticket for thread: {thread_id}")
+
+        ticket = await thread_ticket_manager.get_or_create_ticket(thread_id)
+        is_complete, missing = await thread_ticket_manager.is_complete(thread_id)
+
+        return {
+            "success": True,
+            "action": "get_ticket",
+            "thread_id": thread_id,
+            "ticket_data": ticket,
+            "is_complete": is_complete,
+            "missing_fields": missing,
+            "total_entries": len(ticket.get("field_entries", [])),
+            "message": f"Retrieved ticket data for thread {thread_id}"
+        }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[TICKET] Error: {e}")
+        return {"success": False, "action": "get_ticket", "error": str(e)}
+
+
+@app.patch("/ticket/{thread_id}/fields")
+async def update_ticket_fields_endpoint(thread_id: str, request: dict = Body(...)):
+    """Update one or more fields in a ticket"""
+    try:
+        fields_data = request.get('fields', {})
+
+        if DEBUG:
+            print(f"[TICKET] Updating fields for thread {thread_id}: {list(fields_data.keys())}")
+
+        if not fields_data:
+            return {"success": False, "error": "fields dictionary required"}
+
+        # Validate field names
+        ALLOWED_FIELDS = {
+            "description", "conversation_topic", "category", "queue",
+            "priority", "department", "name", "location"
+        }
+
+        invalid_fields = [f for f in fields_data.keys() if f not in ALLOWED_FIELDS]
+        if invalid_fields:
+            return {
+                "success": False,
+                "error": f"Invalid fields: {invalid_fields}. Allowed: {list(ALLOWED_FIELDS)}"
+            }
+
+        # Update each field
+        updated_fields = {}
+        for field_name, field_value in fields_data.items():
+            if field_value and str(field_value).strip():
+                await thread_ticket_manager.update_field(thread_id, field_name, str(field_value))
+                updated_fields[field_name] = field_value
+
+        # Get current state after updates
+        ticket = await thread_ticket_manager.get_or_create_ticket(thread_id)
+        is_complete, missing = await thread_ticket_manager.is_complete(thread_id)
+
+        return {
+            "success": True,
+            "action": "update_fields",
+            "thread_id": thread_id,
+            "updated_fields": updated_fields,
+            "ticket_data": ticket,
+            "is_complete": is_complete,
+            "missing_fields": missing,
+            "message": f"Updated {len(updated_fields)} fields for thread {thread_id}"
+        }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[TICKET] Error: {e}")
+        return {"success": False, "action": "update_fields", "error": str(e)}
+
+
+@app.post("/ticket/{thread_id}/description/append")
+async def append_ticket_description_endpoint(thread_id: str, request: dict = Body(...)):
+    """Append text to ticket description"""
+    try:
+        text = request.get('text', request.get('content', ''))
+
+        if DEBUG:
+            print(f"[TICKET] Appending to description for thread {thread_id}")
+
+        if not text:
+            return {"success": False, "error": "text content required"}
+
+        # Append to description
+        await thread_ticket_manager.append_to_description(thread_id, text)
+
+        # Get current state after append
+        ticket = await thread_ticket_manager.get_or_create_ticket(thread_id)
+        is_complete, missing = await thread_ticket_manager.is_complete(thread_id)
+
+        return {
+            "success": True,
+            "action": "append_description",
+            "thread_id": thread_id,
+            "appended_text": text,
+            "ticket_data": ticket,
+            "is_complete": is_complete,
+            "missing_fields": missing,
+            "message": f"Appended text to description for thread {thread_id}"
+        }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[TICKET] Error: {e}")
+        return {"success": False, "action": "append_description", "error": str(e)}
+
+
+@app.get("/ticket/{thread_id}/status")
+async def check_ticket_completeness_endpoint(thread_id: str):
+    """Check if ticket is complete and ready for creation"""
+    try:
+        if DEBUG:
+            print(f"[TICKET] Checking completeness for thread {thread_id}")
+
+        ticket = await thread_ticket_manager.get_or_create_ticket(thread_id)
+        is_complete, missing = await thread_ticket_manager.is_complete(thread_id)
+
+        return {
+            "success": True,
+            "action": "check_completeness",
+            "thread_id": thread_id,
+            "is_complete": is_complete,
+            "missing_fields": missing,
+            "total_entries": len(ticket.get("field_entries", [])),
+            "status": ticket.get("status", "draft"),
+            "message": "Complete" if is_complete else f"Missing: {', '.join(missing)}"
+        }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[TICKET] Error: {e}")
+        return {"success": False, "action": "check_completeness", "error": str(e)}
+
+
+@app.get("/ticket/{thread_id}/history")
+async def get_ticket_history_endpoint(thread_id: str):
+    """Get the field update history for a ticket"""
+    try:
+        if DEBUG:
+            print(f"[TICKET] Getting history for thread {thread_id}")
+
+        ticket = await thread_ticket_manager.get_or_create_ticket(thread_id)
+        field_entries = ticket.get("field_entries", [])
+
+        return {
+            "success": True,
+            "action": "get_history",
+            "thread_id": thread_id,
+            "field_entries": field_entries,
+            "total_entries": len(field_entries),
+            "created_at": ticket.get("created_at"),
+            "last_updated": ticket.get("last_updated"),
+            "message": f"Retrieved {len(field_entries)} field entries for thread {thread_id}"
+        }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[TICKET] Error: {e}")
+        return {"success": False, "action": "get_history", "error": str(e)}
+
+
+@app.post("/ticket/create_jira")
+async def create_jira_endpoint(request: CreateJiraRequest):
+    """Create a JIRA ticket"""
+    try:
+        payload = request.model_dump()
+        thread_id = payload.get("thread_id")
+
+        # Keep asyncio.to_thread for synchronous create_jira_ticket function
+        result = await asyncio.to_thread(create_jira_ticket, **payload)
+
+        # Mark the ticket as completed after successful JIRA creation
+        if thread_id:
+            await thread_ticket_manager.complete_ticket(thread_id)
+            # Or even better, add a new status like "jira_created"
+            # await thread_ticket_manager.update_field(thread_id, "status", "jira_created")
+
+            if DEBUG:
+                print(f"[CREATE_JIRA] Marked ticket as completed for thread: {thread_id}")
+
+        return {"success": True, "result": result}
+
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+# +++++++++++++++++++++++++++
+# TICKET AGENT ENDPOINTS END
+# +++++++++++++++++++++++++++
+
+
+
 # ++++++++++++++++++++++++++++++++
 # ACTIVE DIRECTORY ENDPOINTS START
 # ++++++++++++++++++++++++++++++++
+
+
+
+
 
 # ------------------------------
 # AZURE AD: Single operations endpoint
@@ -1624,7 +2455,41 @@ async def mcp_tools_list():
                 },
                 "required": ["query"]
             }
-        )
+        ),
+        MCPTool(
+            name="hospital_support_questions_tool",
+            description="You are a friendly technical support assistant for a hospital environment. This tool analyzes user problem reports (equipment, software, facility issues), returns structured support protocols, diagnostic questions, and recommended queue/department for ticket routing. It enforces strict workflow: ALL protocol diagnostic questions must be asked and answered sequentially before ticket creation. Queue selection is always from the allowed QUEUE_CHOICES list. Never mention tool names, agent names, or internal components to the user. Always check conversation history and stored fields before asking questions. Use the returned protocol to guide all diagnostic questioning (one question at a time). Do NOT proceed to ticket creation until all protocol questions are answered. Always validate queue selection against QUEUE_CHOICES before creating a ticket. Be friendly, conversational, and empathetic in all user interactions. Returns: success (bool), message (str), response (dict with protocols, diagnostic questions, and routing info).",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The support question to search for in the hospital support knowledge base"
+                    }
+                },
+                "required": ["query"]
+            }
+        ),
+        MCPTool(
+            name="create_jira_ticket",
+            description="Create a JIRA ticket for a support request, incident, or task. Use this tool to log issues, feature requests, or support needs in the JIRA system. Requires thread_id, conversation_topic, description, location, queue, priority, department, name, and category.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "thread_id": {"type": "string", "description": "Thread or conversation ID for the ticket context"},
+                    "conversation_topic": {"type": "string", "description": "Topic or subject of the conversation"},
+                    "description": {"type": "string", "description": "Detailed description of the issue or request"},
+                    "location": {"type": "string", "description": "Location related to the ticket (e.g., department, room)"},
+                    "queue": {"type": "string", "description": "JIRA queue or project name"},
+                    "priority": {"type": "string", "description": "Priority of the ticket (e.g., High, Medium, Low)"},
+                    "department": {"type": "string", "description": "Department related to the ticket"},
+                    "name": {"type": "string", "description": "Name of the requester or subject"},
+                    "category": {"type": "string", "description": "Category of the ticket (e.g., Incident, Request, Task)"}
+                },
+                "required": ["thread_id", "conversation_topic", "description", "location", "queue", "priority", "department", "name", "category"]
+            }
+        ),
+        MCPTool(**get_rag_tool_schema()),
     ]
 
     return MCPToolsListResponse(tools=tools)
@@ -1783,6 +2648,18 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
+        elif tool_name == "retrieve_documents":
+            # Use the new rag_tools module
+            result = await retrieve_documents_tool(
+                query=arguments.get("query"),
+                top_k=arguments.get("top_k", 3),
+                collection_name=arguments.get("collection_name", "json_documents_collection"),
+                language=arguments.get("language", "Answer in English")
+            )
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=result)]
+            )
+
         else:
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=f"Unknown tool: {tool_name}")],
@@ -1848,7 +2725,9 @@ async def root():
             "ad_add_group_member",
             "ad_remove_group_member",
             "ad_get_group_members",
-            "search_cosmic_database"
+            "search_cosmic_database",
+            "hospital_support_questions_tool",
+            "rag_retrieve_documents"
         ],
         "docs": "/docs",
         "mcp_compatible": True

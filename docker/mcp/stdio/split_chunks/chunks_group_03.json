@@ -1,0 +1,829 @@
+[
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "En kort introduktion till COSMIC Connection Overview och dokumentstruktur.",
+    "keywords": [
+      "Cosmic manual",
+      "användarinstruktioner",
+      "system",
+      "hälsovård",
+      "COSMIC",
+      "fönster"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Dokument",
+      "Introduktion",
+      "COSMIC Connection",
+      "Användarhandbok",
+      "Informationssystem"
+    ],
+    "clinical_domain": [
+      "Allmän hälsovård"
+    ],
+    "text": "Detta dokument innehåller information om Cambio COSMIC Connection Overview (fortsättningsvis kallad COSMIC Connection Overview ). Dokumentet är uppdelat i två delar bestående av en introduktion till fönstret, följt av ett separat kapitel med användarinstruktioner. Läsaren bör ha grundläggande kunskaper och erfarenhet av hälsovård, relevant område och av COSMIC."
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": "2",
+    "context_summary": "Visar dokumentets versionshistorik med datum och beskrivning.",
+    "keywords": [
+      "version",
+      "datum",
+      "första version",
+      "innehåll",
+      "digital version",
+      "Cambio Holding AB",
+      "inaktuella utskrifter"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "dokumenthistorik",
+      "version",
+      "ändringslogg",
+      "COSMIC",
+      "manual",
+      "anslutningsöversikt"
+    ],
+    "clinical_domain": [],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid. Version Datum Beskrivning 1.0 2023-04-04 Första version. Innehållet i dokumentet baseras på information som tidigare fanns i Gemensamma översikter i COSMIC Introduktion och användarmanual (v11) COSMIC Connection Overview Introduktion & Användarmanual Version: 1.0 Datum: 2023-04-04 ©2023 Cambio Holding AB 5(12) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Relaterade dokument",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "Tillgängliga dokument: COSMIC Psychiatry introduktion & användarmanual, ikoner i COSMIC och referensguide med kortkommandon.",
+    "keywords": [
+      "COSMIC",
+      "psykiatri",
+      "introduktion",
+      "användarmanual",
+      "ikoner",
+      "referensguide",
+      "kortkommandon"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokument",
+      "Manual",
+      "Referensguide",
+      "Ikoner"
+    ],
+    "clinical_domain": [
+      "psykiatri",
+      "mentalvård"
+    ],
+    "text": "Följande relaterade dokument finns tillgängliga : COSMIC Psychiatry Introduktion & Användarmanual Ikoner i COSMIC Referensguide Kortkommandon i COSMIC Referensguide"
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.4",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver termer, förkortningar och akronymer relaterade till patientanslutning inom sjukvården, samt olika typer av anslutningar och vårdformer.",
+    "keywords": [
+      "termer",
+      "förkortningar",
+      "akronymer",
+      "patientanslutning",
+      "vårdsform",
+      "ren anslutning",
+      "anslutningstyp",
+      "COSMIC"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Termer",
+      "Anslutning",
+      "Sjukvård",
+      "Dokumentation"
+    ],
+    "clinical_domain": [
+      "Allmänt",
+      "Patientvård",
+      "Verksamhetsanslutning"
+    ],
+    "text": "Följande tabell beskriver de termer, förkortningar och akronymer som förekommer i detta dokument. Term Beskrivning Anslutning En patient kan vara ansluten till olika verksamheter och processer inom sjukvården. Vilken typ av anslutning som det handlar om framgår av dess anslutningstyp, vilket är namngivet som vårdform på anslutningen. Ren anslutning En anslutning konfigurerad tillsammans med en så kallad ren vårdform , vilket innebär att den enbart är synligt i fönstret Anslutningsöversikt. Den kan inte användas för att koppla annan information till sig, exempelvis kontakter. Vårdform Är den typ av anslutning som det handlar om, exempelvis hemsjukvård, psykiatri osv. COSMIC Connection Overview Introduktion & Användarmanual Version: 1.0 Datum: 2023-04-04 ©2023 Cambio Holding AB 6(12) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.5.1",
+    "main_section_id": 3,
+    "context_summary": "Konventioner för typografi: fetstil används för termer i gränssnittet, kursiv för modul‑ och filnamn samt länkar, färg för värden, och Courier New för kodexempel och systemkommandon.",
+    "keywords": [
+      "fetstil",
+      "kursiv",
+      "färg",
+      "typografi",
+      "systemkommandon",
+      "kodexempel",
+      "gränssnitt",
+      "mjukvarurubrik"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "typografi",
+      "konventioner",
+      "gränssnitt",
+      "systemkommandon"
+    ],
+    "clinical_domain": [],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänk ar. Exempel: COSMIC Messenger, Properties.txt eller https://customer.cambio.se. Färg. värden, namn, typer och sökvägar. Exempel: tts med namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>."
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.5.2",
+    "main_section_id": 3,
+    "context_summary": "Denna sektion beskriver de ikoner som används i dokumentet för att uppmärksamma läsare på viktig information, marknads- och kundanpassningar samt licenskrav.",
+    "keywords": [
+      "ikoner",
+      "viktig information",
+      "marknadsanpassning",
+      "kundanpassning",
+      "licens",
+      "R8.2.03",
+      "COSMIC",
+      "Connection Overview"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokument",
+      "Användarmanual",
+      "COSMIC",
+      "Info",
+      "Visuella symboler",
+      "Marknadsinformation"
+    ],
+    "clinical_domain": [],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Svensk marknadsanpassning. Svensk kundanpassning. Licens krävs för att använda denna produkt/funktio n. Information för vyer med gränssnitt införda från R8.2.03. COSMIC Connection Overview Introduktion & Användarmanual Version: 1.0 Datum: 2023-04-04 ©2023 Cambio Holding AB 7(12) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om COSMIC Connection Overview"
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "Mjukvaran COSMIC Connection Overview hjälper vårdpersonal och medicinska sekreterare att hantera öppenvårdspatienter över tid.",
+    "keywords": [
+      "COSMIC Connection Overview",
+      "mjukvara",
+      "vårdpersonal",
+      "medicinska sekreterare",
+      "öppen vård",
+      "patienthantering",
+      "åldrar",
+      "vårdorganisation",
+      "vårdansvar",
+      "långsiktig vård"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Vård",
+      "Medicinsk information",
+      "Öppen vård",
+      "Mjukvara",
+      "Personalstöd"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Öppen vård",
+      "Hälsovårdssekretariat"
+    ],
+    "text": "COSMIC Connection Overview är en mjukvara med syfte att stödja vårdpersonal och medicinska sekreterare i att hantera öppenvårdspatienter i alla åldrar som vårdorganisationen har en längre period av vårdansvar för."
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Varningar och försiktighetsåtgärder",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Här listas varningar och försiktighetsåtgärder vid användning av COSMIC Connection Overview, inklusive att det inte är en ersättning för klinisk bedömning eller realtidsövervakning.",
+    "keywords": [
+      "COSMIC Connection Overview",
+      "vårning",
+      "försiktighetsåtgärder",
+      "diagnostik",
+      "behandling",
+      "patientobservation",
+      "patientbedömning",
+      "klinisk bedömning",
+      "realtidsövervakning",
+      "användarmanual"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "vård",
+      "diagnostik",
+      "patientbehandling",
+      "säkerhet",
+      "tillämpning"
+    ],
+    "clinical_domain": [
+      "Klinisk verksamhet",
+      "Patientövervakning",
+      "Medicinsk utrustning",
+      "Diagnostisk hjälpmedel"
+    ],
+    "text": "Följande varningar och försiktighetsåtgärder gäller : COSMIC Connection Overview bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. COSMIC Connection Overview är inte avsett för realtidsövervakning av vitala fysiologiska parametrar. COSMIC Connection Overview ersätter inte dir ekt patientobservation, patientbedömning eller klinisk bedömning. Observera att användarmanualen bör läsas innan användning av COSMIC Connection Overview . COSMIC Connection Overview Introduktion & Användarmanual Version: 1.0 Datum: 2023-04-04 ©2023 Cambio Holding AB 8(12) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Fönsteröversikt"
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Fönstret Anslutningsöversikt",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": 2,
+    "context_summary": "Fönstret Anslutningsöversikt visar och hanterar patientanslutningar, filtreras efter enheter, datum, status och vårdform. Anslutningar kan läggas till, ändras och avslutas samt visas i Patientlistan. Psykiatriska och öppenvårdsanslutningar har särskilda regler för vilka aktiviteter som visas och hur de hanteras.",
+    "keywords": [
+      "anslutning",
+      "patient",
+      "vårdform",
+      "filtrering",
+      "införläsning",
+      "ändring",
+      "avslutning",
+      "psykiatri",
+      "öppen vård",
+      "hemhjukvård",
+      "tillstånd",
+      "upphälsa"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Anslutningsöversikt",
+      "Patienthantering",
+      "Vårdadministration",
+      "Psykiatri",
+      "Öppen vård",
+      "Hemhjukvård",
+      "Användarmanual",
+      "Anslutningsterminologi"
+    ],
+    "clinical_domain": [
+      "Psykiatri",
+      "Allmän vård",
+      "Hemhjukvård",
+      "Barnhälsovård",
+      "Sjukvård",
+      "Öppen vård"
+    ],
+    "text": "Fönstret öppnas via huvudmeny eller med kortkommandot Ctrl + Skift + A . Det består av en översikt över anslutningar för en vald patient eller alla patienter. Informationen kan filtreras på bland annat vårdande enhet, datum, status och vårdform er. Anslutningar kan läggas till, ändras och avslutas , se avsnitt 5. Fönstret visar patienter som har vårdformer enligt valet i listrutan Vårdformer . Om en patient har en p ågående anslutning så kommer vårdformen för den anslutningen att visas i Patientlisten. Om patienten har flera pågående anslutningar med olika vårdformer så kommer dessa att visas via ett tooltip. COSMIC Connection Overview Introduktion & Användarmanual Version: 1.0 Datum: 2023-04-04 ©2023 Cambio Holding AB 9(12) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. I fönstret finns möjligheten att lägga till information om en anslutning. Detta utförs via kolumnen med ikonen . När fönstret Anslutningsöversikt används inom den psykiatriska vården kommer kolumnen Nästa aktivitet att visa vilka kommande patientaktiviteter som är planerade. Öppenvårdspatienter inom psykiatrin kommer också att ha anslutningar, men dessa anslutningar kommer inte att skapas eller avslutas från fönstret Anslutningsöversikt . Anslutningar för psykiatrin hanteras inom COSMIC Psychiatry och startas samt avslutas därifrån. För vissa patientgrupper, såsom hemsjukvård, kan det uppstå ett behov av att visa ett meddelande om att patienten för tillfället inte hanteras inom sin anslutning och därför ska uppehållsmarkeras. Det finns då möjlighet att ange vad uppehållet beror på. I de fall där patienten skrivs in på ett vårdtillfälle inom sluten vård, så kommer det att skapas ett automatiskt uppehåll i anslutningen, vilket indikerar att patienten är på sjukhus. När patienten skrivs ut från sjukhuset så kommer anslutningsuppehållet att tas bort automatiskt. COSMIC Connection Overview Introduktion & Användarmanual Version: 1.0 Datum: 2023-04-04 ©2023 Cambio Holding AB 10(12) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 4 Anslutningar När en vårdenhet har ansvar för en patient, till exempel inom öppen vård, och patienten inte är inskriven på en vårdavdelning, så finns möjligheten att ändå följa upp dessa patien ter med hjälp av en anslutning . Exempel på patientgrupper som kan ha anslutningar: Hemsjukvård Barnhälsovård Skolhälsovård Öppenvårdspatienter med diabetes Öppenvårdspatienter som erhåller tvångsvård Eftersom anslutningar i grunden är en typ av vårdåtagande så visas anslutningar i fönstret Vårdprocessöversikt under listrutan Visningsvariant och alternativet I de fall där anslutningarna enbart ska visas i fönstret Anslutningsöversikt så konfigureras detta tillsammans med vissa vårdformer att vara så kallade rena anslutningar. Då kan de bara hanteras och visas i fönstret Anslutningsöversikt och inga kontakter kan kopplas till dem. COSMIC Connection Overview Introduktion & Användarmanual Version: 1.0 Datum: 2023-04-04 ©2023 Cambio Holding AB 11(12) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 5 Instruktioner"
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Lägga till en ny anslutning",
+    "page": 1,
+    "section_id": "5.1",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att lägga till en ny anslutning med stegvisa åtgärder.",
+    "keywords": [
+      "Anslutningsöversikt",
+      "patient",
+      "Ny anslutning",
+      "Skapa anslutning",
+      "Spara",
+      "Patientlista",
+      "klicka",
+      "öppna"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Anslutning",
+      "Patientadministration",
+      "Manual",
+      "Stegvis instruktion",
+      "Digital interaktion"
+    ],
+    "clinical_domain": [
+      "Sjukvårdsadministration",
+      "Patienthantering"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Anslutningsöversikt . 2. Lägg till en patient i Patientlisten. 3. Klicka på knappen Ny anslutning . 4. I dialogfönstret Skapa anslutning , ange uppgifter om anslutningen och klicka på knappen Spara."
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Ändra en anslutning",
+    "page": 1,
+    "section_id": "5.2",
+    "main_section_id": 2,
+    "context_summary": "Instruktion för att ändra en anslutning i Anslutningsöversikt: öppna fönstret, välj anslutning, klicka på Ändra, uppdatera informationen i dialogen och spara.",
+    "keywords": [
+      "anslutning",
+      "ändra",
+      "Anslutningsöversikt",
+      "öppna fönster",
+      "välja",
+      "tabell",
+      "klicka",
+      "editera",
+      "uppdatera",
+      "spara"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "anslutning",
+      "systemhantering",
+      "dokumentation",
+      "konfiguration",
+      "instruktion"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd 1. Öppna fönstret Anslutningsöversikt . 2. Välj en anslutning i tabellen . 3. Klicka på knappen Ändra anslutning . 4. I dialogfönstret Editera anslutning för <...> , uppdatera informationen och klicka på knappen Spara."
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Avsluta en anslutning",
+    "page": 1,
+    "section_id": "5.3",
+    "main_section_id": 2,
+    "context_summary": "Detta avsnitt visar hur man avslutar en anslutning i Cosmic Connection Overview: öppna fönstret, välj anslutning, klicka på 'Ändra anslutning', markera 'Avsluta anslutning', ange datum, välj orsak och spara. Utskrifter kan bli föråldrade.",
+    "keywords": [
+      "avsluta anslutning",
+      "anslutningsöversikt",
+      "ändra anslutning",
+      "spara",
+      "datum",
+      "orsak",
+      "cosmic",
+      "IT",
+      "anslutning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Anslutningshantering",
+      "Utgående funktioner",
+      "Användarmanual",
+      "Cosmic",
+      "IT-lösningar"
+    ],
+    "clinical_domain": [
+      "IT",
+      "Systemadministration",
+      "Databas"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Anslutningsöversikt . 2. Välj en anslutning i tabellen. 3. Klicka på knappen Ändra anslutning . 4. I dialogrutan Editera anslutning för <...> , under rubriken Avslut, markera kryssrutan Avsluta anslutning . 5. Ange datum för avslut, välj en orsak och klicka på knappen Spara. COSMIC Connection Overview Introduktion & Användarmanual Version: 1.0 Datum: 2023-04-04 ©2023 Cambio Holding AB 12(12) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Lägga till ett uppehåll",
+    "page": 1,
+    "section_id": "5.4",
+    "main_section_id": "2",
+    "context_summary": "Steg-för-steg-instruktion för att lägga till ett nytt uppehåll för en hemvårdsanslutning i Anslutningsöversikt.",
+    "keywords": [
+      "uppehåll",
+      "hemvård",
+      "anslutning",
+      "datum",
+      "anledning",
+      "spara",
+      "Uppdatera",
+      "dialogfönster"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Hemvård",
+      "Ansökningsprocess",
+      "Systemhantering"
+    ],
+    "clinical_domain": [
+      "Hemvård"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Anslutningsöversikt . 2. Klicka på knappen Uppdatera . 3. Markera önskad hemvårds anslutning i tabellen. 4. Klicka på knappen Nytt uppehåll . 5. I dialogfönstret Ändra uppehåll , ange datum, välj anledning och klicka på knappen Spara."
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Ändra uppehåll",
+    "page": 1,
+    "section_id": "5.5",
+    "main_section_id": "2",
+    "context_summary": "Stegvisa instruktion för att öppna Anslutningsöversikt, uppdatera, välja hemvårdsanslutning, ändra uppehåll och spara datum och anledning.",
+    "keywords": [
+      "uppdatera",
+      "hemvårdsanslutning",
+      "ändra uppehåll",
+      "datum",
+      "anledning",
+      "spara",
+      "dialogfönster",
+      "anslutningsöversikt"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Administration",
+      "Hemvård",
+      "Anslutningsöversikt"
+    ],
+    "clinical_domain": [
+      "Hemvård",
+      "Primärvård"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Anslutningsöversikt . 2. Klicka på knappen Uppdatera . 3. Markera önskad hemvårdsanslutning i tabellen. 4. Klicka på knappen Ändra uppehåll . 5. I dialogfönstret Ändra uppehåll , ange datum, välj anledning och klicka på knappen Spara."
+  },
+  {
+    "source_file": "Cosmic manual anslutningsöversikt v1.0.pdf",
+    "section": "Lägga till tilläggsinformation",
+    "page": 1,
+    "section_id": "5.6",
+    "main_section_id": "2",
+    "context_summary": "Steg-för-steginstruktion för att lägga till tilläggsinformation till en anslutning via Anslutningsöversikt.",
+    "keywords": [
+      "anslutning",
+      "tilläggsinformation",
+      "Anslutningsöversikt",
+      "dialogruta",
+      "OK-knapp"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "anslutning",
+      "tilläggsinformation",
+      "inställningar"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd 1. Öppna fönstret Anslutningsöversikt . 2. Markera önskad anslutning i tabellen. 3. Dubbelklicka i kolumnen med ikonen eller högerklicka och välj menyvalet Tilläggsinformation . 4. I dialogrutan Tilläggsinformation , ange informationen och klicka på knappen OK."
+  },
+  {
+    "source_file": "Cosmic manual blanketter v5.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": "2",
+    "context_summary": "Detta dokument introducerar Cambio COSMIC Forms och beskriver dess huvudfunktioner. Modulen delas in i en översikt av fönster och ett separat kapitel med användarinstruktioner. Läsaren bör ha grundläggande kunskaper inom hälsovård och COSMIC.",
+    "keywords": [
+      "COSMIC Forms",
+      "modul",
+      "översikt",
+      "användarinstruktion",
+      "hälsovård",
+      "digitala formulär"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Kundmanual",
+      "Översikt",
+      "Instruktion",
+      "Digitala formulär",
+      "Hälsovård"
+    ],
+    "clinical_domain": [
+      "Hälsovård"
+    ],
+    "text": "Detta dokument beskriver Cambio COSMIC Forms (fortsättningsvis kallad COSMIC Forms), dess huvudfunktioner och egenskaper. Det är uppdelat i två delar: en introduktion till modulen bestående av en översikt över fönstren och ett separat kapitel med användari nstruktioner. Läsaren bör ha grundläggande kunskaper och erfarenhet av hälsovård, relevant område och av COSMIC."
+  },
+  {
+    "source_file": "Cosmic manual blanketter v5.0.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "En kort historik över dokumentets versioner och giltighet från 2016 till 2023.",
+    "keywords": [
+      "versionshistorik",
+      "datum",
+      "beskrivning",
+      "giltighet",
+      "COSM",
+      "IC",
+      "COSMIC",
+      "version",
+      "uppdatering"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumenthistorik",
+      "Versionkontroll",
+      "COSM",
+      "Publiceringshistorik"
+    ],
+    "clinical_domain": [],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid. Version Datum Beskrivning 1.0-2.0 2016-2022 Tidigare publicerade versioner. 3.0 2022-10-17 Avsnitt 1.3, information i copyrighttext och sidfot uppdaterade. Dokumentet är giltigt från COSM IC 3.7.0. 4.0 2023-01-04 Avsnitt 4.4 uppdaterat. Dokumentet är giltigt från COSM IC 3.8.0. 5.0 2023-03-30 Kapitel 2 och 3 uppdaterade. Dokumentet är giltigt från COSMIC 3.9.0. COSMIC Forms Introduktion & Användarmanual Version: 5.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 5(10) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual blanketter v5.0.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.3.1",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver typografiska konventioner i dokumentet, inklusive fetstil för gränssnittstermer, kursiv för modulnamn, färg för värden och Courier New för kodexempel.",
+    "keywords": [
+      "fetstil",
+      "kursiv",
+      "modulnamn",
+      "filnamn",
+      "webblänk",
+      "färg",
+      "typsnitt",
+      "systemkommando",
+      "kodexempel"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Typografi",
+      "Dokumentstandard",
+      "Användargränssnitt",
+      "Kodexempel",
+      "Färg",
+      "Typsnitt"
+    ],
+    "clinical_domain": [
+      "Klinik",
+      "Medicinsk information"
+    ],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger, Properties.txt eller https://customer.cambio.se. Färg. värden, namn, typer och sökvägar. Exempel: tts med namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>."
+  },
+  {
+    "source_file": "Cosmic manual blanketter v5.0.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.3.2",
+    "main_section_id": 3,
+    "context_summary": "Denna sektion beskriver olika ikoner som används för att uppmärksamma läsaren på viktig information, tips och marknadsspecifika anpassningar inom COSMIC Forms.",
+    "keywords": [
+      "Ikoner",
+      "information",
+      "tips",
+      "marknad",
+      "kundanpassning",
+      "licens",
+      "R8.2.03",
+      "COSMIC Forms",
+      "manual"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Ikoner",
+      "Användarinformation",
+      "Marknadsanpassning",
+      "Licensinformation",
+      "Instruktionsmanual"
+    ],
+    "clinical_domain": [],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Svensk marknadsanpassning. Svensk kundanpassning. Licens krävs för att använda denna produkt/funktio n. Information för vyer med gränssnitt införda från R8.2.03. COSMIC Forms Introduktion & Användarmanual Version: 5.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 6(10) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om COSMIC Forms"
+  },
+  {
+    "source_file": "Cosmic manual blanketter v5.0.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "COSMIC Forms är ett mjukvaruvärde för hälso- och sjukvårdspersonal som låter dem skapa, hantera och spara olika PDF‑blanketter (t.ex. intyg, patientbrev, myndighetsblanketter) i journalen, importera dem till ett sökbart bibliotek, skriva ut och skicka.",
+    "keywords": [
+      "COSMIC Forms",
+      "PDF‑blanketter",
+      "intyg",
+      "patientbrev",
+      "myndighetsblanketter",
+      "hälso- och sjukvård",
+      "journal",
+      "sökbart",
+      "importera",
+      "skriva ut",
+      "skicka"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "sjukvård",
+      "mjukvara",
+      "PDF‑blanketter",
+      "journalhantering",
+      "hälsoinformation"
+    ],
+    "clinical_domain": [
+      "hälso- och sjukvård"
+    ],
+    "text": "COSMIC Forms är en mjukvara med syfte att ge hälso - och sjukvårdspersonal stöd i arbetet med att skapa och hantera blanketter som t.ex. intyg, brev till patient och flertalet myndighetsblanketter. Blanketter av filformat PDF kan importeras till COSMIC EHR och visas up p i ett sökbart blankettbibliotek. Blanketter editeras och sparas i patientens journal och kan skrivas ut och skickas till mottagaren."
+  },
+  {
+    "source_file": "Cosmic manual blanketter v5.0.pdf",
+    "section": "Varningar och försiktighetsåtgärder",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Man varnar för förlorad text när ett textfält når sitt maximala antal tecken och instruerar att kontrollera att texten visas korrekt vid sparande, signering och utskrift; varningar om inaktuella utskrifter och om skyddade eller sekretessklassade blanketter.",
+    "keywords": [
+      "varning",
+      "max antal tecken",
+      "spara",
+      "signera",
+      "utskrift",
+      "inaktuell",
+      "blankett",
+      "sekretessklassning",
+      "skyddad",
+      "information"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Varningar",
+      "Säkerhet",
+      "Blankettkontroll",
+      "Sekretess"
+    ],
+    "clinical_domain": [
+      "Dokumentsäkerhet"
+    ],
+    "text": "Följande varningar och försiktighetsåtgärder gäller: När en blankett har textfält där max antal tecken har använts, kontrollera att all text syns när blanketten sparats eller signerats. Kontrollera även att all text syns vid utskrift av blanketten. COSMIC Forms Introduktion & Användarmanual Version: 5.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 7(10) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Fönstret Journal COSMIC Forms stödjer skapande och hantering av blanketter, t.ex. intyg, brev, och rapporter. Blankettsökord är borttaget i COSMIC CD Inmatning v2. Precis som journalanteckningar kan blanketter skyddas. Sekretessklassningen följer samma regler som för journal. Om en sekretess satts på en blankett visas texten <Sekretessklassad information>."
+  },
+  {
+    "source_file": "Cosmic manual blanketter v5.0.pdf",
+    "section": "Fliken Blankettbibliotek",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": 2,
+    "context_summary": "Information om hur man skapar och hanterar blanketter i COSMIC Forms, inklusive favoriter, bibliotekslistor och förhandsgranskning.",
+    "keywords": [
+      "blanketter",
+      "Blankettbibliotek",
+      "favoriter",
+      "förhandsgranskning",
+      "systemadministratör",
+      "Ny Blankett",
+      "COSMIC Forms",
+      "version 5.0"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Blanketter",
+      "Användarmanual",
+      "COSMIC Forms",
+      "Systemfunktion",
+      "Navigering"
+    ],
+    "clinical_domain": [
+      "Övrigt"
+    ],
+    "text": "Blanketter skapas via fliken Blankettbibliotek > knappen Ny blankett , alternativt genom att välja menyalternativet Ny Blankett . Information visas under följande områden: Favoriter (A) En lista bestående av blanketter som används ofta av en enhet eller användare. En användare kan skapa en egen blankettlista via ellipsknappen (...). Blankettbibliotek (B) Visar en fördefinierad blankettlista (bestämd av systemadministratör) , eller alla blanketter som användaren har tillgång till. Blankettinformation och förhandsgran skning (C) Visar detaljerad information och en förhandsgranskning av vald blankett. COSMIC Forms Introduktion & Användarmanual Version: 5.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 8(10) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual blanketter v5.0.pdf",
+    "section": "Vyn Dokument",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "Kort guide för att använda vyn ‘Dokument’ för att visa och hantera patient‑blanketter, inklusive filtrering, förnyelse och journalanteckningar.",
+    "keywords": [
+      "blankett",
+      "patient",
+      "systemkonfiguration",
+      "filter",
+      "intyg",
+      "högerklicksmeny",
+      "förnya",
+      "journalanteckning",
+      "COSMIC Forms",
+      "Datum",
+      "utskrivning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientdata",
+      "Blanketter",
+      "Systemfunktioner",
+      "Versionhantering",
+      "Utskrift"
+    ],
+    "clinical_domain": [
+      "Patientadministration",
+      "Dokumenthantering",
+      "Hälsovård"
+    ],
+    "text": "Beroende på hur systemet konfigurerats kan vyn Dokument användas för att visa en patients blanketter. Filter kan användas för att precisera vilka blanketter som ska visas, t.ex. intyg. Via en blanketts högerklicksmeny går det att visa eller förnya blanketten. En förnyad (uppdaterad) blankett läggs till i vyn samt som en journalanteckning. COSMIC Forms Introduktion & Användarmanual Version: 5.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 9(10) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 4 Instruktioner"
+  },
+  {
+    "source_file": "Cosmic manual blanketter v5.0.pdf",
+    "section": "Skapa en ny blankett",
+    "page": 1,
+    "section_id": "4.1",
+    "main_section_id": 2,
+    "context_summary": "Steg-för-steg-instruktion för hur man öppnar en journal, skapar en ny blankett, väljer mall, fyller i data, verifierar kontaktinformation och sparar eller signerar blanketten.",
+    "keywords": [
+      "blankett",
+      "journal",
+      "ny blankett",
+      "fyll i blankett",
+      "administratör",
+      "fält",
+      "spara",
+      "signera"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Blanketter",
+      "Journalhantering",
+      "Dokumenthantering",
+      "Vårdinformation"
+    ],
+    "clinical_domain": [
+      "sjukvårdsadministration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna föns tret Journal. 2. Välj något av följande alternativ: Klicka på knappen Ny blankett . Högerklicka på en journalanteckning och välj menyalternativet Fyll i en blankett från anteckning . Om så konfigurerat av administratör kan blankettens fält uppdateras/fyllas i automatiskt då motsvarande sökord ändras. 3. I fliken Blankettbibliote k, välj en blankett som den nya ska baseras på. 4. Klicka på Fyll i blankett . 5. Verifiera/uppdatera information om vårdkontakt och enhet. 6. Fyll i blanketten. Fönstret kan delas i två vyer för att visa och kopiera information via högerklic ksalternativet Lägg till text i blankett. 7. Spara eller signera."
+  },
+  {
+    "source_file": "Cosmic manual blanketter v5.0.pdf",
+    "section": "Visa en blankett",
+    "page": 1,
+    "section_id": "4.2",
+    "main_section_id": 2,
+    "context_summary": "Steg för att öppna och visa ett dokument i läsläge.",
+    "keywords": [
+      "öppna",
+      "fönster",
+      "Journal",
+      "Dokument",
+      "högerklicka",
+      "visa",
+      "blankett",
+      "läsläge",
+      "skriv ut",
+      "förnya"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Dokumenthantering",
+      "Blankett",
+      "Journalfunktioner"
+    ],
+    "clinical_domain": [
+      "Patientadministration"
+    ],
+    "text": "Steg Åtgärd 1. Öppna fönstret Journal. 2. Välj vyn Dokument . 3. Högerklicka på ett dokument och välj me nyalternativet Visa blanketten . Blanketten visas i läsläge och kan både skrivas ut och förnyas."
+  },
+  {
+    "source_file": "Cosmic manual blanketter v5.0.pdf",
+    "section": "Förnya en blankett",
+    "page": 1,
+    "section_id": "4.3",
+    "main_section_id": 2,
+    "context_summary": "Denna sektion beskriver steg‑för‑steg hur man förnyar en blankett i Journal‑systemet: öppna fönstret, välja vy, högerklicka på dokumentet och välja \"Förnya blankett\", uppdatera, spara, signera eller skriva ut.",
+    "keywords": [
+      "Öppna",
+      "Journal",
+      "Dokument",
+      "Högerklicka",
+      "Förnya blankett",
+      "Uppdatera",
+      "Spara",
+      "Signera",
+      "Skriva ut",
+      "COSMIC Forms"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Journal",
+      "Dokumenthantering",
+      "Blankett",
+      "Förnyelse"
+    ],
+    "clinical_domain": [],
+    "text": "Steg Åtgärd 1. Öppna fönstret Journal. 2. Välj vyn Dokument . 3. Högerklicka på ett dokument och välj menyalternativet Förnya blankett . 4. Uppdatera informationen och spara, signera eller skriv ut blanketten. COSMIC Forms Introduktion & Användarmanual Version: 5.0 Datum: 2023-03-30 ©2023 Cambio Holding AB 10(10) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual blanketter v5.0.pdf",
+    "section": "Skriva ut en blankett",
+    "page": 1,
+    "section_id": "4.4",
+    "main_section_id": 2,
+    "context_summary": "Beskrivning av stegen för att skriva ut en blankett samt skapa och logga referensinformation för utskriften.",
+    "keywords": [
+      "skriv ut",
+      "blankett",
+      "flik",
+      "Typoch",
+      "Enhet",
+      "Kommentar",
+      "referens",
+      "vårdenhet",
+      "vårdpersonal",
+      "datum",
+      "tid",
+      "dialogfönstret"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "blankett",
+      "utskrift",
+      "dokumentation",
+      "vårdenhet",
+      "referens",
+      "handbok"
+    ],
+    "clinical_domain": [
+      "administration"
+    ],
+    "text": "Steg Åtgärd 1. När en blankett visas i läsläge via fliken Blankett, klicka på knappen Skriv ut. 2. I dialogfönstret Skriv ut blankett , välj lämpliga alternativ i listrutorna Typoch Enhet. 3. I fältet Kommentar , ange vem som är blankettmottagare om det inte framgår tydligt i blanketten. Ange också menprövare om det behövs samt eventuell annan information relevant att dokumentera. En referens skapas automatiskt vid utskrift av blankett. Där visas: Typ av referens Från vilken vårdenhet utskrift skett Ansvarig vårdpersonal för blanketten Datum och tid för utskrift Kommentarsinformation i de fall det är ifyllt via dialogfönstret Skriv ut blankett ."
+  }
+]

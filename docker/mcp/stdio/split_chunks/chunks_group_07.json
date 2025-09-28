@@ -1,0 +1,1337 @@
+[
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Detta avsnitt ger en introduktion till Cambio Clinical Decision Support (CDS) Nursing Support – Pressure Ulcer, beskriver dess syfte, tillämplighet för individer >65 år, användaransvar och förutsättningar för riskbedömning med MNS.",
+    "keywords": [
+      "CDS",
+      "trycksår",
+      "riskbedömning",
+      "Nortonskala",
+      "MNS",
+      "patient",
+      "inneliggande",
+      "70‑år",
+      "evidens",
+      "användaransvar"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Användarguide",
+      "Trycksår",
+      "Kliniskt beslutsstöd",
+      "Riskbedömning",
+      "Nursing Support",
+      "Skala"
+    ],
+    "clinical_domain": [
+      "Nursing",
+      "Dermatologi",
+      "Trycksårsvård"
+    ],
+    "text": "Detta dokument beskriver Cambio Clinical Decision Support (CDS) Nursing Support - Pressure Ulcer (härefter CDS Nursing Support - Pressure Ulcer ) ur ett användarperspektiv. Läsaren förutsätts ha allmänt god datorvana och grundläggande kunskaper i COSMIC. Information om applicerbara och kompatibla versioner mellan beslutsstödet och underliggande journalsystem är angivet i dokumentets versionshistorik. CDS Nursing Support - Pressure Ulcer är ett kliniskt beslutsstöd utvecklat för att utvärdera risken för trycksår hos inneliggande patienter och för att underlätta skapandet av en individuell vårdplan med utgångspunkt från riskskattningen. Skalan Modifierad Nortonskala (MNS) ligger till grund för riskbedömningen av trycksår [1]. Beslutsstödet riktar sig huvudsakligen till inneliggande patienter från 65 års ålder eftersom det föreligger begränsat med evidens för tillämpning av riskskattningsskalan på yngre patientgrupper. Det är alltid användarens ansvar att ta ställning till om det är medicinskt lämpligt att använda beslutsstödet för att genomföra en riskbedömning hos patienterna. Beslutsstödet ska inte användas om användaren bedömer att det inte är medicinskt motiverat ."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": "2",
+    "context_summary": "Texten beskriver en detaljerad versionshistorik för Cosmos CDS manualen för trycksår, med datum, beskrivningar och vilka beslutsstöd‑ och COSMIC‑systemversioner varje dokument gäller för, samt uppdateringar i kapitlen.",
+    "keywords": [
+      "Versionshistorik",
+      "ändringar",
+      "kompatibilitet",
+      "beslutsstöd",
+      "journalsystem",
+      "COSMIC",
+      "CDS",
+      "trycksår",
+      "nursing support",
+      "manual"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Versionshantering",
+      "Beslutsstöd",
+      "Journalintegration",
+      "Trycksår",
+      "Manual"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Sköterskevård",
+      "Trycksår"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid samt kompatibla versioner mellan beslutsstödet och underliggande journalsystem. Version Datum Beskrivning 1.0 2020-04-30 Första version. Dokumentet gäller från beslutsstödsversion 3.1.x och COSMIC R8.2.03. 2.0 2020-11-20 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 4.0.x och COSMIC R8.2.07. 3.0 2021-06-08 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 5.0.x och COSMIC R8.2.07. CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 5(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Version Datum Beskrivning 4.0 2021-10-05 Avsnitt 3.3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 6.0.x och COSMIC R8.3.01. 4.1 2023-05-08 Kapitel 2 tillagt. 4.2 2024-01-16 Kapitel 2 uppdaterat."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": "2",
+    "context_summary": "Tabellen beskriver termer, förkortningar och akronymer som används i dokumentet, inklusive CDS (Clinical Decision Support), MNS (Modifierad Nortonskala).",
+    "keywords": [
+      "termer",
+      "förkortningar",
+      "akronymer",
+      "CDS",
+      "MNS",
+      "Nortonskala",
+      "trycksår"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "terminologi",
+      "referens",
+      "hälsa"
+    ],
+    "clinical_domain": [
+      "Trycksårsvård"
+    ],
+    "text": "Följande tabell beskriver de termer, förkortningar och akronymer som används i detta dokument. Term Beskrivning CDS Clinical Decision Support MNS Modifierad Nortonskala"
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.4.1",
+    "main_section_id": 3,
+    "context_summary": "Dokumentet beskriver typografiska konventioner för gränssnittet, inklusive fet- och kursiv stil, färgsystem, samt användning av Courier New för kodexempel och systemkommandon.",
+    "keywords": [
+      "typografi",
+      "fetstil",
+      "kursiv",
+      "modulnamn",
+      "filnamn",
+      "webblänkar",
+      "färg",
+      "Courier New",
+      "kodexempel",
+      "systemkommandon"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Dokumentation",
+      "Användargränssnitt",
+      "Typografi",
+      "UI-design",
+      "Manual"
+    ],
+    "clinical_domain": [
+      "Sårvård",
+      "Patientvård",
+      "Sjuksköterskefunktion"
+    ],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger, Properties.txt eller https://customer.cambio.se. Färg. värden, namn, typer och sökvägar. Exempel: namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter . Exempel: SET USERID=<user id>. CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 6(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.4.2",
+    "main_section_id": 3,
+    "context_summary": "Ikoner används för att uppmärksamma läsare på viktig information, med varning om kostnad eller licens. De innehåller tips och krav på tredjepartslicens för vissa funktioner.",
+    "keywords": [
+      "ikoner",
+      "information",
+      "uppmärksamhet",
+      "tips",
+      "kostnad",
+      "licens",
+      "tredjepart",
+      "CDS",
+      "trycksår",
+      "nursing support"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "ikoner",
+      "information",
+      "viktig information",
+      "tips",
+      "kostnad",
+      "licens",
+      "tredjepart",
+      "CDS",
+      "trycksår",
+      "nursing support"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Trycksår",
+      "Nursing"
+    ],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område.\nFöljande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning.\nTips Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet.\nEn tredjepartslicens krävs för att använda denna produkt/funktion.\nInformation för vyer med gränssnitt införda från R8.2.03 CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 7(22) Notera att utskrifter kan vara inaktuella.\nFör vid var tid aktuell version, se den digitala versionen.\n2 Om CDS Nursing Support Pressure Ulcer"
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "En klinisk beslutsstödsapplikation som bedömer trycksårrisk hos inlagda patienter 65+ och hjälper till att skapa individuella vårdplaner med fördefinierade åtgärder enligt Senior Alert.",
+    "keywords": [
+      "trycksår",
+      "Klinisk beslutsstöd",
+      "CDS",
+      "Modified Norton Scale",
+      "Senior Alert",
+      "vårdplan",
+      "inlagd patient",
+      "65 år"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Klinik",
+      "Trycksår",
+      "Beslutsstöd",
+      "Patientvård",
+      "Digital hälsa"
+    ],
+    "clinical_domain": [
+      "Trycksår",
+      "Gerontologi",
+      "Sköterskeplanering"
+    ],
+    "text": "Cambio Clinical Decision Support (CDS) Nursing Support - Pressure Ulcer Application (härefter CDS Nursing Support - Pressure Ulcer Application) är en klinisk beslutsstödsapplikation utvecklad för att stödja kliniker i bedömningen av risk för trycksår hos inneliggande vuxna patienter från 65 års ålder, baserat på Modified Norton Scale (MNS). CDS Nursing Support - Pressure Ulcer Application underlättar också skapandet av individuella vårdplaner, där mål och åtgärder manuellt kan läggas till från en lista av fördefinierade vårdåtgärder enligt riktlinjer från svenska Senior Alert registret."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Försiktighetsåtgärder",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": "2",
+    "context_summary": "Information om hur man ska hantera CDS Nursing Support – Pressure Ulcer Application för att undvika fel diagnostik eller behandling, betonar att appen inte ersätter klinisk bedömning och att användarmanualen ska läsas innan användning.",
+    "keywords": [
+      "CDS Nursing Support",
+      "Pressure Ulcer Application",
+      "försiktighetsåtgärder",
+      "diagnos",
+      "behandling",
+      "patientobservation",
+      "klinikbedömning",
+      "manual",
+      "realitidsövervakning",
+      "vitalparametrar"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patient säkerhet",
+      "Klinisk vägledning",
+      "Mjukvarusäkerhet",
+      "Skavsår",
+      "CDS-verktyg",
+      "Utbildning"
+    ],
+    "clinical_domain": [
+      "Skavsår",
+      "Näring",
+      "Sjukvårdsstöd"
+    ],
+    "text": "Följande försiktighetsåtgärder skall beaktas: CDS Nursing Support - Pressure Ulcer Application bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. CDS Nursing Support - Pressure Ulcer Application är inte avse dd för realtidsövervakning av vitala fysiologiska parametrar. CDS Nursing Support - Pressure Ulcer Application ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. Användarmanualen för CDS Nursing Support - Pressure Ulcer Application bör läsas innan användning."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Risker med användning av CDS",
+    "page": 1,
+    "section_id": "2.3",
+    "main_section_id": "2",
+    "context_summary": "Översikt över riskerna vid användning av CDS‑systemet: brist på nödvändiga data kan hindra rekommendationer, och nätverks- eller serverproblem kan göra beslutsstödet otillgängligt.",
+    "keywords": [
+      "risker",
+      "beslutsstöd",
+      "indata",
+      "rekommendation",
+      "hälsorelaterade risker",
+      "klinik",
+      "kunskap",
+      "CDS",
+      "CDS Runtime",
+      "nätverk",
+      "serverproblem",
+      "utskrift"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "risker",
+      "beslutsstöd",
+      "CDS",
+      "trycksår",
+      "klinik",
+      "digital hälsa"
+    ],
+    "clinical_domain": [
+      "Trycksår",
+      "Klinisk vård",
+      "Patientvård"
+    ],
+    "text": "Nedan följer en sammanfattning av de risker som medföljer denna produkt: Om beslutsstödet saknar nödvändig indata för att utföra en bedömning kommer en rekommendation inte kunna ges, detta betyder inte att det inte föreligger några hälsorelaterade risker för patienten. Som användare måste den kliniska kunskap och allmänna kännedom som användaren har om patienten alltid föregå det som genererats av beslutsstödet. Detta är tydligt beskrivet i denna användarmanual. CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 8(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Beslutsstödet kan vara oåtkomlig ifall det föreligger lokala anslutningsproblem till nätverket eller om beslutsstödstjänsten ligger nere på grund av CDS Runtime serverproblem."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Produkt- och kontaktinformation",
+    "page": 1,
+    "section_id": "2.4",
+    "main_section_id": 2,
+    "context_summary": "Produktetikett med produktinformation, versioner och kontaktuppgifter visas i beslutsstödets användargränssnitt. Allvarliga produktrelaterade incidenter ska rapporteras till Cambio och Läkemedelsverket. Dokumentation och CE-märkning anges samt tillverkningsinformation och registreringsnummer (SRN).",
+    "keywords": [
+      "produktetikett",
+      "produktnamn",
+      "produktversion",
+      "incidentrapport",
+      "kontaktinformation",
+      "SRN",
+      "CE-märkning",
+      "medicinteknisk produkt"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "produktinformation",
+      "kontakt",
+      "incidentrapport",
+      "CE-märkning",
+      "registrering"
+    ],
+    "clinical_domain": [
+      "Klinisk beslutsstöd",
+      "Medicinteknik",
+      "Kvalitet och säkerhet",
+      "Vårdpersonal"
+    ],
+    "text": "I beslutsstödets användargränssnitt kan en produktetikett visas via knappen . Den innehåller följande information: Produktnamn uppdelat i tre nivåer Cambio CDS - Clinical Decision Support Cambio CDS Runtime ( system) Beslutsstödets namn ( software item ) Produktversioner för beslutsstödet som software item och CDS Runtime som system. 1 https://www.lakemedelsverket.se Alla allvarliga produktrelaterade incidenter ska rapporteras till Cambio och behörig myndighet (Läkemedelsverket1). CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 9(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Adress (fysisk och internetadress) för ansvarig tillverkare, tillverkningsdatum och tillverkarens registreringsnummer (SRN). Cambio Healthcare Systems AB Gamla Tanneforsvägen 92 582 54 Linköping +46 13 20 03 00 https://www.cambiogroup.com/ SRN#: SE-MF-000001229 Dokumentation. Läs och följ anvisningarna i produktens introduktion & användarmanual. Via länken https://kb.cambio.se/ öppnas Kunskapsbanken med tillgång till dokumentation och övrig information. Medicinteknisk produkt. CE-märkning. Produkten uppfyller applicerbara krav i EG-direktiv 93/42/EEG. Unik produktidentifiering (produktspecifik kod). CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 10(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Att arbeta med CDS Nursing Support - Pressure Ulcer"
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Tillgång till CDS Nursing Support - Pressure Ulcer",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": "2",
+    "context_summary": "Användaren öppnar beslutsstödet manuellt via huvudmenyn för att göra riskbedömning; tillgång styrs av behörighetsinställningar, och via Trycksår-meny öppnas fönstret för riskbedömning, bedömning och vårdplan.",
+    "keywords": [
+      "riskbedömning",
+      "beslutsstöd",
+      "behörigheter",
+      "trycksår",
+      "Vårdskadeprevention",
+      "bedömning",
+      "vårdplan",
+      "COSMIC",
+      "användargränssnitt"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "trycksår",
+      "beslutsstöd",
+      "patientvård",
+      "riskbedömning",
+      "personalutbildning"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "patienthälsa",
+      "skötsel",
+      "vårdskadeprevention"
+    ],
+    "text": "För att genomföra en riskbedömning måste beslutsstödet öppnas manuellt av användaren via huvudmenyn i COSMIC. Tillgång till beslutsstödet styrs av lokala behörighetsinställningar. Via menyalternativet Trycksår öppnas fönstret Vårdskadeprevention Trycksår i vilket användaren anger information under de olika blocken Riskbedömning , Bedömning och Vårdplan ."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Grundläggande arbetsflöde",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver hur man, efter att ha fyllt i alla obligatoriska fält, får en riskbedömning för trycksår. Den förklarar risknivåerna (hög/låg), vilka åtgärder som rekommenderas och hur man kan skapa en individuell vårdplan som sparas i journalsystemet. Säkerhet med signering och möjliga alternativ när riskbedömningen avslutas beskrivas också.",
+    "keywords": [
+      "riskbedömning",
+      "trycksår",
+      "obligatoriska fält",
+      "vårdplan",
+      "MNS",
+      "CDS",
+      "bedömning",
+      "risknivå",
+      "journal",
+      "signering",
+      "patient",
+      "trycksårskontroll",
+      "riskklassificering"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Kvalitet och säkerhet",
+      "Vårdplanering",
+      "Riskbedömning",
+      "Trycksår",
+      "Dokumentation"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Sjukdomshantering",
+      "Riskhantering",
+      "Vårdprotokoll"
+    ],
+    "text": "Efter att ha startat beslutsstödet och registrerat samtliga obligatoriska fält genereras en riskbedömning baserad på parametrarna under rubriken Bedömning . Bedömningen anger vilken risknivå patienten har för trycksår samt totalpoängen för MNS. Bild 1 Fönstret Vårdskadeprevention - Trycksår Obligatoriska fält indikeras med en orange markering . Den visas så länge om information inte angetts. Vissa fält är frivilliga att fylla i f ör att dokumentera kompletterande information, men det krävs ej för att genomföra riskbedömningen. Efter att samtliga obligatoriska fält fyllts i presenteras risken för trycksår under rubriken Bedömning . CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 11(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Två olika bedömningar kan genereras baserat på informationen som matats in: Hög risk för trycksår Användaren rekommenderas att skapa en individuell vårdplan. Det går att skapa en vårdplan direkt via beslutsstödet som kan sparas i journalsystemet. Låg risk för tryckskada Användaren rekommenderas ej att skapa en individuell vårdplan men har fortfarande möjlighet att göra detta efter att en anledning har angivits. I normala fall krävs det inte att en individuell vårdplan upprättas. Skulle användaren önska skapa en vårdplan, trots låg risk för trycksår enligt MNS, finns möjlighet att göra detta genom att markera alternativet Ja som svar på frågan Skapa vårdplan? och därefter ange en anledning. När användaren har slutfört en riskbedömningssession finns följande två alternativ: Skapa vårdplan En signerad journalanteckning och en vårdplan kommer att skapas i journalsystemet efter att användaren klickat på knappen Signera bedömning & skapa vårdplan . Skapa inte vårdplan En signerad journalanteckning kommer att skapas i journalsystemet efter det att användaren klickat på knappen Signera bedömning . CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 12(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Översikt över blocken i fönstret",
+    "page": 1,
+    "section_id": "3.3",
+    "main_section_id": "2",
+    "context_summary": "En introduktion till vårdkadeprevention vid trycksår.",
+    "keywords": [
+      "Vårdskadeprevention",
+      "Trycksår"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Trycksår",
+      "Vårdskadeprevention",
+      "Medicinsk information"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Skötsel"
+    ],
+    "text": "Vårdskadeprevention Trycksår"
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Aktuella trycksår",
+    "page": 1,
+    "section_id": "3.3.1.1",
+    "main_section_id": 4,
+    "context_summary": "I detta avsnitt beskrivas hur man dokumenterar aktuella trycksår i ett 2D‑modell där användaren markerar lokalisation och graderingsalternativ, kan växla mellan framsida och baksida samt registrera generell ökad risk och övrig information.",
+    "keywords": [
+      "trycksår",
+      "lokalisation",
+      "gradering",
+      "2D‑modell",
+      "framsida",
+      "baksida",
+      "generell risk",
+      "patient",
+      "CDS Nursing Support",
+      "risknivå",
+      "övrig information"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Trycksår",
+      "Dokumentation",
+      "Patientövervakning",
+      "Kvalitetsvård",
+      "IT-system",
+      "Sjukvårdssoftware"
+    ],
+    "clinical_domain": [
+      "Särskild vård för trycksår",
+      "Patientövervakning",
+      "Rehabilitering"
+    ],
+    "text": "Under Aktuella trycksår kan användaren dokumentera aktuella trycksår genom att markera lokalisation och gradering av patients aktuella trycksår i en 2D ‑modell.\nBild 2 Aktuella trycksår\nFör att dokumentera ett trycksår klickar man på den cirkel som motsvarar lokalisationen av patientens trycksår.\nBild 3 Ange patientens trycksår framsida\nCDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 13(22)\nNotera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.\nDärefter kan trycksårsgraden anges genom att välja ett listrutealternativ.\nBild 4 Graderingsalternativ av patientens trycksår\nGraderingen att visas nu i cirkeln som representerar lokalisationen av trycksåret (eller riskområdet).\nBild 5 Angivet trycksår på höftbenskam höger framsida\nBeskrivningar av de olika alternativen visas genom att klicka på Gradering av trycksår.\nBild 6 Graderingsbeskrivningar av trycksår\nCDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 14(22)\nNotera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.\nDet går att växla från att dokumentera aktuella trycksår på framsidan av patienten till baksidan genom att klicka på knappen BAKSIDA och då ges tillgång till ytterligare lokalisationer.\nBild 7 Trycksår Framsida\nBild 8 Trycksår Baksida\nOm användaren bedömer att patienten har en generellt ökad risk för trycksår, d.v.s. om hela kroppen betraktas som riskområde, kan detta dokumenteras genom att markera kryssrutan Generell ökad risk för trycksår för hela kroppen .\nObservera att detta alternativ inte har någon koppling med de lokalisationer som visas i 2D ‑modellen.\nI textrutan Övrig information går det att dokumentera risknivå och lokalisation av trycksår på områden som inte finns representerade i 2D ‑modellen.\nBild 9 Övrig information\nCDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 15(22)\nNotera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Riskbedömning",
+    "page": 1,
+    "section_id": "3.3.1.2",
+    "main_section_id": 4,
+    "context_summary": "Beskrivning av användargränssnitt för riskbedömning med modifierad Nortonskala. Fält måste vara ifyllda och visas som obligatoriska; totalpoäng och risknivå uppdateras dynamiskt. Nollställningsfunktion finns.",
+    "keywords": [
+      "Riskbedömning",
+      "MNS",
+      "Nortonsskala",
+      "risknivå",
+      "totalpoäng",
+      "obligatoriska fält",
+      "Nollställ",
+      "beslutsstöd"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Riskbedömning",
+      "Skador",
+      "Nortonsskala",
+      "Patientvård",
+      "Beslutsstöd",
+      "Trycksår"
+    ],
+    "clinical_domain": [
+      "Trycksår",
+      "Patientvård",
+      "Riskhantering",
+      "Nursing"
+    ],
+    "text": "Informationen som användaren anger under Riskbedömning ( Modifierad Nortonskala) utgör grunden för riskbedömningen. I följande bild visas de frågor som ingår i riskskattningsskalan MNS och som måste vara ifyllda för att beslutsstödet ska generera en bedömning. Bild 10 Riskbedömning När användaren öppnar beslutsstödet ska samtliga fält , där användaren förväntas svara på frågor , vara tomma och obesvarade samt markerade som obligatoriska (orange markering). Efter att alla svar har fyllts i presenteras bedömningen under Bedömning . Totalpoäng och risknivå är responsiva och uppdateras när användaren fyller i nya eller ändrar existerande svar . Samtliga obligatoriska fält behöver dock vara ifyllda innan totalpoäng och riskbedömning presenteras. Användaren har möjligheten att trycka på knappen NOLLSTÄLL för att återställa alla fält och starta om riskbedömningen. CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 16(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Bedömning",
+    "page": 1,
+    "section_id": "3.3.2",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver hur man gör en riskbedömning för trycksår, totala poängen för MNS, och när och hur en vårdplan ska skapas samt vilka faktorer som kan påverka risknivån.",
+    "keywords": [
+      "trycksår",
+      "riskbedömning",
+      "MNS",
+      "vårdplan",
+      "kryssrutor",
+      "journalanteckning",
+      "Beslutsstöd",
+      "orsaker",
+      "risknivå"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Riskbedömning",
+      "Vårdplan",
+      "Trycksår",
+      "Beslutsstöd",
+      "Sjuksköterskearbete"
+    ],
+    "clinical_domain": [
+      "Sjuksköterskearbete",
+      "Patientvård",
+      "Kvalitetssäkring"
+    ],
+    "text": "Under Bedömning presenteras patientens risknivå samt den totala poängen för MNS som ligger till grund för risknivån. Bild 11 Bedömning Under rubriken Orsaker presenteras en lista av möjliga orsaker/riskfaktorer som kan påverka risken för trycksår. Det är inte obligatoriskt att ange detta. Den eller de kryssrutor som markeras kommer att ingå i journalanteckningen som skapas av beslutsstödet. Bild 12 Orsaker CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 17(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om användaren bedömer att patienten har ett behov av en vårdplan, trots att risken för trycksår är låg enligt riskbedömningen, ska en vårdplan upprättas. Beslutsstödet ger rekommendationer som endast ska betraktas som ett stöd för användaren. Användarens kunskap om patienten är alltid avgörande för beslutet och användaren har själv ansvar för samtliga medicinska beslut som fattas. Användarens kliniska bedömning skall alltid prioriteras före beslutsstödets bedömningar och rekommendationer. Beslutsstödet ersätter därmed inte beslutsfattaren. Under rubriken Nästa riskbedömningstillfälle kan ett datum för nästa planerade riskbedömningstillfälle anges som kommer ingå i journalanteckningen som skapas av beslutsstöde t. Bild 13 Nästa riskbedömningstillfälle Om patienten enligt riskbedömningen har en hög risk för trycksår kommer beslutsstödet automatiskt att visa vårdplansblocket. Om patienten har en låg risk för trycksår går det att aktivera vårdplansblocket manuellt . Enda skillnaden är att det då krävs att en anledning anges till varför en vårdplan måste skapas. Denna anges i ett fritextfält et Anledning till att skapa vårdplan som visas efter att alternativet Ja markerats som svar på frågan Skapa vårdplan? . Bild 14 Aktivering av vårdplan En komplett riskbedömning måste göras för att användaren ska kunna skapa en individuell vårdplan för patienten. CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 18(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Vårdplan",
+    "page": 1,
+    "section_id": "3.3.3",
+    "main_section_id": "3",
+    "context_summary": "Texten beskriver hur användare kan skapa och hantera en individuell vårdplan för patienter med trycksår, inklusive förutsättningar, vilka aktiviteter som kan väljas, samt hur planen skickas till journalsystemet. Den förklarar också begränsningarna för automatiska skapanden och stegen för manuell skapande i COSMIC.",
+    "keywords": [
+      "vårdplan",
+      "trycksår",
+      "riskbedömning",
+      "MNS",
+      "kryssrutor",
+      "SIGNERA BEDÖMNING",
+      "journalanteckning",
+      "aktivitet",
+      "COSMIC",
+      "manuell skapande"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Vårdplan",
+      "Trycksår",
+      "Patientvård",
+      "Bedömning",
+      "Aktivitetsplanering"
+    ],
+    "clinical_domain": [
+      "Skötsel av trycksår",
+      "Patientvård",
+      "Sjuksköterskefunktion"
+    ],
+    "text": "Under Vårdplan kan användare skapa en individuell vårdplan för patienten. Det är endast tillgängligt när beslutsstödet automatiskt tillgängliggjort blocket (vid bedömningen hög risk för trycksår) alternativt när användaren manuellt aktiverat vårdplansblocket (vid låg risk för trycksår enligt MNS). För att skapa en vårdplan krävs att följande två moment har genomförts: 1. En komplett riskbedömning har genomförts . 2. Användaren har valt minst ett mål för vårdplanen . När dessa kriterier har uppfyllts kan användaren välja vilka aktiviteter som ska ingå i vårdplanen genom att markera dess kryssrutor. Därefter presenteras en fritextruta där ytterligare information kan fyllas i om aktiviteten. I följande bild visas exempel på aktiviteterna som ingår i vårdplansmallen. Bild 15 Mål När de för patienten relevanta aktiviteterna markerats kan journalanteckningen och vårdplanen skapas i journalsystemet via knappen SIGNERA BEDÖMNING & SKAPA VÅRDPLAN. Observera att det inte går att klicka på knappen om inte de tidigare två momenten genomförts. CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 19(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Dialogrutan Signera bedömning & skapa vårdplan? visas där användaren ombeds bekräfta att vårdplanen ska skapas. Bild 16 Signera bedömning & skapa vårdplan? Viktigt: Det går endast att skapa nya vårdplaner genom beslutsstödet, d.v.s. det går inte att importera och ta del av befintliga vårdplaner i beslutsstödet. Det detekterar inte om en vårdplan redan har skapats för patienten vid ett tidigare tillfälle. Om en vårdplan behöver uppdateras genomförs detta lämpligen genom att redigera vårdplanen direkt i COSMIC. Kan vårdplanen av någon anledning inte skapas via beslutsstödet skall användaren skapa en vårdplan manuellt i COSMIC."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Journalanteckning",
+    "page": 1,
+    "section_id": "3.3.4",
+    "main_section_id": 3,
+    "context_summary": "När en vårdplan inte skapas måste användaren signera bedömningen för att skapa en journalanteckning som dokumenterar riskbedömningen och eventuell planering för nästa riskbedömning.",
+    "keywords": [
+      "journalanteckning",
+      "signera bedömning",
+      "riskbedömning",
+      "vårdplan",
+      "trycksår",
+      "dokumentation",
+      "nästa planerad riskbedömning",
+      "CDS"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Dokumentation",
+      "Nursing",
+      "Riskbedömning",
+      "Trycksår",
+      "Uppgift"
+    ],
+    "clinical_domain": [
+      "Vårdplanering",
+      "Riskbedömning",
+      "Trycksårhantering"
+    ],
+    "text": "När användaren valt att inte skapa en vårdplan måste man klicka på knappen SIGNERA BEDÖMNING och bekräfta att en journalanteckning ska skapas för att dokumentera riskbedömningen och eventuella orsaker och/ eller datum för nästa planerade riskbedömningstillfälle . Bild 17 Signera bedömning CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 20(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.4.1",
+    "main_section_id": 3,
+    "context_summary": "CBDS Nursing Support – Pressure Ulcer är ett kliniskt beslutsstöd som bearbetar inmatad data för att identifiera högriskpatienter och ge rekommendationer, men gör inga egna beslut.",
+    "keywords": [
+      "CDS",
+      "Nursing Support",
+      "trycksår",
+      "klinik",
+      "beslutsstöd",
+      "högriskpatient",
+      "handläggning",
+      "rekommendation",
+      "bedömning"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Vård",
+      "Patient säkerhet",
+      "Trycksår",
+      "Kliniskt beslutsstöd",
+      "Riskbedömning"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Patienthygien",
+      "Klinisk beslutsstöd"
+    ],
+    "text": "CDS Nursing Support - Pressure Ulcer är ett kliniskt beslutsstöd, vilket innebär att inmatad data bearbetas i enlighet med fördefinierade regler i syfte att underlätta för vårdpersonal att identifiera högriskpatienter för trycksår och att minimera risken för att en sådan vårdskada sker under vårdtiden. Bedömningar och förslag som genereras av beslutsstödet är enbart rekommendationer. Verktyget fattar inga egna beslut, och användaren skall alltid nyttja sin kliniska kompetens i kombination med beslutsstödet för att fatta beslut om adekvat handläggning. I följande avsnitt ges förenklad information om hur rekommendationerna genereras. Det syftar ej till att beskriva konfiguration och logik bakom aktuella regler."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Risknivåer",
+    "page": 1,
+    "section_id": "3.4.2",
+    "main_section_id": "3",
+    "context_summary": "Avsnittet beskriver hur CDS beslutsstödet använder Modifierad Nortonskala (MNS) för att beräkna risknivåer för trycksår, och hur det automatiskt visar eller döljer en vårdplan baserat på om patienten är hög eller låg risk.",
+    "keywords": [
+      "risknivå",
+      "trycksår",
+      "MNS",
+      "bedömning",
+      "hög risk",
+      "låg risk",
+      "vårdplan",
+      "CDS",
+      "beslutsstöd"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Trycksår",
+      "Riskbedömning",
+      "Vårdplan",
+      "Beslutsstöd",
+      "Medicinsk skala"
+    ],
+    "clinical_domain": [
+      "Palliativ vård",
+      "Skötsel och omsorg",
+      "Sjukdomsvård"
+    ],
+    "text": "För att beslutsstödet ska generera en bedömning krävs att samtliga obligatoriska fält för riskskattningsskalan MNS (Modifierad Nortonskala) har besvarats. Beslutsstödet genererar en bedömning som indikerar att patienten har en låg eller hög risknivå för trycksår baserat på totalpoängen. Följande tabell ger en beskrivning av risknivåerna . Poäng enligt MNS Gränsvärden hög/låg risk Beskrivning =< 20 Hög risk för trycksår Rekommendationen vid hög risk för trycksår är att upprätta en individuell vårdplan. Vårdplansblocket visas automatiskt om risken för trycksår bedöms vara hög. Om användaren inte vill skapa en vårdplan för en patient som bedöms ha en hög risk för trycksår kan användaren välja alternativet Nej som svar på frågan Skapa vårdplan? . När användaren valt det alternativet kommer vårdplansblocket automatiskt att döljas. > 20 Låg risk för tryckskada Vid låg risknivå behöver i normala fall en vårdplan inte upprättas. Om användaren bedömer att en risk föreligger finns fortfarande möjligheten att skapa en vårdplan. CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 21(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Hantering av spärrad information",
+    "page": 1,
+    "section_id": "3.4.3",
+    "main_section_id": 3,
+    "context_summary": "Patienter med spärrad information kan selektivt exkluderas från CDS; beslutet styrs av systemförvaltningens inställning och administratör, enligt regionens rutiner.",
+    "keywords": [
+      "spärrad information",
+      "CDS Nursing Support",
+      "trycksår",
+      "exkludera",
+      "systemförvaltning",
+      "administratör",
+      "regionens rutiner"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Spärrad information",
+      "CDS",
+      "Trycksår",
+      "Patienthantering",
+      "Systemförvaltning"
+    ],
+    "clinical_domain": [
+      "Trycksår",
+      "Patientinformation"
+    ],
+    "text": "Patienter med spärrad information kan selektivt exkluderas från CDS Nursing Support - Pressure Ulcer . Det är systemförvaltningens beslut om detta skall göras och styrs av en inställning som konfigureras av administratör. I övrigt är det regionens egna rutiner som gäller för hur spärrar kring beslutsstödet skall hanteras."
+  },
+  {
+    "source_file": "Cosmic manual CDS trycksår v4.2.pdf",
+    "section": "Felhantering",
+    "page": 1,
+    "section_id": "3.5",
+    "main_section_id": 2,
+    "context_summary": "Vid tekniskt fel inaktiveras beslutsstödet för CDS Nursing Support – Trycksår. Användaren får ett felmeddelande och stöd kan inte användas för patienten.",
+    "keywords": [
+      "tekniskt fel",
+      "beslutsstöd",
+      "CDS Nursing Support",
+      "Trycksår",
+      "felmeddelande",
+      "avstängning",
+      "patient"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "felhantering",
+      "beslutsstöd",
+      "trycksår",
+      "CDS",
+      "patient",
+      "sjukvård"
+    ],
+    "clinical_domain": [
+      "Trycksår",
+      "Omsorgsbedömning",
+      "Medicinsk IT"
+    ],
+    "text": "Om det uppstår ett tekniskt fel vid användning av CDS Nursing Support - Pressure Ulcer kommer beslutsstödet att inaktiveras varpå beslutsstödet inte kan användas för den aktuella patienten. Ett felmeddelande kommer då att visas för användaren. CDS Nursing Support - Pressure Ulcer - Introduktion & Användarmanual Version: 4.2 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 22(22) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix A - Referenser 1. Ek AC, Unosson M, Bjurulf P. The modified Norton scale and the nutritional state. Scand J Caring Sci. 1989;3(4):183-7. 2. Trycksår [Internet]. Vårdhandboken ; 2016 [cited 2018 Jan]. Available from: http://www.vardhandboken.se/Texter/Trycksar/Oversikt/."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Detta dokument introducerar Cambio Clinical Decision Support (CDS) Nursing Support - Malnutrition, beskriver dess funktioner, användarbehov och systemkrav, samt hur det bedömer vårdinnevarande patienters risk för undernäring med Mini Nutritional Assessment (MNA®).",
+    "keywords": [
+      "CDS",
+      "Malnutrition",
+      "Undernäring",
+      "Mini Nutritional Assessment",
+      "MNA",
+      "Kliniskt beslutsstöd",
+      "Nursing Support",
+      "Riskbedömning",
+      "Vårdplan",
+      "Patientvårdsplan"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Handbok",
+      "Kliniskt beslutsstöd",
+      "Nutrition",
+      "Patientvård",
+      "Journalintegration",
+      "MNA",
+      "Riskbedömning"
+    ],
+    "clinical_domain": [
+      "Nutrition",
+      "Geriatrik",
+      "Intensivvård"
+    ],
+    "text": "Detta dokument beskriver Cambio Clinical Decision Support (CDS) Nursing Support - Malnutrition (härefter CDS Nursing Support - Malnutrition ) och dess funktioner ur ett användarperspektiv. Läsaren förutsätts ha grundläggande kunskaper i COSMIC samt av datoranvändning generellt. Information om applicerbara och kompatibla versioner mellan beslutsstödet och underliggande journalsystem är angivet i dokumentets versionshistorik. CDS Nursing Support - Malnutrition är ett kliniskt beslutsstöd utvecklat för att utvärdera risken för undernäring hos inneliggande patienter och för att underlätta skapandet av en individuell vårdplan med utgångspunkt från riskskattningen. Skalan Mini Nutritional Assessment (MNA®) ligger till grund för riskbedömningen av undernäring [ 1]. Beslutsstödet ger rekommendationer som endast skall betraktas som understöd för användaren, då dennes kunskap om patienten alltid är avgörande för beslutet. Beslutsstödet ersätter därmed inte beslutsfattaren."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "Versionshistoriken visar ändringar och kompatibilitetsinformation för dokumentet genom olika versioner med datum och beskrivningar.",
+    "keywords": [
+      "versionshistorik",
+      "ändringar",
+      "kompatibilitet",
+      "underliggande journalsystem",
+      "beslutsstöd",
+      "COSMIC",
+      "Dokument",
+      "revision",
+      "datum"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumenthistorik",
+      "Versionshistorik",
+      "Systemkompatibilitet",
+      "Beslutsstöd",
+      "Journalssystem",
+      "Dokumentation",
+      "COSMIC"
+    ],
+    "clinical_domain": [
+      "Undernäring",
+      "Nutrition",
+      "Vård",
+      "Klinisk näring"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid samt kompatibla versioner mellan beslutsstödet och underliggande journalsystem. Version Datum Beskrivning 1.0 2020-04-30 Första version. Dokumentet gäller från beslutsstödsversion 3.1.x och COSMIC R8.2.03. 2.0 2020-11-20 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 4.0.x och COSMIC R8.2.07. 3.0 2021-06-10 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 5.0.x och COSMIC R8.2.07. 4.0 2021-10-05 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 6.0.x och COSMIC R8.3.01. 4.1 2024-01-16 Kapitel 2 uppdaterat. CDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 5(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "Tabellen definierar termer, förkortningar och akronymer som används i dokumentet, exempelvis CDS, MNA, Nursing Support Med etc.",
+    "keywords": [
+      "terminologi",
+      "CDS",
+      "MNA",
+      "undernäring",
+      "geriatrik",
+      "nursing support",
+      "vårdskadeprevention"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "terminologi",
+      "undernäring",
+      "geriatrik",
+      "sjukhusvård"
+    ],
+    "clinical_domain": [
+      "undernäring",
+      "geriatrik",
+      "sjukhusvård"
+    ],
+    "text": "Följande tabell beskriver de termer, förkortningar och akronymer som används i detta dokument. Term Beskrivning CDS Clinical Decision Support MNA Mini Nutritional Assessment Riskbedömningsinstrument för identifiering av patienters undernäring eller risk för undernäring inom geriatrik. Nursing Support Malnutrition Vårdskadeprevention - Undernäring"
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.4.1",
+    "main_section_id": 3,
+    "context_summary": "Dokumentet beskriver typografiska konventioner för gränssnitt, modulnamn, filer, sökvägar, färg, och systemkommandon med specifika exempel.",
+    "keywords": [
+      "typografi",
+      "fetstil",
+      "kursiv",
+      "färg",
+      "typsnitt",
+      "Courier New",
+      "systemkommandon",
+      "kodexempel",
+      "dokument",
+      "gränssnitt",
+      "fönster",
+      "knapp",
+      "modul",
+      "filnamn",
+      "sökväg",
+      "webblänk"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "typografi",
+      "grafisk design",
+      "dokumentation",
+      "gränssnitt"
+    ],
+    "clinical_domain": [
+      "patientvård",
+      "ernäring",
+      "hälsa"
+    ],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger , Properties.txt eller https://customer.cambio.se . Färg. värden, namn, typer och sökvägar. Exempel: där ersätts med namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.4.2",
+    "main_section_id": 3,
+    "context_summary": "Följer instruktioner kring hur olika ikoner används för att markera viktig information, tips, och tredjepartslicenser i dokumentet samt refererar till konfigurationer och kvantspecifika kostnader.",
+    "keywords": [
+      "Ikoner",
+      "Information",
+      "Tips",
+      "Tredjepartslicens",
+      "R8.2.03",
+      "CDS",
+      "Undernäring",
+      "Dokument",
+      "Konfiguration",
+      "Kostnad",
+      "Användarmanual"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Ikoner",
+      "Informationshantering",
+      "Dokumentdesign",
+      "Användargränssnitt",
+      "Utbildning"
+    ],
+    "clinical_domain": [
+      "Undernäring",
+      "Klinisk nutrition",
+      "Vård"
+    ],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. En tredjepartslicens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. CDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 6(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om CDS Nursing Support - Malnutrition"
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": 2,
+    "context_summary": "CDS Nursing Support – Malnutrition är en klinisk beslutsstödsapplikation för att bedöma risk för undernäring hos inlagda patienter 65 år och äldre med MNA. Verktyget stödjer också skapande av individuella vårdplaner och använder fördefinierade åtgärder från Senior Alert-registret.",
+    "keywords": [
+      "CDS",
+      "MNA",
+      "undernäring",
+      "seniora",
+      "vårdplan",
+      "Patient 65 år",
+      "Senior Alert"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Klinisk beslutsstöd",
+      "Näring",
+      "Vårdplanering",
+      "Geriatrik"
+    ],
+    "clinical_domain": [
+      "Näring",
+      "Geriatrik"
+    ],
+    "text": "Cambio Clinical Decision Support (CDS) Nursing Support - Malnutrition (härefter CDS Nursing Support - Malnutrition ) är en klinisk beslutsstödsapplikation utvecklat för att stödja kliniker i bedömningen av risk för undernäring hos inneliggande vuxna patienter från 65 års ålder, baserat på Mini Nutritional Assessment (MNA) skalan. CDS Nursing Support - Malnutrition underlättar också skapandet av individuella vårdplaner, där mål och åtgärder manuellt kan läggas till från en lista av fördefinierade vårdåtgärder enligt riktlinjer från svenska Senior Alert registret. Verktyget riktar sig huvudsakligen till inneliggande patienter från 65 års ålder eftersom det föreligger begränsat med evidens för tillämpning av riskskattningsskalan på yngre patientgrupper."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Säkerhetsföreskrifter",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Den här sektionen beskriver säkerhetsföreskrifter för användningen av CDS Nursing Support - Malnutrition, inklusive att det inte får användas ensam för diagnos eller behandling, inte är avsett för realtidsövervakning, inte ersätter patientobservations- eller klinisk bedömning, och att manuell ska läsas först.",
+    "keywords": [
+      "CDS Nursing Support - Malnutrition",
+      "säkerhet",
+      "diagnos",
+      "behandling",
+      "vitalparametrar",
+      "patientobservation",
+      "klinisk bedömning",
+      "manual",
+      "tillämpning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Klinik",
+      "Patientvård",
+      "Datorsystem",
+      "Säkerhetsregler"
+    ],
+    "clinical_domain": [
+      "Kost och näring",
+      "Kliniskt beslutsstöd",
+      "Mätning av vitalparametrar"
+    ],
+    "text": "Följande säkerhetsföreskrifter skall beaktas: CDS Nursing Support - Malnutrition bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. CDS Nursing Support - Malnutrition är inte avsedd för realtidsövervakning av vitala fysiologiska parametrar. CDS Nursing Support - Malnutrition ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. Användarmanualen för CDS Nursing Support - Malnutrition bör läsas innan användning."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Risker med användning av CDS",
+    "page": 1,
+    "section_id": "2.3",
+    "main_section_id": 2,
+    "context_summary": "Denna sektion sammanfattar riskerna vid användning av beslutsstödssystemet CDS för malnutrition. Riskerna innefattar saknad data, felaktig eller korrupt data från journalsystemet, bristande uppdatering av patientdata efter laddning, samt nätverks- eller serverproblem som gör systemet oåtkomligt.",
+    "keywords": [
+      "risk",
+      "beslutsstöd",
+      "felaktig data",
+      "inkorrekt data",
+      "patientdata",
+      "journalsystem",
+      "säkerhet",
+      "kvalitet",
+      "nätverk",
+      "serverproblem"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Riskhantering",
+      "Klinisk beslut",
+      "Datakvalitet",
+      "Patientdata",
+      "Nätverk",
+      "CDS",
+      "Malnutrition"
+    ],
+    "clinical_domain": [
+      "Malnutrition",
+      "Klinisk vård",
+      "Patientdatahantering"
+    ],
+    "text": "Nedan följer en sammanfattning av de risker som medföljer denna produkt: Om beslutsstödet saknar nödvändig indata för att utföra en bedömning kommer en rekommendation inte kunna ges, detta betyder inte att det inte föreligger några hälsorelaterade risker för patienten. Om beslutsstödet blir matad med inkorrekt eller korrumperad data från journalsystemet kan en felaktig rekommendation genereras av beslutsstödstjänsten. Som användare måste den kliniska kunskap och allmänna kännedom som användaren har om patienten alltid föregå det som genererats av beslutsstödet. Detta är tydligt beskrivet i denna användarmanual. CDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 7(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Beslutsstödet kommer bara ha tillgång till den patientdata som fanns i journalen när patienten laddades i journalsystemet. Om ny patientdata registrerats i patientens journal efter patientladdning finns det en risk att relevant information missas av beslutsstödet. Beslutsstödet kan vara oåtkomlig ifall det föreligger lokala anslutningsproblem till nätverket eller om beslutsstödstjänsten ligger nere på grund av CDS Runtime serverproblem."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Produkt- och kontaktinformation",
+    "page": 1,
+    "section_id": "2.4",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver produktetiketten för CDS Nursing Support Malnutrition, innehåller namn, version, CE-märkning, registreringsnummer, kontaktuppgifter till tillverkaren, samt hänvisning till manual och dokumentation.",
+    "keywords": [
+      "produktetikett",
+      "beslutsstöd",
+      "Malnutrition",
+      "Cambio Healthcare Systems",
+      "CE-märkning",
+      "registreringsnummer",
+      "kontaktinformation",
+      "versiön",
+      "produktnamn",
+      "reglering"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "produktinformation",
+      "kontakt",
+      "Reglering",
+      "CE-märkning",
+      "Malnutrition",
+      "beslutsstöd",
+      "användarmanual"
+    ],
+    "clinical_domain": [
+      "Näring",
+      "Omsorg",
+      "Medicinteknik"
+    ],
+    "text": "I beslutsstödets användargränssnitt kan en produktetikett visas via knappen . Den innehåller följande information: Produktnamn uppdelat i tre nivåer Cambio CDS - Clinical Decision Support Cambio CDS Runtime ( system) Beslutsstödets namn ( software item ) 1 https://www.lakemedelsverket.se Alla allvarliga produktrelaterade incidenter ska rapporteras till Cambio och behörig myndighet (Läkemedelsverket1). CDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 8(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Produktversioner för beslutsstödet som software item och CDS Runtime som system. Adress (fysisk och internetadress) för ansvarig tillverkare, tillverkningsdatum och tillverkarens registreringsnummer (SRN). Cambio Healthcare Systems AB Gamla Tanneforsvägen 92 582 54 Linköping +46 13 20 03 00 https://www.cambiogroup.com/ SRN#: SE-MF-000001229 Dokumentation. Läs och följ anvisningarna i produktens introduktion & användarmanual. Via länken https://kb.cambio.se/ öppnas Kunskapsbanken med tillgång till dokumentation och övrig information. Medicinteknisk produkt. CE-märkning. Produkten uppfyller applicerbara krav i EG -direktiv 93/42/EEG. Unik produktidentifiering (produktspecifik kod). CDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 9(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Att arbeta med CDS Nursing Support Malnutrition"
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Tillgång till CDS Nursing Support Malnutrition",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver hur användaren öppnar beslutsstödet för riskbedömning av undernäring i COSMIC genom att manuellt öppna menyalternativet Undernäring och ange information i Riskbedömning (MNA®), Bedömning och Vårdplan.",
+    "keywords": [
+      "beslutsstöd",
+      "riskbedömning",
+      "undernäring",
+      "COSMIC",
+      "MNA®",
+      "vårdskadeprevention",
+      "lokal behörighet",
+      "användargränssnitt",
+      "Vårdplan"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beslutsstöd",
+      "Mestärik system",
+      "Patientvård",
+      "Digitala verktyg"
+    ],
+    "clinical_domain": [
+      "Näringslära",
+      "Vårdplanering",
+      "Patientrisk"
+    ],
+    "text": "För att genomföra en riskbedömning måste beslutsstödet öppnas manuellt av användaren via huvudmenyn i COSMIC. Tillgång till beslutsstödet styrs av lokala behörighetsinställningar. Via menyalternativet Undernäring öppnas fönstret Vårdskadeprevention Undernäring i vilket användaren anger information under de olika blocken Riskbedömning (Mini Nutritional Assessment MNA®), Bedömning och Vårdplan ."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Grundläggande arbetsflöde",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "Beskrivar hur beslutsstödet för undernäring fungerar i Vårdskadeprevention‑Undernäring, automatiska dataimport, riskbedömning och vårdplansblocket samt användaransvar för lämplig användning.",
+    "keywords": [
+      "beslutsstöd",
+      "Vårdskadeprevention",
+      "Undernäring",
+      "riskbedömning",
+      "MNA",
+      "journalimport",
+      "vårdplan",
+      "geriatrik",
+      "patientrisk"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Vård",
+      "Klinisk data",
+      "Patientrisk",
+      "Automatiserad dataimport",
+      "Riskbedömning"
+    ],
+    "clinical_domain": [
+      "Geriatrik",
+      "Nutrition",
+      "Patientvård"
+    ],
+    "text": "Efter att ha startat beslutsstödet visas fönstret Vårdskadeprevention Undernäring i vilket en riskbedömning kan utföras genom att hantera information under de olika blocken. Se avsnitt 3.3 Översikt över blocken i fönstret Vårdskadeprevention - Undernäring för ytterligare information om dessa. Bild 1 Fönstret Vårdskadeprevention - Undernäring Riskbedömningen baseras på klinisk data som automatiskt importeras från journalsystemet oc h användarens registrerade svar på obligatoriska frågor i blocket Riskbedömning . Importerad data förifylls inte i blocket. CDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 10(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Efter att importerad och registrerad information analyserats presenteras bedömningen i blocket Bedömning med uppgift om patientens risknivå för undernäring samt totalpoängen för MNA®. I blocket Vårdplan kan en individuell vårdplan skapas för en patient. Detta block är automatiskt tillgängligt vid hög risk för undernäring alternativt undernärd eller när användaren aktiverat vårdplansblocket vid låg risk för undernäring enligt MNA®. Beslutsstödet importerar endast patientdata från journalsystemet vid tidpunkten när beslutsstödet öppnas. Det innebär till exempel att om en patients längd och/eller vikt uppdateras i journalsystemet medan beslutsstödet används , då kommer den nya informationen inte inhämtas förrän beslutsstödet öppnas på nytt. Verktyget riktar sig huvudsakligen till inneliggande patienter från 65 års ålder eftersom det föreligger begränsat med evidens för tillämpning av riskskattningsskalan på yngre patientgrupper. Det är alltid användarens ansvar att ta ställning till om det är medicinskt lämpligt att använda beslutsstödet för att genomföra en riskbedömning hos patienterna. Beslutsstödet ska inte användas om användaren bedömer att det inte är medicinskt motiverat el ler om patienten inte ger sitt samtycke till att medverka. CDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 11(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Översikt över blocken i fönstret",
+    "page": 1,
+    "section_id": "3.3",
+    "main_section_id": 2,
+    "context_summary": "Texten handlar om förhindrande av vårdskador vid undernäring.",
+    "keywords": [
+      "Vårdskadeprevention",
+      "undernäring",
+      "hälsa",
+      "patient",
+      "bistånd"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Vårdskadeprevention",
+      "Undernäring",
+      "Manual",
+      "Kliniska riktlinjer"
+    ],
+    "clinical_domain": [
+      "Näring",
+      "Patienthygien"
+    ],
+    "text": "Vårdskadeprevention - Undernäring"
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Riskbedömning (Mini Nutritional Assessment MNA®)",
+    "page": 1,
+    "section_id": "3.3.1",
+    "main_section_id": 3,
+    "context_summary": "I blocket visas frågor för riskbedömning med Mini Nutritional Assessment (MNA®). Frågor måste besvaras för att få en bedömning av näringsstatus. Valfria frågor kompletterar information. Förändringar sparar längd, vikt och BMI, och poäng och risknivå uppdateras. En nollställningsknapp återställer fälten och bedömningen visas när alla obligatoriska svar är ifyllda.",
+    "keywords": [
+      "Mini Nutritional Assessment",
+      "MNA®",
+      "riskbedömning",
+      "obligatoriska frågor",
+      "nollställ",
+      "BMI",
+      "patient",
+      "under‑näring"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Näring",
+      "Riskbedömning",
+      "Patientbedömning",
+      "Mini Nutritional Assessment",
+      "MNA",
+      "Obligatoriska frågor",
+      "BMI",
+      "Nollställningsknapp"
+    ],
+    "clinical_domain": [
+      "Näringslära",
+      "Geriatrik",
+      "Skötsel"
+    ],
+    "text": "I blocket visas de frågor som ingår i riskskattningsskalan Mini Nutritional Assessment ( MNA®). Dessa frågor utgör grunden för riskbedömningen. Bild 2 Blocket Riskbedömning Riskbedömningen baseras på användarens svar på de obligatoriska frågorna ( ), d.v.s. dessa måste besvaras för att beslutsstödet ska kunna generera en bedömning om patient är undernärd eller hög eller låg risk föreligger för undernäring . Bild 3 Riskbedömning frågor CDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 12(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Övriga frågor är frivilliga att besvara och svaren ges som kompletterande information, d.v.s. krävs ej för att genomföra riskbedömningen De värden för längd och vikt som användaren anger i beslutsstödet kommer att sparas till journalsystemet tillsammans med det uträknade värdet för BMI när bedömningen signeras. När användaren fyller i nya eller ändrar existerande svar uppdateras totalpoängen och risknivån förutsatt att samtliga obligatoriska frågor är besvarade. Genom att klicka på knappen NOLLSTÄLL kan alla fält återställas och användaren kan starta om riskbedömningen om så önskas. Efter att alla svar har fyllts i presenteras bedömningen i blocket Bedömning ."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Bedömning",
+    "page": 1,
+    "section_id": "3.3.2",
+    "main_section_id": 3,
+    "context_summary": "Detta avsnitt beskriver hur riskbedömning för undernäring görs i blocket Bedömning baserat på MNA®. Det föreslår tre möjliga resultat (återstående risk, hög risk, låg risk) och beskriver hur man skapar och aktiverar en individuell vårdplan, hanterar orsaker, nästa bedömningstid och signering av journalanteckning.",
+    "keywords": [
+      "riskbedömning",
+      "undernäring",
+      "MNA",
+      "vårdplan",
+      "aktivering",
+      "signering",
+      "journal",
+      "risknivå",
+      "orsaker",
+      "nästa bedömning",
+      "frivillig"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Undernäring",
+      "Riskbedömning",
+      "Vårdplan",
+      "Patientdokumentation",
+      "Beslutsstöd"
+    ],
+    "clinical_domain": [
+      "Näring",
+      "Vårdplanering",
+      "Patientvård",
+      "Beslutsstöd"
+    ],
+    "text": "I detta block visas d en genererade bedömningen av risk för undernäring . Patientens risknivå samt poängen för MNA® presenteras. Bild 4\nBlocket Bedömning\nBaserat på de besvarade obligatoriska frågorna i blocket Riskbedömning kan följande tre olika bedömningar genereras:\nUndernärd\nAnvändaren rekommenderas att skapa en individuell vårdplan. En vårdplan kan skapas direkt i fönstret och den sparas i journalsystemet.\nHög risk för undernäring\nAnvändaren rekommenderas att skapa en individuell vårdplan. En vårdplan kan skapas direkt i fönstret och den sparas i journalsystemet.\nCDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 13(18)\nNotera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.\nLåg risk för undernäring\nIngen rekommendation då det i normala fall inte krävs att en individuell vårdplan upprättas. Användaren har dock möjlighet att skapa en vårdplan vid låg risk enligt MNA® efter att ha angett en anledning till beslutet.\nUnder rubriken Orsaker presenteras en lista av möjliga orsaker/riskfaktorer som kan påverka risken för undernäring. Dessa är valfria att ange. Ett eller flera alternativ kan markeras och valda orsaker kommer att ingå i journalanteckningen som skapas av beslutsstödet.\nBild 5\nOrsaker\nUnder rubriken Nästa bedömningstillfälle kan ett datum anges för nästa planerade bedömningstillfälle. Det kommer att ingå i journalanteckningen som skapas av beslutsstödet.\nBild 6\nNästa riskbedömningstillfälle\nUnder rubriken Aktivering av vårdplan anges om en vårdplan ska skapas eller inte genom att klicka på alternativet Ja respektive Nej.\nBild 7\nAktivering av vårdplan\nOm patienten enligt riskbedömningen har hög risk för undernäring , eller bedöms vara undernärd , kommer applikationen automatiskt att tillgängliggöra blocket Vårdplan .\nCDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 14(18)\nNotera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen.\nDetta block kan även aktiveras av användaren för att skapa en vårdplan även vid låg risk för undernäring genom att klicka på Ja som svar på frågan Skapa vårdplan? samt därefter ange en anledning i fritextfältet Anledning till att skapa vårdplan .\nBild 8\nAktivering av vårdplan\nOm användaren klickar på Nej, d.v.s. väljer att inte skapa någon vårdplan måste information om riskbedömning samt eventuella orsaker och/eller datum för nästa planerade bedömningstillfälle dokumenteras. \nFör att skapa en journalanteckning klickar man på knappen SIGNERA BEDÖMNING .\nBild 9\nKnappen Signera bedömning\nI dialogrutan Signera bedömning? som visas ges information och användaren får bekräfta att en signerad journalanteckning ska skapas genom att klicka på knappen SIGNERA BEDÖMNING .\nBild 10\nDialogrutan Signera bedömning\nBeslutsstödet skall endast betraktas som ett stöd för användaren.\nAnvändaren har själv ansvar för samtliga kliniska beslut som fattas.\nAnvändarens kliniska bedömning skall alltid prioriteras före beslutsstödets bedömningar och rekommendationer.\nCDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 15(18)\nNotera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Vårdplan",
+    "page": 1,
+    "section_id": "3.3.3",
+    "main_section_id": 3,
+    "context_summary": "Beskrivning av hur användare kan skapa, signera och hantera en individuell vårdplan med stöd från beslutsstödet när riskbedömning för undernäring är genomförd.",
+    "keywords": [
+      "Vårdplan",
+      "Riskbedömning",
+      "Malnutrition",
+      "Beslutsstöd",
+      "Patient",
+      "MNA",
+      "SIGNERA",
+      "Aktiviteter",
+      "Kryssrutor",
+      "COSMIC"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Vårdplan",
+      "Patientvård",
+      "Beslutsstöd",
+      "Riskbedömning",
+      "Malnutrition"
+    ],
+    "clinical_domain": [
+      "Näring",
+      "Geriatrik"
+    ],
+    "text": "I blocket kan användare skapa en individuell vårdplan för patienten. Det är tillgängligt när applikationen automatiskt tillgängliggjort blocket vid hög risk för undernäring eller undernärd alternativt när användaren valt att aktivera det vid låg risk för undernäring enligt MNA®. Bild 11 Vårdplan För att skapa en vårdplan krävs att följande två moment har genomförts: En komplett riskbedömning har g jorts. Användaren har valt minst ett mål för vårdplanen . När dessa moment genomförts går det att välja de aktiviteter som ska ingå i vårdplanen genom att markera önskade kryssrutor. För vald aktivitet visas en fritextruta med möjlighet att ange ytterligare information. Bild 12 Vårdplan och aktiviteter CDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 16(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Därefter kan vårdplanen skapas i journalsystemet genom att klicka på knappen SIGNERA BEDÖMNING & SKAPA VÅRDPLAN . Den är bara aktiv och klickbar om en komplett riskbedömning utförts och ett mål satts för vårdplanen. Bild 13 Knappen Signera bedömning & skapa vårdplan I dialogrutan Signera bedömning och skapa vårdplan? som visas ges information och användaren får bekräfta att en signerad journalanteckning med bedömning samt vårdplan ska skapas genom att klicka på knappen SIGNERA BEDÖMNING & SKAPA VÅRDPLAN . Bild 14 Dialogrutan Signera bedömning och skapa vårdplan Observera följande : Det går endast att skapa nya vårdplaner genom beslutsstödet, d.v.s. det går inte att importera och ta del av befintliga vårdplaner i beslutsstödet. Beslutsstödet detekterar inte om en vårdplan redan har skapats för patienten vid ett tidigare tillfälle. Om en vårdplan behöver uppdateras genomförs detta lämpligen genom att redigera vårdplanen direkt i COSMIC. Kan vårdplanen av någon anledning inte skapas via beslutsstödet skall användaren skapa en vårdplan manuellt i COSMIC."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.4.1",
+    "main_section_id": 3,
+    "context_summary": "Tekniken beskriver hur CDS Nursing Support – Malnutrition fungerar som ett beslutstödsverktyg för att identifiera malnutritionhot hos patienter och ge rekommendationer, men slutgiltiga beslut fattas av vårdpersonalen.",
+    "keywords": [
+      "CDS",
+      "Malnutrition",
+      "beslutsstöd",
+      "näring",
+      "patientrisk",
+      "sjuksköterska",
+      "rekommendationer"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Malnutrition",
+      "Beslutsstöd",
+      "Sjuksköterskeverktyg",
+      "Patientrisk",
+      "Klinik",
+      "Introduktion"
+    ],
+    "clinical_domain": [
+      "Näring",
+      "Sjuksköterskefunktion",
+      "Klinisk beslutsstöd"
+    ],
+    "text": "CDS Nursing Support - Malnutrition är ett kliniskt beslutsstöd, vilket innebär att inmatad data bearbetas i enlighet med fördefinierade regler i syfte att underlätta för vårdpersonal att ident ifiera högriskpatienter för undernäring och att minimera risken för att en sådan vårdskada sker under vårdtiden. Bedömningar och förslag som genereras av beslutsstödet är enbart rekommendationer. Verktyget fattar inga egna beslut, och användaren skall alltid nyttja sin kliniska kompetens i kombination med beslutsstödet för att fatta beslut om adekvat handläggning. I följande avsnitt ges en förenklad beskrivning över hur rekommendationerna genereras men konfiguration och logik bakom aktuella regler beskrivs ej. CDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 17(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Risknivåer",
+    "page": 1,
+    "section_id": "3.4.2",
+    "main_section_id": 3,
+    "context_summary": "Beskriver hur beslutsstödet genererar riskbedömningar för undernäring med MNA‑skalan och villkoren för automatisk visning eller döljande av vårdplan‑blocket baserat på poäng och användarval.",
+    "keywords": [
+      "Risknivå",
+      "MNA",
+      "undernäring",
+      "bedömning",
+      "vårdplan",
+      "poäng",
+      "rekommendation",
+      "hög risk",
+      "låg risk",
+      "ärende"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Riskbedömning",
+      "Vårdplan",
+      "MNA‑skala",
+      "Nutrition",
+      "Patientbedömning"
+    ],
+    "clinical_domain": [
+      "Nutrition",
+      "Geriatrik",
+      "Riskhantering"
+    ],
+    "text": "För att beslutsstödet ska generera en bedömning krävs att samtliga obligatoriska fält för riskskattningsskalan MNA® har besvarats. Beslutsstödet genererar en bedömning som indikerar att patienten har en låg eller hög risknivå för undernäring alternativt att patienten redan är undernärd baserat på totalpoängen. Blocket Vårdplan visas automatiskt vid riskniv åerna undernärd och hög risk för undernäring. Blocket döljs om användaren i detta fall väljer att inte skapa en vårdplan genom att svara Nej på frågan Skapa vårdplan? . Följande tabell ger en beskrivning av risknivåerna. Poäng enligt MNA® Risknivå Rekommendation =< 7 Undernärd Upprätta vårdplan. 8 - 11 Hög risk för undernäring Upprätta vårdplan. >= 12 Låg risk för undernäring Vårdplan behöver inte upprättas men kan skapas om användaren gör bedömningen att risk föreligger."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Hantering av spärrad information",
+    "page": 1,
+    "section_id": "3.4.3",
+    "main_section_id": 3,
+    "context_summary": "Beslut om att exkludera patienter med spärrad information från CDS Nursing Support styrs av systemförvaltningen och administratörens inställning, medan vårdgivarens rutiner styr hanteringen av spärrar.",
+    "keywords": [
+      "spärrad information",
+      "patienter",
+      "exkludering",
+      "CDS Nursing Support",
+      "Malnutrition",
+      "systemförvaltning",
+      "administratör",
+      "vårdgivarens rutiner"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Patientinformation",
+      "Spärrad information",
+      "CDS",
+      "Malnutrition",
+      "Systemförvaltning",
+      "Administratör"
+    ],
+    "clinical_domain": [
+      "Näring",
+      "Patientinformation",
+      "IT-system"
+    ],
+    "text": "Patienter med spärrad information kan selektivt exkluderas från CDS Nursing Support - Malnutrition . Det är systemförvaltningens beslut om detta skall göras och styrs av en inställning konfigurerad av administratör. I övrigt är det vårdgivarens egna rutiner som gäller för hur spärrar kring beslutsstödet skall hanteras."
+  },
+  {
+    "source_file": "Cosmic manual CDS undernäring v4.1.pdf",
+    "section": "Felhantering",
+    "page": 1,
+    "section_id": "3.5",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver att vid ett tekniskt fel i CDS Nursing Support – Malnutrition inaktiveras beslutsstödet och ett felmeddelande visas, vilket gör att stödet inte kan användas för patienten.",
+    "keywords": [
+      "tekniskt fel",
+      "beslutsstöd",
+      "inaktivering",
+      "felmeddelande",
+      "patient",
+      "Malnutrition",
+      "CDS",
+      "näringsstöd"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "felhantering",
+      "beslutsstöd",
+      "malnutrition",
+      "CDS",
+      "näringsstöd",
+      "teknik"
+    ],
+    "clinical_domain": [
+      "Näringsstöd",
+      "Geriatrisk vård",
+      "Sjukvård"
+    ],
+    "text": "Om det uppstår ett tekniskt fel vid användning av CDS Nursing Support - Malnutrition kommer beslutsstödet att inaktiveras och ett felmeddelande visas. Det innebär att beslutsstödet inte kommer att kunna användas för den aktuella patienten. CDS Nursing Support - Malnutrition - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 18(18) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix A - Referenser [1] Vellas B, Villars H, Abellan G, et al. Overview of the MNA® - Its History and Challenges.J Nutr Health Aging 2006;10:456-465. [2] Rubenstein LZ, Harker JO, Salva A, Guigoz Y, Vellas B. Screening for Undernutrition in Geriatric Practice: Developing the Short-Form Mini Nutritional Assessment (MNA-SF). J. Geront 2001;56A: M366-377. [3] Guigoz Y. The Mini- Nutritional Assessment (MNA®) Review of the Literature - What does it tell us? J Nutr Health Aging 2006; 10:466-487. [4] Kaiser MJ, Bauer JM, Ramsch C, et al. Validation of the Mini Nutritional Assessment Short-Form (MNA® -SF): A practical tool for identification of nutritional status. J Nutr Health Aging 2009; 13:782-788. [5] Nutrition [Internet]. Vårdhandboken; 2017 [cited 2018 Jan]. Available from: http://www.vardhandboken.se/Texter/Nutrition/Oversikt/."
+  }
+]

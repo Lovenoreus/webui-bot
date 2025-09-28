@@ -107,24 +107,37 @@ if USE_OPENAI:
 
 USE_MISTRAL = to_bool(get_nested(config, ["mistral", "enabled"], False), default=False)
 
+# Always define Mistral variables (even if USE_MISTRAL is False) to avoid AttributeError
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
+MISTRAL_MODEL_NAME = get_nested(config, ["mistral", "model_name"], "devstral-medium-2507")
+MISTRAL_BASE_URL = get_nested(config, ["mistral", "base_url"], "https://api.mistral.ai/v1")
+MISTRAL_CHAT_COMPLETION_ENDPOINT = get_nested(config, ["mistral", "chat_completion_endpoint"], "/chat/completions")
+
 if USE_MISTRAL:
-    MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
-    MISTRAL_MODEL_NAME = get_nested(config, ["mistral", "model_name"], "devstral-medium-2507")
-    MISTRAL_BASE_URL = get_nested(config, ["mistral", "base_url"], "https://api.mistral.ai/v1")
-    MISTRAL_CHAT_COMPLETION_ENDPOINT = get_nested(config, ["mistral", "chat_completion_endpoint"], "/chat/completions")
+    # Override embeddings model name if Mistral is enabled
     EMBEDDINGS_MODEL_NAME = get_nested(config, ["mistral", "embeddings_model_name"], "text-embedding-3-large")
 
 # --- 7) Qdrant settings ---
 QDRANT_HOST = get_nested(config, ["qdrant", "host"], "localhost")
 QDRANT_PORT = to_int(get_nested(config, ["qdrant", "port"], 6333), default=6333)
 QDRANT_RESULT_LIMIT = to_int(get_nested(config, ["qdrant", "result_limit"], 2), default=2)
+CHUNKING_STRATEGY = get_nested(config, ["qdrant", "chunking_strategy"], "by_section_id")
 
 COSMIC_DATABASE_COLLECTION = get_nested(config, ["cosmic_database", "collection_name"], "cosmic_documents")
 COSMIC_DATABASE_DOCUMENT_PATH = get_nested(config, ["cosmic_database", "document_path"], "cosmic_documents")
 
+# Vector database configuration for cosmic database
+COSMIC_DATABASE_USE_PGVECTOR = to_bool(get_nested(config, ["cosmic_database", "vector_database", "use_pgvector"], True), default=True)
+COSMIC_DATABASE_USE_QDRANT = to_bool(get_nested(config, ["cosmic_database", "vector_database", "use_qdrant"], False), default=False)
+
 COSMIC_DATABASE_COLLECTION_NAME = f"{COSMIC_DATABASE_COLLECTION}-{EMBEDDINGS_MODEL_NAME}"
 print(f"Using cosmic database collection name: {COSMIC_DATABASE_COLLECTION_NAME}")
 COSMIC_DATABASE_COLLECTION_NAME = COSMIC_DATABASE_COLLECTION_NAME.replace(':', '-').replace('/', '-')
+
+# Print vector database configuration
+if DEBUG:
+    vector_db_type = "PostgreSQL/pgvector" if COSMIC_DATABASE_USE_PGVECTOR else "Qdrant"
+    print(f"Cosmic database will use: {vector_db_type}")
 
 # --- 8) Grafana logging settings ---
 GRAFANA_ENABLED = to_bool(get_nested(config, ["grafana", "enabled"], False), default=False)
@@ -221,6 +234,27 @@ elif USE_MISTRAL:
 
 else:
     assert False, "USE_OLLAMA or USE_OPENAI must be enabled in the config"
+
+# PostgreSQL configuration for pgvector (when cosmic database uses pgvector)
+PGVECTOR_HOST = os.getenv("PG_HOST", "localhost")
+PGVECTOR_PORT = os.getenv("PG_PORT", "5432") 
+PGVECTOR_DATABASE = os.getenv("PG_DATABASE", "vectordb")
+PGVECTOR_USERNAME = os.getenv("PG_USERNAME", "postgres")
+PGVECTOR_PASSWORD = os.getenv("PG_PASSWORD", "password")
+
+# Temporary RAG configuration (for backward compatibility until full migration)
+RAG_ENABLED = to_bool(get_nested(config, ["rag", "enabled"], False), default=False)
+RAG_POSTGRES_HOST = os.getenv("RAG_PG_HOST", "localhost")
+RAG_POSTGRES_PORT = os.getenv("RAG_PG_PORT", "5432")
+RAG_POSTGRES_DATABASE = os.getenv("RAG_PG_DATABASE", "vectordb")
+RAG_POSTGRES_USERNAME = os.getenv("RAG_PG_USERNAME", "postgres")
+RAG_POSTGRES_PASSWORD = os.getenv("RAG_PG_PASSWORD", "password")
+
+# Print configuration status
+if DEBUG:
+    print(f"RAG configuration: enabled={RAG_ENABLED}")
+    if RAG_ENABLED:
+        print(f"RAG PostgreSQL: {RAG_POSTGRES_HOST}:{RAG_POSTGRES_PORT}/{RAG_POSTGRES_DATABASE}")
 
 #  Jira configuration
 JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN")

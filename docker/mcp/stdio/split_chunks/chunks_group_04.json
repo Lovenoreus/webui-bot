@@ -1,0 +1,1466 @@
+[
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Detta avsnitt introducerar COSMIC Block Handling och beskriver dess huvudsakliga funktioner, egenskaper samt förutsätter grundläggande kunskaper inom hälsovård och dator­teknik.",
+    "keywords": [
+      "COSMIC Block Handling",
+      "COSMIC",
+      "hälso­vård",
+      "dator­teknik",
+      "systembeskrivning",
+      "introduktion",
+      "blockhantering",
+      "manual",
+      "documentation portal"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "blockhantering",
+      "COSMIC",
+      "introduktion",
+      "systembeskrivning",
+      "hälsovårdsteknik"
+    ],
+    "clinical_domain": [
+      "Hälsovård",
+      "Medicinsk datahantering",
+      "Biomedicinsk teknik"
+    ],
+    "text": "Detta dokument beskriver Cambio COSMIC Block Handling , (fortsättningsvis kallad COSMIC Block Handling ) dess huvudfunktioner och egenskaper. Läsaren bör ha grundläggande kunskaper och erfarenhet av hälsovård, datorer, relevant område och av COSMIC. För ytterligare information, se relaterade dokument på COSMIC Documentation Portal.1"
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "En översikt över versioner av dokumentet, inklusive datum, ändringar och giltighetspunkter från version 1.0 till 10.0.",
+    "keywords": [
+      "Version",
+      "Datum",
+      "Ändringar",
+      "Dokument",
+      "Giltig",
+      "Versionshistorik",
+      "Uppdaterad",
+      "Appendix",
+      "Copyright"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumenthantering",
+      "Versionkontroll",
+      "Ändringslogg",
+      "Manual"
+    ],
+    "clinical_domain": [
+      "Onkologi",
+      "Strålebehandling",
+      "Radioterapi"
+    ],
+    "text": "Versionshistori ken visar ändringar i dokumentet över tid. Version Datum Beskrivning 1.0 7.1 2016-2021 Tidigare publicerad versioner. 8.0 2022-01-05 Avsnitt 1.3 och 3.1 uppdaterade. Dokumentet är giltigt från R8.3.04. 8.1 2022-02-15 Avsnitt 3.8 tillagt. 9.0 2022-07-01 Avsnitt 1.4 och 2.2.3 uppdaterade. Dokumentet är giltigt från R8.3.05. 10.0 2022-10-17 Appendix A tillagt. Information i avsnitt 1.3, copyright samt sidfot uppdaterad. Dokumentet är giltigt från COSMIC 3.7.0. 1 https://customer.cambio.se/documentation COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 5(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.3.1",
+    "main_section_id": 3,
+    "context_summary": "Dokumentet beskriver typografiska konventioner för att formatera text, termer, modulnamn, kod och länkar.",
+    "keywords": [
+      "typografi",
+      "fetstil",
+      "kursiv",
+      "Courier New",
+      "systemkommandon",
+      "kodexempel",
+      "länkar",
+      "filnamn",
+      "katalogvägar"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "typografi",
+      "konventioner",
+      "gränssnitt",
+      "systemkommandon",
+      "kodattempt"
+    ],
+    "clinical_domain": [],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger, Properties.txt eller https://customer.cambio.se. i listrutor. Exempel: Välj Färg. värden, namn, typer och sökvägar. Exempel: namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter . Exempel: SET USERID=<user id>."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.3.2",
+    "main_section_id": 3,
+    "context_summary": "Ikoner används för att uppmärksamma läsare på olika typer av information i dokumentet, med en lista på ikoner för viktig information, tips, marknads- och kundanpassning, licenskrav och vyer från R8.2.03.",
+    "keywords": [
+      "ikon",
+      "information",
+      "tips",
+      "marknadsanpassning",
+      "kundanpassning",
+      "licens",
+      "vyer",
+      "R8.2.03",
+      "COSMIC",
+      "block handling",
+      "manual",
+      "version 10.0"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Ikoner",
+      "Information",
+      "Marknadsanpassning",
+      "Kundanpassning",
+      "Licens",
+      "Vyer",
+      "COSMIC",
+      "Block handling",
+      "Manual"
+    ],
+    "clinical_domain": [],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område . Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Svensk marknadsanpassning. Svensk kundanpassning. Licens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 6(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.4",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver de termer och förkortningar som används i COSMIC Block Handling-dokumentet, bland annat arbetsenhet, dokumenterande enhet, hsaidentity, hälsovårdspersonal, nödöppning, PDL, sammanhållen journalföring, spärr, tillfällig hävning, vårdenhet och vårdgivare samt definitioner och rättigheter kring spärrar och öppenhet.",
+    "keywords": [
+      "termer",
+      "arbetsenhet",
+      "dokumenterande enhet",
+      "hsaidentity",
+      "hälsovårdspersonal",
+      "nödöppning",
+      "PDL",
+      "sammanhållen journalföring",
+      "spärr",
+      "tillfällig hävning",
+      "vårdenhet",
+      "vårdgivare"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "terminologi",
+      "hälso-information",
+      "spärrar",
+      "patientdataskydd",
+      "organisation",
+      "rättigheter"
+    ],
+    "clinical_domain": [
+      "patientdata",
+      "sjukvård",
+      "administration"
+    ],
+    "text": "Termtabellen beskriver de termer, akronymer och förkortningar som används i detta dokument. Term Beskrivning Arbetsenhet Enheten där användaren loggar in och ges rättigheter baserat på roll och enhet. Dokumenterande enhet Enheten där dokumentationen för patienten sker. All klinisk information i COSMIC kopplas till denna enhet. hsaidentity Global, unik identifierare för avdelning/mottagning samt hälso - och sjukvårdspersonal. Används för att identifiera och utvärdera spärregler inom och utanför COSMIC. Alla enheter och användare i COSMIC kommer att konfigureras med denna identifierare. Hälso- och sjukvårdspersonal Hälso- och sjukvårdspersonal som arbetar med patientvård inom landsting, sjukhus eller vår dcentral. Nödöppning Att öppna och få tillgång till spärrad information utan patientens samtycke, exempelvis på grund av att patienten är medvetslös och i behov av omedelbar vård. PDL PDL = Patientdatalagen. Patientdatalagen reglerar behandlingen av personuppgifter inom hälso - och sjukvård. Sammanhållen journalföring Socialdepartementets definition: Ett elektroniskt system, som gör det möjligt för en vårdgivare att ge eller få direktåtkomst till personuppgifter hos en annan vårdgivare. SFS nr: 2008:355. Om inga spärrar satts kommer patientinformation att vara direkt åtkomlig via den sammanhållna journalföringen. Spärr En begränsning av åtkomst till information om en patient. Det är alltid patienten som beslutar om och begär spärren. Tillfällig hävning Avlägsnande av en spärr under en begränsad tidsperiod efter begäran av patient. Både interna och externa spärrar kan tillfälligt öppnas och det görs i den externa tjänsten. Vårdande enhet Enheten där patienten behandlas. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 7(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Term Beskrivning Vårdenhet En organisatorisk enhet som ger vård inom en vårdgivare , till exempel en vårdcentral, sjukhus, klinik eller vårdavdelning. Begreppet vårdenhet definieras inte i patientdatalagen, men förekommer i regler om till exempel spärrar inom en vårdgivare2 och elektronisk åtkomst2. Alla enheter i COSMIC konfigureras med identifieraren HSA_Vårdenhet . Denna identifierare används för att definiera vilke n vårdenhet som enhete r tillhör. Vårdgivare Den som bedriver hälso - och sjukvårdsverksamhet eller tandvårdsverksamhet är en vårdgivare. Det gäller både privat och offentligt finansierad verksamhet. En vårdgivare kan till exempel vara en statlig myndighet, region, kommun, annan juridisk person eller en enskild näringsidkare som bedriver hälso - och sjukvårdsverksamhet . Term definierad och använd i PDL. Alla enheter i COSMIC ska konfigureras med identifieraren HSA_Vårdgivare . Denna identifierare används för att definiera vilken vårdgivare som den faktiska enheten tillhör. Öppna en spärr Genom att antingen få patientens samtycke eller åberopa en nödsituation för att öppna och få tillgång till information som tidigare varit spärrad. Kan endast göras med inre spärrar och öppningen gäller den inloggade sessionen. 2 https://www.socialstyrelsen.se/ COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 8(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om COSMIC Block Handling"
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Patientdatalagen",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": "2",
+    "context_summary": "PDL ger direkt åtkomst till hälsoinformation mellan vårdgivare och tillåter patienten att begränsa hur information delas eller hanteras.",
+    "keywords": [
+      "Patientdatalagen",
+      "PDL",
+      "hälsoinformation",
+      "vårdgivare",
+      "patientens rätt",
+      "åtkomst",
+      "journal",
+      "begränsa",
+      "datahantering",
+      "sjukhus"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Patientdata",
+      "GDPR",
+      "Hälsoinformation",
+      "Vårdgivare",
+      "Åtkomstkontroll"
+    ],
+    "clinical_domain": [
+      "Sjukvårdsinformation",
+      "Dataskydd",
+      "Telemedicin"
+    ],
+    "text": "PDL (Patientdatalagen) tillåter direkt tillgång till hälsoinformation mellan vårdgivare. Det gör det möjligt för flera olika vårdgivare att på ett enkelt sätt ta del av en patients journal. Med anledning av tillgången till hälsoinformation har PDL också utökat möjligheten för patienten att begränsa åtkomsten till information. Detta innebär att patienten har rätt att bestämma om in formationen, som har skapats hos en vårdgivare, ska vara tillgänglig för användare hos en annan vårdgivare eller inte. Patienten kan också bestämma över hur information som skapas inom en vårdgivare ska hanteras."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Spärrar",
+    "page": 1,
+    "section_id": "2.2.1",
+    "main_section_id": 3,
+    "context_summary": "Spärrar hanteras via en extern tjänst och kan appliceras på patienter med personnummer, samordningsnummer eller nationella reservnummer. Det finns två typer – inre (mellan vårdenheter inom samma vårdgivare) och yttre (mellan olika vårdgivare). Spärrar kan tillfälligt hävas eller återkallas och visas i COSMIC utan att skapa journalreferenser.",
+    "keywords": [
+      "spärr",
+      "extern tjänst",
+      "personnummer",
+      "samordningsnummer",
+      "nationella reservnummer",
+      "inre spärr",
+      "yttre spärr",
+      "patientkort",
+      "ikon",
+      "journalreferenser",
+      "tidsperiod",
+      "hävning",
+      "återkallning"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Patientinformation",
+      "Sjukvårdsinformation",
+      "Dataskydd",
+      "Elektronisk journal",
+      "Spärrhantering"
+    ],
+    "clinical_domain": [
+      "Klinisk informationshantering",
+      "Patienttjänster",
+      "Säkerhet"
+    ],
+    "text": "Spärrar skapas och tas bort i en extern tjänst som COSMIC hämtar information ifrån. Spärrar kan tillämpas på patienter med personnummer, samordningsnummer och nationella reservnummer. Om spärrad information finns visas en ikon på dess plats. Spärrar visas även i fönstret Patientkort . Detta styrs av en inställning. I COSMIC skapas inga journalreferenser för spärrar. Följande två spärrar kan användas: Inre spärr Spärrar information mellan vårdenheter inom en vårdgivare . Yttre spärr Spärrar information mellan vårdgivare som använder elektroniska system för sammanhållen journalföring . Patienter kan tillfälligt häva spärrar genom den externa tjänsten under en definierad tidsperiod. Spärrar kan öppnas både för en viss enhet eller för en specifik användare på den enheten. Information i COSMIC som är synlig på grund av tillfällig hävning visas som om det inte fanns någo n spärr alls. Både interna och externa spärrar kan tillfälligt återkallas. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 9(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Inre spärr",
+    "page": 1,
+    "section_id": "2.2.2",
+    "main_section_id": "3",
+    "context_summary": "Denna sektion beskriver hur man använder interna spärrar i COSMIC för att dölja patientinformation för externa vårdgivare, tidsbegränsningar, samtycke och nödöppning.",
+    "keywords": [
+      "interna spärrar",
+      "patientinformation",
+      "externa vårdgivare",
+      "tidsintervall",
+      "samtycke",
+      "nödöppning",
+      "tidsbegränsad öppning",
+      "COSMIC",
+      "blockerad information",
+      "patientmedgivande"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Patientsekretess",
+      "Informationshantering",
+      "Vårdgivaråtkomst",
+      "Spärrfunktion",
+      "Intern sekretess"
+    ],
+    "clinical_domain": [
+      "Patientinformation",
+      "Vårdgivarinformation",
+      "Digital vård",
+      "Sekretess"
+    ],
+    "text": "Inre spärrar används när patienten önskar dölja information inom en vårdgivare. Detta innebär att informationen kommer att döljas för alla användare utanför den enhet där informationen skrevs. Patienten kan bestämma ett tidsintervall för hur länge en spärr ska gälla för viss information. I annat fall kommer spärren att gälla till dess patienten vill ändra den. Information som är dold med en inre spärr i COSMIC visas med en ikon för inre spärr . Användaren kan få ytterligare information om spärren från ett tooltip. En utomstående vårdgivare kan inte få tillgång till spärrad information för en patient hos en annan vårdgivare. På så vis fungerar den inre spärren också som en yttre spärr. Inre spärrar kan öppnas temporärt i COSMIC. För att öppna en inre spärr krävs patientens samtycke. I de fall patienten inte kan ge sitt samtycke, till exempel på grund av medicinska skäl, kan nödöppning användas. Spärren förblir öppen tills användaren loggar ut från systemet. Temporär öppning av en spärr COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 10(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. I COSMIC Care Documentation och i fönstret Vårdprocessöversikt kan flera spärrar öppnas samtidigt med patientens samtycke eller via nödöppning. Temporär öppning av flera spärrar"
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Yttre spärr",
+    "page": 1,
+    "section_id": "2.2.3",
+    "main_section_id": 3,
+    "context_summary": "Yttre spärr används för att hindra icke‑anslutna vårdgivare från att se patientens information. Beskrivs hur spärren skapas, vilken ikon som indikerar den, att den inte kan öppnas från COSMIC och två sätt att ta bort spärren – via patientens begäran eller under nödläge från spärrande vårdgivare.",
+    "keywords": [
+      "yttre spärr",
+      "patient",
+      "journalföring",
+      "spärrikon",
+      "tooltip",
+      "öppna",
+      "patientbegäran",
+      "nödläge",
+      "vårdgivare"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Spärr",
+      "Patientuppgifter",
+      "Journalföring",
+      "Patientkontroll",
+      "Spärrsymbol"
+    ],
+    "clinical_domain": [
+      "Journalföring",
+      "Patientinformation",
+      "Säkerhet",
+      "Patienträttigheter"
+    ],
+    "text": "Yttre spärrar används när en patient väljer at t inte ingå i sammanhållen journalföring. Detta innebär att ingen användare utanför den vårdgivare där spärren skapades kan få direkt tillgång till patientens spärrade information. En yttre spärr i COSMIC indikeras med ikonen för yttre spärr . Användare kan erhålla ytterligare information om ikonen via tooltip. En yttre spärr kan inte öppnas från COSMIC. Vid försök att öppna spärrad information visas ett meddelande. För att få tillgång till information dold med en yttre spärr finns det två olika sätt. Det ena kräver att patienten själv begär att spärren ska öppnas och det andra uppstår vid en nödsituation där vårdgivaren kan begära att den vårdgivare som satt spärren tillfälligt häver den. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 11(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Moduler/komponenter som stöds i COSMIC"
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Aktivitetsöversikter i COSMIC",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": 2,
+    "context_summary": "Avsnittet beskriver hur olika aktiviteter bland Uppgifter och Kliniska parametrar hanteras och spärras beroende på status och utförande enhet, samt ger en introduktion till COSMIC Block Handling och aktuell version.",
+    "keywords": [
+      "Uppgifter",
+      "Kliniska parametrar",
+      "att göra",
+      "Patient",
+      "Enhet",
+      "planerad utförande enhet",
+      "historiklogg",
+      "uppdateringar",
+      "spärras",
+      "utförande enhet",
+      "COSMIC Block Handling",
+      "manual",
+      "version",
+      "datum",
+      "Cambio Holding"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Systemhantering",
+      "Aktivitetshantering",
+      "COSMIC",
+      "Block Handling",
+      "Manual"
+    ],
+    "clinical_domain": [
+      "Kliniska parametrar",
+      "Patientstatus",
+      "Enhetshantering"
+    ],
+    "text": "Spärrade aktiviteter av typerna Uppgifter och Kliniska parametrar , i status Att göra Patient och Att göra Enhet baserat på den planerade utförande enheten. Historiklogg- beställande enheten. Uppdateringar av aktiviteter i övriga statusar spärras baserat på utförande enhet. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 12(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Arketyper",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": "2",
+    "context_summary": "Information om arketyper kan blockeras; vid spärrad registrering visas enbart datum.",
+    "keywords": [
+      "arketyper",
+      "blockeras",
+      "registrering",
+      "datumsvisning",
+      "spärr"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Datahantering",
+      "Systeminställningar",
+      "Registrering",
+      "Behörighet",
+      "Arketyper"
+    ],
+    "clinical_domain": [],
+    "text": "Information i parametern arketyper kan blockeras. Om en registrering är spärrad visas enbart datum."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "COSMIC Attention Signal",
+    "page": 1,
+    "section_id": "3.3",
+    "main_section_id": 2,
+    "context_summary": "Information om COSMIC Attention Signal som kan spärras; vid spärr visas endast typ, datum, allvarlighets- och visshetsgrad.",
+    "keywords": [
+      "COSMIC Attention Signal",
+      "spärr",
+      "typ",
+      "datum",
+      "allvarlighetsgrad",
+      "visshetsgrad",
+      "registrering"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Manual",
+      "Spärrsignal",
+      "Registrering",
+      "Allvarlighetsgrad"
+    ],
+    "clinical_domain": [
+      "Medicinsk teknik",
+      "Patientvård"
+    ],
+    "text": "Information i COSMIC Attention Signal kan spärras. Om en registrering är spärrad visas endast typ, datum, allvarlighets- och visshetsgrad."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "COSMIC Care Documentation",
+    "page": 1,
+    "section_id": "3.4",
+    "main_section_id": 2,
+    "context_summary": "Här beskrivs hur information kan spärras på olika nivåer inom COSMIC-systemet, inklusive dokument, diagnoser och historik, samt hur spärrad information hanteras i olika vyer.",
+    "keywords": [
+      "spärr",
+      "Standardanteckningar",
+      "Gemensamma dokument",
+      "Vårdplan",
+      "PDF",
+      "Worddokument",
+      "Vårdåtagandevyn",
+      "Vårdkontaktvyn",
+      "Diagnosöversikt",
+      "Sökordsöversikt",
+      "Rapportblad",
+      "Historik",
+      "Referenser",
+      "Journal",
+      "COSMIC Block Handling"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Datalagring",
+      "Patientinformation",
+      "Spärrhantering",
+      "Vårdkontroller",
+      "Diagnos",
+      "Historik"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Journal",
+      "Diagnos"
+    ],
+    "text": "Informationen kan spärras i följande områden: Standardanteckningar (kronologiska vyer) Gemensamma dokument Vårdplan Dokument såsom PDF:er, Worddokument, etc. Vårdåtagandevyn Vårdkontaktvyn Diagnosöversikt - spärrade diagnoser filtreras bort från vyn och visas inte alls. Sökordsöversikt - spärrade sökord filtreras bort från vyn och visas inte alls. Översiktsdokument Rapportblad - h ändelse, åtgärd och resultat kan spärras indivi duellt. Historik-funktionen - n är sökordsvärden spärras i fönstret Ny anteckning innebär det att det specifika sökordsvärdet också spärras i historiken. Fönstret Osignerat och Ovidimerat. Referenser i fönstret Journal - samtliga referenser som genererats via andra moduler spärras. Fönstret Journal med spärrad information COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 13(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "COSMIC Clinical Coding",
+    "page": 1,
+    "section_id": "3.5",
+    "main_section_id": 2,
+    "context_summary": "Anvisning för hur man hanterar spärrad och sekretessklassificerad kod i COSMIC-systemet.",
+    "keywords": [
+      "spärrad",
+      "sekretessklassificering",
+      "kod",
+      "diagnos",
+      "öppna spärr",
+      "högerklicka",
+      "journalanteckning",
+      "node",
+      "kontakt"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Kodning",
+      "Patientsekretess",
+      "Hälsovård",
+      "Dataintegritet"
+    ],
+    "clinical_domain": [
+      "Diagnos",
+      "Kodning",
+      "Patientinformation",
+      "Sekretess"
+    ],
+    "text": "Om ett sökord eller en anteckning för en kod är spärrad eller sekretessbelagd används spärr - och sekretessklassificering i fönstret Tidigare diagnoskoder , t.ex. Spärrad information. Spärr - och sekretessklassificering tillämpas i Hämta alla och Hämta kod för kontakt . För att öppna en spärr, högerklicka på den spärrade noden och välj att öppna en sekretessklassificerad kod, högerklicka på noden och välj alternativet Förhandsgranska journalanteckning visas och användaren kan fortsätta att öppna spärren eller sänka sekretessklassificeringen för sökordet . För att lägga till en spärr eller en sekretessklassificerad nod måste användaren bryta spärren."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "COSMIC Dictation",
+    "page": 1,
+    "section_id": 3.6,
+    "main_section_id": 2,
+    "context_summary": "Diktatblock visas endast om patienten valt och spärras enligt enhets- och kontaktspecifika regler; användarinformation loggas vid spärr.",
+    "keywords": [
+      "diktat",
+      "spärr",
+      "fönster",
+      "inloggad enhet",
+      "kontakt",
+      "regler",
+      "patient",
+      "information",
+      "loggning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "diktat",
+      "spärrregler",
+      "användarinformation",
+      "patient",
+      "enhet",
+      "kontakt"
+    ],
+    "clinical_domain": [
+      "patientdata",
+      "sjukvårdsadministration",
+      "spärrhantering"
+    ],
+    "text": "I fönstret Diktatlista visas diktaten som spärrade om patienten valt detta. Diktat spärras utifrån de spärregler som gäller för den inloggade enheten och kontakten eller för enheten om en kontakt inte finns för diktatet. Användarinformation loggas när en spärr öppnas."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Översikt",
+    "page": 1,
+    "section_id": "3.7.1",
+    "main_section_id": 3,
+    "context_summary": "Manuell för COSMIC blockhantering beskriver vilka informationstyper som kan spärras vid läkemedelsbehandling inklusive ansvariga enheter och arbetsenheter för administration, rekvisition och läkemedelsgenomgång. Den anger även vilka fönster och vyer där spärrar påverkar åtkomsten.",
+    "keywords": [
+      "läkemedelsbehandling",
+      "spärr",
+      "medicinskt ansvarig",
+      "ordination",
+      "recept",
+      "rekvisition",
+      "arbetsenhet",
+      "läkemedelsgenomgång",
+      "vaccin",
+      "nutritionsprodukter",
+      "förbrukningsartiklar",
+      "COSMIC",
+      "dialogfönster",
+      "läsemedelslista",
+      "vaccinationslista",
+      "patientöversikt"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "block-hantering",
+      "läkemedelsbehandling",
+      "administration",
+      "säkerhet",
+      "spärrning",
+      "COSMIC",
+      "arbetsenhet",
+      "recept",
+      "vaccination"
+    ],
+    "clinical_domain": [
+      "Farmaci",
+      "Patientvård",
+      "Vaccination",
+      "Nutritionsprodukter",
+      "Förbrukningsartiklar"
+    ],
+    "text": "Följande informationstyper kan spärras. Informationstyp Spärrad, om en spärr är uppsatt för Läkemedelsbehandling (vaccin inkluderade) Medicinskt ansvarig enhet för Ordination, Recept och Rekvisition. Arbetsenhet för användaren som godkänner administreringen eller avbryter läkemedelsbehandlingen. Läkemedelsgenomgång Arbetsenhet för användaren som utför läkemedelsgenomgången. Läkemedelsbehandlingar som ingår i ett tillhörande administreringsgodkännande. (Den kopplade läkemedelsgenomgången är spärrad för alla användare inloggade på enheter som inte är kopplade till någon ansvarig enhet som är involverad i läkemedelsbehandlingen.) COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 14(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Informationstyp Spärrad, om en spärr är uppsatt för Läkemedelsberättels e Medicinskt ansvarig enhet. Läkemedelsbehandlingar som ingår i en läkemedelsgenomgång visas som spärrade på samma principer som för spärrade behandlingar. Den kompletta läkemedelsgenomgången spärras utifrån den medicinskt ansvariga enheten för genomgången . Nutritionsprodukter recept/rekvisition Medicinskt ansvarig enhet. Förbrukningsartiklar recept/rekvisition Medicinskt ansvarig enhet. Informationen kan visas som spärrad i : Fönstret Läkemedel och flikarna Läkemedelslista , Nutritionsprodukter , Förbrukningsartiklar , Utdelningsvy och Vaccinationslista . Dialogfönstren Utskrift, Historisk lista och Läkemedelsberättelse . I översikt Skickade e-recept. I tabell med migrerade läkemedel som visas i fliken Läkemedelslista . Läkemedelsrelaterade fönster, t.ex. Osignerat och Ovidimerat och Patientöversikt . I informationsvarningar som visas i flikarna Ny och Utkorg samt i vyn Ordinationsdetaljer . När en spärr öppnas i en vy, öppnas den i regel även i andra vyer i COSMIC Medication . COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 15(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Spärrade läkemedelsbehandlingar",
+    "page": 1,
+    "section_id": "3.7.2",
+    "main_section_id": 3,
+    "context_summary": "Beskriver när och hur läkemedelsbehandlingar blir spärrade samt vilka kriterier och varningar som påverkar beslutet.",
+    "keywords": [
+      "läkemedelsbehandling",
+      "spärr",
+      "ordination",
+      "recept",
+      "administrering",
+      "interaktion",
+      "dubblett",
+      "överkänslighet",
+      "ATC",
+      "enhet"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Läkemedelsförvaltning",
+      "Kontroll och övervakning",
+      "Spärrande av behandling",
+      "Varningar",
+      "Användarbehörighet"
+    ],
+    "clinical_domain": [
+      "Farmaci",
+      "Patientvård",
+      "Medicinsk information",
+      "Klinisk säkerhet"
+    ],
+    "text": "En läkemedelsbehandling kan inkludera flera objekt, dvs. ordinationer eller recept, med samma eller olika anslutningar för besök/vårdtillfälle . Behandlingen kan vara en del av en godkänd administrering och den k an avbrytas. Läkemedelsbehandlingar visas eller är spärrade för användarna beroende på vilken enhet de är inloggad e på. Information är bara synlig om användaren är inloggad på en medicinskt ansvarig enhet som är involverad i läkemedelsbehandlingen. En ell er flera enheter kan vara del av en behandling och informationen kommer att vara synlig för alla dessa, men inte för andra enheter. Vid kontroll om en behandling ska spärras eller inte, beaktas även ogiltiga men inte borttagna förskrivningar och recept. Följande ska beaktas vid beslut om ifall en behandling ska spärras: Förskrivningar Recept/Rekvisitioner Godkännande av administrering Utsättning Vid ny förskrivning eller vid ändring av en behandling, kommer varningar för eventuella interaktioner, dubblett och överkänslighet att visas. Om läkemedlet integrerar med, eller har samma ATC kod, som en blockerad läkemedelsbehandling i patientens läkemedelslista, inkluderas även blockerad information i varningen. Varningar för överkänslighet visas aldrig som blocke rade i detta flöde."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Utvärderingsscenarier",
+    "page": 1,
+    "section_id": "3.7.3",
+    "main_section_id": "3",
+    "context_summary": "Manualen presenterar två utvärderingsscenarier för COSMIC block hantering. I scenariot 1 visas hur en läkemedelsbehandling spärras och gradvis görs synlig för flera enheter genom att förskrivare öppnar spärren. I scenariot 2 beskrivs hur en patientbegäran påverkar synligheten av en behandling och hur doseringsändringar spärrar åtkomst för enheter undantaget de involverade.",
+    "keywords": [
+      "blockering",
+      "läkemedelsbehandling",
+      "enhet",
+      "dosering",
+      "recept",
+      "godkännande",
+      "avbrytning",
+      "information",
+      "synlighet",
+      "system"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "blockering",
+      "läkemedelsbehandling",
+      "enhet",
+      "information",
+      "säkrare hantering",
+      "konsistens"
+    ],
+    "clinical_domain": [
+      "Pharmaci",
+      "Patientinformation",
+      "Säkerhet"
+    ],
+    "text": "Utvärdering sscenario 1 1. En läkemedelsbehandling förskrivs på Enhet A. Patienten begär att informationen på Enhet A spärras. Informationen om läkemedelsbehandlingen är synlig för Enhet A, men spärrad för enheterna B-E. 2. En förskrivare på Enhet B öppnar spärren för att ändra doseringen på läkemedelsbehandlingen. Läkemedelsbehandlingen är nu synlig för förskrivaren på Enhet A och B, men är fortfarande spärrad för enheterna C-E. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 16(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Utvärdering sscenario 1 3. En förskrivare på Enhet C öppnar spärren för att skicka ett recept på det ordinerade läkemedlet. Läkemedelsbehandlingen är nu synlig för förskrivaren på Enhet A-C, men är fortfarande spärrad för enheterna D och E. 4. En förskrivare på Enhet D öppnar spärren för att godkänna administreringen av alla aktuella läkemedelsbehandlingar på läkemedelslistan. Läkemedelsbehandlingen är nu synlig för förskrivaren på Enhet A-D, men är fortfarande spärrad för Enhet E. 5. En förskrivare på Enhet E öppnar spärren för att avbryta läkemedelsbehandlingen. Läkemedelsbehandlingen är nu synlig för förskrivaren på Enhet A-E. Utvärdering sscenario 2 1. En patient har begärt att informationen på Enhet A ska spärras. En läkemedelsbehandling ordineras på Enhet B. Läkemedelsbehandlingen är synlig för alla enheter. 2. En förskrivare på Enhet A ändrar doseringen på läkemedelsbehandlingen . Behandlingen är spärrad för alla enheter, förutom för Enhet A och B. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 17(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Hantering av spärrade EWS -värden",
+    "page": 1,
+    "section_id": "3.8.1",
+    "main_section_id": 3,
+    "context_summary": "Denna avsnitt beskriver hur EWS-värden från andra vårdenheter inte blockeras vid patienter som redan är inskrivna på avdelning, eftersom det anses vara en sammanhållen journalföring.",
+    "keywords": [
+      "EWS",
+      "spärrade värden",
+      "patient",
+      "avdelning",
+      "journalföring",
+      "Nova",
+      "spärrhantering"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Vårdenhet",
+      "EWS-registrering",
+      "Patientvård",
+      "Spärrhantering",
+      "Journalisering"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Patientvård",
+      "Medicinsk registrering"
+    ],
+    "text": "Om en patient är inskriven på en avdelning och under sitt vårdtillfälle besöker annan vårdenhet med spärregler och där får en EWS-registrering, kommer detta att kringgå spärrhanteringen i Nova och EWS -värdet kommer att visas ändå. Detta anses vara en sammanhållen journalföring, vilket innebär att EWS -värden inte behöver blockeras på den avdelningen där patienten är inskriven."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "COSMIC Order Management",
+    "page": 1,
+    "section_id": "3.9",
+    "main_section_id": 2,
+    "context_summary": "Den här delen beskriver hur svar och beställningar hanteras i COSMIC, särskilt kring spärrning, enhetsansvar och tidsbaserad blockering enligt olika kliniska discipliner.",
+    "keywords": [
+      "spärr",
+      "beställning",
+      "svar",
+      "Radiologi",
+      "Kemi",
+      "Mikrobiologi",
+      "Immunologi",
+      "Lokala analyser",
+      "Patologi",
+      "enhet",
+      "datum",
+      "tid",
+      "panel"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Orderhantering",
+      "Spärrhantering",
+      "Dokumentkontroll",
+      "Enhetsansvar",
+      "Tidsstämpling"
+    ],
+    "clinical_domain": [
+      "Radiologi",
+      "Kemi",
+      "Mikrobiologi",
+      "Immunologi",
+      "Lokala analyser",
+      "Patologi"
+    ],
+    "text": "Information kan spärras i följande fönster: Svar provbunden Radiologisvar Beställningsstatus Inkorg svar Beställning provbunden Beställning radiologi Osignerat och Ovidimerat Alla beställningar har en svarsmottagande enhet, och alla svar är knutna till en specifik beställning. I utvärderingen av spärrar är det alltid beställningens svarsmottagande enhet som systemet utgår ifrån, både när det gäller visning av beställningar och svar. Om en tidigare beställning spärrats innebär det att beställningens information om ID, status och utförande enhet för denna beställning spärras i panelen Visa tidigare beställning i fönstret Beställning provbunden. Om ett svar omriktas till en annan enhet påverkar det inte utvärderingen av spärrar, eftersom beställningens svarsmottagande enhet inte ändras när man omriktar ett svar. Om ett svar kommit in utan att det finns någon elektronisk beställning i COSMIC (t.ex. vid beställning på papper) , så används den beställande enhet som anges i svaret för att utvärdera spärrar. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 18(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Den spärrade perioden är beroende av följande specifika kliniska datum per disciplin. Disciplin Beställning Svar Kemi, Mikrobiologi, Immunologi, Lokala analyser Datum och tid som beställningen senast ändrades (fram till att beställning skickats). Datum och tid för provtagning (angivet i svar). Patologi Datum och tid som beställningen först skapades. Datum och tid som beställningen först skapades. Radiologi Datum och tid som beställningen senast ändrades (fram till att beställning skickats). Datum och tid för undersökning (angivet i svar)."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "COSMIC Referral",
+    "page": 1,
+    "section_id": "3.10",
+    "main_section_id": 2,
+    "context_summary": "Texten beskriver hur spärrade remisser hanteras i COSMIC, inklusive hur de visas i remissväljaren och olika fönster, vilka ikoner som indikerar spärr, och hur utvärdering utförs av remitterande och mottagande enhet. Den förklarar också när remisser med yttre spärr är tillgängliga för flera enheter och när spärren inte gäller för valfrihetsremisser.",
+    "keywords": [
+      "spärrade remisser",
+      "remissväljare",
+      "inkorg",
+      "inkommande remisser",
+      "utgående remisser",
+      "patientens svarsliste",
+      "remitterande enhet",
+      "mottagande enhet",
+      "utvärdering",
+      "inre/spärrikoner"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "remisser",
+      "spärr",
+      "händelsehantering",
+      "sjukvårdssystem",
+      "patientinformation"
+    ],
+    "clinical_domain": [
+      "sjukvård",
+      "remisshantering",
+      "patientjournal",
+      "vårdprocess"
+    ],
+    "text": "Informationen kan spärras i listrutan Remissväljare samt i följande fönster: Inkommande remisser Utgående remisser Patientens svarslista COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 19(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Beställningsstatus Inkorg svar Osignerat och Ovidimerat Spärrade remisser kan inte öppnas i fönstren Hantera inkommande remisser eller Hantera utgående remisser . En spärrad remiss indikeras med ikonen för inre eller yttre spärr, remissdatum och i vissa fall även med namn och personnummer. Alla remisser är knutna till remitterande och mottagande enhet. Utvärderingar av spärrade remisser utförs av båda enheter, men i första hand på den medicinskt ansvariga enheten för kontakten. Om en remiss saknar information om kontakten, t.ex. när remisser på papper inkommer, utförs utvärderingen av den remitterande enheten. När en remiss med yttre spärr hanteras av två olika vård givare, kommer remissen att vara tillgänglig för både remitterande och mottagande enhet. För andra enheter inom samma vårdgivare som för den mottagande enheten, visas remissen med yttre spärr. Omriktade eller vidarebefordrade remisser visas utan spärr endast för den aktuella remissmottagande enheten. För att kunna länka till spärrade journalanteckningar i remisser och svar måste dessa anteckningar öppnas först. Remisser kan inte kopplas till redan spärrade remisser. Spärrar tillämpas inte för valfrihetsremisser under förutsättning att enheten för valfrihetsremisser valts som mottagande enhet. Spärren utvärderas som vanligt när remissen omriktas till den enhet som ska hantera den. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 20(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Gemensam beställning i COSMIC",
+    "page": 1,
+    "section_id": "3.11",
+    "main_section_id": "2",
+    "context_summary": "I Beställningsfönstret kan vårdkontakter väljas, men spärrade/sekr. kontakter visas med datum och status och kan inte väljas förrän de öppnas. Genom dialogrutan Utökad åtkomst kan man öppna spärrade eller sekretessklassade kontakter, eller använda Nödöppning för att öppna alla kontakter vid akut behov.",
+    "keywords": [
+      "Beställning",
+      "vårdkontakter",
+      "spärrade kontakter",
+      "sekretessklassade kontakter",
+      "Utökad åtkomst",
+      "Nödöppning",
+      "dialogfönster",
+      "kontaktlista",
+      "status"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Beställning",
+      "Kontakthantering",
+      "Säkerhet",
+      "Åtkomstkontroll",
+      "Vårdkontakter"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Sekretess",
+      "Informationssäkerhet"
+    ],
+    "text": "I fönstret Beställning kan vårdkontakter väljas i listrutan Beställande vårdkontakt . De visas i ett dialogfönster där spärrade/sekretessklassade kontakter presenteras med datum och status, övriga fält är tomma. En kontakt som är spärrad/sekretessklassad kan aldrig väljas eller föreslås av systemet innan spärren/sekretessklassningen har öppnats. Kontaktlista med spärrade och sekretessklassade kontakter. Kolumnen Status visar Spärrade respektive sekretessklassade kontakter öppnas via Visa sekretessklassade alternativt Visa spärrade . I dialogrutan Utökad åtkomst väljs vilken/vilka kontakter som ska öppnas. Dialogrutan Utökad åtkomst för sekretessklassade kontakter. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 21(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Nödöppning kan användas om man inte kan inhämta patientens samtycke eller om man akut behöver tillgång till alla kontakter. I dialogrutan Utökad åtkomst klickar man på knappen Nödöppning som då öppnar alla kontakter. Dialogrutan Utökad åtkomst visar spärrade kontakter. Dialogrutan Nödöppning . Används för att bekräfta att alla inlästa kontakter i listan ska nödöppnas. I dialogfönstret presenteras kontaktlistan med externt spärrade kontakter. Spärrikonen visas med en svart pil för att särskilja den från internt spärrade kontakter. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 22(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual block handling v10.0.pdf",
+    "section": "Gemensamma översikter i COSMIC",
+    "page": 1,
+    "section_id": "3.12",
+    "main_section_id": 2,
+    "context_summary": "Kortfattad översikt över hur spärrar hanteras och vad de påverkar inom COSMIC, med fokus på vilka områden och vilken information som kan spärras samt regler för utvärdering.",
+    "keywords": [
+      "spärr",
+      "vårdkontakt",
+      "enhet",
+      "information",
+      "logglager",
+      "vattbalans",
+      "vårdprocessöversikt",
+      "patient",
+      "kvalitet",
+      "regler",
+      "avgränsning"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "blockering",
+      "datasäkerhet",
+      "patientinformation",
+      "händelsebehandling",
+      "modulhantering"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Sjukhusadministration",
+      "Medicinsk dokumentation",
+      "Kliniska beslutssystem"
+    ],
+    "text": "Information kan spärras i följande områden i fönstret Vårdprocessöversikt : Beställning Vårdåtagande Vårdkontakt Vårdåtgärd Den spärrade informationen presenteras och hanteras på samma sätt i alla vyer. Trädvyn till vänster i fönstret presenterar informationsnoderna i hierarkisk ordning. Om en användare temporärt öppnar en nod med spärrad information, kommer dess underliggande noder att minimeras och fokus kvarstår på noden med spärrad information. Spärrad information indikeras i fönstret Vätskebalans och i dialogfönstret Logg. Ikonerna för inre respektive yttre spärr visas i tabellens rubrik, raden för aktuellt värde och i dialogfönstret för logg. Inga spärrade värden visas och en tooltip för aktuell cell visar texten Spärrade samtycken eller om det är en nödöppning. Detta görs genom högerklicksalternativet Öppna spärr . COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 23(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix A - Sammanfattning av utvärdering per modul /område Följande tabell presente rar olika modulers /områdens utvärderingar av spärrar samt datum/tid som omfattas av en spärr. Modul/Område Informations - typ Utvärdering av spärr (vårdkontakt/enhet) Datum/tid som omfattas CDS Ej tillämpbart. CDS (Cambio Clinical Decision Support) är exkluderat för en patient om spärr har satts. Aktivitets- översikter i COSMIC Aktiviteter Rör aktiviteter i fönstret Att göra Patient som checklista, start/stopp, fritext, kliniska parametrar och specialiteter. Både aktiviteter och historiklogg kan spärras. Vid utvärdering används enhet men ej vårdkontakt. Ej tillämpbart. Aktiviteter Aktivitet Status Enhet Checklista, start/stopp och fritext Kliniska parametrar Specialiteter Alla, utom Testresultat/ undersökningar kopplade till beställande och mottagande enheter. Utförande Planerad utförande Utförande Planerad utförande Mottagande COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 24(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Modul/Område Informations - typ Utvärdering av spärr (vårdkontakt/enhet) Datum/tid som omfattas Aktiviteter Historiklogg Aktivitet Status Enhet Checklista, start/stopp och fritext Kliniska parametrar Alla, utom Alla, utom Utförande Beställande Utförande Beställande COSMIC Attention Signal Registrering Vid utvärdering används vårdkontakt och om den saknas, medicinskt ansvarig enhet. Datum/tid vid registrering av uppmärksam -hetssignal. COSMIC Care Documentation Journal- anteckningar Rör journalanteckningar i fönstret Ny anteckning (CD Inmatning v.2) samt fönstret Journal. Vid utvärdering kan vårdkontakt och enhet användas. Vårdkontakt om/när den är kopplad journalanteckningen. Den enhet som används är den som angetts i anteckningen när den skapades. Datum/tid när journalanteckningen skapades. COSMIC Birth Hanteras enligt COSMIC Care Documentations regelverk för spärrar. (Spärrar används inte för värden i partogram.) COSMIC Dictation Diktat Vid utvärdering används vårdkontakt och medicinskt ansvarig enhet. Om koppling mellan diktat och vårdkontakt saknas, används den enhet där diktatet sparades. Datum/tid när diktatet skapades. COSMIC Forms Formulär Vid utvärdering används vårdkontakt och om sådan saknas, enheten där formuläret sparades. Datum/tid när formuläret skapades. COSMIC Growth Chart Tillväxtvärde Tillväxtkurvan hämtar värden från journalanteckningar och hanteras enligt COSMIC Care Documentations regelverk för spärrar. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 25(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Modul/Område Informations - typ Utvärdering av spärr (vårdkontakt/enhet) Datum/tid som omfattas COSMIC Insight Via frågor presenteras information från andra moduler i COSMIC. COSMIC Insight använder en egen logik för utvärdering där frågorna utvärderas i relation till aktuell modul, t.ex. en vårdkontakt om den ingår i frågan. Endast inre spärrar används eftersom vi sade information hämtas från den vårdgivare som man är inloggad på. COSMIC Medication Läkemedels - behandling (inklusive vaccination) Vid utvärdering används vårdkontakt och om sådan saknas, medicinskt ansvarig enhet för förskrivningar, recept och rekvisitioner. Datum/tid för skapande av förskrivning, recept eller rekvisition. Nutritions- produkter och förbruknings - artiklar (recept/rekvis ition) Läkemedels - berättelse Vid utvärdering används vårdkontakt och om sådan saknas, medicinsk ansvarig enhet där läkemedelsberättelsen skapades. Datum/tid för skapande av läkemedels - berättelse. Läkemedels - genomgång Vid utvärdering används inloggad enhet Datum/tid för skapande av läkemedels - genomgång. Godkännande av admini- strering och läkemedels - genomgång Vid utvärdering används inloggad enhet. Datum/tid för godkännande. COSMIC Medical Record Table Ej tillämpbart. PDL används inte i COSMIC Medical Record Table . Arketypers värden visas som spärrade i text. COSMIC Order Management Beställning Vid utvärdering används beställningens mottagande enhet. Datum/tid för olika specialiteter: - Klinisk kemi, immunologi, lokala analyser och radiologi Tidpunkt för senaste uppdatering av en beställning (fram till - Patologi Tidpunkt för skapande av en patologibeställning. COSMIC Block Handling Introduktion & Användarmanual Version: 10.0 Datum: 2022-10-17 ©2022 Cambio Holding AB 26(26) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Modul/Område Informations - typ Utvärdering av spärr (vårdkontakt/enhet) Datum/tid som omfattas Rapport Vid utvärdering används rapportens mottagande enhet. Datum/tid för olika specialiteter: - Klinisk kemi, immunologi och lokala analyser I rapporten angiven tidpunkt för provtagningsunder-lag. - Patologi Tidpunkt för skapande av beställning. - Radiologi I rapporten angiven tidpunkt för undersökning COSMIC Referral Remiss och svar Vid utvärdering används beställande medicinskt ansvarig enhets vårdkontakt. Oavsett om vårdkontakt används eller inte sker utvärdering mot remissers beställande och mottagande enheter. Eftersom en remiss kan ha flera enheter (både beställande och mottagande) skickas spärrhanteringen . Remissdatum och tid Gemensamma översikter i COSMIC Arketyper Rör registrering av arketyper i fönstret Vätskebalans . Vid utvärdering används den enhet där arketypen registrerats. Datum/tid för registrering av arketyp."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "1.1",
+    "main_section_id": 2,
+    "context_summary": "Detta dokument introducerar Cambio Clinical Decision Support (CDS) Nursing Support – Fall Risk, ett kliniskt beslutsstöd för att bedöma fallrisk hos inlagda patienter, baserat på Downton Fall Risk Index, samt beskriver användarperspektiv, behörighetskontroll och målgruppen 65+ år.",
+    "keywords": [
+      "Fallrisk",
+      "Downton Fall Risk Index",
+      "DFRI",
+      "Inpatient",
+      "Nursing Support",
+      "COSMIC",
+      "Beslutsstöd",
+      "Vårdplan"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokument",
+      "Beslutsstöd",
+      "Fallrisk",
+      "Vårdplan",
+      "Geriatrik"
+    ],
+    "clinical_domain": [
+      "Akutvård",
+      "Geriatrik",
+      "Sjuksköterskor"
+    ],
+    "text": "Detta dokument beskriver Cambio Clinical Decision Support (CDS) Nursing Support Fall Risk (härefter CDS Nursing Support - Fall Risk ) och dess funktioner ur ett användarperspektiv. Läsaren förutsätts ha grundläggande kunskaper i COSMIC samt av datoranvändning generellt. Information om applicerbara och kompatibla versioner mellan beslutsstödet och underliggande journalsystem är angivet i dokumentets versionshistorik. CDS Nursing Support - Fall Risk är ett kliniskt beslutsstöd utvecklat för att utvärdera risken för fall hos inneliggande patienter och för att underlätta skapandet av en individuell vårdplan med utgångspunkt från riskskattningen. Skalan Downton Fall Risk Index (DFRI) ligger till grund för fallriskbedömningen [ 1]. Tillgång till applikationen styrs av lokala behörighetsinställningar konfigurerade av administratör. Applikationen riktar sig huvudsakligen till inneliggande patienter från 65 års ålder eftersom det föreligger begränsat med evidens för tillämpning av riskskattningsskalan på yngre patientgrupper. Beslutsstödet ger rekommendationer som endast skall betraktas som understöd för användaren, då dennes kunskap om patienten alltid är avgörande för beslutet. Beslutsstödet ersätter därmed inte beslutsfattaren."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Versionshistorik",
+    "page": 1,
+    "section_id": "1.2",
+    "main_section_id": 2,
+    "context_summary": "Versionshistoriken visar förändringar över tid och kompatibla versioner mellan beslutsstöd och journalsystem.",
+    "keywords": [
+      "versionshistorik",
+      "ändringar",
+      "kompatibilitet",
+      "beslutsstöd",
+      "journalsystem",
+      "version",
+      "datum"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokumenthistorik",
+      "Versionskontroll",
+      "Beslutsstöd",
+      "Journalintegration"
+    ],
+    "clinical_domain": [
+      "Geriatrisk vård",
+      "Fallriskbedömning",
+      "Säkerhet i vården"
+    ],
+    "text": "Versionshistoriken visar ändringar i dokumentet över tid samt kompatibla versioner mellan beslutsstödet och underliggande journalsystem. Version Datum Beskrivning 1.0 2020-04-30 Första version. Dokumentet gäller från beslutsstödsversion 4.1.x och COSMIC R8.2.03. 2.0 2020-11-20 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 6.0.x och COSMIC R8.2.07. 3.0 2021-06-04 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 7.0.x och COSMIC R8.2.07. CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 5(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Version Datum Beskrivning 4.0 2021-10-16 Avsnitt 3.1 uppdaterat. Dokumentet gäller från beslutsstödsversion 8.0.x och COSMIC R8.3.01. 4.1 2024-01-16 Kapitel 2 tillagt."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Termer",
+    "page": 1,
+    "section_id": "1.3",
+    "main_section_id": 2,
+    "context_summary": "Tabellen listade termer och akronymer: CDS, Clinical Decision Support, DFRI, Downton Fall Risk Index, riskbedömningsinstrument för fall, Nursing Support Fall Risk Vårdskadeprevention och Fallrisk.",
+    "keywords": [
+      "CDS",
+      "Clinical Decision Support",
+      "DFRI",
+      "Fall Risk Index",
+      "riskbedömningsinstrument",
+      "Nursing Support",
+      "Fallrisk",
+      "Vårdskadeprevention"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Termer",
+      "Terminologi",
+      "Akronymer",
+      "Fallrisk",
+      "Vårdskadeprevention"
+    ],
+    "clinical_domain": [
+      "Fallrisk",
+      "Säkerhet",
+      "Vård"
+    ],
+    "text": "Följande tabell beskriver de termer, förkortningar och akronymer som används i detta dokument. Term Beskrivning CDS Clinical Decision Support DFRI Downton Fall Risk Index Riskbedömningsinstrument för identifiering av fallolyckor inom vården. Nursing Support Fall Risk Vårdskadeprevention Fallrisk"
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Typografiska",
+    "page": 1,
+    "section_id": "1.4.1",
+    "main_section_id": 3,
+    "context_summary": "Dokumentet beskriver typografiska konventioner: fetstil för gränssnittstermer, kursiv för modulnamn och länkar, färg för värden och Courier New för kodexempel.",
+    "keywords": [
+      "fetstil",
+      "kursiv stil",
+      "typografiska konventioner",
+      "systemkommandon",
+      "kodexempel",
+      "webblänkar",
+      "färg",
+      "Courier New",
+      "CDS",
+      "Fall Risk"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Dokument",
+      "Typografi",
+      "Gränssnitt",
+      "Kod",
+      "Manual"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Geriatri",
+      "Fallriskhantering",
+      "Kliniskt beslutstöd"
+    ],
+    "text": "Följande typografiska konventioner används i detta dokument: Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger , Properties.txt eller https://customer.cambio.se . Färg. värden, namn, typer och sökvägar. Exempel: där ersätts med namnet Link till COSMIC Link . Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>. CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 6(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Ikoner",
+    "page": 1,
+    "section_id": "1.4.2",
+    "main_section_id": 3,
+    "context_summary": "Ikoner läggs till för att markera viktig information, tips och licenskrav. Dokumentet listar vilka ikoner som används och när de är aktuella.",
+    "keywords": [
+      "ikoner",
+      "information",
+      "tips",
+      "licens",
+      "extra kostnader",
+      "tredjepartslicens",
+      "gränssnitt",
+      "R8.2.03",
+      "CDS",
+      "Nursing Support",
+      "Fall Risk"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Ikoner",
+      "Information",
+      "Användarreferens",
+      "Tjänsteinteraktion",
+      "Licensinformation"
+    ],
+    "clinical_domain": [
+      "Geriatrik",
+      "Sjuksköterska",
+      "Fallrisk",
+      "Patientvård"
+    ],
+    "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. En tredjepartslicens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 7(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om CDS Nursing Support Fall Risk"
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Avsedd användning",
+    "page": 1,
+    "section_id": "2.1",
+    "main_section_id": "2",
+    "context_summary": "Beskriver hur Cambio CDS fallrisk är till för kliniker att bedöma fallrisk hos vuxna patienter 65+ med Downton-skalet och skapa vårdplaner.",
+    "keywords": [
+      "Fallrisk",
+      "Downton Fall Risk Index",
+      "Senior Alert",
+      "Nursing support",
+      "Vårdplan",
+      "Klinisk beslutsstöd"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Klinisk beslutsstöd",
+      "Fallrisk",
+      "Senior Alert",
+      "Vårdplan"
+    ],
+    "clinical_domain": [
+      "Sjuksköterskor",
+      "Fallprevention",
+      "Vårdplanering"
+    ],
+    "text": "Cambio Clinical Decision Support (CDS) Nursing Support Fall Risk (härefter CDS Nursing Support Fall Risk) är en klinisk beslutsstödsapplikation utvecklad för att stödja kliniker i bedömningen av risk för fall hos inneliggande vuxna patienter från 65 års ålder, baserat på Downton Fall Risk Index ( DFRI) skalan. CDS Nursing Support Fall Risk underlättar också skapandet av individuella vårdplaner, där mål och åtgärder manuellt kan läggas till från en lista av fördefinierade vårdåtgärder enligt riktlinjer från svenska Senior Alert registret."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Säkerhetsföreskrifter",
+    "page": 1,
+    "section_id": "2.2",
+    "main_section_id": 2,
+    "context_summary": "Säkerhetsföreskrifter för CDS Nursing Support Fall Risk: använd inte som enstaka källa, är inte avsedd för realtidsövervakning, ersätter inte bedömning eller observation; läs manualen först.",
+    "keywords": [
+      "CDS",
+      "FallRisk",
+      "säkerhet",
+      "patientobservation",
+      "klinikbedömning",
+      "manual",
+      "användning"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Säkerhet",
+      "Användning",
+      "Kvalitet",
+      "Mjukvara",
+      "Riskbedömning"
+    ],
+    "clinical_domain": [
+      "Patientvård",
+      "Sjuksköterska",
+      "Fallriskbedömning",
+      "Klinisk bedömning"
+    ],
+    "text": "Följande säkerhetsföreskrifter skall beaktas: CDS Nursing Support Fall Risk bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. CDS Nursing Support Fall Risk är inte avsedd för realtidsövervakning av vitala fysiologiska parametrar. CDS Nursing Support Fall Risk ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. Användarmanualen för CDS Nursing Support Fall Risk bör läsas innan användning."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Risker med användning av CDS",
+    "page": 1,
+    "section_id": "2.3",
+    "main_section_id": 2,
+    "context_summary": "Sammanfattar riskerna vid användning av CDS för fallrisk: bristande eller felaktig data, osynliggjord ny information, samt tillgänglighetsproblem.",
+    "keywords": [
+      "CDS",
+      "fallrisk",
+      "beslutsstöd",
+      "patientdata",
+      "data kvalitet",
+      "tillgänglighet",
+      "fel",
+      "risk",
+      "sjukhus"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "CDS",
+      "Fallrisk",
+      "Klinisk beslutsstöd",
+      "Patientdata",
+      "Säkerhet"
+    ],
+    "clinical_domain": [
+      "Geriatrik",
+      "Sjukvård",
+      "Klinisk riskbedömning"
+    ],
+    "text": "Nedan följer en sammanfattning av de risker som medföljer denna produkt: Om beslutsstödet saknar nödvändig indata för att utföra en bedömning kommer en rekommendation inte kunna ges, detta betyder inte att det inte föreligger några hälsorelaterade risker för patienten. Om beslutsstödet blir matad med inkorrekt eller korrumperad data från journalsystemet kan en felaktig rekommendation genereras av beslutsstödstjänsten. Som användare måste den kliniska kunskap och allmänna kännedom som användaren har om patienten alltid föregå det som genererats av beslutsstödet. Detta är tydligt beskrivit i denna användarmanual. CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 8(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Beslutsstödet kommer bara ha tillgång till den patientdata som fanns i journalen när patienten laddades i journalsystemet. Om ny patientdata registrerats i patientens journal efter patientladdning finns det en risk att relevant information missas av beslut sstödet. Beslutsstödet kan vara oåtkomlig ifall det föreligger lokala anslutningsproblem till nätverket eller om beslutsstödstjänsten ligger nere på grund av CDS Runtime serverproblem."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Produkt- och kontaktinformation",
+    "page": 1,
+    "section_id": "2.4",
+    "main_section_id": 2,
+    "context_summary": "Denna avsnittet ger detaljerad produktinformation för Cambio CDS Fall Risk, inklusive produktnamn, versioner, CE-märkning, registreringsnummer samt kontaktytor till tillverkaren och myndigheterna.",
+    "keywords": [
+      "Produktetikett",
+      "Cambio CDS",
+      "CED-märkning",
+      "SRN",
+      "Läkemedelsverket",
+      "fallsäkerhet",
+      "produktrelaterade incidenter",
+      "medicinteknik",
+      "registreringsnummer"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "produktinformation",
+      "kontakt",
+      "CE-märkning",
+      "CE-direktiv",
+      "registreringsnummer",
+      "CE-kontroll",
+      "fallsäkerhet",
+      "medicinteknisk produkt",
+      "tillverkare"
+    ],
+    "clinical_domain": [
+      "patientvård",
+      "riskbedömning"
+    ],
+    "text": "I beslutsstödets användargränssnitt kan en produktetikett visas via knappen . Den innehåller följande information: Produktnamn uppdelat i tre nivåer Cambio CDS - Clinical Decision Support Cambio CDS Runtime ( system) Beslutsstödets namn ( software item ) Produktversioner för beslutsstödet som software item och CDS Runtime som system. 1 https://www.lakemedelsverket.se Alla allvarliga produktrelaterade incidenter ska rapporteras till Cambio och behörig myndighet (Läkemedelsverket1). CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 9(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Adress (fysisk och internetadress) för ansvarig tillverkare, tillverkningsdatum och tillverkarens registreringsnummer (SRN). Cambio Healthcare Systems AB Gamla Tanneforsvägen 92 582 54 Linköping +46 13 20 03 00 https://www.cambiogroup.com/ SRN#: SE-MF-000001229 Dokumentation. Läs och följ anvisningarna i produktens introduktion & användarmanual. Via länken https://kb.cambio.se/ öppnas Kunskapsbanken med tillgång till dokumentation och övrig information. Medicinteknisk produkt. CE-märkning. Produkten uppfyller applicerbara krav i EG -direktiv 93/42/EEG. Unik produktidentifiering (produktspecifik kod). CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 10(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Att arbeta med CDS Nursing Support Fall Risk"
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Tillgång till CDS Nursing Support Fall Risk",
+    "page": 1,
+    "section_id": "3.1",
+    "main_section_id": 2,
+    "context_summary": "Beskrivning av hur användaren manuellt öppnar CDS-fallriskverktyget och anger data i riskbedömningsfönstret i COSMIC, inklusive behörighetskontroll.",
+    "keywords": [
+      "beslutsstöd",
+      "Fallrisk",
+      "COSMIC",
+      "användargränssnitt",
+      "behörighetsinställningar",
+      "Downton",
+      "Vårdplan"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Fallriskbedömning",
+      "Beslutsstöd",
+      "Användarinstruktion",
+      "Fallprevention"
+    ],
+    "clinical_domain": [
+      "Geriatrik",
+      "Vårdsäkerhet",
+      "Fallprevention",
+      "Omvårdnad"
+    ],
+    "text": "För att genomföra en riskbedömning måste beslutsstödet öppnas manuellt av användaren via huvudmenyn i COSMIC. Tillgång till beslutsstödet styrs av lokala behörighetsinställningar. Via menyalternativet Fallrisk öppnas fönstret Vårdskadeprevention Fallrisk i vilket användaren anger information under de olika blocken Riskbedömning (Downton Fall Risk Index) , Bedömning och Vårdplan ."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Grundläggande arbetsflöde",
+    "page": 1,
+    "section_id": "3.2",
+    "main_section_id": 2,
+    "context_summary": "Fönstret ‘Vårdskadeprevention – Fallrisk’ startar automatiskt att importera klinisk data från journalen och analyserar den tillsammans med manuellt inmatade uppgifter. Användaren verifierar förifyllda fält, fyller i obligatoriska och frivilliga fält och får sedan en risknivå och totala poäng. En individuell vårdplan skapas vid hög risk eller vid aktivt aktiverad block vid låg risk.",
+    "keywords": [
+      "fallrisk",
+      "beslutsstöd",
+      "Vårdskadeprevention",
+      "journaldata",
+      "COSMIC",
+      "läkemedel",
+      "ATC",
+      "riskbedömning",
+      "vårdplan",
+      "frivilliga fält",
+      "samtycke"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Arbetsflöde",
+      "Beslutsstöd",
+      "Fallrisk",
+      "Vårdskadeprevention",
+      "Patientdata",
+      "Läkemedel",
+      "Riskbedömning"
+    ],
+    "clinical_domain": [
+      "Sköterskevetenskap",
+      "Patientvård",
+      "Riskhantering",
+      "Fallriskbedömning"
+    ],
+    "text": "Efter att ha startat beslutsstödet visas fönstret Vårdskadeprevention Fallrisk i vilket en riskbedömning kan utföras genom att hantera information under de olika blocken. Se avsnitt 3.3 Översikt över block för ytterligare information om dessa. Bild 1 - Fönstret Vårdskadeprevention - Fallrisk Klinisk data som redan finns tillgänglig i journalsystemet, och som krävs av beslutsstödet för att genomföra en bedömning, importeras automatiskt. Efter att beslutsstödet startats analyseras journaldata som inhämtats automatiskt från COSMIC tillsammans med de uppgifter som användaren manuellt registrerar i fönstret. Beslutsstödet importerar endast patientdata från journalsystemet vid tidpunkten när beslutsstödet öppnas. Det innebär att om läkemedelsdata uppdateras i journalsystemet medan beslutsstödet används så kommer den nya information således inte inhämtas förrän beslutsstödet öppnas på nytt. CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 11(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Data som importeras och förifylls vid användning av beslutsstödet är aktiva läkemedel från patientens läkemedelslista. Följande tabell ger en översikt över de läkemedelsgrupper som automatiskt detekteras förutsatt att de är markerade som aktiva i patientens läkemedelslista. Läkemedel ATC-kod Diuretika C03 Antihypertensiva läkemedel C02 Medel vid parkinsonism N04 Neuroleptika, lugnande medel och sömnmedel N05 Antidepressiva läkemedel N06A Förifyllda fält kan ändras om informationen som importerats från journalsystemet inte bedöms vara aktuell vid bedömningstillfället. Det är användarens ansvar att verifiera att de förifyllda och/eller tomma fälten för läkemedel stämmer överens med de läkemedel patienten tar vid riskbedömningstillfället. Resterande obligatorisk information som beslutsstödet behöver för att utföra en bedömning anges av användaren. Vissa fält är frivilliga och kan fyllas i för att dokumentera kompletterande information men krävs ej för att genomföra riskbedömningen. Det är alltid användarens ansvar att ta ställning till om det är medicinskt lämpligt att använda beslutsstödet för att genomföra en riskbedömning hos patienterna. Beslutsstödet ska inte användas om användaren bedömer att det inte är medicinskt motiverat eller om patienten inte ger sitt samtycke till att medverka När samtliga obligatoriska fält är ifyllda i fönstret genereras en riskbedömnin g som anger vilken risknivå patienten har för fall, hög eller låg risk, samt totalpoängen för DFRI. Bedömningen baseras angivna parametrar under rubriken Bedömning. I blocket Vårdplan kan en individuell vårdplan skapas för en patient. Detta block är endast tillgängligt när beslutsstödet antingen automatiskt tillgängliggjort blocket vid hög risk för fall eller när användaren manuellt aktiverat vårdplansblocket vid låg risk för fall. CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 12(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Översikt över blocken i fönstret",
+    "page": 1,
+    "section_id": "3.3",
+    "main_section_id": 2,
+    "context_summary": "Denna text beskriver fokus på vårdskadeprevention med inriktning på fallrisk.",
+    "keywords": [
+      "vårdskadeprevention",
+      "fallrisk",
+      "förebyggande",
+      "patientvård",
+      "säkerhet"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Vårdskadeprevention",
+      "Fallrisk",
+      "Patientvård",
+      "Säkerhet"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Fallprevention",
+      "Patientvård"
+    ],
+    "text": "Vårdskadeprevention - Fallrisk"
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Riskbedömning (Downton Fall Risk Index)",
+    "page": 1,
+    "section_id": "3.3.1",
+    "main_section_id": 3,
+    "context_summary": "Bedömningen av fallrisk i CDS sker genom användarens svar på obligatoriska frågor samt journalinformation. Resultaten indikerar hög eller låg risk och resulterar i rekommendation om en individuell vårdplan eller ingen plan, samt möjlighet att skapa och signera en journalanteckning.",
+    "keywords": [
+      "fallrisk",
+      "Downton",
+      "DFRI",
+      "fallriskbedömning",
+      "vårdplan",
+      "signering",
+      "medicinering",
+      "ATC-kod",
+      "journalintegration"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Fallrisk",
+      "Bedömning",
+      "Klinisk beslutsstöd",
+      "Journalintegration",
+      "Vårdsplan"
+    ],
+    "clinical_domain": [
+      "Geriatrik",
+      "Fallprevention",
+      "Kvalitetsvård",
+      "Patientjournalsystem"
+    ],
+    "text": "Riskbedömningen baseras på de av användaren besvarade frågorna tillsammans med information som automatiskt inhämta ts från journalsystemet. Bild 2 Blocket Riskbedömning När fönstret öppnas är samtliga frågor obesvarade . De obligatoriska ( ) måste besvaras för att kunna generera en bedömning. Frågorna som visas ingår i riskskattningsskalan Downton Fall Risk Index (DFRI). Bild 3 Frågor ingående i riskskattningsskalan DFRI CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 13(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Under rubriken Medicinering visas frågan Andra läkemedel . Om den besvaras med ett Ja av användaren , alternativt ett Ja förifyllt av beslutsstödet, visas en fritextruta för att ange kompletterande information och övriga läkemedel. En informationsknapp visas bredvid läkemedlet och via den erhålls information om läkemedlet och tillhörande ATC -kod som beslutsstödet hämtat från patientens läkemedelslista . Efter att alla svar har fyllts i presenteras bedömningen i blocket Bedömnin g. Följande två bedömningar kan genereras: Hög risk för fall Användaren rekommenderas att skapa en individuell vårdplan. En vårdplan kan skapas direkt via beslutsstödet som kan sparas i journalsystemet. När en riskbedömningssession slutförts och en vårdplan skapats, kan användaren klicka på knappen Signera bedömning & skapa vårdplan varpå en signerad journalanteckning och en vårdplan skapas i journalsystemet Låg risk för fall Användaren rekommenderas ej att skapa en individuell vårdplan. När riskbedömningssessionen slutförts och utan att en vårdplan skapats kan användaren klicka på knappen Signera bedömning varpå en signerad journalanteckning skapas i journalsystemet. En vårdplan kan dock göras om så önskas genom att markera alternativknappen Ja samt ange en motivering under rubriken Aktivering av vårdplan ."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Bedömning",
+    "page": 1,
+    "section_id": "3.3.2",
+    "main_section_id": 3,
+    "context_summary": "Texten beskriver hur risknivå och totalpoäng för DFRI presenteras i blocket Bedömning, hur nästa riskbedömningstillfälle registreras, samt hur en vårdplan kan aktiveras eller signeras. Den förklarar också hur orsaker och signering av bedömningen dokumenteras i journalen.",
+    "keywords": [
+      "risknivå",
+      "DFRI",
+      "totalpoäng",
+      "riskbedömning",
+      "vårdplan",
+      "signering",
+      "journal",
+      "användning",
+      "beslutsstöd",
+      "fallrisk"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Bedömning",
+      "Riskbedömning",
+      "Vårdplan",
+      "Fallrisk",
+      "Nursing Support",
+      "Beslutsstöd",
+      "Patientvård"
+    ],
+    "clinical_domain": [
+      "Sjuksköterskearbete",
+      "Fallriskhantering",
+      "Vårdplanering",
+      "Patientjournal"
+    ],
+    "text": "I blocket presenteras patientens risknivå samt den totala poängen för DFRI som ligger till grund för risknivån. Bild 4 Blocket Bedömning CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 14(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Vid den presenterade totalpoängen och risknivån kan ett datum för nästa planerade riskbedömningstillfälle anges vilket kommer att ingå i journalanteckningen som skapas av beslutsstödet. Bild 5 Nästa riskbedömningstillfälle Om patienten enligt riskbedömningen har en hög risk för fall kommer applikationen automatiskt att tillgängliggöra blocket Vårdplan . Om användaren bedömer att patienten har ett behov av en vårdplan trots att risken för fall är låg enligt riskbedömningen ska en vårdplan upprättas. Beslutsstödet skall endast betraktas som ett stöd för användaren och en komplett riskbedömning behöver göras för att användaren ska kunna skapa en individuell vårdplan för patienten. Blocket Vårdplan aktiveras manuellt via frågan Skapa vårdplan? . Efter att ha markerat alternativet Ja visas fritextfältet Anledning till att skapa vårdplan för att fylla i orsak till att en vårdplan skapas. Bild 6 Aktivering av vårdplan Användaren har själv ansvar för samtliga medicinska beslut som fattas. Användarens kliniska bedömning skall alltid prioriteras före beslutsstödets bedömningar och rekommendationer. CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 15(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Under rubriken Orsaker presenteras en lista av möjliga orsaker/riskfaktorer som kan påverka risken för fall. Det är valfritt att ange dessa. Den eller de man väljer kommer att ingå i journalanteckningen som skapas av beslutsstödet. Bild 7 Orsaker Om en vårdplan inte skapas måste användaren klicka på knappen SIGNERA BEDÖMNING för att dokumentera riskbedömningen samt eventuella orsaker och/eller datum för nästa planerade riskbedömningstillfälle. I dialogrutan Signera bedömning ges information och användaren kan klicka på knappen SIGNERA BEDÖMNING för att bekräfta att en signerad journalanteckning skapas. Bild 8 Signera bedömning CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 16(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Vårdplan",
+    "page": 1,
+    "section_id": "3.3.3",
+    "main_section_id": "3",
+    "context_summary": "I blocket kan en individuell vårdplan skapas efter en komplett riskbedömning och val av minst ett mål. Användaren väljer aktiviteter, fyller i fritextrå, signerar bedömningen och skapar vårdplan i journalsystemet. Vårdplaner kan inte importeras eller dupliceras; för uppdateringar måste man göra det direkt i COSMIC.",
+    "keywords": [
+      "riskbedömning",
+      "vårdplan",
+      "aktiviteter",
+      "signera",
+      "journalsystem",
+      "fallrisk",
+      "DFRI",
+      "kryssrutor",
+      "målsättning",
+      "manuell",
+      "automatiskt",
+      "beslutsstöd",
+      "COSMIC",
+      "journalintyg"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "vårdplan",
+      "riskbedömning",
+      "fallrisk",
+      "aktiviteter",
+      "signering",
+      "journalanteckning",
+      "beslutsstöd"
+    ],
+    "clinical_domain": [
+      "Sjuksköterskevård",
+      "Fallrisikohantering",
+      "Patientvårdsplanering"
+    ],
+    "text": "I blocket kan en individuell vårdplan för en patient skapas. Det visas när det lagts till automatiskt vid bedömningen hög risk för fall, eller när användaren manuellt aktiverat vårdplansblocket vid låg risk för fall enligt DFRI . Bild 9 Blocket Vårdplan För att skapa en vårdplan krävs att följande två moment har genomförts: En komplett riskbedömning har gjorts. Användaren har valt minst ett mål för vårdplanen. När de genomförts kan användaren välja vilka aktiviteter som ska ingå i vårdplanen genom att markera kryssrutorna för de önskade aktiviteterna. När en aktivitet valts visas en fritextruta där ytterligare information kan anges. Bild 10 Aktiviteter CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 17(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Efter att ha markerat önskade kryssrutor klickar användaren på knappen SIGNERA BEDÖMNING & SKAPA VÅRDPLAN för att skapa journalanteckning och vårdplan i journalsystemet. Observera att det inte går att klicka på knappen om inte en komplett riskbedömning gjorts och minst ett mål är valt för vårdplanen. I den visade dialogrutan Signera bedömning & skapa vårdplan? kan användaren ta del av information samt bekräfta att en vårdplan ska skapas genom att klicka på knappen SIGNERA BEDÖMNING & SKAPA VÅRDPLAN . Bild 11 Signera bedömning och skapa vårdplan Observera följande: Det går endast att skapa nya vårdplaner genom beslutsstödet, d.v.s. det går inte att importera och ta del av befintliga vårdplaner i beslutsstödet. Beslutsstödet detekterar inte om en vårdplan redan har skapats för patienten vid ett tidigare tillfälle. Om en vårdplan behöver uppdateras genomförs detta lämpligen genom att redigera vårdplanen direkt i COSMIC. Om en vårdplan av någon anledning inte kan skapas via beslutsstödet skall användaren skapa en vårdplan manuellt i COSMIC."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Introduktion",
+    "page": 1,
+    "section_id": "3.4.1",
+    "main_section_id": "3",
+    "context_summary": "CDS Nursing Support Fall Risk är ett kliniskt beslutsstöd som bearbetar inmatad data enligt fördefinierade regler för att hjälpa vårdpersonal att identifiera högriskpatienter för fall och minimera risken för patientskador. Systemet ger endast rekommendationer och kan inte fatta egna beslut.",
+    "keywords": [
+      "CDS",
+      "fallrisk",
+      "kliniskt beslutsstöd",
+      "högriskpatient",
+      "patientskada",
+      "rekommendation",
+      "klinisk kompetens"
+    ],
+    "content_type": "narrative",
+    "hierarchical_tags": [
+      "Kliniskt beslutsstöd",
+      "Fallrisk",
+      "Patientvård"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Fall förebyggande",
+      "Patient säkerhet"
+    ],
+    "text": "CDS Nursing Support Fall Risk är ett kliniskt beslutsstöd. Det innebär att inmatad data bearbetas i enlighet med fördefinierade regler i syfte att underlätta för vårdpersonal att identifiera högriskpatienter för fall och att minimera risken för att en sådan vårdskada sker under vårdtiden. Bedömningar och förslag som genereras av beslutsstödet är enbart rekommendationer. Verktyget fattar inga egna beslut, och användaren skall alltid nyttja sin kliniska kompetens i kombination med beslutsstödet för att fatta beslut om adekvat handläggning. I följande avsnitt ges förenklad information om hur rekommendationerna genereras. Konfiguration och logik bakom aktuella regler beskrivs ej. CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 18(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Hämtning av signerad patientdata",
+    "page": 1,
+    "section_id": "3.4.2",
+    "main_section_id": 3,
+    "context_summary": "Inhämtar endast signerad klinisk data; icke‑signerade ordinationer exkluderas från beslutsstödet.",
+    "keywords": [
+      "signerad data",
+      "journalsystem",
+      "ordination",
+      "läkemedelslista",
+      "beslutsstöd",
+      "CDS",
+      "Fall Risk",
+      "nursing support"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "datainsamling",
+      "patientdata",
+      "journalsystem",
+      "fallrisk",
+      "beslutsstöd"
+    ],
+    "clinical_domain": [
+      "Sjukvård",
+      "Fallrisk",
+      "Patientdata"
+    ],
+    "text": "CDS Nursing Support Fall Risk inhämtar bara signerad klinisk data från journalsystemet (signerade ordinationer i läkemedelslista). Detta innebär alltså att ordinationer som exempelvis sparats, men inte signerats, inte kommer utgöra tillgängligt informationsunderlag för beslutsstödet."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Risknivåer",
+    "page": 1,
+    "section_id": "3.4.3",
+    "main_section_id": 3,
+    "context_summary": "Beskrivning av hur DFRI‑poäng används för att bedöma patientens risknivå för fall och när en individuell vårdplan behövs.",
+    "keywords": [
+      "risknivå",
+      "fallrisk",
+      "DFRI",
+      "poäng",
+      "låg risk",
+      "hög risk",
+      "vårdplan",
+      "beslut",
+      "bedömning",
+      "totalpoäng",
+      "maximala poäng",
+      "individuell vårdplan"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Riskbedömning",
+      "Fallrisk",
+      "Vårdplan",
+      "Patientrisk",
+      "Beslutsstöd",
+      "DFRI",
+      "Poängsystem"
+    ],
+    "clinical_domain": [
+      "geriatrik",
+      "rehabilitering",
+      "sjukvårdsplan"
+    ],
+    "text": "För att beslutsstödet ska generera en bedömning krävs att samtliga obligatoriska frågor för riskskattningsskalan DFRI har besvarats under blocket Riskbedömning . Beslutsstödet genererar bedömningen att patienten har en låg eller hög risknivå för fall baserad på totalpoängen. Det maximala antalet poäng en patient kan ha enligt DFRI är 11. I följande tabell ges en beskrivning av risknivåerna. Poäng Gränsvärden hög/låg risk Beskrivning < 3 Låg risk för fall Vid låg risknivå behöver i normala fall inte någon vårdplan upprättas. Om användaren bedömer att risk föreligger kan en vårdplan skapas. >= 3 Hög risk för fall Rekommendationen är en individuell vårdplan upprättas. Blocket Vårdplan visas automatiskt. Det döljs om användaren valt att inte skapa en vårdplan genom att svara Nej på frågan Skapa vårdplan? ."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Hantering av spärrad information",
+    "page": 1,
+    "section_id": "3.4.4",
+    "main_section_id": "3",
+    "context_summary": "Information om hur patienter med spärrad information hanteras i CDS Nursing Support Fall Risk, inklusive beslutsfattande av systemförvaltning och administrativa inställningar.",
+    "keywords": [
+      "spärrad information",
+      "patienter",
+      "CDS Nursing Support",
+      "fallrisk",
+      "systemförvaltning",
+      "administratör",
+      "regionens rutiner"
+    ],
+    "content_type": "reference",
+    "hierarchical_tags": [
+      "Datahantering",
+      "Patientinformation",
+      "Fallrisk",
+      "Regelverk",
+      "VDN"
+    ],
+    "clinical_domain": [
+      "Fallrisk",
+      "Patientdata"
+    ],
+    "text": "Patienter med spärrad information kan selektivt exkluderas från CDS Nursing Support Fall Risk. Det är systemförvaltningens beslut om detta skall göras och styrs av en inställning som hanteras av administratör. I övrigt är det regionens egna rutiner som gäller för hur spärrar kring beslutsstödet skall hanteras."
+  },
+  {
+    "source_file": "Cosmic manual CDS fallrisk v3.0.pdf",
+    "section": "Felhantering",
+    "page": 1,
+    "section_id": "3.5",
+    "main_section_id": 2,
+    "context_summary": "Är ett tekniskt fel uppstått vid användning av CDS Nursing Support Fall Risk, avbryts beslutsstödet och ett felmeddelande visas. Beslutsstödet kan därför inte användas för den aktuella patienten. Texten innehåller versionsinformation och referenser.",
+    "keywords": [
+      "tekniskt fel",
+      "CDS Nursing Support",
+      "fallsrisk",
+      "beslutsstöd",
+      "felmeddelande",
+      "patient",
+      "version",
+      "digital version",
+      "referenser"
+    ],
+    "content_type": "instruction",
+    "hierarchical_tags": [
+      "Teknik",
+      "Kvalitetssäkring",
+      "Fallrisk",
+      "Medicinsk dokumentation",
+      "Sjuksköterskeverktyg"
+    ],
+    "clinical_domain": [
+      "Geriatrik",
+      "Fallrisk",
+      "Sjuksköterskestöd",
+      "Klinisk beslutsstöd"
+    ],
+    "text": "Om det uppstår ett tekniskt fel vid användning av CDS Nursing Support Fall Risk kommer beslutsstödet att inaktiveras och ett felmeddelande visas. Det innebär att beslutsstödet inte kommer att kunna användas för den aktuella patienten. CDS Nursing Support - Fall Risk - Introduktion & Användarmanual Version: 4.1 Datum: 2024-01-16 ©2024 Cambio Healthcare Systems AB 19(19) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix A - Referenser [1] Rosendahl E, Lundin-Olsson L, Kallin K, Jensen J, Gustafson Y, et al. Prediction of falls among older people in residential care facilities by the Downton index. Aging Clin Exp Res. 2003;15(2):142 147. [2] Fallprevention [Internet]. Vårdhandboken; 2016 [cited 2018 Jan]. Available from: http://www.vardhandboken.se/Texter/Fallprevention/Oversikt/."
+  }
+]
