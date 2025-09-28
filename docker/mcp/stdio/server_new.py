@@ -25,7 +25,7 @@ import config
 # Reuse your existing class/models
 from active_directory import ActiveDirectory
 from active_directory import CreateUserPayload, PasswordProfile
-
+from vector_database_tools import cosmic_database_tool
 
 # ++++++++++++++++++++++++++++++++
 # ACTIVE DIRECTORY PYDANTIC MODELS START
@@ -143,6 +143,10 @@ class WeatherRequest(BaseModel):
     lat: Optional[float] = None
     lon: Optional[float] = None
     units: Optional[str] = None
+
+
+class CosmicDatabaseRequest(BaseModel):
+    query: str = Field(..., description="The search query to find relevant information in the cosmic database")
 
 
 def extract_sql_from_json(llm_output: str) -> str:
@@ -837,6 +841,28 @@ async def weather_endpoint(request: WeatherRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/qdrant/cosmic_database_tool")
+async def cosmic_database_endpoint(request: CosmicDatabaseRequest):
+    """Search the cosmic database using vector similarity search"""
+    try:
+        if DEBUG:
+            print(f"[COSMIC DB] Searching cosmic database for query: {request.query}")
+        
+        result = await cosmic_database_tool(request.query)
+        return {
+            "success": True,
+            "query": request.query,
+            "result": result
+        }
+    
+    except Exception as e:
+        if DEBUG:
+            print(f"[COSMIC DB] Error: {e}")
+        return {
+            "success": False,
+            "query": request.query,
+            "error": str(e)
+        }
 
 # ++++++++++++++++++++++++++++++++
 # ACTIVE DIRECTORY ENDPOINTS START
@@ -1584,6 +1610,20 @@ async def mcp_tools_list():
                 },
                 "required": ["group_id"]
             }
+        ),
+        MCPTool(
+            name="search_cosmic_database",
+            description="Search the cosmic database using vector similarity search. Use this tool when you need to find information from medical documentation, procedures, policies, or any content stored in the cosmic database. This tool uses advanced multi-strategy retrieval with metadata filtering.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query to find relevant information in the cosmic database"
+                    }
+                },
+                "required": ["query"]
+            }
         )
     ]
 
@@ -1617,7 +1657,22 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
+           
+            
+        elif tool_name == "search_cosmic_database":
+            query = arguments.get("query", "")
+            if not query:
+                return MCPToolCallResponse(
+                    content=[MCPContent(type="text", text="Error: Query parameter is required")],
+                    isError=True
+                )
+            
+            result = await cosmic_database_tool(query)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=result)]
+            )
 
+        
         elif tool_name == "get_current_weather":
             weather_request = WeatherRequest(
                 **{k: v for k, v in arguments.items() if k in ["city", "lat", "lon", "units"]})
@@ -1792,7 +1847,8 @@ async def root():
             "ad_create_group",
             "ad_add_group_member",
             "ad_remove_group_member",
-            "ad_get_group_members"
+            "ad_get_group_members",
+            "search_cosmic_database"
         ],
         "docs": "/docs",
         "mcp_compatible": True
