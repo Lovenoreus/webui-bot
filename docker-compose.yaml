@@ -1,4 +1,68 @@
 services:
+
+  # ollama:
+  #   volumes:
+  #     - ollama:/root/.ollama
+  #   container_name: ollama
+  #   pull_policy: always
+  #   tty: true
+  #   restart: unless-stopped
+  #   image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
+
+  ollama:
+    volumes:
+      - ollama:/root/.ollama
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: ${OLLAMA_GPU_DRIVER-nvidia}
+    #           count: ${OLLAMA_GPU_COUNT-1}
+    #           capabilities:
+    #             - gpu
+    restart: unless-stopped
+    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
+    ports:
+      - "11435:11434"
+    networks:
+      - mcp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  ollama-model-puller:
+    image: curlimages/curl:latest
+    container_name: ollama-model-puller
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_LLM_MODEL=${OLLAMA_LLM_MODEL:-llama3.2}
+      - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+    networks:
+      - mcp-network
+    command: >
+      sh -c "
+        echo 'Waiting for Ollama to be fully ready...' &&
+        sleep 5 &&
+        echo 'Pulling LLM model: ${OLLAMA_LLM_MODEL:-llama3.2}...' &&
+        curl -X POST http://ollama:11434/api/pull \
+          -H 'Content-Type: application/json' \
+          -d '{\"name\": \"${OLLAMA_LLM_MODEL:-llama3.2}\"}' &&
+        echo 'Pulling embedding model: ${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}...' &&
+        curl -X POST http://ollama:11434/api/pull \
+          -H 'Content-Type: application/json' \
+          -d '{\"name\": \"${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}\"}' &&
+        echo 'All models pulled successfully!'
+      "
+    restart: "no"
+
   open-webui:
     build:
       context: .
@@ -10,6 +74,7 @@ services:
       - open-webui:/app/backend/data
     depends_on:
       - mcp_server
+      - ollama
     ports:
       - ${OPEN_WEBUI_PORT-3000}:8080
     environment:
