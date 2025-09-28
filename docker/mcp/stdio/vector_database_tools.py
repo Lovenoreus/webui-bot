@@ -2,7 +2,7 @@
 # import openai
 # from qdrant_client import QdrantClient
 # from dotenv import load_dotenv
-# import os
+import os
 # from typing import List
 # import requests
 # import config
@@ -822,7 +822,6 @@ import sys
 import openai
 from qdrant_client import QdrantClient
 from dotenv import load_dotenv
-import os
 from typing import List
 import requests
 import config
@@ -1427,19 +1426,33 @@ def _process_pgvector_results(docs) -> str:
             content = doc.page_content.strip()
             metadata = doc.metadata or {}
 
-            # Get metadata fields
-            source_file = metadata.get("source_file", metadata.get("source", "unknown"))
-            section = metadata.get("section", "unknown")
-            page = metadata.get("page", "unknown")
-            context_summary = metadata.get("context_summary", "")
+            # Get metadata fields with better fallback handling
+            # Extract source file name from path if available, prioritizing the original document name
+            source_path = metadata.get("source_file", metadata.get("source", ""))
+            if "/" in source_path or "\\" in source_path:
+                # Extract just the filename from path
+                source_file = os.path.basename(source_path)
+            else:
+                source_file = source_path or "unknown"
+            
+            # Make sure we don't display raw chunk filenames
+            if source_file.startswith("chunks_") or source_file.startswith("split_chunks"):
+                # Try to get original document name from other metadata
+                alt_source = metadata.get("original_source", metadata.get("document_name", metadata.get("title", "")))
+                if alt_source:
+                    source_file = alt_source
+            
+            section = metadata.get("section", metadata.get("section_title", metadata.get("heading", ""))) or "unknown"
+            page = metadata.get("page", metadata.get("page_number", "")) or "unknown"
+            context_summary = metadata.get("context_summary", metadata.get("summary", ""))
 
             if content:
                 # Track sources
                 if source_file not in sources:
                     sources.append(source_file)
 
-                # Build enhanced content with metadata (lower score is better for cosine distance)
-                enhanced_content = f"[Source: {source_file} | Section: {section} | Page: {page} | Distance: {score:.3f}]\n{content}"
+                # Build enhanced content with metadata (formatted like Qdrant results for consistency)
+                enhanced_content = f"[Source: {source_file} | Section: {section} | Page: {page} | Score: {score:.3f}]\n{content}"
 
                 if context_summary:
                     enhanced_content += f"\n[Context: {context_summary}]"

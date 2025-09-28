@@ -7,14 +7,14 @@
     "debug": true
   },
   "ollama": {
-    "enabled": false,
+    "enabled": true,
     "agent_model_name": "qwen3:latest",
     "embeddings_model_name": "jeffh/intfloat-multilingual-e5-large:q8_0",
     "host": "http://ollama",
     "port": 11434
   },
   "openai": {
-    "enabled": true,
+    "enabled": false,
     "agent_model_name": "gpt-4o-mini",
     "embeddings_model_name": "text-embedding-3-large"
   },

@@ -446,6 +446,9 @@ def load_json_as_documents(file_path, chunk_size=1000, overlap=200):
     
     documents = []
     
+    # Extract better document metadata
+    document_name = os.path.basename(file_path)
+    
     # Handle array of JSON objects (like your big_chunks.json)
     if isinstance(json_data, list):
         for idx, item in tqdm(enumerate(json_data), total=len(json_data), desc=f"Processing {os.path.basename(file_path)}", unit="item", leave=False):
@@ -453,11 +456,21 @@ def load_json_as_documents(file_path, chunk_size=1000, overlap=200):
                 # Handle objects with 'text' field
                 text = item['text']
                 chunks = chunk_text(text, chunk_size=chunk_size, overlap=overlap) or [text]
+                
+                # Extract metadata from the item if available
+                section = item.get('section', item.get('heading', 'unknown'))
+                page = item.get('page', item.get('page_number', 'unknown'))
+                context = item.get('context', item.get('summary', ''))
+                
                 for ci, chunk in enumerate(chunks):
                     metadata = {
-                        "source": file_path,
+                        "source_file": document_name,  # Use the document name instead of full path
+                        "source": file_path,  # Keep original path as backup
                         "item_index": idx,
                         "chunk_index": ci,
+                        "section": section,
+                        "page": page,
+                        "context_summary": context,
                         "original_item": item  # Store the original JSON object
                     }
                     documents.append(Document(page_content=chunk, metadata=metadata))
@@ -466,20 +479,34 @@ def load_json_as_documents(file_path, chunk_size=1000, overlap=200):
                 chunks = chunk_text(item, chunk_size=chunk_size, overlap=overlap) or [item]
                 for ci, chunk in enumerate(chunks):
                     metadata = {
-                        "source": file_path,
+                        "source_file": document_name,  # Use the document name instead of full path
+                        "source": file_path,  # Keep original path as backup
                         "item_index": idx,
-                        "chunk_index": ci
+                        "chunk_index": ci,
+                        "section": "Text Fragment",
+                        "page": "unknown"
                     }
                     documents.append(Document(page_content=chunk, metadata=metadata))
             else:
                 # Handle other object types - convert to string
                 text = json.dumps(item, ensure_ascii=False, indent=2)
                 chunks = chunk_text(text, chunk_size=chunk_size, overlap=overlap) or [text]
+                
+                # Try to extract metadata from the item if it's a dictionary
+                section = "unknown"
+                page = "unknown"
+                if isinstance(item, dict):
+                    section = item.get('section', item.get('heading', item.get('title', 'unknown')))
+                    page = item.get('page', item.get('page_number', 'unknown'))
+                
                 for ci, chunk in enumerate(chunks):
                     metadata = {
-                        "source": file_path,
+                        "source_file": document_name,  # Use the document name instead of full path
+                        "source": file_path,  # Keep original path as backup
                         "item_index": idx,
                         "chunk_index": ci,
+                        "section": section,
+                        "page": page,
                         "original_item": item
                     }
                     documents.append(Document(page_content=chunk, metadata=metadata))
@@ -491,11 +518,20 @@ def load_json_as_documents(file_path, chunk_size=1000, overlap=200):
         else:
             text = json.dumps(json_data, ensure_ascii=False, indent=2)
         
+        # Extract metadata from the JSON if available
+        section = json_data.get('section', json_data.get('heading', json_data.get('title', 'unknown')))
+        page = json_data.get('page', json_data.get('page_number', 'unknown'))
+        context = json_data.get('context', json_data.get('summary', ''))
+        
         chunks = chunk_text(text, chunk_size=chunk_size, overlap=overlap) or [text]
         for ci, chunk in enumerate(chunks):
             metadata = {
-                "source": file_path,
+                "source_file": document_name,  # Use the document name instead of full path
+                "source": file_path,  # Keep original path as backup
                 "chunk_index": ci,
+                "section": section,
+                "page": page,
+                "context_summary": context,
                 "original_item": json_data
             }
             documents.append(Document(page_content=chunk, metadata=metadata))
@@ -505,8 +541,11 @@ def load_json_as_documents(file_path, chunk_size=1000, overlap=200):
         chunks = chunk_text(json_data, chunk_size=chunk_size, overlap=overlap) or [json_data]
         for ci, chunk in enumerate(chunks):
             metadata = {
-                "source": file_path,
-                "chunk_index": ci
+                "source_file": document_name,  # Use the document name instead of full path
+                "source": file_path,  # Keep original path as backup
+                "chunk_index": ci,
+                "section": "Text Content",
+                "page": "unknown"
             }
             documents.append(Document(page_content=chunk, metadata=metadata))
     
