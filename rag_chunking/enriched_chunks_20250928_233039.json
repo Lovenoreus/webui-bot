@@ -1,0 +1,3104 @@
+[
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Introdu ktion",
+  "page": 1,
+  "section_id": "1.1",
+  "main_section_id": 2,
+  "context_summary": "Dokumentet beskriver vad som ingår i Aktivitetsöversikter i COSMIC, dess funktioner och användningsområden för vårdpersonal.",
+  "keywords": [
+    "Aktivitetsöversikter",
+    "COSMIC",
+    "hälso- och sjukvård",
+    "läkare",
+    "sjuksköterskor",
+    "undersköterskor",
+    "arbetsflöden",
+    "funktioner",
+    "slutenvård",
+    "akutsjukvård"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Dokument",
+    "Översikter",
+    "COSMIC",
+    "Hälso- och sjukvård",
+    "Användarmanual"
+  ],
+  "clinical_domain": [
+    "hälso- och sjukvård",
+    "sjukvård",
+    "akutsjukvård",
+    "slutenvård"
+  ],
+  "text": "Detta dokument beskriver de aktivitet er som ingår i Aktivitetsöversikter i Cambio COSMIC (fortsättningsvis kallad Aktivitetsöversikter i COSMIC ), dess funktioner och egenskaper. Det är uppdelat i en introduktion med beskrivning över ingående fönster samt ett separat kapitel med användarinstruktioner. Dokumentet är avsett att användas av hälso - och sjukvårdspersonal, främst läkare, sjuksköterskor och undersköterskor med kunskap och erfarenhet av hälsovård, datorer samt av COSMIC och dess arbetsflöden. Aktivitetsöversikter i COSMIC är avsedd för användning i slutenvårdsmiljö och akutsjukvårdsmiljö. Detta dokument beskriver funktioner som finns i Aktivitetsöversikter i COSMIC. Alla funktioner finns inte i alla konfigurationer . Dokumentet bör läsas tillsammans med Gemensamma Funktioner i COSMIC – Introduktion & Användarmanual och referensguiderna Ikoner i COSMIC – Referensguide och Kortkommandon i COSMIC – Referensguide."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Version shistorik",
+  "page": 1,
+  "section_id": "1.2",
+  "main_section_id": "2",
+  "context_summary": "Versionshistoriken visar alla ändringar, datum och gällande revisioner för dokumentet i COSMIC, inklusive vilka avsnitt som uppdaterats eller tillagts och när dokumentet blir giltigt enligt respektive COSMIC-version.",
+  "keywords": [
+    "versionshistorik",
+    "ändringar",
+    "datum",
+    "avsnitt",
+    "giltighet",
+    "COSMIC",
+    "uppdatering",
+    "dokumentsversion"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Dokument",
+    "Versionshistorik",
+    "Ändringslogg"
+  ],
+  "clinical_domain": [
+    "Dokumenthantering"
+  ],
+  "text": "Versionshistoriken visar ändringar i dokumentet över tid. Version Datum Beskrivning 1.0 – 8.0 2020 - 2022 För tidigare publicerade versioner se respektive dokumentversion för detaljer. Dokumentet är giltigt till och med COSMIC 3. 8.0. 9.0 2023 -03-29 Avsnitt 3.1.1 tillagt. Avsnitt 1.3 uppdatera t. Dokumentet är giltigt från COSMIC 3.9.0. 10.0 2023 -09-20 Avsnitt 1.1, 1.3, 1.4.2 , 2.1, 3.1 och 4.11 uppdatera de. Dokumentet är giltigt från COSMIC 3. 10.0. 10.1 2023-11-28 Avsnitt 1.1 och 1.4 uppdaterade. 11.0 2024 -02-02 Avsnitt 4.8 tillagt. Avsnitt 3.2 och 3.4 uppdatera de. Dokumentet är giltigt från COSMIC 3. 11.0. 12.0 2024 -04-25 Avsnitt 3.1, 3.2 och 3.4 uppdaterade. Dokumentet är giltigt från COSMIC 3.12.0 13.0 2024 -10-14 Avsnitt 3.4.1 uppdaterat. Dokumentet är giltigt från COSMIC 4.0.0. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 5(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Relaterade dokument",
+  "page": 1,
+  "section_id": "1.3",
+  "main_section_id": "2",
+  "context_summary": "Denna sektion listar relaterade COSMIC‑dokument, inklusive introduktionsmanualer och referensguider.",
+  "keywords": [
+    "COSMIC",
+    "manual",
+    "introduktion",
+    "användarmanual",
+    "referensguide",
+    "ikon",
+    "kortkommando"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Dokument",
+    "Manualer",
+    "Referensguider",
+    "COSMIC",
+    "Funktioner"
+  ],
+  "clinical_domain": [
+    "IT-system",
+    "Medicinsk information"
+  ],
+  "text": "Följande relaterade dokument finns tillgängliga : • COSMIC Common Order Entry – Introduktion & Användarmanual • COSMIC Nova – Introduktion & Användarmanual • COSMIC Order Management – Introduktion & Användarmanual • COSMIC Overviews – Introduktion & Användarmanual • COSMIC Unit Overview – Introduktion & Användarmanua l • Gemensamma Funktioner i COSMIC – Introduktion & Användarmanual • Ikoner i COSMIC – Referensguide • Kortkommandon i COSMIC – Referensguide"
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Typografiska",
+  "page": 1,
+  "section_id": "1.4.1",
+  "main_section_id": 3,
+  "context_summary": "Dokumentet beskriver typografiska konventioner för termer, modulnamn, citattecken, ersättningsbar information och systemkommandon i COSMIC-användarmanualen.",
+  "keywords": [
+    "Fetstil",
+    "kursiv",
+    "citata",
+    "ersättningsbar information",
+    "systemkommandon",
+    "typografi",
+    "COSMIC"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Typografi",
+    "Konventioner",
+    "Användarmanual",
+    "COSMIC"
+  ],
+  "clinical_domain": [
+    "Informationsteknik",
+    "Systemadministration",
+    "Användargränssnitt"
+  ],
+  "text": "Följande typografiska konventioner används i detta dokument: • Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . • Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger, Properties.txt eller https://customer.cambio.se. • Enkla citattecken (’ ’) indikerar valbara alternativ i listrutor. Exempel: Välj alternativet ’Blå’ i listrutan Färg . • Vinkelparenteser (<…>) indikerar ersättningsbar information i texten som värden, namn, typer och sökvägar. Exempel: COSMIC <…> där <…> ersätts med namnet Link till COSMIC Link . • Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter . Exempel: SET USERID=<user id>. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 6(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Ikoner",
+  "page": 1,
+  "section_id": "1.4.2",
+  "main_section_id": 3,
+  "context_summary": "Denna sektion beskriver de ikoner som används för att markera viktig information, tips, licenskrav, och andra villkor i dokumentet.",
+  "keywords": [
+    "ikoner",
+    "information",
+    "tips",
+    "licens",
+    "kostnad",
+    "anpassning",
+    "gränssnitt"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Ikoner",
+    "Information",
+    "Tips",
+    "Licenskrav"
+  ],
+  "clinical_domain": [
+    "Systemutveckling",
+    "Patientinteraktion",
+    "Kundsupport"
+  ],
+  "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips En tredjepartsl icens krävs för att använda denna produkt/funktion. Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. Information för vyer med gränssnitt införda från R8.2.03. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 7(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Term er",
+  "page": 1,
+  "section_id": "1.5",
+  "main_section_id": "2",
+  "context_summary": "Den här tabellen beskriver termer, akronymer och förkortningar som används i dokumentet, med definitioner för begrepp som Aktiviteter, Objekt, Tillägg, Typ och Utförare samt deras roll i COSMIC.",
+  "keywords": [
+    "term",
+    "akronym",
+    "förkortning",
+    "Aktiviteter",
+    "Objekt",
+    "Tillägg",
+    "Typ",
+    "Utförare",
+    "COSMIC",
+    "Patient",
+    "Novas Planering"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Terminologi",
+    "Dokumentstruktur",
+    "COSMIC",
+    "Aktiviteter",
+    "Hälsosystem"
+  ],
+  "clinical_domain": [
+    "Hälsoinformatik"
+  ],
+  "text": "Tabellen beskriver termer, akronymer och förkortningar som används i detta dokument. Term Beskrivning Aktiviteter Objekt som visas, planeras och utförs via fönstret Att göra – Patient . Aktiviteter kan vara av olika typer t.ex. uppgifter eller kliniska parametrar. Tillägg Ett fritextfält som kan användas för att specificera en aktivitet. Tillägg visas b.la. i fönstret Att göra – Patient och Novas Planering tillsammans med aktivitetsnamnet. Typ Gruppering av aktiviteter per typ, t.ex. uppgifter och kliniska parametrar. Utförare En grupp användare, t.ex. läkare eller undersköterska, som kan tilldelas att utföra en aktivitet. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 8(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om Aktivitetsöversikter i COSMIC"
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Avsedd användning",
+  "page": 1,
+  "section_id": "2.1",
+  "main_section_id": "2",
+  "context_summary": "Aktivitetsöversikter i COSMIC är ett mjukvaruvärde för att visualisera och hantera aktivitetslistor för både patient- och enhetsnivå, med synkronisering till COSMIC‑EHR och stöd för kommunikation internt och mellan avdelningar.",
+  "keywords": [
+    "Aktivitetsöversikter",
+    "COSMIC",
+    "EHR",
+    "synkronisering",
+    "patientnivå",
+    "enhet",
+    "klinik",
+    "samarbete",
+    "kommunikation",
+    "syfte",
+    "visualisering"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Sjukvårdssystem",
+    "Aktivitetshantering",
+    "EHR‑integration",
+    "Patientdata",
+    "Uppgiftsvisualisering"
+  ],
+  "clinical_domain": [
+    "hälso- och sjukvård",
+    "patientvård",
+    "klinisk behandling"
+  ],
+  "text": "Aktivitetsöversikter i Cambio COSMIC (härefter Aktivitetsöversikter i COSMIC ) är en mjukvara med syfte att stödja hälso - och sjukvårdspersonal i det dagliga arbetet på enheten, genom visualisering och hantering av aktivitetslistor. Att göra -listorna kan visas på patient - eller enhet/klinik -nivå. Aktivitetsöversikter i COSMIC består av översiktsfönster där aktiviteter visas och hanteras för att dokumentera planerade, pågående och utförda aktiviteter. Aktiviteterna synkroniseras till olika moduler i COSMIC EHR, vilket gör det möjligt att utföra dem inom relevant COSMIC EHR - ramve rk oc h få automatiska uppdateringar. Aktiviteterna stödjer kommunikation och samarbete inom samma avdelning eller mellan avdelningar."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Försiktighetsåtgärder",
+  "page": 1,
+  "section_id": "2.2",
+  "main_section_id": 2,
+  "context_summary": "Avsnittet informerar att inga särskilda försiktighetsåtgärder krävs vid användning av COSMIC.",
+  "keywords": [
+    "försiktighetsåtgärder",
+    "COSMIC",
+    "Användarmanual",
+    "version",
+    "datum"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Försiktighetsåtgärder",
+    "Säkerhet",
+    "Manual"
+  ],
+  "clinical_domain": [
+    "Informationssystem",
+    "Sjukvård"
+  ],
+  "text": "Det finns inga försiktighetsåtgärder. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 9(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Fönsteröversikt"
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Egenskaper och funktioner",
+  "page": 1,
+  "section_id": "3.1",
+  "main_section_id": 2,
+  "context_summary": "Sammanfattning över hur COSMIC hanterar och visar aktiviteter i fönster för enheter, patienter och beställningar, inklusive vilka typer av aktiviteter som kan beställas och öppnas i olika dialogfönster.",
+  "keywords": [
+    "COSMIC",
+    "Aktivitetsöversikter",
+    "enheter",
+    "patienter",
+    "beställning",
+    "analys",
+    "kemi",
+    "mikrobiologi",
+    "radiologi",
+    "immunologi",
+    "blodtryck",
+    "puls",
+    "temperatur",
+    "vikt",
+    "NEWS2",
+    "SpO2",
+    "smärta",
+    "andningsfrekvens"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Egenskaper",
+    "Funktioner",
+    "Planering",
+    "Beställningstyper",
+    "Enheter",
+    "Patienter"
+  ],
+  "clinical_domain": [
+    "Patientvård",
+    "Laboration",
+    "Radiologi",
+    "Klinisk vård"
+  ],
+  "text": "Aktivitetsöversikter i COSMIC använder funktionalitet i fönstren Att göra – Enhet, Att göra – Patient och Beställning . I fönstret Att göra – Enhet visas alla aktiviteter som är planerade att utföras av eller är pågående för en eller flera valda enheter . I fönstret Att göra – Patient visas en patients planerade, pågående och utförda aktiviteter. Från fönstret Beställning planeras nya aktiviteter för patienten. Från fönstret Att göra – Patient kan dialogfönstret Beställning öppnas där det finns möjlighet att beställa aktiviteter av följande typer: • Beställning och Svar • Lokala analyser • Klinisk kemi • Mikrobiologi • Radiologi • Immunologi • Uppgifter • Checklista • Start/stopp • Kliniska parametrar • Blodtryck • Puls • Temperatur • Vikt • NEWS2 • SpO2 (pox) • Längd • Smärta (NRS) • Smärta (NRS) Vila/Rörelse • Andningsfrekvens Det är också dessa typer som sedan visas i fönstren Att göra – Patient och Att göra – Enhet . I fönstret Beställning däremot kan man även beställa andra aktivitetstyper. För ytterligare information om aktivitetstyper , se dokumentet COSMIC Common Order Entry – Introduktion & Användarmanual. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 10(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Spärrhantering",
+  "page": 1,
+  "section_id": "3.1.1",
+  "main_section_id": 3,
+  "context_summary": "Instruktion för hur spärrar på aktiviteter hanteras i COSMIC, med olika status och typer samt förfaranden för att öppna interna spärrar.",
+  "keywords": [
+    "spärrhantering",
+    "aktiviteter",
+    "inre spärr",
+    "yttre spärr",
+    "planerad",
+    "pågående",
+    "utförd",
+    "patient",
+    "enhet",
+    "historiklogg",
+    "öppna spärr",
+    "menyalternativ"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Spärrhantering",
+    "Informationsvisa",
+    "Aktivitetstatus",
+    "Klinisk parametr",
+    "Patientdata",
+    "Enhetsdata"
+  ],
+  "clinical_domain": [
+    "Klinisk datahantering",
+    "Patientinformation",
+    "Medicinsk IT"
+  ],
+  "text": "Information om aktiviteter kan visas som spärrad i fönstren Att göra – Patient och Att göra – Enhet . Spärrade aktiviteter av typerna uppgifter och kliniska parametrar , i status ’Planerad’, ’Pågående’ eller ’Utförd’, visas som spärrade med ikonerna (inre spärr) eller (yttre spärr) baserat på den planerade utförande enheten. Historiklogg -poster där aktiviteten är i status ’Planerad’ spärras baserat på den beställande enheten. Uppdateringar av aktiviteter i övriga statusar spärras baserat på utförande enhet. För att temporärt öppna en inre spärr så högerklickar man på aktiviteten och väljer menyalternativet Öppna spärr , alternativt dubbelklickar. En yttre spärr kan inte öppnas i COSMIC."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Spärrar i paket",
+  "page": 1,
+  "section_id": "3.1.1.1",
+  "main_section_id": "4",
+  "context_summary": "Beskriver hur hela eller delar av ett paket kan låsas upp eller förbli spärrade med knappar och aktivitetsmarkeringar.",
+  "keywords": [
+    "paket",
+    "spärr",
+    "aktiviteter",
+    "knapp",
+    "lås",
+    "öppna",
+    "spärrhantering",
+    "kosmic"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Systemhantering",
+    "Paket",
+    "Spärr",
+    "Aktiviteter",
+    "Knappfunktion",
+    "Dokumentation"
+  ],
+  "clinical_domain": [],
+  "text": "Om alla aktiviteter i ett paket är spärrade visas paketets knapp som spärrad. Spärren kan öppnas genom att man klickar på knappen och väljer vilka av de ingående aktiviteterna som ska öppnas. Spärra de paket . Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 11(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om en delmängd av aktiviteterna i ett paket är spärrade så visas knappen, och när paketet öppnas visas dessa specifika aktiviteter som spärrade. Spärren kan öppnas genom att man klickar på en av de spärrade aktiviteterna. För mer information om spärrhantering se dokumentet Gemensamma Funktioner i COSMIC – Introduktion & Användarmanual ."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Kopplingar till andra fönster i COSMIC",
+  "page": 1,
+  "section_id": "3.1.2",
+  "main_section_id": 3,
+  "context_summary": "Beskriver vilka aktivitetsfönster i COSMIC som kan hanteras från fönstret \"Att göra – Patient\" samt vilka andra relaterade fönster och dokument som kan nås.",
+  "keywords": [
+    "COSMIC",
+    "Att göra – Patient",
+    "Enhetsöversikt",
+    "Analysyt",
+    "Beställning av provbundna analyser",
+    "Svar provbunden",
+    "Provtagningsunderlag",
+    "Radiologi",
+    "Radiologisvar"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Funktion",
+    "Integrationsmöjligheter",
+    "Patienthanteringsverktyg",
+    "Analysprocess"
+  ],
+  "clinical_domain": [
+    "patienthantering",
+    "laboratorie",
+    "radiologi",
+    "enhetshantering"
+  ],
+  "text": "Aktiviteter som visas i fönstret Att göra – Patient kan hanteras i COSMIC Nova (List- och Patientvyer) samt i fönstren Enhetsöversikt , Analysyta, Beställning av provbundna analyser/undersökningar, Svar provbunden, Provtagningsunderlag, Beställning radiologi och Radiologisvar. För ytterligare information, se relaterade dokument i avsnitt 1.3. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 12(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Fönstret Att göra – Patient",
+  "page": 1,
+  "section_id": "3.2",
+  "main_section_id": 2,
+  "context_summary": "Fönstret visar patientens aktuella aktiviteter, möjliggör filtrering, hantering av paket och avslutning av aktiviteter, samt planering och utförande av nya aktiviteter på en givna dag för inskrivna patienter.",
+  "keywords": [
+    "aktiviteter",
+    "filtrering",
+    "paket",
+    "avsluta",
+    "planera",
+    "utföra",
+    "patient"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Patientaktiviteter",
+    "Insättning",
+    "Intensivvård",
+    "Patientinteraktion"
+  ],
+  "clinical_domain": [
+    "Patientvård",
+    "Intensivvård",
+    "Aktivitetsplanering"
+  ],
+  "text": "Det här fönstret visar en patients aktuella aktiviteter på en given dag när patienten är inlagd på en avdelning . Fönstret gör det möjligt att (A) filtrera aktiviteter , (B) visa och hantera beställda paket och aktiviteter samt (C) avsluta aktiviteter . Här planera r och utför man aktiviteter. Aktiviteterna följer patienten och är möjliga att nå mellan olika enheter även efter att patienten skrivits ut."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Dialogfönstret Beställning",
+  "page": 1,
+  "section_id": "3.2.1",
+  "main_section_id": "3",
+  "context_summary": "Dialogfönstret för att lägga till aktiviteter öppnas via knappen i \"Att göra – Patient\". När en beställning är klar stängs fönstret och de tillagda aktiviteterna visas i samma fönster.",
+  "keywords": [
+    "dialogfönster",
+    "beställning",
+    "aktiviteter",
+    "Att göra – Patient",
+    "COSMIC",
+    "interaktion",
+    "knapp",
+    "stängning"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Användargränssnitt",
+    "Dialogfönster",
+    "Aktiviteter",
+    "Sjukvårdsprocess"
+  ],
+  "clinical_domain": [
+    "Patientplanering",
+    "Arbetsflöde",
+    "Sjukvårdsinformation"
+  ],
+  "text": "Det här dialogfönstret öppnas v ia knappen i fönstret Att göra – Patient . När en beställning är klar stängs dialogfönstret Beställning och de tillagda aktiviteterna visas i fönstret Att göra – Patient . Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 13(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Fönstret Att göra – Enhet",
+  "page": 1,
+  "section_id": "3.3",
+  "main_section_id": 2,
+  "context_summary": "Fönstret visar och låter användaren filtrera alla planerade och aktuella aktiviteter för en specifik enhet och hantera beställda och utförda aktiviteter.",
+  "keywords": [
+    "planerade aktiviteter",
+    "pågående aktiviteter",
+    "filter",
+    "beställda aktiviteter",
+    "utförda aktiviteter"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Planering",
+    "Översikt",
+    "Aktiviteter",
+    "Enhet",
+    "Dag"
+  ],
+  "clinical_domain": [
+    "Sjukvård"
+  ],
+  "text": "Det här fönstret visar alla planerade och pågående aktiviteter på en given dag för en given enhet. Fönstret gör det möjligt att filtrera aktiviteter ( A), visa och hantera beställda aktiviteter samt utför a aktiviteter (B)."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Filter",
+  "page": 1,
+  "section_id": "3.4.1",
+  "main_section_id": "3",
+  "context_summary": "Filtreringsalternativ för aktiviteter i COSMIC:s översiktspanel.",
+  "keywords": [
+    "filter",
+    "datum",
+    "fritext",
+    "utförande enhet",
+    "utförare",
+    "typ",
+    "status",
+    "upprepningar",
+    "aktivitetsöversikter",
+    "COSMIC"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Filter",
+    "Aktivitetsöversikter",
+    "COSMIC",
+    "Användarmanual"
+  ],
+  "clinical_domain": [
+    "Hälso- och sjukvård",
+    "Patienthantering",
+    "Klinisk planering"
+  ],
+  "text": "I filterpanelen ( A) är det möjligt att filtrera aktiviteter enligt följande kriterier: • Datum Dagens aktiviteter visas som förval. För att se aktiviteter som tillhör en annan dag går det att antingen välja ett specifikt datum eller ett datumintervall från datumkomponenten som öppnas via ikonen eller navigera mellan de närmaste dagarna via ikonerna . För att gå tillbaka till idag kan ikonen användas. • Fritext Aktivitetstyperna uppgifter och kliniska parametrar filtreras baserat på sina namn . Minst två tecken måste matas in för att starta filtreringen. Notera att det endast är namnet som går att filtrera på och inte t.ex. ”Tillägg ”. • Utförande enhet I listan visas aktiviteter som ska utföras eller har utförts av valda enheter. Det är möjligt att se aktiviteter från fler enheter genom att lägga till dessa i filtreringen. • Utförare För att endast se aktiviteter som är tilldelade en viss utförare används listrutan Utförare . Aktiviteter som inte har en specifik utförare visas alltid. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 14(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. • Typ För att endast se aktiviteter av en viss typ används listrutan Typ. • Status • Aktiviteter med följande status visas som förval i fönstret Att göra - Patient : Planerad Bokad Pågående Utförd • I listrutan Status kan aktiviteter med följande status väljas: Strukna, avbrutna och makulerade • Aktiviteter med följande status visas i fönstret Att göra – Enhet : Planerad Bokad Pågående • Gruppera upprepningar När en aktivitet ingår i en upprepad serie visas bara den tidigast planerade aktiviteten i serien, när detta filter är påslaget. För att se alla planerade aktiviteter i serien för den valda tiden avmarkeras denna kryssruta."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Aktiviteter  i fönstret Att göra – Patient",
+  "page": 1,
+  "section_id": "3.4.3",
+  "main_section_id": 3,
+  "context_summary": "Denna sektion beskriver hur patientaktiviteter visas i COSMIC‑systemet, med uppdelning i planerade, pågående och avslutade, samt hur filtrering och hantering av aktiviteter utförs.",
+  "keywords": [
+    "Aktiviteter",
+    "Planerade aktiviteter",
+    "Pågående aktiviteter",
+    "Avslutade aktiviteter",
+    "Filtrering",
+    "Status",
+    "Tid",
+    "Utförare",
+    "Kommentarer",
+    "Makulera",
+    "Avbryta"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Aktiviteter",
+    "Patient",
+    "Översikt",
+    "Planerade aktiviteter",
+    "Användargränssnitt"
+  ],
+  "clinical_domain": [
+    "Patientvård",
+    "Medicinsk administration",
+    "Informationshantering"
+  ],
+  "text": "Patientens aktiviteter är uppdelade i två sektioner, Planerade och pågående samt Avslutade . Aktiviteterna visas med information om • Namn • Status • Tid • Tillägg • Utförare Här visas också följande ikoner: Nyligen tillagd aktivitet Paket Upprepning Kommentarer Fler alternativ I sektionen Planerade och pågående visas planerade och pågående aktiviteter för vald filtrering och när listan är filtrerad på exempelvis idag visas följande aktiviteter : • Aktiviteter p lanerade till idag . • Alla startade aktiviteter . • Missade aktiviteter från tidigare datum . • Aktiviteter utan datum och tid. För framtida datum visas de aktiviteter som är planerade till det valda datumet. I sektionen Avslutade visas alla aktiviteter som utförts eller avslutats den valda dagen. När man tar bort aktiviteter genom att stryka, avbryta eller makulera görs det antingen en i taget eller flera på en gång."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Beställda paket",
+  "page": 1,
+  "section_id": "3.4.3.1",
+  "main_section_id": "4",
+  "context_summary": "Visar vilka beställda paket som har aktiviteter planerade, pågående eller avslutade. Paket visas när någon aktivitet är närvarande och markeras avslutat när alla aktiviteter är slutförda.",
+  "keywords": [
+    "paket",
+    "aktiviteter",
+    "planerade",
+    "pågående",
+    "avslutade",
+    "status",
+    "knapp",
+    "ikon",
+    "upprepning",
+    "slutförda"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Systemfunktioner",
+    "Paketadministration",
+    "Aktivitetsöversikter"
+  ],
+  "clinical_domain": [
+    "Övervakning",
+    "Planering",
+    "Rapportering"
+  ],
+  "text": "Beställda paket visas med en knapp över sektionen Planerade och pågående . Huruvida ett paket visas styrs av aktiviteterna som ingår i paketet; finns det en aktivitet från ett paket i listan så visas också dess paket. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 16(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Det är möjligt att klicka på knappen för att se de aktiviteter som ingår i paketet. Aktiviteterna visas med ikon för status, aktivitetsnamn, tid och eventuellt ikon för upprepning. När alla aktiviteter i ett paket är avslutade visas knappen med en bock intill paketets namn . Detta innebär att inga aktiviteter i paketet längre är planerade eller pågående. Utförda paket visas nu i sektionen Avslutade ."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Aktiviteter  i fönstret Att göra – Enhet",
+  "page": 1,
+  "section_id": "3.4.4",
+  "main_section_id": "3",
+  "context_summary": "Översikt över hur patientens planerade och pågående aktiviteter visas i COSMIC-systemet, inklusive information om namn, patient, status, tid, tillägg, utförare och utförande enhet samt hur filtrering och ikonstatus hanteras.",
+  "keywords": [
+    "patient",
+    "aktiviteter",
+    "planerade",
+    "pågående",
+    "tid",
+    "utförandeenhet",
+    "filter",
+    "ikoner",
+    "COSMIC",
+    "system"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Översikt",
+    "Planering",
+    "Systemfunktion",
+    "Patientaktiviteter",
+    "Display",
+    "Filter"
+  ],
+  "clinical_domain": [
+    "Allmänt",
+    "Patientvård",
+    "Hälso- och sjukvård"
+  ],
+  "text": "Patientens aktiviteter visas i sektionen Planerade och pågående . Aktiviteter na visas med information om • Namn • Patient • Status • Tid • Tillägg • Utförare • Utförande enhet Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 17(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Här visas också följande ikoner: Nyligen tillagd aktivitet Paket Upprepning Kommentarer Fler alternativ I sektionen visas planerade och pågående aktiviteter för vald filtrering . När listan är filtrerad på exempelvis idag visas följande aktiviteter: • Aktiviteter planerade till idag. • Alla startade aktiviteter. • Missade aktiviteter från tidigare datum. • Aktiviteter utan datum och tid. För framtida datum visas de aktiviteter som är planerade till det valda datumet. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 18(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 4 Instru ktioner"
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Utför en uppgift",
+  "page": 1,
+  "section_id": "4.1",
+  "main_section_id": 2,
+  "context_summary": "Instruktion för hur man utför och ångrar uppgifter i systemet, inklusive öppning, val, registrering och återställning.",
+  "keywords": [
+    "utför",
+    "uppgift",
+    "aktivitet",
+    "status",
+    "ångra",
+    "planerade",
+    "avslutade",
+    "patient",
+    "enhet"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Aktivitetshantering",
+    "Patienthändelser",
+    "Enhetshändelser"
+  ],
+  "clinical_domain": [
+    "Patientvård",
+    "Arbetsprocesser"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient eller Att göra – Enhet . De aktiviteter som ska utföras finns i sektionen Planerade och pågående . 2. Välj och e xpandera en aktivitet , av typen uppgift, och välj att göra något av följande : Klicka på statusikonen för aktiviteten. Klicka på raden för aktiviteten eller ikonen 3. Fyll i relevant information och klicka på knappen Utför. Aktiviteten visas nu i sektionen Avslutade . 4. För att ångra en utförd aktivitet, klicka på aktivitetens ikon i sektionen Avslutade. 5. Välj alternativet Ångra utför. Aktiviteten flyttas tillbaka till tidigare status och visas nu i sektionen Planerade och pågående."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Utför a en klinisk parameter med mätvärde",
+  "page": 1,
+  "section_id": "4.2",
+  "main_section_id": 2,
+  "context_summary": "Instruktion för hur man genomför och registrerar en klinisk parameter: öppna aktivitet, välja parameter, fylla i mätvärde, signera och granska resultatet i den avslutade sektionen.",
+  "keywords": [
+    "klinikparametrar",
+    "mätvärde",
+    "patient",
+    "aktivitet",
+    "signera",
+    "analys",
+    "avslutad",
+    "planerad"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Uppgifter",
+    "Kliniska parametrar",
+    "Patientvård",
+    "Mätning"
+  ],
+  "clinical_domain": [
+    "Klinisk vård",
+    "Medicinsk datahantering"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient eller Att göra – Enhet . De kliniska parametrar som ska utföras finns i sektionen Planerade och pågående . 2. Välj och expandera en aktivitet av typen kliniska parametr ar, genom att välja något av följande alternativ : Klicka på statusikonen för aktivitet en. Klicka på raden för aktiviteten eller ikonen 3. Fyll i mätvärde i den expanderade raden. 4. Klicka på knappen Signera . Aktiviteten visas nu i sektionen Avslutade . 5. För att se mätvärdet klicka på aktiviteten. 6. I den expanderade raden , följ länken till fönstret Analysyta . Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 19(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Utför a en klinisk parameter utan mätvärde",
+  "page": 1,
+  "section_id": "4.3",
+  "main_section_id": 2,
+  "context_summary": "Instruktion för hur man utför en klinisk parameter utan mätvärde: öppnar fönster, markerar aktivitet, registrerar värde, klickar utför, visar i avslutade och visar värde i Analysytan.",
+  "keywords": [
+    "klinik",
+    "parameter",
+    "utför",
+    "värde",
+    "mätvärde",
+    "aktivitet",
+    "Planerade och pågående",
+    "Avslutade",
+    "Analysytan",
+    "fönster"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Kliniska parametrar",
+    "Patientövervakning",
+    "Mätning",
+    "Administrativt fönster"
+  ],
+  "clinical_domain": [
+    "Klinisk övervakning",
+    "Patientvård",
+    "Medicinsk teknik"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient eller Att göra – Enhet. De kliniska parametrar som ska utföras finns i sektionen Planerade och pågående. 2. Välj och expandera en aktivitet, av typen kliniska parametrar, genom att klicka på statusikonen för aktiviteten , på raden för aktiviteten eller ikonen . 3. Markera kryssrutan Värde registrerat i annat fönster. 4. Klicka på knappen Utför . Aktiviteten visas nu i sektionen Avslutade . 5. För att se mätvärde klicka på aktiviteten. 6. I den expanderade raden följ länken till fönstret Analysyta ."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Starta en uppgift",
+  "page": 1,
+  "section_id": "4.4",
+  "main_section_id": "2",
+  "context_summary": "Instruktion för att starta och ångra en planerad aktivitet i COSMIC: öppna fönstret, välj planerad aktivitet, klicka på statusikon, ange information och starta. Den pågående aktiviteten visas i sektionen och kan ångras via ikon och alternativ.",
+  "keywords": [
+    "Starta",
+    "Aktivitet",
+    "Planerad",
+    "Pågående",
+    "Patient",
+    "Enhet",
+    "Statusikon",
+    "Klicka",
+    "Ångra",
+    "Start/starta",
+    "Planerade och pågående"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Starta aktivitet",
+    "Planerad aktivitet",
+    "COSMIC",
+    "Patienthantering",
+    "Vårdflöde",
+    "Funktionaliteter",
+    "Användarmanual"
+  ],
+  "clinical_domain": [
+    "Klinisk IT",
+    "Vårdadministration",
+    "Patienthantering"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient eller Att göra – Enhet. 2. I sektionen Planerade och pågående , starta och expandera en planerad start/stopp aktivitet genom att k licka på statusikonen , på raden eller ikonen . 3. Ange information och klicka på knappen Starta. Aktiviteten visas nu som pågående i sektionen Planerade och pågående . 4. För att ångra en startad aktivitet, klicka på aktivitetens ikon . 5. Välj alternativet Ångra starta. Aktiviteten flyttas tillbaka till status planerad . Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 20(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Stryk a en planerad aktivitet",
+  "page": 1,
+  "section_id": "4.5",
+  "main_section_id": "2",
+  "context_summary": "Instruktion för hur man tar bort (stryker) eller ångrar en planerad aktivitet i systemet.",
+  "keywords": [
+    "stryka",
+    "aktivitet",
+    "planerad",
+    "serie",
+    "Öppna",
+    "dialog",
+    "oraks",
+    "Ångra"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Planerad aktivitet",
+    "Stryk",
+    "Ångra",
+    "Serie"
+  ],
+  "clinical_domain": [
+    "Vård",
+    "Schemaläggning",
+    "Patient"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient eller Att göra – Enhet. 2. I sektionen Planerade och pågående klicka på den planerade aktivitetens ikon . 3. Välj alternativet Stryk . Om aktiviteten ingår i en serie välj ett av följande alternativ: Endast denna Denna och alla framtida Alla planerade i serien 4. I dialogen Orsak fyll i orsak till att aktiviteten stryks. 5. Klicka på knappen Stryk . Aktiviteten visas nu genomstruken i sektionen Avslutade . 6. För att ångra en struken aktivitet, klicka på aktivitetens ikon. 7. Välj alternativet Ångra stryk. Aktiviteten flyttas tillbaka till status planerad."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Avbryt a en pågående aktivitet",
+  "page": 1,
+  "section_id": "4.6",
+  "main_section_id": "2",
+  "context_summary": "Instruktion för att avbryta och återuppta pågående aktiviteter i COSMIC-systemet.",
+  "keywords": [
+    "avbryt",
+    "ångra",
+    "aktivitet",
+    "planerade och pågående",
+    "klicka",
+    "ikon",
+    "dialog"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "administration",
+    "patient",
+    "enhet",
+    "avbrytning",
+    "återställning"
+  ],
+  "clinical_domain": [
+    "sjukvårdssystem",
+    "administration",
+    "patienthantering"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient eller Att göra – Enhet. 2. I sektionen Planerade och pågående klicka på den pågående aktivitete ns ikon . 3. Välj alternativet Avbryt . 4. I dialogen Orsak fyll i orsak till att aktiviteten avbryts. 5. Klicka på knappen Avbryt aktivitet . Aktiviteten visas nu genomstruken i sektionen Avslutade . 6. För att ångra en avbruten aktivitet, klicka på aktivitetens ikon . 7. Välj alternativet Ångra avbryt. Aktiviteten flyttas tillbaka till status pågående. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 21(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Ta bort en aktivitet",
+  "page": 1,
+  "section_id": "4.7",
+  "main_section_id": 2,
+  "context_summary": "Instruktion för att makulera en aktivitet i COSMIC, med val av olika alternativ och anmälan av orsaken.",
+  "keywords": [
+    "aktivitet",
+    "makulera",
+    "serie",
+    "endast denna",
+    "framtida",
+    "planerad",
+    "dialog",
+    "orsak",
+    "Avslutade",
+    "fönster",
+    "Patient",
+    "Enhet",
+    "knapp"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Aktivitet",
+    "Makulering",
+    "Patient",
+    "Enhet"
+  ],
+  "clinical_domain": [
+    "Klinisk dokumentation",
+    "Digitalt vårdsystem"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient eller Att göra – Enhet . 2. Klicka på ikonen för en aktivitet. 3. Välj alternativet Makulera . Om aktiviteten ingår i en serie välj ett av följande alternativ: Endast denna Denna och alla framtida Alla planerade i serien 4. I dialog rutan Makuleringsorsak välj orsak till att aktiviteten makuleras. 5. Klicka på knappen Makulera . Aktiviteten visas nu i sektionen Avslutade med ikonen ."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Ta bort flera aktiviteter",
+  "page": 1,
+  "section_id": "4.8",
+  "main_section_id": 2,
+  "context_summary": "Steg-för-steg-instruktion för att ta bort flera aktiviteter inom klinisk kemi, mikrobiologi, immunologi, radiologi eller lokala analyser i COSMIC, inklusive val av status ’Makulerad’ eller ’Stryk’ och inmatning av orsak.",
+  "keywords": [
+    "aktiviteter",
+    "klinik",
+    "kemi",
+    "mikrobiologi",
+    "immunologi",
+    "radiologi",
+    "lokala analyser",
+    "makulera",
+    "stryk",
+    "status",
+    "COSMIC",
+    "Order Management",
+    "planerade",
+    "pågående",
+    "avslutade",
+    "åtgärd"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Aktiviteter",
+    "Radering",
+    "COSMIC",
+    "Patienthantering"
+  ],
+  "clinical_domain": [
+    "Laboratorie",
+    "Diagnostik",
+    "Radiologi"
+  ],
+  "text": "Om aktiviteter av typerna klinisk kemi, mikrobiologi, immunologi, radiologi eller lokala analyser stryks kommer dessa att visas i status ’Makulerad ’. Detta då COSMIC Order Management inte hanterar status ’Stryk’. Steg Åtgärd 1. Öppna fönstret Att göra – Patient . 2. Klicka på knappen Ta bort flera i sektionen för Planerade och pågående aktiviteter. 3. Välj de aktiviteter som ska tas bort via de kryssrutor som visas före aktivitetens namn. 4. Klicka på en av knapparna Makulera eller Stryk i åtgärds listen. 5. I dialogrutan, ange orsak och klicka på knappen Makulera eller Stryk aktiviteter . Aktiviteterna visas nu i sektionen Avslutade . Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 22(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Redigera en planerad eller pågående aktivitet",
+  "page": 1,
+  "section_id": "4.9",
+  "main_section_id": 2,
+  "context_summary": "Steg-för-steg-instruktion för att öppna, välja och redigera en planerad eller pågående aktivitet i COSMIC, inklusive hantering av serier och spara‑funktionen.",
+  "keywords": [
+    "redigera",
+    "planerad aktivitet",
+    "pågående aktivitet",
+    "att göra",
+    "serie",
+    "spara",
+    "COSMIC",
+    "Enhet",
+    "Patient"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Aktivitet",
+    "Planering",
+    "Redigering"
+  ],
+  "clinical_domain": [
+    "Patientvård",
+    "Medicinsk administration"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient eller Att göra – Enhet. 2. I sektionen Planerade och pågående klicka på ikonen för en aktivitet. 3. Välj alternativet Redigera . Om aktiviteten ingår i en serie välj ett av följande alternativ: Endast denna Denna och alla framtida Förläng serie 4. I dialog rutan Redigera aktivitet ändra relevant information. 5. Klicka på knappen Spara . Aktiviteten visas nu i sektionen Planerade och pågående med uppdaterad information."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Förläng a en upprepad serie",
+  "page": 1,
+  "section_id": "4.10",
+  "main_section_id": 2,
+  "context_summary": "Instruktion för att förlänga en pågående upprepad aktivitet i COSMIC-systemet.",
+  "keywords": [
+    "förläng",
+    "serie",
+    "upprepad aktivitet",
+    "planerade",
+    "pågående",
+    "patient",
+    "enhet",
+    "spara"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Patientvård",
+    "Aktivitetsplanering",
+    "E-hälsa"
+  ],
+  "clinical_domain": [
+    "Klinisk praxis",
+    "Patienthantering"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient eller Att göra – Enhet. 2. I sektionen Planerade och pågående klicka på ikonen för en upprepad aktivitet . 3. Välj alternativet förläng serie . 4. I dialog rutan Förläng serie , fyll i information om hur serien ska förlängas. 5. Klicka på knappen Spara . Aktiviteten visas nu i sektionen Planerade och pågående med uppdaterad information."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Redigera en avslutad uppgift",
+  "page": 1,
+  "section_id": "4.11",
+  "main_section_id": 2,
+  "context_summary": "Instruktion för hur man redigerar en avslutad uppgift i COSMIC-systemet.",
+  "keywords": [
+    "redigera",
+    "avslutad uppgift",
+    "patient",
+    "Spara",
+    "Aktivitet"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Patient",
+    "Aktivitet",
+    "Redigering"
+  ],
+  "clinical_domain": [
+    "Elektronisk hälsojournal"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient. 2. I sektionen Avslutade klicka på ikonen för en aktivitet. 3. Välj alternativet Redigera . 4. Ändra det som ska uppdateras i den expanderade raden. 5. Klicka på knappen Spara . Aktiviteten visas nu i sektionen Avslutade med uppdaterad information. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 23(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Utför a en lokal analys",
+  "page": 1,
+  "section_id": "4.12.1",
+  "main_section_id": 3,
+  "context_summary": "Steg-för-steg-instruktion för att utföra en lokal analys via planerade och pågående aktiviteter i COSMIC‑systemet.",
+  "keywords": [
+    "lokala analyser",
+    "utföra",
+    "att göra",
+    "patient",
+    "enhet",
+    "status",
+    "expanderad aktivitet",
+    "mata in svar"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Patient",
+    "Analyser",
+    "Lokala analyser",
+    "Planerade och pågående aktiviteter",
+    "Fönster",
+    "Statusikon"
+  ],
+  "clinical_domain": [
+    "Diagnostik",
+    "Laboratorieanalyser",
+    "Patienthantering"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient eller Att göra – Enhet. Lokala analyser i status ’Sparad ’, ’Utskriven ’ och ’Delsvar finns’ finns i sektionen för Planerade och pågående aktiviteter. 2. Välj att expandera en aktivitet av typen lokala analyser i sektionen Planerade och pågående genom att klicka på statusikonen för aktiviteten , på raden för aktiviteten eller ikonen . 3. I den expanderade aktiviteten , klicka på länken Mata in svar för att komma till fönstret Lokala analyser ."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Visa svar för lokala analyser",
+  "page": 1,
+  "section_id": "4.12.2",
+  "main_section_id": 3,
+  "context_summary": "Steg-för-steginstruktion för att öppna och svara på lokala analyser i systemet.",
+  "keywords": [
+    "lokala analyser",
+    "status",
+    "Avslutade",
+    "expandera",
+    "aktivitet",
+    "Svar Provbunden",
+    "patient",
+    "makulerade",
+    "statusikon"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Anslutning",
+    "Patientinformation",
+    "Rapport",
+    "Status",
+    "Öppning"
+  ],
+  "clinical_domain": [
+    "Laboratorietjänster",
+    "Patientjournal",
+    "Diagnostik"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient . Lokala analyser i status ’Alla analyser besvarade ’ och ’Makulerade ’ visas i sektionen Avslutade . 2. Välj att expandera en aktivitet, av typen lokala analyser, i sektionen Avslutade genom att k licka på statusikonen för aktiviteten , på raden för aktiviteten eller ikonen . 3. I den expanderade aktiviteten , klicka på länken för att öppna fönstret Svar Provbunden ."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Hantera klinisk kemi , mikrobiologi  och",
+  "page": 1,
+  "section_id": "4.13",
+  "main_section_id": 2,
+  "context_summary": "Översikt över hantering av klinisk kemi, mikrobiologi och immunologi inom COSMIC-miljön.",
+  "keywords": [
+    "klinisk kemi",
+    "mikrobiologi",
+    "immunologi",
+    "hantering",
+    "COSMIC"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Kemi",
+    "Mikrobiologi",
+    "Immunologi",
+    "Klinisk hantering"
+  ],
+  "clinical_domain": [
+    "Klinisk laboratorieanalys",
+    "Biologi"
+  ],
+  "text": "immunologi"
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Skicka klinisk kemi , mikrobiologi  och immunologi",
+  "page": 1,
+  "section_id": "4.13.1",
+  "main_section_id": 3,
+  "context_summary": "Instruktion för hur man hittar och expanderar planerade aktiviteter för att skicka klinisk kemi, mikrobiologi och immunologi via COSMIC.",
+  "keywords": [
+    "kemi",
+    "mikrobiologi",
+    "immunologi",
+    "provtagningsunderlag",
+    "planerade aktiviteter",
+    "status",
+    "expanderar",
+    "sätt"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Skicka klinisk kemi",
+    "Provtagningsunderlag",
+    "Aktivitetsöversikter",
+    "COSMIC"
+  ],
+  "clinical_domain": [
+    "Laboratorie",
+    "Kemi",
+    "Mikrobiologi",
+    "Immunologi"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient eller Att göra – Enhet. Analyser i status ’Sparad’ och ’Utskriven’ finns i sektionen för Planerade och pågående aktiviteter. 2. Välj att expandera en aktivitet i sektionen Planerade och pågående på ett av genom att k licka på statusikonen för aktiviteten , på raden för aktiviteten eller ikonen . 3. Klicka på länken i den expanderade aktiviteten för att komma till fönstret Provtagningsunderlag. Aktivitetsöversikter i COSMIC – Introduktion & Användarmanual Version: 13.0 Datum: 2024 -10-14 ©2024 Cambio H ealthcare Systems AB 24(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Visa  svar för klinisk kemi , mikrobiologi  och immunologi",
+  "page": 1,
+  "section_id": "4.13.2",
+  "main_section_id": "3",
+  "context_summary": "Instruktionssteg för hur man visar svar för klinisk kemi, mikrobiologi och immunologi i COSMIC.",
+  "keywords": [
+    "Öppna fönstret",
+    "Patient",
+    "Analyser",
+    "Status",
+    "Skickad",
+    "Prov mottaget på lab",
+    "Preliminärsvar",
+    "Slutsvar",
+    "Kompletterande svar",
+    "Avslutade",
+    "expandera",
+    "aktivitet",
+    "länk",
+    "Svar provbunden"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Klinisk kemi",
+    "Mikrobiologi",
+    "Immunologi",
+    "Laboratorielösningar",
+    "Svarhantering"
+  ],
+  "clinical_domain": [
+    "Klinisk kemi",
+    "Mikrobiologi",
+    "Immunologi"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient . Analyser i status ’Skickad’ och ’ Prov m ottaget på lab .’, ’Preliminärsvar ’, ’Slutsvar’ eller ’Kompletterande svar ’ finns i sektionen Avslutade . 2. Välj att expandera en aktivitet i sektionen Avslutade genom att klicka på statusikonen för aktiviteten , på raden för aktiviteten eller ikonen . 3. I den expanderade aktiviteten klicka på länken för att komma till fönstret Svar provbunden ."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Planerad och bokad radiologi",
+  "page": 1,
+  "section_id": "4.14.1",
+  "main_section_id": 3,
+  "context_summary": "Manualen beskriver hur man öppnar och hanterar radiologiska undersökningar med status ’Osignerad’, ’Signerad’, ’Skickad’, ’Mottagen’ eller ’Bokad’, inklusive expansion, navigering till beställningsfönstret och markering som utförd.",
+  "keywords": [
+    "Radiologi",
+    "Planerade undersökningar",
+    "Bokad",
+    "Signering",
+    "Beställning",
+    "Markera som utförd",
+    "Öppna fönster",
+    "Statusikon"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Planerad och bokad radiologi",
+    "Radiologi",
+    "Planerade aktiviteter"
+  ],
+  "clinical_domain": [
+    "Radiologi",
+    "Patientvård",
+    "Hälsoinformation"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient eller Att göra – Enhet. Undersökningar i status ’Osignerad’, ’Signerad’, ’Skickad’, ’Mottagen’ och ’Bokad’ finns i sektionen för Planerade och pågående aktiviteter. 2. Välj att expandera en aktivitet i sektionen Planerade och pågående genom att k licka på statusikonen för aktiviteten , på raden för aktiviteten eller ikonen . 3. Klicka på länken i den expanderade aktiviteten för att komma till fönstret Beställning radiologi. 4. Undersökningar i status ’Skickad’, ’Mottagen’ och ’Bokad’ kan manuellt flyttas till utförd genom att klicka på knappen Markera som utförd ."
+},
+{
+  "source_file": "Aktivitetsöversikter_i_COSMIC_IntroAnvM_v13.0_sv.pdf",
+  "section": "Visa svar för radiologi",
+  "page": 1,
+  "section_id": "4.14.2",
+  "main_section_id": 3,
+  "context_summary": "Instruktion för hur man öppnar och hanterar radiologiska undersökningar i COSMIC, inklusive expansion av avslutade aktiviteter, navigation till radiologisvar och återgång till planering.",
+  "keywords": [
+    "radiologi",
+    "aktivitetsöversikt",
+    "preliminärsvar",
+    "slutsvar",
+    "kompletterande svar",
+    "avslutade",
+    "skickad",
+    "mottagen",
+    "bokad",
+    "ångra utför"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Radiologi",
+    "Patientfall",
+    "Resultat",
+    "Planering",
+    "Uppföljning"
+  ],
+  "clinical_domain": [
+    "radiologi",
+    "diagnostik",
+    "patientvård"
+  ],
+  "text": "Steg Åtgärd 1. Öppna fönstret Att göra – Patient . Undersökningar i status ’Preliminärsvar’, ’Slutsvar’ och ’Kompletterande svar’ finns i sektionen Avslutade . 2. Välj att expandera en aktivitet i sektionen Avslutade genom att k licka på statusikonen för aktiviteten , på raden för aktiviteten eller ikonen . 3. I den expanderade aktiviteten klicka på länken för att komma till fönstret Radiologisvar . 4. Undersökningar i status ’Skickad’, ’Mottagen’ och ’Bokad’ kan manuellt flyttas tillbaka till planerad eller bokad genom att högerklicka på aktiviteten och välja Ångra utför."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Introduktion",
+  "page": 1,
+  "section_id": "1.1",
+  "main_section_id": 2,
+  "context_summary": "Beskrivning av CDS FH Referral-sjukdomsbeslutsstöd för familjär hyperkolesterolemi, dess funktioner, automatiserad dataimport och generering av remiss och journalanteckning.",
+  "keywords": [
+    "cds",
+    "fh",
+    "referral",
+    "familjär hyperkolesterolemi",
+    "DLCN",
+    "remiss",
+    "journalanteckning",
+    "automatiserad dataimport",
+    "diagnos",
+    "behandling"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Beslutsstöd",
+    "Kliniska vägledningar",
+    "Remissprocess",
+    "Systemintegration"
+  ],
+  "clinical_domain": [
+    "Kardiovaskulär",
+    "Lipidmetabolism",
+    "Genetik",
+    "Vårdteknologi"
+  ],
+  "text": "Detta dokument beskriver beslutstödet Cambio Clinical Decision Support (CDS) FH Referral (härefter CDS FH Referral) , dess funktioner och egenskaper ur en slutanvändares perspektiv. Läsaren förutsätts ha god datorvana och grundläggande kunskaper i COSMIC. Information om applicerbara och kompatibla versioner mellan beslutsstödet och underliggande journalsystem är angivet i dokumentets versionshistorik. Beslutsstödet CDS FH Referral , dvs. remiss för familjär hyperkolesterolemi, syftar till att hjälpa användare att utvärdera om det föreligger misstanke om familjär hyperkolesterolemi eller ej. Det är utvecklat och baserat på de holländska Dutch Lipid Clinic Network -kriterier na (DLCN) vilka beskriver hur patienter med risk för familjär hyperkolesterolemi ska behandlas [ 1] [2]. Klinisk data som redan finns tillgänglig i journalsystemet , och som krävs av beslutsstödet för att genomföra en bedömning , importeras automatiskt (födelsedatum, kön och minst ett provsvar för LDL - eller totalkolesterol). Annan klinisk data ( journalanteckningar, läkemedelslista, diagnos - och åtgärdskoder) som beslutsstödet kan nyttja för bedömning inhämtas , förutsatt att den finns i journalsystemet . Även denna inhämtning av information görs automatiskt. Om det föreligger en välgrundad misstanke om familjär hyperkolesterolemi presenteras detta tydligt och beslutsstödet underlättar remittering till specialist genom att automatiskt generera en remisstext innehållande information om varför patienten remitterats. Utöver remissen ska en journalanteckning genereras automatiskt som användaren kan spara i patientens journal. Om misstanke ej föreligger, alternativt om beslutsstödet inte erhållit tillräckligt med information för att genomföra en bedömning, ska beslutsstödet inte aktiveras. Beslutsstödet ger rekommendationer som endast skall betraktas som understöd för användaren, då dennes kunskap om patienten alltid är avgörande för beslutet. Beslutsstödet ersätter därmed inte beslutsfattaren. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 5(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Versionshistorik",
+  "page": 1,
+  "section_id": "1.2",
+  "main_section_id": 2,
+  "context_summary": "Dokumentets versionshistorik och kompatibilitetsinformation mellan beslutsstöd och COSMIC journalsystem.",
+  "keywords": [
+    "version",
+    "datum",
+    "uppdatering",
+    "kompatibel",
+    "beslutsstöd",
+    "journalsystem",
+    "COSMIC"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Dokumenthistorik",
+    "Version",
+    "Beslutsstöd",
+    "COSMIC",
+    "Sjukvårdsuppdatering"
+  ],
+  "clinical_domain": [
+    "hälsovårdsinformatik",
+    "journalhantering",
+    "beslutsstödssystem"
+  ],
+  "text": "Versionshistoriken visar ändringar i dokumentet över tid samt kompatibla versioner mellan beslutsstödet och underliggande journalsystem. Version Datum Beskrivning 1.0 2020 -07-07 Första version. Dokumentet gäller från beslutsstödsversion 5.1.x och COSMIC R8.2.03. 2.0 2020 -09-04 Avsnitt 3.3.2 och 3.4.4 uppdaterade. Dokumentet gäller från beslutsstödsversion 5.3.x och COSMIC R8.2.03. 2.1 2020 -09-09 Avsnitt 3.4.4 uppdaterat. 3.0 2020 -09-21 Avsnitt 3.4.4 uppdaterat. Dokumentet gäller från beslutsstödsversion 5.4.x och COSMIC R8.2.03. 4.0 2020 -10-28 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 5.5.x och COSMIC R8.2.03. 5.0 2020 -12-08 Dokumentet reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 6.0.x och COSMIC R8.2.07. 6.0 2021 -03-24 Avsnitt 3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 7.0.x och COSMIC R8.2.07. 7.0 2021 -10-27 Avsnitt 3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 8.0.x och COSMIC R8.3.03. 8.0 2021 -12-07 Avsnitt 3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 8.1.x och COSMIC R8.3.03. 9.0 2022 -06-15 Avsnitt 3.3 uppdaterat. Dokumentet gäller från beslutsstödsversion 8.2.x och COSMIC R8.3.04. 9.1 2022 -11-01 Avsnitt 3.4 uppdaterat. 9.2 2023 -04-27 Kapitel 2 tillagt. 10.0 2023 -08-31 Avsnitt 3.2 och 3.4.2 tillagda samt avsnitt 1.1, 3.3.1 - 3.3.4 och 3.4.3 uppdaterade. Dokumentet gäller från beslutsstödsversion 9.0.x och COSMIC 3.8.0. 10.1 2023 -10-24 Dokumentet reviderat och uppdaterat. 10.2 2024-01-31 Kapitel 2 uppdaterat. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 6(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Term er",
+  "page": 1,
+  "section_id": "1.3",
+  "main_section_id": 2,
+  "context_summary": "Tabell som beskriver förkortningar och akronymer som används i dokumentet, exempelvis CDS, FH och LDL.",
+  "keywords": [
+    "termer",
+    "förkortningar",
+    "akronymer",
+    "CDS",
+    "FH",
+    "LDL"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "glossar",
+    "terminologi",
+    "kortningar",
+    "akronymer",
+    "medikinsk terminologi"
+  ],
+  "clinical_domain": [
+    "kardiovaskulär",
+    "härta",
+    "lipider"
+  ],
+  "text": "Följande tabell beskriver de termer, förkortningar och akronymer som används i detta dokument. Term Beskrivning CDS Clinical Decision Support FH Familiar Hypercholesterolemia (Familjär hyperkolesterolemi) LDL Low-Density Lipoprotein"
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Typografiska",
+  "page": 1,
+  "section_id": "1.4.1",
+  "main_section_id": 3,
+  "context_summary": "Dokumentet beskriver de typografiska konventionerna som används för att formatera termer, namn och kommandon i gränssnittet.",
+  "keywords": [
+    "fetstil",
+    "kursiv",
+    "enkla citattecken",
+    "vinkelparenteser",
+    "Courier New",
+    "systemkommandon",
+    "kodexempel",
+    "gränssnitt",
+    "filnamn",
+    "webblänkar"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "typografi",
+    "konventioner",
+    "UI",
+    "gränssnitt",
+    "format"
+  ],
+  "clinical_domain": [
+    "informationsteknik"
+  ],
+  "text": "Följande typografiska konventioner används i detta dokument: • Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . • Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger , Properties.txt eller https://customer.cambio.se . • Enkla citattecken (’ ’) indikerar valbara alternativ i listrutor. Exempel: Välj alternativet ’Blå’ i listrutan Färg . • Vinkelparenteser (<…>) indikerar ersättningsbar information i texten som värden, namn, typer och sökvägar. Exempel: COSMIC <…> där <…> ersätts med namnet Link till COSMIC Link . • Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Ikoner",
+  "page": 1,
+  "section_id": "1.4.2",
+  "main_section_id": 3,
+  "context_summary": "Denna sektion förklarar hur ikoner används för att markera viktig information, tips och eventuella restriktioner eller kostnader i dokumentet.",
+  "keywords": [
+    "ikoner",
+    "information",
+    "tips",
+    "tredjepartslicens",
+    "kostnad",
+    "användning",
+    "gränssnitt",
+    "CDS FH"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Ikoner",
+    "Dokumentation",
+    "Användarmanual",
+    "Visualisering",
+    "Användargränssnitt",
+    "Licens"
+  ],
+  "clinical_domain": [
+    "Hälso- och sjukvård",
+    "Elektronisk remiss",
+    "Medicinsk IT"
+  ],
+  "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. En tredjepartslicens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 7(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om CDS FH Referral"
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Avsedd användning",
+  "page": 1,
+  "section_id": "2.1",
+  "main_section_id": 2,
+  "context_summary": "Denna sektion beskriver syftet med CDS FH Referral, en klinisk beslutsstödsapplikation för att identifiera patienter med hög LDL- eller totalkolesterol och misstänkt familjär hyperkolesterolemi, samt stöd för att skapa remisser till specialistvården.",
+  "keywords": [
+    "CDS",
+    "FH Referral",
+    "familjär hyperkolesterolemi",
+    "LDL",
+    "kolesterol",
+    "prematur kranskärlssjukdom",
+    "DLCN",
+    "remisser",
+    "specialistvård"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Klinisk beslutsstöd",
+    "Kardiologisk screening",
+    "Metabolisk sjukdom",
+    "Hälsovårdsprocess"
+  ],
+  "clinical_domain": [
+    "Kardiologi",
+    "Endokrinologi",
+    "Hälsovård",
+    "Biokemi"
+  ],
+  "text": "Cambio Clinical Decision Support (CDS) FH Referral (härefter CDS FH Referral) är en klinisk beslutsstödsapplikation designad för att upptäcka patienter med ökat low - density lipoprotein (LDL -) och/eller total -kolesterol och tecken på prematur kranskärlssjukdom som misstänks ha familjär hyperkolesterolemi (FH), baserat på en lokal version av internationella Dutch Lipid Clinic Network kriterierna (DLCN). Vidare stödjer CDS FH Referral hälso - och sjukvårdspersonalen med att skapa remisser till specialistvården för identifierade individer."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Försiktighetsåtgärder",
+  "page": 1,
+  "section_id": "2.2",
+  "main_section_id": 2,
+  "context_summary": "Användningsbegränsningar och säkerhetsviktighet för CDS FH Referral Application.",
+  "keywords": [
+    "försiktighetsåtgärder",
+    "CDS FH Referral Application",
+    "diagnostik",
+    "observation",
+    "manual",
+    "patient",
+    "vitalparametrar"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Klinisk vägledning",
+    "Användarinstruktion",
+    "Riskhantering"
+  ],
+  "clinical_domain": [
+    "Kliniskt beslutsstöd",
+    "Patientvård"
+  ],
+  "text": "Följande försiktighetsåtgärder skall beaktas: • CDS FH Referral Application bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. • CDS FH Referral Application är inte avsett för realtidsövervakning av vitala fysiologiska parametrar. • CDS FH Referral Application ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. • Observera att användarmanualen för CDS FH Referral Application bör läsas innan användning."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Risker med användning av CDS",
+  "page": 1,
+  "section_id": "2.3",
+  "main_section_id": "2",
+  "context_summary": "Denna sektion beskriver riskerna för ett kliniskt beslutsstöd (CDS), inklusive behovet av korrekt data, risk för felaktiga rekommendationer vid datakorrumpering, begränsningar vid ny patientdata, och beroende av nätverksanslutning.",
+  "keywords": [
+    "beslutsstöd",
+    "data",
+    "patientinformation",
+    "risk",
+    "korrumperad data",
+    "nätsäkerhet",
+    "datasäkerhet",
+    "patientupptagning",
+    "patientdata",
+    "anslutningsproblem"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Risker",
+    "Beslutsstöd",
+    "Datahämtning",
+    "Datakvalitet",
+    "Nätverksanslutning"
+  ],
+  "clinical_domain": [
+    "Kliniska beslut",
+    "Elektronisk journal",
+    "Dataintegritet",
+    "Säkerhet"
+  ],
+  "text": "Nedan följer en sammanfattning av de risker som medföljer denna produkt: • Om beslutsstödet saknar nödvändig indata för att utföra en bedömning kommer en rekommendation inte kunna ges, detta betyder inte att det inte föreligger några hälsorelaterade risker för patienten. • Om beslutsstödet blir matad med inkorrekt eller korrumperad data från journalsystemet kan en felaktig rekommendation genereras av beslutsstödstjänsten. • Som användare måste den kliniska kunskap och allmänna kännedom som användaren har om patienten alltid föregå det som genererats av beslutsstödet. Detta är tydligt beskrivit i denna användarmanual. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 8(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. • Beslutsstödet kommer bara ha tillgång till den patientdata som fanns i journalen när patienten laddades i journalsystemet. Om ny patientdata registrerats i patientens journal efter patientladdning finns det en risk att relevant information missas av beslutsstödet. • Beslutsstödet kan vara oåtkomlig ifall det föreligger lokala anslutningsproblem till nätverket eller om beslutsstödstjänsten ligger nere på grund av CDS Runtime serverproblem."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Produkt - och kontaktinformation",
+  "page": 1,
+  "section_id": "2.4",
+  "main_section_id": 2,
+  "context_summary": "Information om produktetiketten för CDS FH Referral, inklusive produktnamn, systemversioner, tillverknings- och registreringsuppgifter, kontaktuppgifter för tillverkaren, riktlinjer för incidentrapportering och regulatorisk information som CE-märkning och EG-direktiv.",
+  "keywords": [
+    "produktetikett",
+    "Produktnamn",
+    "Cambio CDS",
+    "Clinical Decision Support",
+    "Cambio CDS Runtime",
+    "software item",
+    "beslutsstöd",
+    "allvarliga incidenter",
+    "Läkemedelsverket",
+    "Produktversioner",
+    "Adresse",
+    "tillverkare",
+    "SRN",
+    "Dokumentation",
+    "Kunskapsbanken",
+    "Medicinteknisk produkt",
+    "CE-märkning",
+    "EG-direktiv"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Produktinformation",
+    "Kontaktinformation",
+    "Beslutsstöd",
+    "Reglering",
+    "Dokumentation"
+  ],
+  "clinical_domain": [
+    "Medicinteknik",
+    "Klinisk beslutstöd",
+    "Regelverk"
+  ],
+  "text": "I beslutsstödets användargränssnitt visas en produktetikett via knappen . Den innehåller följande information: • Produktnamn uppdelat i tre nivåer • Cambio CDS - Clinical Decision Support • Cambio CDS Runtime ( system ) • Beslutsstödets namn ( software item ) 1 \\\"https://www.lakemedelsverket.se\\\" Alla allvarliga produktrelaterade incidenter ska rapporteras till Cambio och behörig myndighet (Läkemedelsverket1). CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 9(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. • Produktversioner för beslutsstödet som software item och CDS Runtime som system . • Adress (fysisk och internetadress) för ansvarig tillverkare , tillverkningsdatum och tillverkarens registreringsnummer (SRN). Cambio Healthcare Systems AB Gamla Tanneforsvägen 92 582 54 Linköping +46 13 20 03 00 \\\"https://www.cambiogroup.com/\\\" SRN#: SE -MF-000001229 • Dokumentation. Läs och följ anvisningarna i produktens introduktion & användarmanual. Via länken \\\"https://kb.cambio.se/\\\" öppnas Kunskapsbanken med tillgång till dokumentation och övrig information. • Medicinteknisk produkt . • CE-märkning. Produkten uppfyller applicerbara krav i EG -direktiv 93/42/EEG . • Unik produktidentifiering (produktspecifik kod) . CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 10(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Att arbeta med CDS FH Referral"
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Regler",
+  "page": 1,
+  "section_id": "3.1",
+  "main_section_id": 2,
+  "context_summary": "Beslutsstödet aktiveras när LDL‑ eller totalkolesterol är förhöjt och visar automatiskt en dialogruta med bedömning av patientens risk. Det granskar tidigare diagnoser för prematur kranskärlssjukdom och fördröjs förrän användaren klickar för att vidimera provsvar.",
+  "keywords": [
+    "beslutsstöd",
+    "LDL‑kolesterol",
+    "totalkolesterol",
+    "patient",
+    "diagnos",
+    "prematur kranskärlssjukdom",
+    "journal",
+    "dialogruta",
+    "klick",
+    "exkluderas"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Regler",
+    "Diagnos",
+    "Laboratorie‑resultat",
+    "Journalsystem",
+    "Behörighet",
+    "Automatiskt sätts",
+    "Klick‑interaktion",
+    "Riskbedömning"
+  ],
+  "clinical_domain": [
+    "Kardiologi",
+    "Laboratorie",
+    "Hälsovårdsinformationsteknik"
+  ],
+  "text": "Beslutsstödets underliggande regler exekveras inte förrän användaren klickar för att vidimera antingen LDL -kolesterol eller totalkolesterol alternativt båda. Beslutsstödet kommer automatiskt visas i e n dialogruta , med journalsystemet i bakgrunden, när de t upptäcker att en patient har förhöjda värden av LDL -kolesterol eller totalkolesterol då en användare försöker vidimera provsvar för dessa. Så länge en patient inte exkluderas av beslutsstödets regler , se avsnitt 3.4.3 , kommer e n dialogruta visas förutsatt att en förhöjning av LDL -kolesterol eller totalkolesterol kan identifieras. En del av det innehåll som visas i denna dialogruta utgörs av en bedömning som ligger till grund för den givna misstanken. Bedömningen beskriver varför beslutsstödet aktiverats baserat på de provsvar som blivit importerade. Beslutsstödet kommer automatiskt att undersöka huruvida patienten tidigare haft tecken på prematur kranskärlssjukdom genom analys av patientens registrerade diagnos - och åtgärdskoder. Om tecken på prematur kranskärlssjukdom inte finns registrerat i journalen kan användaren själv ange denna information i beslutsstödets huvudfönster. I följande avsnitt beskrivs kort de bakomliggande funktioner som används i systemet, samt hur verktyget används. Beslutsstödet arbetar utifrån befintlig information i patientens journal; om information uppdateras i journalsystemet medan beslutsstödet används kommer den nya informationen inte finnas tillgänglig i beslutsstödet förrän det laddas om på nytt. Vem som ska ha tillgång till CDS FH Referral styrs av journalsystemets behörighetsinställningar."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Tillgång till CDS FH Referral",
+  "page": 1,
+  "section_id": "3.2",
+  "main_section_id": 2,
+  "context_summary": "Texten beskriver hur varningar för CDS FH Referral visas i journalsystemet när aktiveringskriterier uppfylls, hur användaren får information genom en dialogruta och hur beslutsstöd aktiveras via knappen \"Öppna beslutsstöd\".",
+  "keywords": [
+    "CDS",
+    "FH Referral",
+    "varning",
+    "kriterier",
+    "diagnostik",
+    "dialogruta",
+    "i-ikon",
+    "Öppna beslutsstöd",
+    "aktivering",
+    "kolesterol"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Journalsystem",
+    "CDS",
+    "FH Referral",
+    "Diagnostik",
+    "Kriterier",
+    "Varning",
+    "Beslutsstöd",
+    "Aktivering"
+  ],
+  "clinical_domain": [
+    "Klinisk beslutsstöd",
+    "Hälsovård IT",
+    "Cholesterol",
+    "Familjär hyperkolesterolemi"
+  ],
+  "text": "Om kriterier för aktivering av CDS FH Referral uppfylls , se information i de följande avsnitt en, kommer en varning att visas i journalsystemet. Varning om att beslutsstödet har aktiverats indikeras med en CDS-ikon i patientlisten samt med en dialogruta i journalsystemets gränssnitt. I dialogrutan listas de beslutsstöd som har aktiverats . Användaren kan få ytterligare information om varningen via en text som visas när muspekaren hålls över i-ikonen. Användaren kan klicka på knappen Öppna beslutsstöd för att visa beslutsstödets huvudfönster där beslut om vidare handläggning kan fattas . CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 11(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om användaren väljer att stänga dialogrutan och ignorera varningen, kommer varningen att visas igen vid nästa försök att vidimera provsvaren. Bild 1 - Varning för CDS Remiss för familjär hyperkolesterolemi i COSMIC 3.8.0 . Bild 2 - Användaren kan läsa mer om varningen genom en text som visas när muspekaren hålls över \"i\" -ikonen CDS FH Referral kan inte nås från journalsystemets meny , utan det krävs en aktivering vid vidimering av kolesterolrelaterade provsvar . CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 12(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Introduktion",
+  "page": 1,
+  "section_id": "3.3.1",
+  "main_section_id": 3,
+  "context_summary": "Denna sektion beskriver hur beslutsstödet för höga kolesterolvärden startas automatiskt via vidimeringsprocessen, de två möjliga bedömningarna (misstanke eller ingen misstanke), och gränssnittet som visar bedömning, grund samt beslut och remissutkast.",
+  "keywords": [
+    "kolesterol",
+    "LDL",
+    "beslutsstöd",
+    "patient",
+    "diagnos",
+    "journal"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Livsstil",
+    "Kardiovaskulär",
+    "Diagnostik",
+    "Beslutsstöd",
+    "Patientinformation"
+  ],
+  "clinical_domain": [
+    "Kardiologi",
+    "Endokrinologi",
+    "Diagnostik",
+    "Klinisk beslutsstöd"
+  ],
+  "text": "För att en riskbedömning ska göras krävs en automatisk start av beslutsstödet som sker vid detektering av förhöjda kolesterolvärden i en vidimeringsprocess. Beslutsstödet kan generera två olika bedömningar baserat på denna information: • Misstanke ( beslutsstödets dialogruta visas ) • Ingen misstanke (beslutsstödets dialogruta visas ej) Vid vidimeringsförsök av LDL - eller totalkolesterol (eller båda) startas beslutsstödet och patientens födelsedatum, kön, journalanteckningar, läkemedelslista, registrerade diagnos - och åtgärdskoder samt de provsvar som valts för vidimering analyseras. Om dialogrutan visas och användaren väljer att öppna beslutsstödet visas beslutsstödets huvudfönster som är indelat i två olika block: • Bedömning och grund för bedömning • Beslut och utkast till remiss och journalanteckning Varje block behandlas i separata avsnitt av denna användarmanual , se avsnitt 3.3.2 och 3.3.3 . En översiktsbild av beslutsstödet i sin helhet visas i Bild 3. Bild 3 - Översiktsbild av beslutsstödet CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 13(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Bedömning och grund för bedömning",
+  "page": 1,
+  "section_id": "3.3.2",
+  "main_section_id": 3,
+  "context_summary": "Manualen beskriver hur bedömning av misstankegraden för familjär hyperkolesterolemi baseras på automatiskt hämtad information från journalen och hur användaren kan lägga till ytterligare data. Den förklarar hur LDL-kolesterol värden korrigeras vid aktiv statin- eller ezetimibbehandling, samt hur prematur kranskärlssjukdom och ärftlighet hanteras i beslutsstödet.",
+  "keywords": [
+    "bedömning",
+    "familjär hyperkolesterolemi",
+    "LDL-kolesterol",
+    "statin",
+    "ezetimib",
+    "korrektur",
+    "prematur kranskärlssjukdom",
+    "ärftlighet",
+    "lipidprofil",
+    "journaldata"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Styrning",
+    "Diagnos",
+    "Behandling",
+    "Lipidprofil",
+    "Kardiologi"
+  ],
+  "clinical_domain": [
+    "kardiologi",
+    "endokrinologi"
+  ],
+  "text": "Bedömning av misstankegraden av familjär hyperkolesterolemi grundas på den information som automatiskt inhämtas från patientens journal. Om användaren anger ytterligare information i detta block kommer den angivna informationen läggas till i den automatiskt genererade remisstexten samt journalanteckningen. Direkt under rubriken Bedömning presenteras vad beslutsstödet identifierat, se Bild 4. Bild 4 - Bedömning Även provsvaren i patientens lipidprofil (i detta fall: LDL -kolesterol, totalkolesterol och triglycerider) som användaren valt att vidimera visas. Om en patient är under en aktiv statinbehandling och/eller aktiv behandling med ezetimib som startade innan eller samtidigt som patientens LDL -kolesterolprov togs, ska beslutsstödet utföra en korrigering av det inhämtade LDL - kolesterolvärdet. Ingen korrigering kommer ske om behandlingen inte längre är aktiv , inklusive om dosen ändrats efter provtagningstillfället , när provsvaret vidimeras. I detta fall beräknas det korrigerade värdet baserat på vilken statin som används samt dos och/eller på ezetimib. De korrigeringsekvationer som tillämpas av beslutsstödet är beskrivna i den tredje referensartikeln [ 3]. I ett fall då en korrigering av LDL -kolesterolvärdet görs, kommer beslutsstödet utföra bedömningen baserat på det korrigerade LDL -kolesterolvärdet och dessutom visa denna information under rubriken Bedömning . CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 14(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Utöver detta kommer det korrigerade så väl som det okorrigerade LDL - kolesterolvärdet visas under rubriken Patientens lipidprofil , se Bild 5 Bild 5 - Om en korrigering av LDL -kolesterolvärdet har gjorts visas både det korrigerade och det okorrigerade LDL-klolesterolvärde t under rubriken \"Patientens lipidprofil\" Vid korrigering av LDL -kolesterolvärde bör användaren kontrollera patientens följsamhet till statinordinationen och/eller ordinationen av ezetimib. Det korrigerade LDL -kolesterolvärdet är mindre giltigt om en patient inte följer rekommendationerna angående sin statinbehandling och/eller behandling med ezetimib. Nödvändigheten att remittera en patient till specialist bör noggrant kontrolleras i fall av oföljsamhet, speciellt om patientens okorrigerade LDL - kolesterolvärde ligger under gränsvärdet. I följande tabell presenteras de läkemedel som beslutsstödet tar hänsyn till. ATC-kod Läkemedel C10AX09 Ezetimib C10AA03 Pravastatin C10AA01 Simvastatin C10BA02 Simvastatin + Ezetimib C10AA05 Atorvastatin C10BA05 Atorvastatin + Ezetimib C10AA07 Rosuvastatin C10BA06 Rosuvastatin + Ezetimib CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 15(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Användaren ombeds att ange om det finns tecken på prematur kranskärlssjukdom genom att svara på frågan Tecken på kranskärlssjukdom . Användaren kan ta del av information om vilka diagnoser och åtgärder som motsvarar kranskärlssjukdom genom att klicka på i-ikonen vid frågan , se Bild 6. Bild 6 - Fråga \"Tecken på kranskärlssjukdom\" och informationstext om diagnos - och åtgärdskoder som motsvarar kranskärlssjukdom . Kranskärlssjukdom föreligger om patienten haft minst ett av följande tecken: • Perkutan koronarintervention (PCI) • Koronar -bypass (CABG) • Anginösa bröstsmärtor (kärlkramp i bröstet) (ICD10 -I200) • Akut hjärtinfarkt (ICD10 -I21) • Reinfarkt (återinsjuknande i akut hjärtinfarkt) (ICD10 -I22) • Vissa komplikationer till akut hjärtinfarkt (ICD10 -I23) • Andra akuta ischemiska hjärtsjukdomar (ICD10 -I24) • Kronisk ischemisk hjärtsjukdom (ICD10 -I25) • Förekomst av aortokoronar -bypass -graft (ICD10 -Z951) • Förekomst av angioplastiskt koronarimplantat och koronargraft (ICD10 -Z955) Prematur kranskärlssjukdom definieras här olika baserat på patientens kön. Om patienten är kvinna ska patienten ha haft minst ett av ovanstående tecken innan 60 års ålder. Om patienten är man ska patienten ha haft minst ett av ovanstående tecken innan 55 års ålder. Om denna data redan finns tillgänglig i journalsystemet men inte lett till aktivering av beslutsstödet, ska frågan automatiskt förifyllas med Ja, men användaren får fortfarande besvara frågan manuellt. Om denna data redan finns tillgänglig i journalsystemet och har lett till aktivering av beslutsstödet, kommer frågan om prematur kranskärlssjukdom inte längre visas för användaren. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 16(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Därefter ombeds användaren ange om det finns känd förstagradsärftlighet (hos förälder, syskon eller barn) för prematur kranskärlssjukdom eller hyperlipidemi. Användaren kan läsa om vilka diagnoser eller åtgärder som motsvarar kranskärlssjukdom genom att klicka på i-ikonen vid frågan . Om användaren markerar svarsalternativen Nej eller Okänd , visas inga ytterligare frågor i det första blocket oc h man kan gå vidare till det andra blocket , se avsnitt 3.3.3 . Om svarsalternativet Ja markeras måste ytterligare information om ärftligheten anges för att gå vidare till det andra blocket . Detta genom att markera minst en kryssruta under Specificera , se Bild 7. Bild 7 - Användaren ombeds ange ytterligare information om ärftligheten för att gå vidare till den andra blocket ."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Beslut och utkast till remiss och journalanteckning",
+  "page": 1,
+  "section_id": "3.3.3",
+  "main_section_id": "3",
+  "context_summary": "Texten beskriver hur användaren interagerar med beslutsstödet för att ta ställning till remiss, skriva journalanteckning, åberopa tolkbehov och signera samt vidimera provsvar. Den förklarar även krav på motivering vid avvikande beslut och hur gränssnittet styrs av inställningar.",
+  "keywords": [
+    "remiss",
+    "journalanteckning",
+    "beslut",
+    "toevärd",
+    "tolkbehov",
+    "provsvar",
+    "signering",
+    "avvikelse",
+    "motivationsfyllnad"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Beslut",
+    "Remiss",
+    "Journal",
+    "Användargränssnitt",
+    "Tolkbehov",
+    "Provsvar",
+    "Signering",
+    "Motivering"
+  ],
+  "clinical_domain": [
+    "Kardiologi",
+    "Vårdreferens",
+    "Patientkommunikation",
+    "Beredskap för tolkning"
+  ],
+  "text": "I blocket Beslut och utkast till remiss och journalanteckning presenteras beslutsstödets rekommendation att remittera patienten till en specialist baserat på vad som angivits i tidigare block , se avsnitt 3.3.2 . Användaren tar här ställning till huruvida en remiss ska skickas eller ej genom att besvara frågan Skicka vårdbegäran där Ja markeras för att skicka en remiss och Nej för att avstå . Bild 8 - Blocket Beslut och utkast till remiss och journalanteckning CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 17(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. I samband med rekommendationstexten visas denna fråga förifylld av beslutsstödet beroende på hur användaren har svarat på frågorna i första blocket. Användaren får alltid ta ställning till om remissen ska skickas, och det förifyllda svarsalternativet kan alltid ändras manuellt. Om användarens svar går emot beslutsstödet för rekommandationer behöver en motivering anges innan beslutet kan signeras. Det går även att lägga till kompletterande uppgifter i fritextformat. All angiven fritext blir inkluderad i den automatiskt genererade remisstexten och journalanteckning . Svaren om prematur kranskärlssjukdom och ärftlighet som angivits i det första blocket kommer också att inkluderas i remisstexten och journalanteckningen , se Bild 9. Bild 9 - Svar från användar e och all angiven fritext blir inkluderad i den automatiskt genererade remisstexten och journalanteckning . Om användaren väljer att skicka en remiss måste information om tolkbehov anges under Tolkbehov? . Denna fråga visas endast om funktionen är aktiverad . Den kan inaktiveras och presenteras då inte i beslutsstödet. Det är systemförvaltningens beslut om detta ska göras och styrs av en inställning konfigureras av administratör. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 18(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Visas frågan Tolkbehov? klickar man på Ja om patienten har behov av tolk, annars på Nej. Om Ja valts måste ett språk anges i fritextrutan , se Bild 10. Den angivna informationen inkluderas i remisstexten som beslutsstödet genererar. Bild 10 - Om användaren väljer att skicka en remiss måste information om tolkbehov anges , förutsatt att funktionen är aktiverad. Följande bekräftelsemeddelande visas n är användaren väljer att skicka remiss, vidimera provsvar och avsluta beslutsstödet genom att klicka på knappen SKICKA VÅRDBEGÄRAN OCH VIDIMERA PROVSVAR . Bild 11 – Bekräftels emeddelande för att skicka en vårdbegäran och signera en journalanteckning Användaren kan då välja att klicka på knappen AVBRYT vilket resulterar i att användaren återgår till beslutsstödets huvudfönster. Alternativt kan användaren klicka på knappen SKICKA VÅRDBEGÄRAN OCH VIDIMERA PROVSVAR vilket resulterar i att remissen skickas till en specialistavdelning, journalanteckningen signeras samt att de kolesterolrelaterade provsvar som markerats för vidimering innan beslutsstödets start blir vidimerade. Val av specialistenhet (som beslutsstödet använder som remissmottagare) konfigureras i journalsystemets övergripande inställningar av administratör . CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 19(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om man av viker från beslutsstödets rekommendationer genom att skicka en vårdbegäran då det inte rekommenderas eller genom att avstå från att skicka en remiss då det rekommenderas, kommer beslutsstödet be om en förklaring till varför användaren avvek från rekommendationerna . Bild 12 - Användaren ombeds ange en anledning för att kunna signera ett beslut som avviker från rekommendationerna När en anledning inte är angiven kommer beslutsstödet inte ge användaren möjlighet att spara journalanteckningen eller vidimera de förmarkerade provsvaren. Knappen SIGNERA JOURNALANTECKNING OCH VIDIMERA PROVSVAR är visas som grå och är ej klickbar. Bild 13 - När obligatorisk information saknas är knappen SIGNERA JOURNALANTECKNING OCH VIDIMERA PROVSVAR grå och inaktiv . Då användaren anger en motivering till avvikelsen från rekommendationerna kommer den att inkluderas i journalanteckningen. Bild 14 - Den angivna anledningen inkluderas i den genererade journalanteckningen CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 20(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Knappen för att signera och vidimera visas som blå och är klickbar, se Bild 15 Bild 15 - Då all information har angivits är knappen SIGNERA JOURNALANTECKNING OCH VIDIMERA PROVSVAR knappen blå och aktiv Om användaren väljer att signera journalanteckningen och vidimera provsvaren genom att klicka på knappen kommer dialogrutan Signera journalanteckning och vidimera provsvar? att visas. Det går att klicka på knappen AVBRYT för att stänga dialogrutan och visa beslutsstödets huvudfönster igen, eller på knappen SIGNERA JOURNALANTECKNINGEN OCH VIDIMERA PROVSVAR för att signera journalanteckningen bli signerad och vidimera provsvaren. Användaren blir då tillbakaskickad till journalsystemets bakomliggande fönster. Bild 16 - Bekräftelserutan för att signera en journalanteckning och vidimera provsvaren"
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Stäng a beslutsstödet",
+  "page": 1,
+  "section_id": "3.3.4",
+  "main_section_id": 3,
+  "context_summary": "Användaren kan när som helst stänga beslutsstödet utan att spara någon information eller skicka vårdbegäran. En bekräftelsedialog visas innan den stängs, och därefter måste all data återföras för en ny session.",
+  "keywords": [
+    "beslutsstödet",
+    "stäng",
+    "avsluta",
+    "information sparas",
+    "vårdbegäran",
+    "provresultat",
+    "dialogruta",
+    "bekräftelse",
+    "återanvändning"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Beslut",
+    "Hantering",
+    "Funktion",
+    "Interaktion",
+    "Datahantering"
+  ],
+  "clinical_domain": [
+    "Kliniskt beslutsstöd",
+    "Medicinsk dokumentation",
+    "Patientdata",
+    "Vården"
+  ],
+  "text": "Beslut behöver inte fattas i direkt anslutning till aktuell bedömning. En pågående bedömning kan när som helst stängas och påbörjas på nytt i ett senare skede. Om användaren stänger ned beslutsstödet kommer ingen information att sparas, ingen vårdbegäran skickas och de förmarkerade provsvaren som beslutsstödet använder som grund för bedömning kommer ej vidimeras. För att stänga ned beslutsstödets fönster klickar användaren på knappen STÄNG . Dialogrutan Stäng beslutstödet ? visas med information om av en nedstängning innebär , se Bild 17. Bild 17 - Bekräftelseruta för att stänga beslutsstödet. Klickar användaren på knappen AVBRYT stängs dialogrutan och beslutsstödets huvudfönster visas igen. Klickar användaren på knappen STÄNG kommer dialogrutan och beslutsstödets fönster att stängas och det bakomliggande fönstret visas. När användaren försöker vidimera patientens provsvar på nytt kommer beslutsstödet dialogruta visas på nytt, förutsatt att den importerade patientdatan ger upphov till en aktivering av beslutsstödet. I detta fall behöver användaren ange nödvändig information på nytt då informationen inte sparats vid föregående användning av beslutsstödet. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 21(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Introduktion",
+  "page": 1,
+  "section_id": "3.4.1",
+  "main_section_id": 3,
+  "context_summary": "Här beskrivs att CDS FH Referral är ett kliniskt beslutsstöd som ger rekommendationer och inte tar egna beslut, och att användaren bör kombinera det med egen kompetens för att fatta beslut.",
+  "keywords": [
+    "CDS",
+    "beslutsstöd",
+    "klinik",
+    "patient",
+    "hälsa",
+    "bedömning",
+    "rekommendationer",
+    "klinisk kompetens"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Introduktion",
+    "Beslutsstöd",
+    "Klinisk praktik"
+  ],
+  "clinical_domain": [
+    "Sjukvård",
+    "Klinisk beslut",
+    "Patientvård"
+  ],
+  "text": "CDS FH Referral är ett kliniskt beslutsstöd, vilket innebär att inmatad data bearbetas i enlighet med redan skrivna regler i syfte att ge kliniker stöd i beslutsfattande som ska leda till bättre behandling och hälsa för patienten. De bedömningar och förslag som genereras av beslutsstödet är enbart rekommendationer. Verktyget fattar inga egna beslut, och användaren bör alltid nyttja sin kliniska kompetens i kombination med beslutsstödet för att ta beslut om handläggning. I följande avsnitt ges förenklad information om hur rekommendationerna genereras; detta dokument syftar dock ej till att beskriva konfiguration och logik bakom aktuella regler."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Hämtning av signerad patientdata",
+  "page": 1,
+  "section_id": "3.4.2",
+  "main_section_id": 3,
+  "context_summary": "Systemet hämtar endast signerad klinisk data från journalen för beslutsstöd.",
+  "keywords": [
+    "signerad data",
+    "klinisk data",
+    "journal",
+    "ordinationer",
+    "diagnos",
+    "åtgärdskoder"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "patientdata",
+    "journaldatatillägg",
+    "signatuttag",
+    "datasäkerhet"
+  ],
+  "clinical_domain": [
+    "Allmänmedicin",
+    "Klinisk informatik"
+  ],
+  "text": "CDS FH Referral inhämtar bara signerad klinisk data från journalsystemet (signerade journalanteckningar, signerade ordinationer i läkemedelslista och signerade diagnos - och åtgärdskoder). Detta innebär alltså att patientuppgifter som exempelvis sparats , men inte signerats , inte kommer utgöra tillgängligt informationsunderlag för beslutsstödet."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Identifiering av patient utan misstanke om familjär",
+  "page": 1,
+  "section_id": "3.4.3",
+  "main_section_id": 3,
+  "context_summary": "Denna sektion beskriver fyra exkluderingskriterier som gör att beslutsstödet för behandling av hyperkolesterolemi inte aktiveras.",
+  "keywords": [
+    "exkluderingskriterier",
+    "familjär hyperkolesterolemi",
+    "triglycerider",
+    "ålder",
+    "journal",
+    "beslut"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Diagnos",
+    "Kriterier",
+    "Beslutsstöd",
+    "Familjär hyperkolesterolemi"
+  ],
+  "clinical_domain": [
+    "Kardiovaskulär",
+    "Endokrinologi",
+    "Familjeklinik"
+  ],
+  "text": "hyperkolesterolemi Om ett av följande fyra exkluderingskriterier är uppfyllda kommer beslutsstödet inte aktiveras , oavsett angivna kriterier i avsnitt 3.3.3 : 1. Den beräknade åldern på patienten är > 80 år. 2. Patienten har en aktiv dokumenterad diagnos för familjär hyperkolesterolemi i journalen. 3. Patienten har ett triglyceridvärde på > 2.5 mmol/L i plasman , förutsatt att ett triglyceridresultat är en del av de provsvar som användaren försöker vidimera. 4. Patienten har ett tidigare beslut via CDS FH Referral dokumenterat i journalen. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 22(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Identifiering av patient med misstanke om familjär hyperkolesterolemi",
+  "page": 1,
+  "section_id": "3.4.4",
+  "main_section_id": "3",
+  "context_summary": "Beslutsstödet beskriver kriterier för när en patient med misstanke om familjär hyperkolesterolemi ska remitteras, baserat på LDL‑, totalt kolesterol och ålder. Kriterierna varierar efter kön och åldersgrupp och specifika laboratoriekoder används för analys.",
+  "keywords": [
+    "familjär hyperkolesterolemi",
+    "LDL‑kolesterol",
+    "totalkolesterol",
+    "remiss",
+    "ålder",
+    "kön",
+    "laboratorieundersökning",
+    "diagnostik"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Patientidentifiering",
+    "Familjär hyperkolesterolemi",
+    "Remissförfarande",
+    "Laboratorieparametrar",
+    "Ålder och kön"
+  ],
+  "clinical_domain": [
+    "Kardiologi",
+    "Endokrinologi",
+    "Laboratoriediagnostik"
+  ],
+  "text": "hyperkolesterolemi Förutsatt att ing a av de tidigare exkluderingskriterier na är uppfyll da ska beslutsstödet generera bedömningen att en remiss bör skickas om minst ett av följande kriterier är uppfyllda: 1. LDL-kolesterol >= 5.5 mmol/L eller totalkolesterol >= 8.0 mmol/L; och ålder > 29 år. 2. LDL-kolesterol >= 5.0 mmol/L och en dokumenterad historia av prematur kranskärlssjukdom eller ingrepp för kranskärlssjukdom för man < 55 år eller kvinna < 60 år vid tiden för dokumenterad prematur kranskärlssjukdom eller ingrepp. 3. LDL-kolesterol >= 4.1 mmol/L och ålder >= 18 år och ålder =< 29 år. 4. LDL-kolesterol >= 4.96 mmol/L och kvinna ålder >= 9 år och ålder < 18 år. 5. LDL-kolesterol >= 3.64 mmol/L och man ålder >= 9 år och ålder < 18 år. 6. LDL-kolesterol >= 2.55 mmol/L och kvinna ålder >= 0.5 år och ålder < 9 år. 7. LDL-kolesterol >= 2.81 mmol/L och man ålder >= 0.5 år och ålder < 9 år. 8. Totalkolesterol >= 6.07 mmol/L och kvinna ålder >= 3 år och ålder < 18 år. 9. Totalkolesterol >= 6.01 mmol/L och man ålder >= 3 år och ålder < 18 år. 10. Totalkolesterol >= 5.05 mmol/L och kvinna ålder >= 0.5 år och ålder < 3 år. 11. Totalkolesterol >= 5.66 mmol/L och man ålder >= 0.5 år och ålder < 3 år. 12. Totalkolesterol >= 8 mmol/L och ålder >= 18 år och ålder =< 29 år. Om beslutsstödet gör en korrigering av LDL -kolesterolvärdet kommer det korrigerade värdet vara det som analyseras mot ovannämnda kriterier. I följande tabell nedan presenteras de koder för laboratorieundersökningar som beslutsstödet tar hänsyn till. LDL-kolesterol, totalkolesterol eller triglycerid Kod för laboratorieundersökning P—Kolesterol NPU01566 P—LDL-kolesterol NPU01568 fP—LDL-kolesterol NPU10171 P—LDL-kolesterol SWE05408 P—LDL-kolesterol JOK02835 P—Triglycerid NPU04094 fP—Triglycerid NPU03620 P—Triglycerid JOK02834 CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 23(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Passivt beslutsstöd",
+  "page": 1,
+  "section_id": "3.4.5",
+  "main_section_id": 3,
+  "context_summary": "Beslutsstödet aktiveras enbart om patienten uppfyller alla kriterier eller exkluderingskriterier som beskrivs i avsnitt 3.3.3 och 3.3.2. Om kritiska data saknas eller användaren inte initierar en LDL‑/totalkolesterol‑vidimering förblir stödet passivt.",
+  "keywords": [
+    "beslutsstöd",
+    "passivt",
+    "kriterier",
+    "exkluderingskriterier",
+    "födelsedatum",
+    "kön",
+    "LDL",
+    "totalkolesterol",
+    "familjär hyperkolesterolemi",
+    "remiss"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Beslutsstöd",
+    "Passiv",
+    "Kriterier",
+    "Exkluderingskriterier",
+    "Patientprofil",
+    "Cholesterol"
+  ],
+  "clinical_domain": [
+    "Kardiologi",
+    "Metabolism",
+    "Klinisk beslutsstöd"
+  ],
+  "text": "Beslutsstödet kommer ej aktiveras om patienten inte uppfyller de kriterier som nämnts i avsnitt 3.3.3 alternativt uppfyller minst ett exkluderingskriterium som nämnts i 3.3.2 . Om födelsedatum eller kön saknas i patientens journalprofil, eller om användaren inte startar en vidimeringsprocess av LDL - eller totalkolesterol, kommer beslutsstödet inte kunna generera en misstanke om familjär hyperkolesterolemi eller en rekommendation om att skicka remiss. Beslutsstödet förblir passivt då det finns otillräcklig information."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Hantering av spärrad information",
+  "page": 1,
+  "section_id": "3.4.6",
+  "main_section_id": 3,
+  "context_summary": "Patienter med spärrad information exkluderas från CDS FH Referral och hanteras enligt systemförvaltningens inställning samt regionala rutiner.",
+  "keywords": [
+    "spärrad information",
+    "CDS FH Referral",
+    "systemförvaltning",
+    "administratör",
+    "regionala rutiner",
+    "exkludering"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "patientdata",
+    "spärr",
+    "beslutstagande",
+    "systemkonfiguration"
+  ],
+  "clinical_domain": [
+    "sjukvård",
+    "informationsteknik",
+    "policy"
+  ],
+  "text": "Patienter med spärrad information exkluderas från CDS FH Referral . Det är systemförvaltningens beslut om detta skall göras och styrs av en inställning som konfigureras av administratör i det lokala journalsystemet. I övrigt är det regionens egna rutiner som gäller för hur spärrar kring beslutsstödet ska hanteras."
+},
+{
+  "source_file": "CDS_FH_Referral_IntroAnvM_v10.2_sv.pdf",
+  "section": "Felhantering",
+  "page": 1,
+  "section_id": "3.5",
+  "main_section_id": "2",
+  "context_summary": "När beslutsstödet får felaktig data från journalsystemet inaktiveras det och ett självförklarande felmeddelande visas för användaren.",
+  "keywords": [
+    "datafel",
+    "beslutsstöd",
+    "journal",
+    "felmeddelande",
+    "patient"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Diagnostik",
+    "Diagnos",
+    "Fh",
+    "Medicinsk beslut",
+    "Säkerhet"
+  ],
+  "clinical_domain": [
+    "Genetik",
+    "Blodfetter",
+    "Klinisk beslutsstöd"
+  ],
+  "text": "Om beslutsstödet erhåller felaktig data från journalsystemet kommer beslutsstödet att inaktiveras varpå beslutsstödet inte kan användas för den aktuella patienten. Ett självförklarande felmeddelande kommer då att visas för användaren. CDS FH Referral - Introduktion & Användarmanual Version: 10.2 Datum: 2024 -01-31 ©2 0 2 4 Cambio H ealthcare Systems AB 24(24) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix A - Referenser [1] Civeira F, International Panel on Management of Familial Hypercholesterolemia. Guidelines for the diagnosis and management of heterozygous familial hypercholesterolemia. Atherosclerosis. 2004 Mar 31;173(1):55 -68. [2] World Health Organization. Familial hypercholesterolaemia (FH). Report of a second WHO consultation. Geneva, Switz: World Health Organization; 1999. [3] Haralambos K, Whatley S.D., Edwards R, et al. Clinical experience of scoring criteria for Familial Hypercholesterolaemia (FH) genetic testing in Wales. Atherosclerosis. 2015; May 1;240(1):190 -96."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Introdu ktion",
+  "page": 1,
+  "section_id": "1.1",
+  "main_section_id": 2,
+  "context_summary": "Dokumentet beskriver CDS Osteoporosis Referral‑systemet, dess funktioner och användningsprinciper ur slutanvändarens perspektiv. Det hjälper till att identifiera patienter med nyligen uppkomna osteoporosrelaterade frakturer och föreslå remiss för systematisk utredning och behandling.",
+  "keywords": [
+    "beslutsstöd",
+    "osteoporos",
+    "fraktur",
+    "remiss",
+    "patientidentifiering",
+    "systematisk utredning",
+    "behandling",
+    "COSMIC",
+    "journalsystem",
+    "regionala konsensus"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Beslutsstöd",
+    "Hälsoinformation",
+    "Osteoporosbehandling",
+    "Journalintegration",
+    "Klinisk handledning"
+  ],
+  "clinical_domain": [
+    "Skelethälsa",
+    "Frakturvård",
+    "Ortopedik",
+    "Klinisk forskning"
+  ],
+  "text": "Detta dokument beskriver besluts stödet Cambio Clinical Decision Support (CDS) Osteoporosis Referral (härefter CDS Osteoporosis Referral ), dess funktioner och egenskaper ur en slutanvändares perspektiv. Läsaren förutsätts ha god datorvana och grundläggande kunskaper i COSMIC. Information om applicerbara och kompatibla versioner mellan beslutsstödet och underliggande journalsystem är angivet i dokumentets versionshistorik. Beslutsstödet CDS Osteoporosis Referral syftar till att hjälpa användare att identifiera patienter med nyliga och eventuellt osteoporosrelaterade frakturer, samt att remittera dessa patienter för systematisk osteoporosutredning och eventuell behandling inom frakturkedjan. Det är utvecklat i enlighet med en lokal anpassning av regionala konsensus och nationella riktlinjer för utredning och behandling av osteoporos som framtagits av Nationellt system för Kunskapsstyrning Hälso - och sjukvård [1]och Socialstyrelsen [2]. Beslutsstödet ger rekommendationer som endast ska betraktas som stöd för användaren, då dennes kunskap om patienten alltid är avgörande för beslutet. Användaren ska alltid använda sin egen kliniska kompetens och inte förlita sig enbart på beslutsstödet. Användaren har själv ansvar för samtliga medicinska beslut som fattas. Användarens kliniska bedömning ska alltid prioriteras före beslutsstödets bedömningar och rekommendationer. Beslutsstödet fattar inga beslut och ersätter inte beslutsfattaren."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Version shistorik",
+  "page": 1,
+  "section_id": "1.2",
+  "main_section_id": 2,
+  "context_summary": "Här presenteras dokumentets versionshistorik med datum och kommentarer, samt vilka kompatibla versioner av beslutsstöd och COSMIC som varje revision gällar.",
+  "keywords": [
+    "versioner",
+    "datum",
+    "kompatibel",
+    "beslutsstöd",
+    "COSMIC",
+    "revidera",
+    "uppdatera",
+    "journal",
+    "Dokumentmalla"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Dokument",
+    "Versionhistorik",
+    "Beslutsstöd",
+    "JournalSystem",
+    "Meddelande"
+  ],
+  "clinical_domain": [
+    "Hälsa och sjukvård",
+    "Östeoporos",
+    "Klinisk beslutsstöd"
+  ],
+  "text": "Versionshistoriken visar ändringar i dokumentet över tid samt kompatibla versioner mellan beslutsstödet och underliggande journalsystem. Version Datum Kommentar 1.0 2022 -01-03 Första version. Dokumentet gäller från beslutsstödsversion 0.1.x och COSMIC R8.3.03. 1.1 2022 -01-28 Dokument reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 0.1.x och COSMIC R8.3.03. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 5(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Version Datum Kommentar 1.2 2022 -02-08 Dokument reviderat och uppdaterat. Dokumentet gäller från beslutsstödsversion 0.1.x och COSMIC R8.3.03. 1.3 2022 -12-02 Avsnitt 3.4.2 uppdaterat . Dokumentet gäller från beslutsstödsversion 0.2.x och COSMIC 3.7.0. 2.0 2023 -05-05 Avsnitt 4.1 och 4.2 tillagda. Ny dokument mall . Dokumentet gäller från beslutsstödsversion 0.3.x och COSMIC 3.8.0. 3.0 2024 -01-08 Avsnitt 1.1, 1.2 och 3.3 uppdaterade. Kapitel 2, Appendix A, avsnitt 3.1, 3.2, 3.4.1 och 3.4.2 tillagda. Dokumentet gäller från beslutsstödsversion 1.0.x och COSMIC 3.10.0."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Termer",
+  "page": 1,
+  "section_id": "1.3",
+  "main_section_id": 2,
+  "context_summary": "Tabellen beskriver termer, förkortningar och akronymer som används i dokumentet.",
+  "keywords": [
+    "termer",
+    "förkortningar",
+    "akronymer",
+    "CDS",
+    "klinisk beslutsstöd"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "terminologi",
+    "förkortningar",
+    "akronymer",
+    "CDS",
+    "dokumentsupport"
+  ],
+  "clinical_domain": [
+    "benhälsa",
+    "vårdplanering",
+    "CDS"
+  ],
+  "text": "Följande tabell beskriver de termer, förkortningar och akronymer som används i detta dokument. Term Beskrivning CDS Clinical Decision Support"
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Typografiska",
+  "page": 1,
+  "section_id": "1.4.1",
+  "main_section_id": "3",
+  "context_summary": "Texten beskriver de typografiska konventioner som används i dokumentet för att markera UI‑termer, modulnamn, valbara texter, ersättningsbar information, systemkommandon och kodexempel.",
+  "keywords": [
+    "typografi",
+    "fetstil",
+    "kursiv",
+    "citat",
+    "vinkelparenteser",
+    "Courier New",
+    "systemkommandon",
+    "kodexempel",
+    "användarmanual"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "typografi",
+    "UI",
+    "användarmanual",
+    "systemkommandon"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "Hälsa",
+    "Sjukvård"
+  ],
+  "text": "Följande typografiska konventioner används i detta dokument: • Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . • Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger , Properties.txt eller https://customer.cambio.se . • Enkla citattecken (’ ’) indikerar valbara alternativ i listrutor. Exempel: Välj alternativet ’Blå’ i listrutan Färg . • Vinkelparenteser (<…>) indikerar ersättningsbar information i texten som värden, namn, typer och sökvägar. Exempel: COSMIC <…> där <…> ersätts med namnet Link till COSMIC Link . • Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 6(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Ikoner",
+  "page": 1,
+  "section_id": "1.4.2",
+  "main_section_id": 3,
+  "context_summary": "Detta avsnitt beskriver vilka ikoner som används i dokumentet för att markera viktig information, tips och andra meddelanden samt tillhörande tekniska krav.",
+  "keywords": [
+    "ikoner",
+    "information",
+    "tips",
+    "tredjepartslicens",
+    "CDS Osteoporosis Referral",
+    "version",
+    "system",
+    "dokument"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Ikoner",
+    "Dokumentdesign",
+    "Informationshantering"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "Kliniskt beslutsstöd"
+  ],
+  "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. En tredjepartslicens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 7(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om CDS Osteoporosis Referral"
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Avsedd användning",
+  "page": 1,
+  "section_id": "2.1",
+  "main_section_id": "2",
+  "context_summary": "Denna sektion beskriver varför och hur CDS Osteoporosis Referral, ett kliniskt beslutsstöd, används för att identifiera patienter med nyliga frakturer relaterade till osteoporos och för att remittera dem till systematisk utredning och behandling i frakturkedjan. Beslutsstödet är baserat på regionala och nationella riktlinjer.",
+  "keywords": [
+    "osteoporos",
+    "fraktur",
+    "vårdpersonal",
+    "klinisk beslutsstöd",
+    "referral",
+    "frakturkedjan",
+    "nationella riktlinjer",
+    "regional konsensus"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Kliniska applikationer",
+    "Beslutsstöd",
+    "Osteoporos",
+    "Frakturhantering"
+  ],
+  "clinical_domain": [
+    "Ortopedisk",
+    "Endokrinologi"
+  ],
+  "text": "CDS Osteoporosis Referral är en klinisk beslutsstödsapplikation designad för att stödja vårdpersonal vid vårdtillfället med att upptäcka patienter med nyliga och eventuellt osteoporosrelaterade frakturer, samt att remittera dessa patienter för systematisk osteoporosutredning och eventuell behandling inom frakturkedjan. Beslutsstödet är utvecklat i enlighet med regionala konsensus och nationella riktlinjer för utredning och behandling av osteoporos som framtagits av Nationellt system för Kunskapsstyrning Häl so- och sjukvård [1] och Socialstyrelsen [2]."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Försiktighetsåtgärder",
+  "page": 1,
+  "section_id": "2.2",
+  "main_section_id": "2",
+  "context_summary": "Här presenteras viktiga försiktighetsåtgärder och riktlinjer för användning av CDS Osteoporosis Referral.",
+  "keywords": [
+    "försiktighetsåtgärder",
+    "CDS Osteoporosis Referral",
+    "diagnostik",
+    "behandling",
+    "patientobservation",
+    "användarmanual"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Försiktighetsåtgärder",
+    "Användning",
+    "Begränsningar",
+    "Vägledning"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "Kliniskt beslutsstöd",
+    "Patientvård"
+  ],
+  "text": "Följande försiktighetsåtgärder skall beaktas: • CDS Osteoporosis Referral bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. • CDS Osteoporosis Referral är inte avsett för realtidsövervakning av vitala fysiologiska parametrar. • CDS Osteoporosis Referral ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. • Observera att användarmanualen för CDS Osteoporosis Referral bör läsas innan användning."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Risker med användning av CDS",
+  "page": 1,
+  "section_id": "2.3",
+  "main_section_id": 2,
+  "context_summary": "Sammanfattning av riskerna vid användning av CDS, inklusive datafel, användaransvar, missad datauppdatering och nätverksproblem.",
+  "keywords": [
+    "Risker",
+    "CDS",
+    "Beslutsstöd",
+    "Data",
+    "Patientrisk",
+    "Felhantering",
+    "Användaransvar",
+    "Nätverksproblem"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Risk",
+    "Beslutsstöd",
+    "Patientdata",
+    "Nätverk",
+    "Kvalitetsskydd"
+  ],
+  "clinical_domain": [
+    "Klinisk beslutsstöd",
+    "Osteoporosbehandling",
+    "Patientinformation",
+    "Medicinsk IT"
+  ],
+  "text": "Nedan följer en sammanfattning av de risker som medföljer denna produkt: • Om beslutsstödet saknar nödvändig indata för att utföra en bedömning kommer en rekommendation inte kunna ges, detta betyder inte att det inte föreligger några hälsorelaterade risker för patienten. • Om beslutsstödet blir matad med inkorrekt eller korrumperad data från journalsystemet kan en felaktig rekommendation genereras av beslutsstödstjänsten. • Som användare måste den kliniska kunskap och allmänna kännedom som användaren har om patienten alltid föregå det som genererats av beslutsstödet. Detta är tydligt beskrivet i denna användarmanual. • Beslutsstödet kommer bara ha tillgång till den patientdata som fanns i journalen när patienten laddades i journalsystemet. Om ny patientdata registrerats i patientens journal efter patientladdning finns det en risk att relevant information missas av beslut sstödet. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 8(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. • Beslutsstödet kan vara oåtkomlig ifall det föreligger lokala anslutningsproblem till nätverket eller om beslutsstödstjänsten ligger nere på grund av CDS Runtime serverproblem. Alla allvarliga produktrelaterade incidenter ska rapporteras till Cambio och behörig myndighet (Läkemedelsverket1)."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Produkt - och kontaktinformation",
+  "page": 1,
+  "section_id": "2.4",
+  "main_section_id": 2,
+  "context_summary": "Denna sektion beskriver produktens namn, versionsinformation, tillverkare, kontaktuppgifter samt CE-märkning och dokumentation för Cambio CDS Osteoporosis Referral‑systemet.",
+  "keywords": [
+    "Produktnamn",
+    "Cambio CDS",
+    "CE-märkning",
+    "SRN",
+    "Tillverkare",
+    "Dokumentation",
+    "CE-direktiv",
+    "Produktversion",
+    "Kontaktinformation"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Produkt",
+    "Kontaktinformation",
+    "Beslutsstöd",
+    "CE-märkning",
+    "Dokumentation"
+  ],
+  "clinical_domain": [
+    "Klinisk beslutsstöd",
+    "Osteoporos"
+  ],
+  "text": "I beslutsstödets användargränssnitt kan en produktetikett visas via knappen . Den innehåller följande information: • Produktnamn uppdelat i tre nivåer • Cambio CDS - Clinical Decision Support • Cambio CDS Runtime ( system ) • Beslutsstödets namn ( software item ) • Produktversioner för beslutsstödet som software item och CDS Runtime som system . 1 https://www.lakemedelsverket.se CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 9(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. • Adress (fysisk och internetadress ) för ansvarig tillverkare, tillverkningsdatum och tillverkarens registreringsnummer (SRN). Cambio Healthcare Systems AB Gamla Tanneforsvägen 92 582 54 Linköping +46 13 20 03 00 https://www.cambiogroup.com/ SRN#: SE -MF-000001229 • Dokumentation. Läs och följ anvisningarna i produktens introduktion & användarmanual. Via länken https://kb.cambio.se/ öppnas Kunskapsbanken med tillgång till dokumentation och övrig information. • Medicinteknisk produkt . • CE-märkning. Produkten uppfyller applicerbara krav i EG -direktiv 93/42/EEG. • Unik produktidentifiering (produktspecifik kod) . CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 10(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Att arbeta med CDS Osteoporosis Referral"
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Introduktion",
+  "page": 1,
+  "section_id": "3.1",
+  "main_section_id": 2,
+  "context_summary": "\"Detta avsnitt beskriver hur CDS Osteoporosis Referral är ett kliniskt beslutsstödsprogram som aktiveras vid patienter 50 år eller äldre med nyligen bekräftad fraktur. Programmet analyserar journalens data, frågar användaren efter obligatorisk information och genererar remitteringsrekommendationer enligt nationella riktlinjer.\"",
+  "keywords": [
+    "CDS Osteoporosis Referral",
+    "klinisk beslutsstöd",
+    "fraktur",
+    "patient 50 år",
+    "remiss",
+    "diagnos",
+    "journalintegration",
+    "beslut",
+    "rehabilitering"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Klinisk beslutsstöd",
+    "Osteoporos",
+    "Frakturhantering",
+    "Journalintegration",
+    "Remissgenerering"
+  ],
+  "clinical_domain": [
+    "Ortopedi",
+    "Endokrinologi",
+    "Primärvård",
+    "Geriatrik"
+  ],
+  "text": "CDS Osteoporosis Referral är en klinisk beslutsstödsapplikation, vilket innebär att inmatad data bearbetas i enlighet med fördefinierade regler i syfte att erbjuda kliniker stöd under beslutfattningsprocessen som förbättrar möjligheterna för patienterna att erhålla korrekt behandl ing och i förlängningen uppnå en bättre hälsa. Bedömningar och förslag som genereras av beslutsstödet är endast rekommendationer. CDS Osteoporosis Referral fattar inga egna beslut och användaren ska alltid nyttja sin kliniska kompetens i kombination med information från beslutsstödet för att fatta beslut om handläggning. Beslutsstödet s underliggande regler exekveras vid två olika moment: när användaren laddar en patients journal i journalsystemet och när användaren signerar eller kontrasignerar en journalanteckning. I båda fall aktiveras beslutsstödet endast när patienten är 50 år eller äldre, har en aktuell fraktur diagnoskod registrerad i journalen , se avsnitt 3.4.2 , och diagnosen signerades inom de föregående 6 månaderna, förutsatt att inga exklusionskriterier uppfylls , se avsnitt 3.4.4 . Klinisk data som finns tillgänglig i journalsystemet, och som krävs av beslutsstödet för att identifiera patienter med aktuella frakturer importeras automatiskt (födelsedatum, journalanteckningar, diagnoskoder och läkemedelslista). Efter att patienter med nyliga och eventuellt osteoporosrelaterade frakturer identifierats av beslutsstödet behöver användare ange ytterligare klinisk information som används av beslutsstödet för att generera rekommendationer i enlighet med de kliniska rik tlinjerna. När användaren öppnat beslutsstödet presenteras ett antal frågor och kriterier i användargränssnittet och de obligatoriska fälten indikeras med en orange markering. Baserat på informationen som användaren angivit i de obligatoriska fälten genere rar beslutsstödet automatiskt remitteringsrekommendationer enligt lokalt anpassade regionala konsensus och nationella riktlinjer för utredning och behandling av osteoporos av Nationellt system för Kunskapsstyrning Hälso - och sjukvård [1] och Socialstyrelsen [2]. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 11(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om användaren beslutar att patienten ska remitteras, har användaren möjlighet att via beslutsstödet automatiskt skapa en remisstext som sammanfattar den viktigaste kliniska informationen. Utöver remissen skapas en journalanteckning som sparas i det underli ggande journalsystemet. Journalanteckningen innehåller klinisk data som beslutsstödet erhållit från journalsystemet, data som användaren angett i beslutsstödet samt användarens handläggningsbeslut. Beslutsstödet arbetar utifrån befintlig information i patientens journal; om information uppdateras i journalsystemet medan beslutsstödet används kommer den nya informationen inte finnas tillgänglig i beslutsstödet förrän det laddats om på nytt. I följande avsnitt beskrivs kort de bakomliggande funktioner som används i systemet, samt hur det används."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Tillgång till CDS Osteoporosis Referral",
+  "page": 1,
+  "section_id": "3.2",
+  "main_section_id": "2",
+  "context_summary": "Beskriver hur tillgången till CDS Osteoporosis Referral styrs, varningsfunktioner vid aktivering och användargränssnitt, samt systeminställningar och behörighetskrav.",
+  "keywords": [
+    "CDS",
+    "Osteoporosis",
+    "Referral",
+    "tillgång",
+    "behörighet",
+    "varning",
+    "dialogruta",
+    "systeminställning",
+    "användargränssnitt",
+    "patientlista",
+    "beslutsstöd"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "systemfunktion",
+    "behörighet",
+    "varning",
+    "användargränssnitt",
+    "journalinteraktion"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "Remiss",
+    "Beslutsstöd",
+    "Patientvård"
+  ],
+  "text": "Tillgång till CDS Osteoporosis Referral styrs av definierade behörighetsinställningar i journalsystemet. Om kriterier för aktivering av CDS Osteoporosis Referral uppfylls, se avsnitt 3.4.2 , kommer en varning att visas i journalsystemet vid antingen patientladdning eller signering eller kontrasignering av en journalanteckning. Varningen om att beslutsstödet har aktiverats visas genom en CDS-ikon i patientlist en och dialogruta i journalsystemets gränssnitt. Bild 1 – CDS varning med CDS ikon och d ialogrutan Aktiverade beslutsstöd CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 12(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Visningen av dialogrutan vid aktivering styrs av en systeminställning och beslutas av systemförvaltningen. Användaren kan alltid öppna dialogrutan genom att klicka på en CDS-ikon som är tänd. I dialogrutan listas vilket (eller vilka) beslutsstöd som har aktiverats. Användaren kan läsa mer om varningen genom en text som visas när muspekaren hålls över ”i”-ikonen. Bild 2 – Information om varningen i dialogrutan Aktiverade beslutsstöd Användaren kan klicka på knappen Öppna beslutsstöd för att nå beslutsstödets huvudfönster där beslut om vidare handläggning kan fattas. Om användaren väljer att stänga dialogrutan och ignorera varningen, kommer varningen att visas igen nästa gång patienten laddas i patientlisten. CDS Osteoporosis Referral kan också nås från journalsystemets meny oberoende av en aktivering av beslutsstödet. Tillgång via journalsystemets meny styrs av en systeminställning och beslutas av förvaltningen. Om användaren försöker öppna beslutsstödet för en patient som inte uppfyller kriterier för användning av CDS Osteoporosis Referral , se av snitten 3.4.2 och 3.4.4 , kommer ett meddelande presenteras i huvudfönstret som förklarar varför beslutsstödet inte kan användas för den valda patienten. Bild 3 – Meddelande i fönstret Remiss för osteoporosutredning (frakturkedja ) CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 13(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Introduktion",
+  "page": 1,
+  "section_id": "3.3.1",
+  "main_section_id": 3,
+  "context_summary": "Beslutsstödet för osteoporosremiss aktiveras när en patient är 50 år eller äldre med en frakturdiagnos, visar tre varningar om tidigare beslut och öppnar ett fönster med bedömning, resultat och remisstext.",
+  "keywords": [
+    "beslutsstöd",
+    "osteoporos",
+    "fraktur",
+    "patientjournal",
+    "remiss",
+    "varning",
+    "diagnoskod",
+    "signering",
+    "kontrassignering",
+    "6 månader",
+    "patient 50 år"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Beslutsstöd",
+    "Patientjournal",
+    "Frakturbetalning",
+    "Remiss"
+  ],
+  "clinical_domain": [
+    "Ortopedi",
+    "Osteoporos",
+    "Vårdprocess",
+    "Medicinsk dokumentation"
+  ],
+  "text": "Beslutsstödet aktiveras när en patients journal laddas i patientlisten eller vid signering och kontrasignering av en journalanteckning om patienten är 50 år eller äldre och det finns en aktuell diagnoskod för fraktur , se avsnitt 3.4.2 , signerad i journalen inom de föregående 6 månaderna . I dialogrutan kan följande tre varningar visas : • Patienten har fått en fraktur och har inget dokumenterat beslut för samma frakturdiagnos från de senaste 6 månaderna. • Patienten har tidigare fått en fraktur och har ett dokumenterat beslut i journalen om att skjuta upp beslutet avseende remittering. Tidsperioden som användaren tidigare valt att skjuta upp beslutet har passerat och ett nytt beslut behöver fattas. • Patienten har tidigare fått en fraktur och har ett tidigare dokumenterat beslut i journalen om att skjuta upp beslutet avseende remittering. Tidsperioden som användaren tidigare valt att skjuta upp beslutet har inte passerat, men en ny fraktur med en annan diagnoskod har dokumenterats i journalsystemet och ett nytt beslut behöver fattas. Om användaren väljer att öppna beslutsstödet antingen via dialogrutan eller via journalsystemets meny visas dess huvudfönster Remiss för Osteoporosutredning (frakturkedja) . I fönstret presenteras informationen i tre olika block som användaren granskar uppifrån och ner, samt från vänster till höger: • Grund för bedömning , se avsnitt 3.3.2.1 . • Resultat och Remiss , se avsnitt 3.3.2.2 . • Remisstext , se avsnitt 3.3.2.3 . Bild 4 – Fönstret Remiss för osteoporosutredning (frakturkedja) CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 14(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Översikt över blocken i fönstret Remiss för",
+  "page": 1,
+  "section_id": "3.3.2",
+  "main_section_id": "3",
+  "context_summary": "Denna rubrik ger en översikt över de olika blocken i remissförfarandet för osteoporosutredning, med fokus på frakturkedjan.",
+  "keywords": [
+    "osteoporos",
+    "frakturkedjan",
+    "remiss",
+    "utredning",
+    "block",
+    "fönster",
+    "Sverige",
+    "hälso- och sjukvård"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Remiss",
+    "osteoporosutredning",
+    "frakturkedjan"
+  ],
+  "clinical_domain": [
+    "Osteoporo",
+    "Kost",
+    "Sjukvård"
+  ],
+  "text": "osteoporosutredning (frakturkedjan)"
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Grund för bedömning",
+  "page": 1,
+  "section_id": "3.3.2.1",
+  "main_section_id": 4,
+  "context_summary": "Beskrivning av blocket \"Grund för bedömning\" i beslutsstöd för osteoporosreferral, där användaren anger om frakturen beror på låg styrkemissbruk samt hur automatiskt data från journal används för att generera rekommendationer.",
+  "keywords": [
+    "grund för bedömning",
+    "fraktur",
+    "lågstyrkemissbruk",
+    "patientjournal",
+    "användarinmatning",
+    "automatiskt",
+    "CDS",
+    "osteoporos",
+    "beslutsstöd",
+    "frågeställningar"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Beslutsstöd",
+    "Osteoporos",
+    "Fraktur",
+    "Riskbedömning",
+    "Patientjournal",
+    "Användarinteraktion"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "Frakturhantering",
+    "Hälsoteknologi",
+    "Diagnos",
+    "Behandling"
+  ],
+  "text": "Det första blocket innehåller avsnitten Grund för bedömning , Riskfaktorer (valfritt) och Behandling (valfritt) . Bild 5 – Blocket Grund för bedömning När fönstret öppnas är samtliga frågor obesvarade. De obligatoriska måste besvaras för att kunna generera en bedömning. Avsnittet Grund för bedömning utgår från information som automatiskt inhämtats från patientens journal samt information som angivits av användaren. Här ombeds användaren ange om den upptäckta frakturen orsakats av lågenergivåld genom att markera ett av svarsalternativen Ja, Nej eller Okänd . Bild 6 – Avsnittet Grund för bedömning CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 15(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om användaren markerar svarsalternativet Nej visas inga ytterligare frågor i det första blocket och användaren kan gå vidare till det andra blocket , se avsnitt 3.3.2.2 . Om användaren markerar svarsalternativen Ja eller Okänd , blir det möjligt att fortsätta till avsnitten Riskfaktorer (valfritt) och Behandling (valfritt) . Bild 7 – Avsnittet Riskfaktorer Båda avsnitten består av valfria frågor, vars svar inte krävs av beslutsstödet för att generera rekommendationer, men som dokumenteras i journalanteckningen och eventuell remisstext som genereras av beslutsstödet. Avsnittet Riskfaktorer (valfritt) består av sju valfria frågor om riskfaktorer för osteoporosrelaterade frakturer. Två av dessa frågor kan i vissa fall besvaras automatiskt av beslutsstödet: • Frågan Pågående kortisonbehandlingar besvaras automatiskt Ja av beslutsstödet ifall en aktuell pågående kortisonordination upptäcks i patientens läkemedelslista (se avsnitt 3.4.5 , Tabell 2). I sådana fall kommer användaren att kunna läsa vilken behandling som upptäckts genom att klicka på informationsknappen bredvid frågan , se exempel i följande bild. Bild 8 – Frågan Pågående kortisonbehandlingar CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 16(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. • Frågan Reumatoid artrit besvaras automatiskt Ja av beslutsstödet ifall en reumatoid artrit diagnos upptäcks i patientens journal (se avsnitt 3.4.5 , Tabell 3). I sådana fall kommer användaren att kunna läsa vilken diagnos upptäckts genom att klicka på informationsknappen bredvid frågan , se exempel i följande bild . Bild 9 – Frågan Reumatoid artrit Oavsett om dessa frågor besvarats automatiskt, kan användaren alltid manuellt markera ett svarsalternativ för samtliga frågor i avsnittet Riskfaktorer (valfritt) . Om frågan förifyllts automatiskt kommer svaret ändras till det manuella svaret som användaren markerar. Avsnittet Behandling (valfritt) består av två frågor som i vissa fall kan besvaras automatiskt av beslutsstödet: • Frågan Pågående kalcium och D -vitamin substitution besvaras automatiskt Ja av beslutsstödet ifall en aktuell pågående kalcium eller/och D -vitamin behandling upptäcks i patientens läkemedelslista (se avsnitt 3.4.5 , Tabell 4). I sådana fall kommer användaren att kunna läsa vilken behandling som upptäckts genom att klicka på informationsknappen bredvid frågan , se exempel i följande bild. Bild 10 – Frågan Pågående kalcium och D -vitamin substitution • Frågan Pågående osteoporosprofylax besvaras automatiskt Ja av beslutsstödet ifall en aktuell pågående osteoporosprofylax upptäcks i patientens läkemedelslista (se avsnitt 3.4.5 , Tabell 5). I sådana fall kommer användaren att kunna läsa vilken behandling som upptäckts genom att klicka på informationsknappen bredvid frågan , se exempel i följande bild . Bild 11 – Frågan Pågående osteoporosprofylax Informationen som användaren anger i avsnitten Riskfaktorer (valfritt) och Behandling (valfritt) kommer automatiskt inkluderas i journalanteckningen och eventuell remisstext som genereras av beslutsstödet. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 17(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Resultat och Remiss",
+  "page": 1,
+  "section_id": "3.3.2.2",
+  "main_section_id": 4,
+  "context_summary": "Beskrivning av hur diagnosresultat används för att ge rekommendation om remiss för osteoporosutredning, hantering av användarens val att skicka, avstå eller skjuta upp remiss, tolkbehov, orsaker vid avslag och hur journalanteckningar signeras och lagras.",
+  "keywords": [
+    "Resultat",
+    "Remiss",
+    "Osteoporos",
+    "Fraktur",
+    "Beslutsstöd",
+    "Tolkbehov",
+    "Journalanteckning",
+    "Signering",
+    "Remisstext",
+    "Skjut upp",
+    "Orsak",
+    "Frågor",
+    "Frakturdiagnos"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Beslutsstöd",
+    "Patienthantering",
+    "Remiss",
+    "Fraktur",
+    "Tolkbehov",
+    "Journalanteckning",
+    "Användargränssnitt"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "Fraktur",
+    "Medicinsk dokumentation"
+  ],
+  "text": "Det andra blocket innehåller avsnitten Resultat och Remiss . Bild 12 – Blocket Resultat och Remiss I avsnittet Resultat presenteras beslutsstödets rekommendation angående behov av att remittera patienten för systematisk osteoporosutredning och eventuell behandling inom frakturkedjan. Avsnittet inkluderar också en fråga om en remiss ska skickas och fritextrutan Övriga kommentarer , där användaren kan lägga till kompletterande uppgifter i fritextformat. Rekommendationen genereras i enlighet med de riktlinjerna och konsensusen som ligger till grund för beslutsstödet [1][2], med uppgifterna om frakturens energinivå som användaren angivit i det föregående blocket , se avsnitt 3.3.2.1 , som underlag. Om beslutsstödet bedömer att det finns hög misstanke om osteoporos, blir rekommendationen att remittera patienten till frakturkedjan. Användaren kan då välja mellan att skicka en remiss genom att markera alternativknappen Ja, avstå från att skicka en remiss genom att markera alternativknappen Nej och att senarelägga beslutet genom att markera alternativknappen Skjut upp beslutet . Bild 13 – Hög misstanke om osteoporos , rekommendation och fråga CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 18(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om användaren följer rekommendationerna och väljer att skicka en remiss genom att markera alternativknappen Ja, visas avsnittet Remiss nedanför avsnittet Resultat . Frågorna i avsnitten Remiss styrs av en systeminställning och beslutas av förvaltningen. Bild 14 – Avsnittet Remiss Om användaren valt att skicka en remiss måste eventuellt tolkbehov anges. Om tolkbehov föreligger anges detta genom att markera alternativknappen Ja och därefter måste språk anges i fritextrutan Språk . Om patienten inte har något behov av tolk anges detta genom att markera alternativknappen Nej. Avsnittet avslutas med en fritextruta där a nvändaren kan ange en eller flera ytterligare vårdenheter dit remissvaret ska skickas efter att patientens omhändertagande inom frakturkedjan avslutats. Bild 15 – Frågan Tolkbehov samt mottagare av remissvar CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 19(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Den automatiskt skapade remisstexten kommer att visas i blocket Remisstext , se avsnitt 3.3.2.3 . Om användaren avviker från rekommendationerna och väljer att inte skicka någon remiss, måste en orsak specificeras genom att välja ett av alternativen som presenteras . Bild 16 – Listrutan Orsak till ingen remiss Om användaren väljer alternativet ’Annat skäl ’, måste orsaken anges i fritextfältet Specificera . Bild 17 – Fritextfältet Specificera Efter att journalanteckningen sparats, kommer beslutsstödet inte aktiveras på sex månader för samma frakturdiagnos. Om användaren väljer att senarelägga beslutet genom att markera alternativknappen Skjut upp beslutet måste ett tidsintervall och en orsak väljas i listrutorna Skjut upp beslutet i och Orsak till uppskjutet beslut . Bild 18 – Listrutan Skjut upp beslut i Bild 19 – Listrutan Orsak till uppskjutet beslut CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 20(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Efter att användaren valt att skjuta upp beslutet, inaktiveras beslutsstödet under den angivna perioden för den aktuella frakturdiagnosen. En journalanteckning kommer att skapas som dokumenterar att beslutet skjutits upp, vilket gör att det alltid är möjli gt att spåra hanteringen av patienten. När det valda tidsintervallet har löpt ut, aktiveras beslutsstödet nästa gång patientens journal laddas och det är då möjligt att fatta ett nytt beslut. När beslutsstödet då öppnas, kommer frågorna i det första blocke t att vara förifyllda med de svar som angavs vid det tidigare beslutet (förutom om någonting förändrats avseende de diagnoserna och behandlingarna som bedöms av de fyra automatiska frågorna i det första blocket, vars svar då kommer att reflektera förändrin garna). Observera att det alltid är upp till användaren att besluta hur patienten skall handläggas. Påminnelser skickas inte från beslutsstödet utan patienten måste aktivt hämtas i patientlisten för att en notifikation skall presenteras. Inaktivering och aktivering av beslutsstödet påverkar samtliga vårdgivare som har tillgång till beslutsstödet, inte bara den enskilda användaren som fattat beslutet om att skjuta upp beslutet. Efter att användaren har valt att avstå från att skicka remissen , eller att skjuta upp beslutet, blir knappen SIGNERA aktiv i beslutsstödets gränssnitt så snart alla obligatoriska frågor är besvarade. Bild 20 – Knappen SIGNERA aktiveras när alla obligatoriska frågor är besvarade CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 21(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Användaren kan då klicka på knappen för att skapa en journalanteckning som dokumenterar beslutet, vilket gör att det alltid är möjligt att spåra hanteringen av patienten. Efter att användaren klickat på knappen SIGNERA , kommer ett bekräftelsemeddelande visas i dialogrutan Signera bedömning ?. Bild 21 – Dialogrutan Signera bedömning? Användaren kan välja att klicka på knappen AVBRYT , vilket resulterar i återgång till beslutsstödets huvudfönster , eller på knappen SIGNERA och då signeras journalanteckningen och sparas till det underliggande journalsystemet. Journalanteckningen sammanställer informationen som angivits i beslutsstödet och inkluderar användarens beslut. Efter att journalanteckningen har skapats och signerats avslutas besluts stödet. Om beslutsstödet bedömer att det föreligger låg misstanke om osteoporos, kommer den presenterade rekommendationen vara att inte remittera patienten för vidare osteoporosutredning. I dessa fall får användaren ändå ta ställning till huruvida en remiss ska skickas eller inte genom att markera alternativknappen Ja för att skicka en remiss eller alternativknappen Nej för att avstå . Bild 22 – Låg misstanke om osteoporos, rekommendation och fråga CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 22(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om användaren följer rekommendationerna , och avstår från att skicka en remiss , kommer knappen SIGNERA att bli aktiv . Genom att klicka på knappen skapas en journalanteckning som dokumenterar beslutet enligt vad som beskrivits tidigare . Efter att journalanteckningen sparats, avslutas beslutsstödet och kommer det inte aktiveras på sex månader för den aktuella frakturdiagnosen. Om användare n, trots rekommendationerna, väljer att skicka en remiss genom att markera alternativknappen Ja, ska kliniskt relevant information anges i fritextformat och avsnittet Remiss visas nedanför avsnittet Resultat . Efter att alla obligatoriska frågor besvarats, kommer den automatiskt skapade remisstexten att visas i blocket Remisstext , se avsnitt 3.3.2.3 ."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Remisstext",
+  "page": 1,
+  "section_id": "3.3.2.3",
+  "main_section_id": 4,
+  "context_summary": "Beskrivning av hur beslutsstödet automatiskt genererar remisstext och hur användaren signerar och skickar remissen via användargränssnittet.",
+  "keywords": [
+    "remisstext",
+    "beslutstöd",
+    "signering",
+    "remiss",
+    "frakturdiagnos",
+    "läkemedelsordination",
+    "specialistmottagning",
+    "journalanteckning",
+    "knapp",
+    "dialogruta",
+    "bekräftelseinformation"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "användargränssnitt",
+    "remissmottagning",
+    "signering",
+    "automatiserad remiss",
+    "beslutstöd"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "Frakturdiagnos",
+    "Specialistreferens"
+  ],
+  "text": "I det tredje och sista blocket, Remisstext , presenteras remisstexten som automatiskt skapats av beslutsstödet om användaren i föregående block beslutade att en remiss ska skickas och besvarade alla obligatoriska frågor i avsnittet Remiss . Bild 23 – Blocket Remisstext CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 23(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Remisstexten är sålunda baserad på inhämtade uppgifter och informationen som användaren angivit i de två första blocken. Beslutsstödet inhämtar också information om den frakturdiagnosen som aktiverade beslutsstödet och inkluderar informationen i remisstexten. Bild 24 – Exempel på remisstext Det är användarens ansvar att kontrollera att de inhämtade läkemedelsordinationerna stämmer med de läkemedel som patienten tar och att den inhämtade frakturdiagnosen stämmer med den frakturen som motiverade remissen. Om användaren i det andra blocket väljer att avstå från att skicka en remiss, alternativt väljer att skjuta upp beslutet, kommer blocket Remisstext förbli inaktivt. För att signera journalanteckningen och skicka remissen ska användaren klicka på knappen SIGNERA OCH SKICKA REMISS . Innan användaren har besvarat de obligatoriska frågorna i det andra blocket är knappen SIGNERA gråmarkerad och inaktiverad. Bild 25 – Knappen SIGNERA (inaktiverad ) Efter att dessa frågor besvarats, aktiveras knappen . Texten ändras till SIGNERA OCH SKICKA REMISS och färgen till blå. Bild 26 – Knappen SIGNERA OCH SKICKA REMISS CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 24(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. När användaren väljer att signera journalanteckningen och skicka remissen genom att klicka på knappen SIGNERA OCH SKICKA REMISS visas bekräftelseinformation i dialogrutan Signera journalanteckning och skicka remiss? . Bild 27 – Dialogrutan Signera journalanteckning och skicka remiss? Användaren kan välja att klicka på knappen AVBRYT , vilket resulterar i återgång till beslutsstödets huvudfönster , eller på k nappen SIGNERA OCH SKICKA REMISS och då skickas remissen till en specialistmottagning samt journalanteckningen signeras. Val av specialistenhet som beslutsstödet använder som remissmottagare konfigureras vid första installationen av beslutsstödet, vilket görs av systemförvaltningen. Efter att användaren har signerat journalanteckningen och skickat remissen avslutas och inaktiveras besl utsstödet i sex månader för den aktuella frakturdiagnosen."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Stäng a beslutsstödet",
+  "page": 1,
+  "section_id": "3.3.3",
+  "main_section_id": 3,
+  "context_summary": "Beslutsstödet kan stängas när som helst utan att information sparas eller remiss skickas. Sluta via ”STÄNG”, dialogen bekräftar nedstängningen och rensar data. Vid ny öppning måste all obligatorisk information fyllas på nytt.",
+  "keywords": [
+    "beslutsstöd",
+    "stäng",
+    "dialog",
+    "bekräftelse",
+    "remiss",
+    "data",
+    "patient",
+    "obligatorisk information",
+    "återstart"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Användarmanual",
+    "Beslutsstöd",
+    "Stängning",
+    "Dialog",
+    "Dataåterställning"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "Patientvård",
+    "Medicinsk beslutsstöd"
+  ],
+  "text": "Beslut behöver inte fattas i direkt anslutning till aktuell bedömning. En pågående bedömning kan när som helst stängas ned och påbörjas på nytt i ett senare skede. Om användaren stänger ned beslutsstödet kommer ingen information att sparas och ingen remiss skickas. För att stänga ned beslutsstödets fönster måste användaren klicka på knappen STÄNG . Dialogrutan Stäng beslutstödet ? med bekräftelse och med information om vad en nedstängning innebär. Bild 28 – Dialogrutan Stäng beslutsstödet? Om användaren klickar på knappen STÄNG stängs både bekräftelsefönstrets och beslutsstödets fönster och det bakomliggande fönstret visas. Om användaren istället klickar på knappen AVBRYT stängs dialogrutan och beslutsstödets huvudfönster visas igen. Om användaren laddar patienten i patientlisten på nytt efter det att beslutsstödet stängts ned, så kommer beslutsstödet att aktiveras igen förutsatt att importerad patientdata leder till en aktivering av beslutsstödet. I detta fall behöver användaren ange all obligatorisk information på nytt eftersom informationen inte sparats när beslutsstödet användes senast. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 25(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Introduktion",
+  "page": 1,
+  "section_id": "3.4.1",
+  "main_section_id": 3,
+  "context_summary": "Patientdata används för att generera rekommendationer när en patient laddas i listan, men reglerna och konfigurationen är obeskrivna.",
+  "keywords": [
+    "patientdata",
+    "beslutsstöd",
+    "patientlista",
+    "rekommendationer",
+    "regler"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Introduktion",
+    "Beslutsstöd",
+    "Patientlista"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "Sjukvård",
+    "Medicinsk IT"
+  ],
+  "text": "Relevant a patientdata tillgängliggörs för beslutsstödet endast när användare laddar en patient i patientlisten . I följande avsnitt ges en förenklad beskrivning över hur rekommendationerna genereras , men konfiguration och logik bakom aktuella regler beskrivs ej."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Hämtning av signerad patientdata",
+  "page": 1,
+  "section_id": "3.4.2",
+  "main_section_id": 3,
+  "context_summary": "Systemet hämtar endast signerad klinisk data (journalanteckningar, ordinationer och diagnoskoder) från journalsystemet; osignerad data används inte.",
+  "keywords": [
+    "signerad",
+    "patientdata",
+    "journalsystem",
+    "journalanteckningar",
+    "ordinationer",
+    "läkemedelslista",
+    "diagnoskoder",
+    "beslutsstöd"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "data",
+    "hämtning",
+    "signerat",
+    "journalsystem",
+    "diagnos",
+    "ordination",
+    "patientdata",
+    "beslutsstöd"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "Klinisk data",
+    "Patientdata"
+  ],
+  "text": "CDS Osteoporosis Referral inhämtar bara signerad klinisk data från journalsystemet som signerade journalanteckningar, signerade ordinationer i läkemedelslista och signerade diagnoskoder. Detta innebär sålunda att patientuppgifter som exempelvis sparats men inte signerats inte komm er utgöra tillgängligt informationsunderlag för beslutsstödet."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Identifiering av patient med eventuell bakomliggande",
+  "page": 1,
+  "section_id": "3.4.3",
+  "main_section_id": 3,
+  "context_summary": "Sektionen beskriver kriterierna för att identifiera patienter med potentiell osteoporos: patient måste vara 50 år eller äldre och ha en eller flera frakturdiagnoser inom de senaste 6 månaderna. Den anger ICD-10-SE-koder för olika frakturer som triggar beslutsstödet och varnar för att tidsförskjutningar mellan skapande och signering kan leda till att diagnostik missas.",
+  "keywords": [
+    "osteoporos",
+    "frakturdiagnoser",
+    "ICD-10-SE",
+    "beslutsstöd",
+    "äldre patient",
+    "signeringsdatum",
+    "inklusion",
+    "exklusion"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Diagnos",
+    "Frakturer",
+    "Kriterier",
+    "Beslutsstöd",
+    "Patientidentifiering"
+  ],
+  "clinical_domain": [
+    "Ortopedi",
+    "Geriatrik",
+    "Sjukvård",
+    "Diagnostik"
+  ],
+  "text": "osteoporos Om samtliga inklusionskriterier enligt nedan och inga exklusionskriterier , se avsnitt 3.4.4 , är uppfyllda, aktiveras beslutsstödet under följande två förutsättningar : 1. Patienten är 50 år eller äldre. 2. Patientens journal innehåller en eller flera frakturdiagnoser , se Tabell 1, som signerats inom de senaste 6 månaderna . Följande tabell presenterar frakturdiagnoser enligt klassifikationen ICD -10-SE. Frakturdiagnoser ICD-10-SE-kod Diagnos M48.5 Kotkompression som ej klassificeras på annan plats S22.0 Fraktur på bröstkota S22.1 Multipla frakturer på bröstkotpelaren S32.0 Fraktur på ländkota S32.1 Fraktur på sakrum S32.3 Fraktur på os ilium S32.4 Fraktur på acetabulum S32.5 Fraktur på os pubis S32.7 Multipla frakturer på ländkotpelaren och bäckenet CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 26(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Frakturdiagnoser ICD-10-SE-kod Diagnos S42.2 Fraktur på övre delen av humerus S52.5 Fraktur på nedre delen av radius S52.6 Fraktur på nedre delen av både ulna och radius S72.0 Kollumfraktur S72.1 Pertrokantär fraktur S72.2 Subtrokantär fraktur Tabell 1 -Diagnoskoder enligt klassifikationen ICD -10-SE som kan aktivera beslutsstödet En frakturdiagnos kommer endast att skickas från det underliggande journalsystemet när den har signerats, men datumet på diagnosen kommer att motsvara tidpunkten då dess journalanteckning skapades (inte signerades). Denna diskrepans är större desto längre tid det tar innan användaren signerar en anteckning som innehåller en frakturdiagnos. Om en annan fraktur sker under tiden mellan skapande och signering av en journalanteckning med en frakturdiagnos, kommer den frakturdiagnosen som signeras sist inte aktivera beslutsstödet. Det är därför viktigt att anteckningar som innehåller frakturdiagno ser signeras i god tid, för att minska sannolikheten att frakturdiagnoser missas av beslutsstödet."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Om k riterierna inte uppfylls  eller information saknas",
+  "page": 1,
+  "section_id": "3.4.4",
+  "main_section_id": 3,
+  "context_summary": "Beslutsstödet aktiveras inte om patientjournal eller födelsedatum saknas, eller om tidigare beslut för samma frakturdiagnos finns inom 6 månader eller har skjuts upp och tiden inte gått ut.",
+  "keywords": [
+    "patientjournal",
+    "födelsedatum",
+    "frakturdiagnos",
+    "remiss",
+    "beslut",
+    "6 månader",
+    "skjuta upp",
+    "CDS",
+    "Osteoporos",
+    "referral"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Beslutsstöd",
+    "Fraktur",
+    "Patientdata",
+    "Remiss",
+    "Tidsgräns",
+    "CDS",
+    "Osteoporos"
+  ],
+  "clinical_domain": [
+    "Ortopedi",
+    "Bärgningsvård",
+    "Medicinsk informatik"
+  ],
+  "text": "Om användaren inte laddar en patients journal eller om födelsedatum saknas i patientens journal, kommer beslutsstödet inte att aktiveras. Beslutsstödet kommer inte heller att aktiveras för den aktuella frakturen om patientens journal innehåller tidigare beslut avseende samma frakturdiagnos, enligt följande: • Om det finns ett beslut att skicka en remiss eller att avstå från att skicka en remiss taget för mindre än 6 månader sedan. • Om det finns ett beslut att skjuta upp beslutet och den valda tidsperioden inte har löpt ut. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 27(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Identifiering av diagnoser och behandlingar",
+  "page": 1,
+  "section_id": "3.4.5",
+  "main_section_id": "3",
+  "context_summary": "Tabeller presenterar kriterier och ATC‑koder som beslutssystemet använder för att identifiera kortisonbehandlingar, reumatoid artritdiagnoser, kalcium‑ och vitamin‑D‑ordinationer samt osteoporosprofylax.",
+  "keywords": [
+    "kortisonbehandling",
+    "ATC‑koder",
+    "reumatoid artrit",
+    "diagnos",
+    "kalcium",
+    "vitamin D",
+    "osteoporos",
+    "profylax",
+    "behandling",
+    "kriterier"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Osteoporos",
+    "Diagnos",
+    "Behandling",
+    "Kriterier",
+    "ATC‑koder",
+    "Reumatologi",
+    "Farmakologi"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "Reumatologi",
+    "Farmakologi",
+    "Diagnostik"
+  ],
+  "text": "I tabell erna 2–5 listas de behandlingar och diagnoser som används av beslutsstödet för att förifylla frågorna i avsnitten Riskfaktorer (valfritt) och Behandling (valfritt) , se avsnitt 2.1.2. Identifikation av kortisonbehandling ATC-kod Daglig dos Behandlingslängd H02AB01 ≥ 0.5 mg ≥ 3 månader (90 dagar) H02AB06 ≥ 5 mg ≥ 3 månader (90 dagar) Tabell 2 - Kriterier som beslutsstödet använder för att identifiera aktuella pågående kortisonbehandlingar Identifikation av diagnosen Reumatoid artrit ICD-10-SE-kod Diagnos M05.9 Seropositiv reumatoid artrit, ospecificerad M06.0 Seronegativ reumatoid artrit M06.8 Annan specificerad reumatoid artrit M06.9 Reumatoid artrit, ospecificerad Tabell 3 - Diagnoskoder enligt klassifikationen ICD -10-SE som beslutsstödet använder för att identifiera reumatoid artrit diagnoser. Identifikation av ordination av kalcium och D -vitamin ATC-kod Läkemedel A11CC05 Kolekalciferol A12AA04 Kalciumkarbonat A12AA06 Kalciumlaktoglukonat A12AX Kalcium, kombinationer med vitamin D och/eller övriga läkemedel M05BB05 Alendronsyra + Kalciumkarbonat + Kolekalciferol Tabell 4 - Läkemedel enligt klassifikationssystemet ATC som beslutsstödet använder för att identifiera kalcium - och vitamin D -ordinationer. Identifikation av osteoporosprofylaxordinationer. ATC-kod Läkemedel H05AA02 Teriparatid M05BA02 Klodronat M05BA03 Pamidronsyra M05BA04 Alendronsyra M05BA06 Ibandronat M05BA07 Risedronsyra M05BA08 Zoledronsyra M05BB05 Alendronsyra + Kalciumkarbonat + Kolekalciferol M05BX04 Denusomab M05BX06 Romosozumab Tabell 5 - Läkemedel enligt klassifikationssystemet ATC som beslutsstödet använder för att identifiera osteoporosprofylaxordinationer. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 28(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Hantering av spärrad information",
+  "page": 1,
+  "section_id": "3.4.6",
+  "main_section_id": 3,
+  "context_summary": "Anförning av vilka som kan exkluderas från CDS Osteoporosis Referral på grund av spärrad journalinformation, samt vilka system- och regionansvariga som styr detta.",
+  "keywords": [
+    "spärrad journalinformation",
+    "exkludering",
+    "administratör",
+    "inställning",
+    "regionens rutiner",
+    "systemförvaltning",
+    "Osteoporosis Referral"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Patienter",
+    "Spärrad information",
+    "Exkludering",
+    "Systemförvaltning"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "Journalhantering",
+    "Hälso- och sjukvård"
+  ],
+  "text": "Patienter med spärrad journalinformation kan exkluderas från CDS Osteoporosis Referral . Det är systemförvaltningen som beslutar om detta ska göras och det styrs via en inställning som konfigureras av administratör i det lokala journalsystemet. I övrigt är det regionens egna rutiner som gäller för hur spärrar ska hanteras."
+},
+{
+  "source_file": "CDS_Osteoporosis+Referral_IntroAnvM_v3.0_sv.pdf",
+  "section": "Felhantering",
+  "page": 1,
+  "section_id": "3.5",
+  "main_section_id": 2,
+  "context_summary": "Beskrivning av hur beslutsstödet reagerar när det får felaktig data – systemet inaktiveras och visar ett felmeddelande.",
+  "keywords": [
+    "felhantering",
+    "beslutsstöd",
+    "journalsystem",
+    "felmeddelande",
+    "inaktivering",
+    "patient",
+    "data",
+    "avslutar"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Osteoporos",
+    "sekundärprevention",
+    "kvalitetssäkring",
+    "sjukvårdsinformationssystem"
+  ],
+  "clinical_domain": [
+    "Osteoporos",
+    "sjukvårdsinformation",
+    "diagnostik",
+    "behandlingsplan"
+  ],
+  "text": "Om beslutsstödet erhåller felaktig data från journalsystemet inaktiveras beslutsstödet och kan således inte användas för den aktuella patienten. Ett felmeddelande kommer då att presenteras för användaren. CDS Osteoporosis Referral - Introduktion & Användarmanual Version: 3.0 Datum: 2024 -01-08 ©2 0 2 4 Cambio Healthcare Systems AB 29(29) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Appendix A – Referenser [1] Nationellt system för Kunskapsstyrning Hälso - och sjukvård. Personcentrerat och sammanhållet vårdförlopp Osteoporos - sekundärprevention efter fraktur [Internet]. Nationellt kliniskt kunskapsstöd; 2021. [citerad 2021 Sep 06]. Hämtad från: https://d2flujgsl7escs.cloudfront.net/external/210224_V%C3%A5rdf%C3%B6rlopp_ Osteoporos_Publ.pdf [2] Socialstyrelsen. Nationella riktlinjer för rörelseorganens sjukdomar [Internet]. Socialstyrelsen; 2021. [citerad 2021 Sep 06]. Hämtad från: https://www.socialstyrelsen.se/regler -och-riktlinjer/nationella -riktlinjer/riktlinjer -och- utvarderingar/rorelseorganens -sjukdomar/"
+},
+{
+  "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+  "section": "Introdu ktion",
+  "page": 1,
+  "section_id": "1.1",
+  "main_section_id": 2,
+  "context_summary": "Dokumentet beskriver användargränssnittet för Cambio Clinical Decision Support (CDS) Stroke Prevention, inklusive funktioner för riskbedömning med CHA2DS2‑VASc, behandlingsrekommendationer och journalintegration.",
+  "keywords": [
+    "CDS Stroke Prevention",
+    "Förmaksflimmer",
+    "Stroke",
+    "Riskbedömning",
+    "CHA2DS2‑VASc",
+    "Behandlingsrekommendation",
+    "Journalintegration",
+    "COSMIC",
+    "Kardio‑stjärna"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Användargränssnitt",
+    "Stroke‑prevention",
+    "Förmaksflimmer",
+    "Riskbedömning",
+    "Journalisering",
+    "Behandlingsrekommendation"
+  ],
+  "clinical_domain": [
+    "Kardiologi",
+    "Neurologi",
+    "Sjukvårdsinformation"
+  ],
+  "text": "Detta dokument beskriver Cambio Clinical Decision Support (CDS) Stroke Prevention (härefter kallad CDS Stroke Prevention ) ur ett användarperspektiv. Läsaren förutsätts ha grundläggande kunskaper i COSMIC samt av datoranvändning generellt. Information om applicerbara och kompatibla versioner mellan beslutsstödet och underliggande journalsystem är angivet i dokumentets versionshistorik. CDS Stroke Prevention ett stöd för att upptäcka, behandla och journalföra patienter med förmaksflimmer/fladder som löper risk att drabbas av stroke. Stödet ger en varning när en patient med förmaksflimmer/ -fladder, som inte behandlas enligt riktlinjerna från Socialstyrelsen, hämtas i patient listen. Användaren kan välja att öppna beslutsstödet CDS Stroke Prevention direkt eller att göra det senare. Utifrån diagnoskoder, kön och ålder sätts poäng enligt CHA 2DS2-VASc för att räkna ut risknivån för stroke och ge rekommendation om behandling. Användaren får en rekommendation avseende medicinsk behandling till patienten presenterad och kan öppna COSMIC -vyn Ny ordination direkt via beslutsstödets gränssnitt. Det skapas en journalmall där anteckningar kopplade till beslutet automatiskt fylls i. Beslutsstödet ger rekommendationer som endast skall betraktas som understöd för användaren, då dennes kunskap om patienten alltid är avgörande för beslutet. Beslutsstödet ersätter därmed inte beslutsfattaren."
+},
+{
+  "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+  "section": "Versionshistorik",
+  "page": 1,
+  "section_id": "1.2",
+  "main_section_id": 2,
+  "context_summary": "Versionshistoriken visar när dokumentet uppdaterades och vilka beslutsstödsversioner och COSMIC-versioner det gäller.",
+  "keywords": [
+    "version",
+    "datum",
+    "beskrivning",
+    "uppdaterad",
+    "reviderad",
+    "kompatibilitet",
+    "COSMIC",
+    "beslutsstöd",
+    "digital version"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Dokumenthistorik",
+    "Versionshistorik",
+    "Ändringslogg",
+    "Kompatibilitet",
+    "Beslutsstödsversion"
+  ],
+  "clinical_domain": [
+    "Strokeprevention",
+    "Beslutsstöd"
+  ],
+  "text": "Versionshistoriken visar ändringar i dokumentet över tid samt kompatibla versioner mellan beslutsstödet och underliggande journalsystem. Version Datum Beskrivning 1.0 2019 -05-16 Första version. Dokumentet gäller för beslutsstödsversion 1.0.x och från COSMIC R8.2.02. 2.0 2019 -10-02 Dokumentet reviderat och uppdaterat. Dokumentet gäller för beslutsstödsversion 2.0.x och från COSMIC R8.2.03. 2.1 2019 -10-28 Avsnitt 3.3.5 uppdaterat. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 5(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Version Datum Beskrivning 2.2 2020 -07-07 Avsnitt 4.3 uppdaterat. Dokumentet gäller för beslutsstödsversion 2.1.x och från COSMIC R8.2.03. 3.0 2020 -11-26 Dokumentet reviderat och uppdaterat. Dokumentet gäller för beslutsstödsversion 3.0.x och från COSMIC R8.2.07. 4.0 2021 -03-29 Avsnitt 3.3 uppdaterat. Dokumentet gäller för beslutsstödsversion 4.0.x och från COSMIC R8.2.07. 4.1 2021 -06-03 Dokumentet reviderat och uppdaterat. 5.0 2021 -10-07 Avsnitt 3.2 uppdaterat. Dokumentet gäller för beslutsstödsversion 5.0 och från COSMIC 3.8.0. 5.1 2022 -02-17 Avsnitt 3.3.5 uppdaterat. 5.2 2022 -07-01 Kapitel 3 uppdaterat. 5.3 2023 -05-04 Kapitel 2 tillagt. Dokumentet gäller för beslutsstödsversion 5.1.x och från COSMIC 3.8.0. 6.0 2023 -10-13 Avsnitt 3.2 och 3.4.2 tillagd a. Dokumentet gäller för beslutsstödsversion 5.2.x och från COSMIC 3.10.0. 6.1 2024 -02-01 Kapitel 2 uppdaterat."
+},
+{
+  "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+  "section": "Term er",
+  "page": 1,
+  "section_id": "1.3",
+  "main_section_id": "2",
+  "context_summary": "Denna sektion förklarar och listar termer, förkortningar och akronymer som används i dokumentet.",
+  "keywords": [
+    "termer",
+    "förkortningar",
+    "akronymer",
+    "CDS",
+    "DOAK",
+    "NOAK",
+    "TIA"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "termer",
+    "förkortningar",
+    "akronymer"
+  ],
+  "clinical_domain": [
+    "kardiologi",
+    "stroke",
+    "antikoagulantia"
+  ],
+  "text": "Följande tabell beskriver de termer, förkortningar och akronymer som används i detta dokument. Term Beskrivning CDS Clinical Decision Support DOAK Direktverkande perorala antikoagulantia NOAK Non -vitamin K Orala Antikoagulantia TIA Transitorisk ischemisk attack CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 6(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen."
+},
+{
+  "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+  "section": "Typografiska",
+  "page": 1,
+  "section_id": "1.4.1",
+  "main_section_id": 3,
+  "context_summary": "Detta avsnitt förklarar de typografiska konventioner som används i dokumentet, inklusive hur fetstil, kursiv stil, citattecken och vinkelparenteser ska tolkas.",
+  "keywords": [
+    "typografi",
+    "fetstil",
+    "kursiv",
+    "citatr",
+    "vinkelparenteser",
+    "Courier New",
+    "systemkommandon",
+    "textformat",
+    "interaktionsdesign",
+    "gränssnitt"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "typografi",
+    "konventioner",
+    "layout",
+    "interaktionsdesign"
+  ],
+  "clinical_domain": [
+    "allmän"
+  ],
+  "text": "Följande typografiska konventioner används i detta dokument: • Fetstil indikerar termer i gränssnittet, t.ex. menyalternativ, fönsternamn, knappar, kryssrutor och fält. Exempel: Klicka på knappen Avbryt eller öppna fönstret Patientöversikt . • Kursiv stil indikerar modulnamn, filnamn, sökvägar till kataloger och webblänkar. Exempel: COSMIC Messenger , Properties.txt eller https://customer.cambio.se . • Enkla citattecken (’ ’) indikerar valbara alternativ i listrutor. Exempel: Välj alternativet ’Blå’ i listrutan Färg . • Vinkelparenteser (<…>) indikerar ersättningsbar information i texten som värden, namn, typer och sökvägar. Exempel: COSMIC <…> där <…> ersätts med namnet Link till COSMIC Link . • Typsnittet Courier New indikerar systemkommandon, kodexempel och utskrifter. Exempel: SET USERID=<user id>."
+},
+{
+  "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+  "section": "Ikoner",
+  "page": 1,
+  "section_id": "1.4.2",
+  "main_section_id": "3",
+  "context_summary": "Denna sektion beskriver hur ikoner används för att markera viktig information och varnar om extra kostnader, tredjepartslicenskrav samt uppdateringar i dokumentversionen.",
+  "keywords": [
+    "Ikoner",
+    "information",
+    "tredjepartslicens",
+    "extra kostnader",
+    "version"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Ikoner",
+    "Information",
+    "Tillämpning",
+    "Licens",
+    "Kostnad",
+    "Användarmanual"
+  ],
+  "clinical_domain": [
+    "Strokeförebyggande",
+    "Hälsovård"
+  ],
+  "text": "Ikoner används för att uppmärksamma läsare på olika typer av information som gäller för en specifik uppgift, marknad, anpassning eller område. Följande ikoner används i detta dokument: Viktig information för ökad förståelse och korrekt användning. Tips Den här funktionen finns inte i alla konfigurationer och extra kostnader kan tillkomma beroende på vad som angivits i det aktuella kundavtalet. En tredjepartslicens krävs för att använda denna produkt/funktion. Information för vyer med gränssnitt införda från R8.2.03. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 7(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 2 Om CDS Stroke Prevention"
+},
+{
+  "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+  "section": "Avsedd användning",
+  "page": 1,
+  "section_id": "2.1",
+  "main_section_id": 2,
+  "context_summary": "CDS Stroke Prevention är en klinisk beslutsstödsapplikation som använder CHADS2‑VASc för att identifiera patienter med förmaksflimmer eller fladder som saknar strokeförebyggande behandling och genererar rekommendationer enligt internationella riktlinjer.",
+  "keywords": [
+    "CDS Stroke Prevention",
+    "CHADS2‑VASc",
+    "förmaksflimmer",
+    "fladder",
+    "strokeförebyggande behandling",
+    "risikoscore",
+    "rekommendation",
+    "ordinationsprocess",
+    "klinisk beslutsstöd",
+    "patientbedömning"
+  ],
+  "content_type": "narrative",
+  "hierarchical_tags": [
+    "Klinik",
+    "Beslutsstöd",
+    "Stroke",
+    "Behandling",
+    "Riskbedömning",
+    "CHADS2‑VASc"
+  ],
+  "clinical_domain": [
+    "Kardiovaskulär sjukdom",
+    "Neurologi",
+    "Strokeförebyggande",
+    "Klinisk beslutsstöd"
+  ],
+  "text": "Cambio Clinical Decision Support (CDS) Stroke Prevention (härefter CDS Stroke Prevention ) är en klinisk beslutsstödsapplikation som implementerar den kliniskt validerade CHADS2 -VASc poängskalan för att identifiera patienter av alla åldrar med förmaksflimmer eller fladder som saknar aktiv strokeförebyggande behandling. CDS Stroke Prevention tillhandahåller en estimering av den procentuella risken för stroke inom det kommande året för de identifierade patienterna och genererar automatiskt en rekommendation för strokeförebyggande behandling i linje med internationellt validerade kliniska riktlinjer för strokeförebyggande behandling baserat på patientens CHADS2 -VASc poäng. Vidare tillhandahåller CDS Stroke Prevention vårdpersonalen stöd i ordinationsprocessen."
+},
+{
+  "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+  "section": "Försiktighetsåtgärder",
+  "page": 1,
+  "section_id": "2.2",
+  "main_section_id": 2,
+  "context_summary": "Detta avsnitt beskriver viktiga försiktighetsåtgärder för att använda CDS Stroke Prevention, inklusive att inte använda den som enda diagnostisk eller behandlingskälla, begränsningar kring realtidsövervakning, att ersätta klinisk bedömning, och vikten av att läsa användarmanualen.",
+  "keywords": [
+    "CDS",
+    "stroke",
+    "diagnostik",
+    "behandling",
+    "realtidsövervakning",
+    "patientobservation",
+    "klinisk bedömning",
+    "manual"
+  ],
+  "content_type": "instruction",
+  "hierarchical_tags": [
+    "Försiktighetsåtgärder",
+    "Användning",
+    "Kod",
+    "Begränsningar"
+  ],
+  "clinical_domain": [
+    "Neurologi",
+    "Stroke",
+    "Klinisk praxis"
+  ],
+  "text": "Följande försiktighetsåtgärder skall beaktas: • CDS Stroke Prevention bör aldrig användas som den enda informationskällan för att diagnostisera eller behandla en specifik patient. • CDS Stroke Prevention är inte avsedd för realtidsövervakning av vitala fysiologiska parametrar. • CDS Stroke Prevention ersätter inte direkt patientobservation, patientbedömning eller klinisk bedömning. • Användarmanualen för CDS Stroke Prevention bör läsas innan användning."
+},
+{
+  "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+  "section": "Risker med användning av CDS",
+  "page": 1,
+  "section_id": "2.3",
+  "main_section_id": 2,
+  "context_summary": "Sammanfattning av risker i samband med användning av ett CDS‑system för strokeprevention: bristande indata, felaktig eller korrumperad data, begränsad åtkomst till patientinformation, nätverksproblem och beroende av teknisk infrastruktur.",
+  "keywords": [
+    "risker",
+    "beslutsstöd",
+    "data",
+    "felaktig data",
+    "korrumperad data",
+    "patientinformation",
+    "journal",
+    "nätverk",
+    "användningsproblem",
+    "CDS Runtime",
+    "patientdata",
+    "anknytning"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Risker",
+    "CDS",
+    "Stroke‑forebyggande",
+    "Patientdata",
+    "Journaldata",
+    "Nätverksanslutning",
+    "Klinisk kunskap"
+  ],
+  "clinical_domain": [
+    "Kliniska beslutssystem",
+    "Strokemedicin",
+    "Patientvård",
+    "Hälso‑IT"
+  ],
+  "text": "Nedan följer en sammanfattning av de risker som medföljer denna produkt: • Om beslutsstödet saknar nödvändig indata för att utföra en bedömning kommer en rekommendation inte kunna ges, detta betyder inte att det inte föreligger några hälsorelaterade risker för patienten. • Om beslutsstödet blir matad med inkorrekt eller korrumperad data från journalsystemet kan en felaktig rekommendation genereras av beslutsstödstjänsten. • Som användare måste den kliniska kunskap och allmänna kännedom som användaren har om patienten alltid föregå det som genererats av beslutsstödet. Detta är tydligt beskrivit i denna användarmanual. CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 8(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. • Beslutsstödet kommer bara ha tillgång till den patientdata som fanns i journalen när patienten laddades i journalsystemet. Om ny patientdata registrerats i patientens journal efter patientladdning finns det en risk att relevant information missas av beslutsstödet. • Beslutsstödet kan vara oåtkomlig ifall det föreligger lokala anslutningsproblem till nätverket eller om beslutsstödstjänsten ligger nere på grund av CDS Runtime serverproblem."
+},
+{
+  "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+  "section": "Produkt - och kontaktinformation",
+  "page": 1,
+  "section_id": "2.4",
+  "main_section_id": 2,
+  "context_summary": "Information om produkt och kontakt, inklusive produktnamn, versioner, CE-märkning och tillverkningsinformation, samt regler för incidentrapportering.",
+  "keywords": [
+    "Produkt",
+    "Produktnamn",
+    "Cambio CDS",
+    "CE-märkning",
+    "SRN",
+    "Läkemedelsverket",
+    "Tillverkare",
+    "Kontaktinformation",
+    "Dokumentation",
+    "Medicinteknisk produkt"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Produktinformation",
+    "Kommunsättning",
+    "Reglering",
+    "Säkerhet & incidentrapportering",
+    "Dokumentation"
+  ],
+  "clinical_domain": [
+    "Medicinteknik",
+    "Klinisk beslutsstöd",
+    "Stroke-prevention"
+  ],
+  "text": "I beslutsstödets användargränssnitt visas en produktetikett via knappen . Den innehåller följande information: • Produktnamn uppdelat i tre nivåer • Cambio CDS - Clinical Decision Support • Cambio CDS Runtime ( system ) • Beslutsstödets namn ( software item ) 1 https://www.lakemedelsverket.se Alla allvarliga produktrelaterade incidenter ska rapporteras till Cambio och behörig myndighet (Läkemedelsverket1). CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 9(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. • Produktversioner för beslutsstödet som software item och CDS Runtime som system . • Adress (fysisk och internetadress) för ansvarig tillverkare, tillverkningsdatum och tillverkarens registreringsnummer (SRN). Cambio Healthcare Systems AB Gamla Tanneforsvägen 92 582 54 Linköping +46 13 20 03 00 https://www.cambiogroup.com/ SRN#: SE -MF-000001229 • Dokumentation. Läs och följ anvisningarna i produktens introduktion & användarmanual. Via länken https://kb.cambio.se/ öppnas Kunskapsbanken med tillgång till dokumentation och övrig information. • Medicinteknisk produkt. • CE-märkning. Produkten uppfyller applicerbara krav i EG -direktiv 93/42/EEG. • Unik produktidentifiering (produktspecifik kod). CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 10(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. 3 Att arbeta med CDS Stroke Prevention"
+},
+{
+  "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+  "section": "Regler",
+  "page": 1,
+  "section_id": "3.1",
+  "main_section_id": 2,
+  "context_summary": "Beslutsstödet för stroke‑prevention aktiveras när ny patient med förmaksflimmer läses in, och ger automatiskt riskbedömning och behandlingsrekommendationer. Varningen inaktiveras först när beslutet dokumenteras.",
+  "keywords": [
+    "beslutsstöd",
+    "diagnoskod",
+    "förmaksflimmer",
+    "stroke",
+    "rekommendation",
+    "medicinsk behandling",
+    "risk",
+    "journal",
+    "behörighet",
+    "patient"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Regler",
+    "Beslutsstöd",
+    "Diagnos",
+    "Behandling",
+    "Riskbedömning",
+    "Patient",
+    "Journal",
+    "Behörighet"
+  ],
+  "clinical_domain": [
+    "Kardiologi",
+    "Stroke-prevention"
+  ],
+  "text": "Beslutsstödet aktiveras endast när användaren hämtar en ny patient i patientlisten och patienten har diagnoskod förmaksflimmer/ -fladder registrerad i journalen , se Appendix A1 , utan rekommenderad behandling , se Appendix A2 . Patienten behöver inte behandlas enligt rekommendation , men då måste en motivering till beslutet dokumenteras via beslutsstödet för att varningen inte skall visas igen. Beslutsstödet räknar automatiskt ut risken för stroke samt ger rekommendation om medicinsk behandling enligt gällande riktlinjer från Socialstyrelsen. Systemet arbetar utifrån befintliga diagnoskoder i patientens journal, eller diagnoser registrerade inom vårdadministration . Om diagnoser läggs till, eller läkemedel tas bort, tänds inte varningen förrän patienten laddas nästa gång. Vem som ska ha tillgång till CDS Stroke Prevention styrs av journalsystemets behörighetsinställningar. I följande avsnitt beskrivs kortfattat de bakomliggande funktioner som används i systemet, samt hur det skall användas."
+},
+{
+  "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+  "section": "Tillgång till CDS Stroke Prevention",
+  "page": 1,
+  "section_id": "3.2",
+  "main_section_id": 2,
+  "context_summary": "Texten beskriver hur ett varningsmeddelande visas när kriterier för aktivering av CDS Stroke Prevention uppfylls. Varningen markeras med en CDS‑ikon i patientlistan och en dialogruta, där användaren kan öppna beslutsstödet eller ignorera varningen.",
+  "keywords": [
+    "CDS",
+    "Stroke Prevention",
+    "varning",
+    "patientlist",
+    "dialogruta",
+    "systeminställning",
+    "beslut",
+    "handläggning",
+    "meny"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Beslutsstöd",
+    "Stroke",
+    "Patientdata",
+    "Varning",
+    "Meny"
+  ],
+  "clinical_domain": [
+    "Neurologi",
+    "Kardiologi",
+    "Hälsoprodukter",
+    "Digitala vårdsystem"
+  ],
+  "text": "Om kriterier för aktivering av CDS Stroke Prevention uppfylls , se avsnitt 3.3, kommer en varning att visas i journalsystemet. Varningen om att beslutsstödet har aktiverats indikeras med en CDS-ikon i patientlisten samt en visad dialogruta i journalsystemets gränssnitt. Bild 1 – CDS varning med CDS ikon och d ialogrutan Aktiverade beslutsstöd CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024‑02‑01 ©2 0 2 4 Cambio H ealthcare Systems AB 11(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Visningen av dialogrutan vid aktivering styrs av en systeminställning och beslutas av systemförvaltningen. Användaren kan alltid öppna dialogrutan genom att klicka på en CDS-ikon som är tänd i patientlisten . I dialogrutan listas beslutsstöd som har aktiverats. Användaren kan läsa mer om varningen genom en text som visas när muspekaren hålls över ”i”-ikonen. Bild 2 – Information om varningen i dialogrutan Aktiverade beslutsstöd Användaren kan klicka på knappen Öppna beslutsstöd för att visa beslutsstödets huvudfönster Stroke Prevention där beslut om vidare handläggning kan fattas. Om användaren väljer att stänga dialogrutan och ignorera varningen, kommer varningen att visas igen nästa gång patienten laddas i patientlisten . CDS Stroke Prevention kan nås från journalsystemets meny oberoende av en aktivering av beslutsstödet . Tillgång via journalsystemets meny styrs av en systeminställning och beslutas av systemförvaltningen."
+},
+{
+  "source_file": "CDS_Stroke_Prevention_IntroAnvM_v6.1_sv.pdf",
+  "section": "Aktivering av beslutstödet och typ av varningar",
+  "page": 1,
+  "section_id": "3.3.1.1",
+  "main_section_id": 4,
+  "context_summary": "Beslutsstödet aktiveras för patienter med förmaksflimmer utan rekommenderad strokeförebyggande behandling och visar fyra typer av varningsdialogrutor som indikerar behandlingsstatus, CHA2DS2‑VASc-variationer och gammal tidsstämpel.",
+  "keywords": [
+    "beslutsstöd",
+    "förmaksflimmer",
+    "strokeförebyggande behandling",
+    "varningsdialog",
+    "CHA2DS2-VASc",
+    "tidsstämpel",
+    "Socialstyrelsens riktlinjer",
+    "ordination",
+    "rekommendationer",
+    "patientlista"
+  ],
+  "content_type": "reference",
+  "hierarchical_tags": [
+    "Strokeförebyggande",
+    "Beslutsstöd",
+    "Patientlista",
+    "Varningssystem",
+    "Kliniska Riktlinjer",
+    "Medicinsk Ordination"
+  ],
+  "clinical_domain": [
+    "Kardiologi",
+    "Neurologi",
+    "Hälsovård",
+    "Medicinsk beslutsstöd"
+  ],
+  "text": "Beslutsstödet aktiveras när en patient med diagnoskod förmaksflimmer/ -fladder, utan rekommenderad strokeförebyggande behandling, laddas i patientlisten . Varningen via dialogrutan indikerar följande fyra olika sorters varningar: • Patienten har inte medicinsk behandling som följer Socialstyrelsens riktlinjer vid förmaksflimmer . • Patienten har beslut om att inte ta behandling men har förändrad CHA 2DS2- VASc -poäng . • Patienten har beslut om att inte ta behandling men tidsstämpeln är äldre än ett år. • Patienten har fått sitt beslut uppskjutet men har förhöjd CHA 2DS2-VASc -poäng . CDS Stroke Prevention - Introduktion & Användarmanual Version: 6.1 Datum: 2024 -02-01 ©2 0 2 4 Cambio H ealthcare Systems AB 12(23) Notera att utskrifter kan vara inaktuella. För vid var tid aktuell version, se den digitala versionen. Om dialogrutan Aktiverad e beslutsstöd visas och användare n öppna r beslutsstödet visas beslutsstödet huvudfönster Stroke Prevention . Bild 3 – Fönstret Stroke Prevention Fönstret består av avsnitten Diagnosöversikt , CHA 2DS 2-VASc poäng , Rekommendationer , Ordination samt Medicinskt beslut , vilka granskas uppifrån och ner, samt från vänster till höger. Dessa beskrivs i följande avsnitt."
+}
+]

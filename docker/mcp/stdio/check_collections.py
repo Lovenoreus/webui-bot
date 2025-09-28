@@ -140,6 +140,7 @@ def main():
 
 if __name__ == "__main__":
     try:
+        print(f"This should not run!!!")
         exit_code = main()
         sys.exit(exit_code)
     except KeyboardInterrupt:

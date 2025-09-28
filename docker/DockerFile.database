@@ -1,6 +1,24 @@
 FROM python:3.11-slim
 
+# Disable TLS verification for these hosts by marking them as trusted.
+# (This affects both pip and `uv pip`.)
+RUN printf "[global]\n\
+trusted-host = pypi.org\n\
+\tfiles.pythonhosted.org\n\
+\tpypi.python.org\n\
+\tdownload.pytorch.org\n" > /etc/pip.conf
+
 WORKDIR /app
+
+COPY certs/fw.cer /usr/local/share/ca-certificates/fw.crt
+ENV PIP_NO_VERIFY_CERTS=1        
+#RUN pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org --index-url http://pypi.org/simple torch
+RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host download.pytorch.org --no-cache-dir uv
+
+#Install common system dependencies
+RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
 # Install system dependencies (add more if needed, e.g., libpq-dev for PostgreSQL)
 RUN apt-get update && \
@@ -10,11 +28,16 @@ RUN apt-get update && \
 # Copy requirements and install
 COPY mcp/requirements.database.txt .
 
+RUN pip3 install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip-system-certs
+
+
 RUN pip install --no-cache-dir --default-timeout=300 --retries=20 -r requirements.database.txt
 
 # Copy app files
 COPY mcp/stdio/async_sql_local.py .
 COPY mcp/stdio/config.json .
+
+
 
 # Create data dir
 RUN mkdir -p /app/database_data

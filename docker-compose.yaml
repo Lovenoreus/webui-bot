@@ -1,96 +1,96 @@
 services:
 
-  ollama:
-    volumes:
-      - ollama:/root/.ollama
-    container_name: ollama
-    tty: true
-    restart: unless-stopped
-    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
-    ports:
-      - "11435:11434"
-    networks:
-      - mcp-network
-    healthcheck:
-      test: ["CMD-SHELL", "ollama list || exit 1"]
-      interval: 30s
-      timeout: 15s
-      retries: 10
-      start_period: 120s
+  # ollama:
+  #   volumes:
+  #     - ollama:/root/.ollama
+  #   container_name: ollama
+  #   tty: true
+  #   restart: unless-stopped
+  #   image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
+  #   ports:
+  #     - "11435:11434"
+  #   networks:
+  #     - mcp-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "ollama list || exit 1"]
+  #     interval: 30s
+  #     timeout: 15s
+  #     retries: 10
+  #     start_period: 120s
 
-  ollama-model-puller:
-    image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
-    container_name: ollama-model-puller
-    depends_on:
-      ollama:
-        condition: service_healthy
-    environment:
-      - OLLAMA_HOST=http://ollama:11434
-      - OLLAMA_LLM_MODEL=${OLLAMA_LLM_MODEL:-llama3.2}
-      - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
-    networks:
-      - mcp-network
-    entrypoint: ["/bin/bash"]
-    command: >
-      -c "
-        echo '=== OLLAMA MODEL PULLER STARTING ===' &&
-        echo 'Current time:' $$(date) &&
-        echo 'Environment variables:' &&
-        echo '  OLLAMA_LLM_MODEL: $${OLLAMA_LLM_MODEL}' &&
-        echo '  OLLAMA_EMBEDDING_MODEL: $${OLLAMA_EMBEDDING_MODEL}' &&
-        echo '  OLLAMA_HOST: $${OLLAMA_HOST}' &&
-        echo '' &&
-        echo 'Waiting for Ollama to be fully ready...' &&
-        sleep 5 &&
-        echo 'Testing Ollama connection...' &&
-        OLLAMA_HOST=$${OLLAMA_HOST} ollama list || { echo 'ERROR: Cannot connect to Ollama'; exit 1; } &&
-        echo 'Ollama API is responding successfully!' &&
-        echo '' &&
-        echo '=== PULLING LLM MODEL ===' &&
-        echo '🔄 Starting download for model: $${OLLAMA_LLM_MODEL}' &&
-        echo '⏰ Timestamp:' $$(date) &&
-        echo '📥 This may take several minutes depending on model size...' &&
-        echo '' &&
-        OLLAMA_HOST=$${OLLAMA_HOST} ollama pull $${OLLAMA_LLM_MODEL} &&
-        echo '' &&
-        echo '✅ LLM model pull completed at:' $$(date) &&
-        echo '' &&
-        echo '=== PULLING EMBEDDING MODEL ===' &&
-        echo '🔄 Starting download for embedding model: $${OLLAMA_EMBEDDING_MODEL}' &&
-        echo '⏰ Timestamp:' $$(date) &&
-        echo '📥 This may take several minutes depending on model size...' &&
-        echo '' &&
-        OLLAMA_HOST=$${OLLAMA_HOST} ollama pull $${OLLAMA_EMBEDDING_MODEL} &&
-        echo '' &&
-        echo '✅ Embedding model pull completed at:' $$(date) &&
-        echo '' &&
-        echo '=== VERIFYING MODELS ===' &&
-        echo '📋 Listing all available models:' &&
-        OLLAMA_HOST=$${OLLAMA_HOST} ollama list &&
-        echo '' &&
-        echo '🎉 ALL MODELS PULLED SUCCESSFULLY! 🎉' &&
-        echo '⏰ Process completed at:' $$(date)
-      "
-    restart: "no"
+  # ollama-model-puller:
+  #   image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
+  #   container_name: ollama-model-puller
+  #   depends_on:
+  #     ollama:
+  #       condition: service_healthy
+  #   environment:
+  #     - OLLAMA_HOST=http://ollama:11434
+  #     - OLLAMA_LLM_MODEL=${OLLAMA_LLM_MODEL:-llama3.2}
+  #     - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
+  #   networks:
+  #     - mcp-network
+  #   entrypoint: ["/bin/bash"]
+  #   command: >
+  #     -c "
+  #       echo '=== OLLAMA MODEL PULLER STARTING ===' &&
+  #       echo 'Current time:' $$(date) &&
+  #       echo 'Environment variables:' &&
+  #       echo '  OLLAMA_LLM_MODEL: $${OLLAMA_LLM_MODEL}' &&
+  #       echo '  OLLAMA_EMBEDDING_MODEL: $${OLLAMA_EMBEDDING_MODEL}' &&
+  #       echo '  OLLAMA_HOST: $${OLLAMA_HOST}' &&
+  #       echo '' &&
+  #       echo 'Waiting for Ollama to be fully ready...' &&
+  #       sleep 5 &&
+  #       echo 'Testing Ollama connection...' &&
+  #       OLLAMA_HOST=$${OLLAMA_HOST} ollama list || { echo 'ERROR: Cannot connect to Ollama'; exit 1; } &&
+  #       echo 'Ollama API is responding successfully!' &&
+  #       echo '' &&
+  #       echo '=== PULLING LLM MODEL ===' &&
+  #       echo '🔄 Starting download for model: $${OLLAMA_LLM_MODEL}' &&
+  #       echo '⏰ Timestamp:' $$(date) &&
+  #       echo '📥 This may take several minutes depending on model size...' &&
+  #       echo '' &&
+  #       OLLAMA_HOST=$${OLLAMA_HOST} ollama pull $${OLLAMA_LLM_MODEL} &&
+  #       echo '' &&
+  #       echo '✅ LLM model pull completed at:' $$(date) &&
+  #       echo '' &&
+  #       echo '=== PULLING EMBEDDING MODEL ===' &&
+  #       echo '🔄 Starting download for embedding model: $${OLLAMA_EMBEDDING_MODEL}' &&
+  #       echo '⏰ Timestamp:' $$(date) &&
+  #       echo '📥 This may take several minutes depending on model size...' &&
+  #       echo '' &&
+  #       OLLAMA_HOST=$${OLLAMA_HOST} ollama pull $${OLLAMA_EMBEDDING_MODEL} &&
+  #       echo '' &&
+  #       echo '✅ Embedding model pull completed at:' $$(date) &&
+  #       echo '' &&
+  #       echo '=== VERIFYING MODELS ===' &&
+  #       echo '📋 Listing all available models:' &&
+  #       OLLAMA_HOST=$${OLLAMA_HOST} ollama list &&
+  #       echo '' &&
+  #       echo '🎉 ALL MODELS PULLED SUCCESSFULLY! 🎉' &&
+  #       echo '⏰ Process completed at:' $$(date)
+  #     "
+  #   restart: "no"
 
       
   open-webui:
     build:
       context: .
       args:
-        OLLAMA_BASE_URL: '/ollama'
+        OLLAMA_BASE_URL: '${OLLAMA_BASE_URL}'
       dockerfile: Dockerfile
     container_name: open-webui
     volumes:
       - open-webui:/app/backend/data
     depends_on:
       - mcp_server
-      - ollama
-      - ollama-model-puller
+      # - ollama
+      # - ollama-model-puller
     ports:
       - ${OPEN_WEBUI_PORT-3000}:8080
     environment:
-      - 'OLLAMA_BASE_URL=http://ollama:11434'
+      - 'OLLAMA_BASE_URL=${OLLAMA_BASE_URL}'
       - 'WEBUI_SECRET_KEY='
       - 'OPENAI_API_KEY=${OPENAI_API_KEY}'
       - 'ENV=dev'
@@ -130,8 +130,8 @@ services:
     depends_on:
       - database_server
       - postgres
-      - ollama
-      - ollama-model-puller
+      # - ollama
+      # - ollama-model-puller
     environment:
       - DATABASE_URL=http://database_server:8762
       - PYTHONPATH=/app
@@ -141,13 +141,13 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
       - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
-      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
       # PostgreSQL configuration for rag2.py
-      - PG_HOST=postgres
-      - PG_PORT=5432
-      - PG_DATABASE=vectordb
-      - PG_USERNAME=postgres
-      - PG_PASSWORD=password
+      - PG_HOST=${PG_HOST}
+      - PG_PORT=${PG_PORT}
+      - PG_DATABASE=${PG_DATABASE}
+      - PG_USERNAME=${PG_USERNAME}
+      - PG_PASSWORD=${PG_PASSWORD}
       # Ollama configuration for rag2.py
       - OLLAMA_LLM_MODEL=${OLLAMA_LLM_MODEL:-llama3.2}
       - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-nomic-embed-text}
@@ -182,9 +182,9 @@ services:
     image: pgvector/pgvector:pg16
     container_name: postgres
     environment:
-      POSTGRES_DB: vectordb
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${PG_DATABASE}
+      POSTGRES_USER: ${PG_USERNAME}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
     ports:
       - "5433:5432"
     volumes:
@@ -193,22 +193,22 @@ services:
       - mcp-network
     restart: unless-stopped
 
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    ports:
-      - "5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    depends_on:
-      - postgres
-    networks:
-      - mcp-network
-    restart: unless-stopped
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   container_name: pgadmin
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
+  #   ports:
+  #     - "5050:80"
+  #   volumes:
+  #     - pgadmin_data:/var/lib/pgadmin
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - mcp-network
+  #   restart: unless-stopped
 
 volumes:
   qdrant_storage: {}
