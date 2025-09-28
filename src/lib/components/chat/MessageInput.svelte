@@ -112,6 +112,9 @@
 	let inputVariables = {};
 	let inputVariableValues = {};
 
+	// Add custom modal state
+	let showCustomModal = false;
+
 	$: onChange({
 		prompt,
 		files: files
@@ -662,7 +665,7 @@
 				}
 
 				const compressImageHandler = async (imageUrl, settings = {}, config = {}) => {
-					// Quick shortcut so we don’t do unnecessary work.
+					// Quick shortcut so we don't do unnecessary work.
 					const settingsCompression = settings?.imageCompression ?? false;
 					const configWidth = config?.file?.image_compression?.width ?? null;
 					const configHeight = config?.file?.image_compression?.height ?? null;
@@ -932,6 +935,35 @@
 	onSave={inputVariablesModalCallback}
 />
 
+<!-- Custom Modal -->
+{#if showCustomModal}
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 dark:bg-gray-900/80">
+		<div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-50 dark:border-gray-850 mx-4 w-full max-w-md">
+			<div class="flex justify-between items-center px-4 py-3 border-b border-gray-50 dark:border-gray-850">
+				<h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Custom Modification</h2>
+				<button
+					on:click={() => (showCustomModal = false)}
+					class="text-gray-600 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200 transition p-1"
+					aria-label="Close modal"
+				>
+					<XMark className="size-5" />
+				</button>
+			</div>
+			<div class="px-4 py-6">
+				<p class="text-gray-700 dark:text-gray-300">Hello. This is a custom modification</p>
+			</div>
+			<div class="px-4 py-3 border-t border-gray-50 dark:border-gray-850 flex justify-end">
+				<button
+					on:click={() => (showCustomModal = false)}
+					class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition text-sm font-medium"
+				>
+					Close
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}
+
 {#if loaded}
 	<div class="w-full font-primary">
 		<div class=" mx-auto inset-x-0 bg-transparent flex justify-center">
@@ -941,6 +973,29 @@
 					: 'max-w-6xl'} w-full"
 			>
 				<div class="relative">
+					<!-- Custom button positioned in top right -->
+					<div class="absolute -top-12 right-0 z-30 pointer-events-auto">
+						<button
+							on:click={() => (showCustomModal = true)}
+							class="bg-white border border-gray-100 dark:border-none dark:bg-white/20 hover:bg-gray-50 dark:hover:bg-white/30 text-gray-600 dark:text-gray-300 p-1.5 rounded-full transition"
+							aria-label="Custom modification info"
+							title="Custom modification info"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 20 20"
+								fill="currentColor"
+								class="size-5"
+							>
+								<path
+									fill-rule="evenodd"
+									d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z"
+									clip-rule="evenodd"
+								/>
+							</svg>
+						</button>
+					</div>
+
 					{#if autoScroll === false && history?.currentId}
 						<div
 							class=" absolute -top-12 left-0 right-0 flex justify-center z-30 pointer-events-none"
