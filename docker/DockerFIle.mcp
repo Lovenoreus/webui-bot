@@ -29,4 +29,4 @@ RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
 
 # Run startup script followed by the app server
-CMD ["sh", "-c", "cd /app/docker/mcp/stdio && ./startup.sh && python server_new.py"]
+CMD ["sh", "-c", "cd /app/docker/mcp/stdio && python server_new.py"]
