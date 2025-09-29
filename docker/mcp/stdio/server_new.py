@@ -2489,7 +2489,7 @@ async def mcp_tools_list():
                 "required": ["thread_id", "conversation_topic", "description", "location", "queue", "priority", "department", "name", "category"]
             }
         ),
-        MCPTool(**get_rag_tool_schema()),
+        # MCPTool(**get_rag_tool_schema()),
     ]
 
     return MCPToolsListResponse(tools=tools)
