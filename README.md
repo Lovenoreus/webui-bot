@@ -189,6 +189,229 @@ This will start the Open WebUI server, which you can access at [http://localhost
 
 This setup includes multi-service architecture with MCP integration, database persistence, and Azure AD authentication.
 
+<<<<<<< Updated upstream
+=======
+## PostgreSQL Vector Database Setup for RAG 🗄️
+
+This project includes support for Retrieval Augmented Generation (RAG) using PostgreSQL with pgvector extension. The RAG system can work with both OpenAI and Ollama embedding models.
+
+### Prerequisites
+
+- Docker installed
+- PostgreSQL with pgvector extension (included in docker-compose.yaml)
+- Either OpenAI API key OR Ollama running locally
+
+### Database Configuration
+
+The PostgreSQL vector database is automatically configured when using the provided `docker-compose.yaml`. It includes:
+
+- **PostgreSQL with pgvector**: Vector similarity search capabilities
+- **Automatic schema creation**: Tables for vector storage are created automatically
+- **Multi-provider support**: Works with both OpenAI and Ollama embeddings
+
+### Environment Variables Setup
+
+Configure the following variables in your `.env` file:
+
+```bash
+# PostgreSQL Configuration
+PG_HOST=            # Use "localhost" for local setup, "postgres" for Docker
+PG_PORT=            # Default PostgreSQL port
+PG_DATABASE=       # Database name
+PG_USERNAME=         # Database username
+PG_PASSWORD=       # Database password
+
+# Choose your embedding provider (OpenAI or Ollama)
+
+# Option 1: OpenAI Embeddings (Recommended for production)
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_EMBEDDING_MODEL=text-embedding-3-large  # or text-embedding-ada-002
+OPENAI_LLM_MODEL=gpt-4o-mini
+
+# Option 2: Ollama Embeddings (Local/Offline setup)
+OLLAMA_BASE_URL=http://localhost:11434  # Use "http://ollama:11434" in Docker
+OLLAMA_EMBEDDING_MODEL=nomic-embed-text  # or mxbai-embed-large
+OLLAMA_LLM_MODEL=llama3.2               # or qwen2.5:3b
+```
+
+### Quick Start with Docker Compose
+
+1. **Clone and setup**:
+   ```bash
+   git clone <your-repo>
+   cd webui-bot
+   cp .env.example .env  # Edit with your API keys
+   ```
+
+2. **Start all services**:
+   ```bash
+   docker-compose up -d
+   ```
+
+   This starts:
+   - PostgreSQL with pgvector
+   - Open WebUI
+   - MCP Server
+   - Qdrant (optional vector store)
+
+3. **Verify PostgreSQL is running**:
+   ```bash
+   docker-compose logs postgres
+   ```
+
+### Manual Database Setup (Local Development)
+
+If you prefer to run PostgreSQL locally:
+
+1. **Install PostgreSQL with pgvector**:
+   ```bash
+   # Ubuntu/Debian
+   sudo apt-get install postgresql postgresql-contrib
+   
+   # Install pgvector extension
+   sudo apt-get install postgresql-15-pgvector
+   
+   # macOS with Homebrew
+   brew install postgresql pgvector
+   ```
+
+2. **Create database and enable extension**:
+   ```sql
+   CREATE DATABASE vectordb;
+   \c vectordb;
+   CREATE EXTENSION IF NOT EXISTS vector;
+   ```
+
+3. **Update environment variables**:
+   ```bash
+   PG_HOST=localhost
+   PG_PORT=5432
+   PG_DATABASE=vectordb
+   PG_USERNAME=your_username
+   PG_PASSWORD=your_password
+   ```
+
+### Embedding Documents with RAG
+
+The system includes a powerful RAG implementation (`rag2.py`) that can embed documents into the vector database:
+
+#### Using OpenAI Embeddings:
+```bash
+# Access the MCP server container
+docker exec -it mcp_server /bin/bash
+
+# Navigate to the RAG directory
+cd docker/mcp/stdio
+
+# Embed documents using OpenAI
+python rag2.py --embed path/to/your/documents.json
+```
+
+#### Using Ollama Embeddings:
+```bash
+# First, ensure Ollama has the embedding model
+ollama pull nomic-embed-text
+
+# Then embed documents
+python rag2.py --embed path/to/your/documents.json
+```
+
+### Supported Embedding Models
+
+#### OpenAI Models:
+- `text-embedding-3-large` (Recommended - 3072 dimensions)
+- `text-embedding-3-small` (1536 dimensions, faster)
+- `text-embedding-ada-002` (Legacy, 1536 dimensions)
+
+#### Ollama Models:
+- `nomic-embed-text` (Recommended - multilingual support)
+- `mxbai-embed-large` (Large context window)
+- `all-minilm` (Lightweight, good performance)
+
+### Document Format
+
+The RAG system expects documents in JSON format:
+
+```json
+[
+  {
+    "id": "doc_1",
+    "title": "Document Title",
+    "content": "Document content here...",
+    "metadata": {
+      "source": "file.pdf",
+      "page": 1
+    }
+  }
+]
+```
+
+### Querying the RAG System
+
+Once documents are embedded, you can query them through the Open WebUI interface:
+
+1. Use the `#` command followed by your question
+2. The system will retrieve relevant documents
+3. Generate answers based on retrieved context
+
+### Troubleshooting
+
+#### Connection Issues:
+```bash
+# Check PostgreSQL container
+docker-compose logs postgres
+
+# Check database connectivity
+psql -h localhost -p 5433 -U postgres -d vectordb
+```
+
+#### Embedding Issues:
+```bash
+# Check if pgvector extension is enabled
+SELECT * FROM pg_extension WHERE extname = 'vector';
+
+# Check existing collections
+SELECT * FROM langchain_pg_collection;
+```
+
+#### Model Issues:
+```bash
+# For Ollama, list available models
+ollama list
+
+# Pull required embedding model
+ollama pull nomic-embed-text
+```
+
+### Performance Optimization
+
+For large document collections:
+
+1. **Use appropriate embedding dimensions**: OpenAI's `text-embedding-3-large` provides best quality
+2. **Batch processing**: Process documents in batches of 100-1000
+3. **Database indexing**: The system automatically creates HNSW indexes for fast similarity search
+4. **Connection pooling**: Configured automatically in the RAG implementation
+
+### Advanced Configuration
+
+The RAG system supports advanced configuration through `config.json`:
+
+```json
+{
+  "cosmic_database": {
+    "collection_name": "my_documents",
+    "vector_database": {
+      "use_pgvector": true,
+      "use_qdrant": false
+    }
+  },
+  "openai": {
+    "embeddings_model_name": "text-embedding-3-large"
+  }
+}
+```
+
+>>>>>>> Stashed changes
 - **If Ollama is on a Different Server**, use this command:
 
   To connect to Ollama on another server, change the `OLLAMA_BASE_URL` to the server's URL:

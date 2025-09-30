@@ -1,9 +1,17 @@
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 WORKDIR /app
 
+<<<<<<< Updated upstream
 # Install system dependencies (if needed)
 RUN apt-get update && \
+=======
+# Use HTTPS for Debian Bookworm repositories
+RUN echo "deb https://deb.debian.org/debian bookworm main" > /etc/apt/sources.list && \
+    echo "deb https://deb.debian.org/debian bookworm-updates main" >> /etc/apt/sources.list && \
+    echo "deb https://deb.debian.org/debian-security bookworm-security main" >> /etc/apt/sources.list && \
+    apt-get update && \
+>>>>>>> Stashed changes
     apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
 
