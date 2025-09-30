@@ -189,8 +189,6 @@ This will start the Open WebUI server, which you can access at [http://localhost
 
 This setup includes multi-service architecture with MCP integration, database persistence, and Azure AD authentication.
 
-<<<<<<< Updated upstream
-=======
 ## PostgreSQL Vector Database Setup for RAG 🗄️
 
 This project includes support for Retrieval Augmented Generation (RAG) using PostgreSQL with pgvector extension. The RAG system can work with both OpenAI and Ollama embedding models.
@@ -411,7 +409,6 @@ The RAG system supports advanced configuration through `config.json`:
 }
 ```
 
->>>>>>> Stashed changes
 - **If Ollama is on a Different Server**, use this command:
 
   To connect to Ollama on another server, change the `OLLAMA_BASE_URL` to the server's URL:
