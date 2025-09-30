@@ -3,6 +3,7 @@
 - Praveen's RAG improvements.
 - PGvector database.
 - List all tool. (MCPO probably blocks this by default. Need to do more research on this.)
+- Support Ticket Creation
 
 ## WHAT CAN BE TESTED.
 - ACTIVE DIRECTORY (No need to say from active directory. List all users is ok.)
