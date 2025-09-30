@@ -15,11 +15,13 @@
 
 ## Deployment steps.
 - Git fetch.
-- Git checkout to omnigate branch.
+- Git checkout to regional_mcpo branch.
 - docker compose down.
 - Destroy all current docker images.
 - navigate to webui root.
 - create ENV: https://healthcaretechglobal.slack.com/files/U087JMT2XNJ/F09HZUB45T6/mcpo_.env
+- create a directory called: local-binaries in the root directory
+- copy the slack tgz file into it: https://healthcaretechglobal.slack.com/archives/C08CLG263D2/p1759219738726859
 - Run command: docker compose build --no-cache
 - If above command gives issue, do: docker compose up
 - After build, run command: docker compose up
