@@ -23,7 +23,7 @@
 - create a directory called: local-binaries in the root directory
 - copy the slack tgz file into it: https://healthcaretechglobal.slack.com/archives/C08CLG263D2/p1759219738726859
 - Run command: docker compose build --no-cache
-- If above command gives issue, do: docker compose up
+  **If above command gives issue, do: docker compose up**
 - After build, run command: docker compose up
 - After webui login, navigate to system prompt and inject this: 
   "Always call a tool first. Tools have enough information to answer any user question. If tool cannot answer before you do. If any tool response returns an sql_query or code, display it in a properly formatted manner."
@@ -96,3 +96,16 @@ Here are the updated 10 test questions with state abbreviations included:
 
 # In-case of any deployment issues
 - Contact: **The one who shall not be named**
+
+
+# region_main: Regional Final (Nobody works on this branch)
+# external_main: External Final (Nobody works on this branch)
+# Main: ------ Latest Fork version of webui repo
+# Everybody pulls from main. and updates their repos
+
+# How can we get latest webui update? ---
+
+# RAG (Qdrant - godlove rag/pg)
+# RAG (PGVECTor - latest branch)
+- vector database tool pg
+- ...

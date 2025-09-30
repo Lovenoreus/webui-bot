@@ -23,9 +23,10 @@ from langchain_mistralai import ChatMistralAI
 from langchain_core.messages import SystemMessage, HumanMessage
 
 import config
+
 # Reuse your existing class/models
 from active_directory import ActiveDirectory
-from active_directory import CreateUserPayload, PasswordProfile
+
 from vector_database_tools import cosmic_database_tool
 
 # ++++++++++++++++++++++++++++++++
