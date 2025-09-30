@@ -1,22 +1,21 @@
-# from config import CLIENT_ID, TENANT_ID, CLIENT_SECRET, AUTHORITY, SCOPE
-from pydantic import BaseModel, Field
-from typing import List
+# -------------------- Built-in Libraries --------------------
 import os
-from dotenv import load_dotenv
+import asyncio
+from typing import Dict, Optional, List, Union
+from functools import lru_cache
 
-from db_init import save_user_to_db, get_user_from_db_by_name, upsert_user, view_users, remove_user_fields
+# -------------------- External Libraries --------------------
+from dotenv import load_dotenv
+import msal
+import httpx
+from pydantic import BaseModel, Field
 
 # Load environment variables
 load_dotenv()
 
-# Get Azure credentials from environment variables
-AZURE_CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
-AZURE_TENANT_ID = os.getenv("AZURE_TENANT_ID") 
-AZURE_CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
-
-CLIENT_ID = AZURE_CLIENT_ID
-TENANT_ID = AZURE_TENANT_ID
-CLIENT_SECRET = AZURE_CLIENT_SECRET
+CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
+TENANT_ID = os.getenv("AZURE_TENANT_ID")
+CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
 AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 SCOPE = ["https://graph.microsoft.com/.default"]
 
@@ -25,198 +24,6 @@ class PasswordProfile(BaseModel):
     password: str = Field(..., description="A strong initial password for the user.")
     forceChangePasswordNextSignIn: bool = Field(True, description="Require user to change password on next sign-in.")
 
-class CreateUserPayload(BaseModel):
-    accountEnabled: bool = Field(..., description="Whether the account is enabled.")
-    displayName: str = Field(..., description="Full name of the user.")
-    mailNickname: str = Field(..., description="Alias used to generate the email address.")
-    userPrincipalName: str = Field(..., description="The user's email/login in format 'user@domain.com'.")
-    passwordProfile: PasswordProfile = Field(..., description="Initial password configuration.")
-
-#
-def list_users_tool(input=None):
-    """
-    Tool: List all users in Azure Active Directory.
-
-    Args:
-        input (None): No input required.
-
-    Returns:
-        dict: A dictionary of users from the tenant.
-    """
-    # return ad.list_users()
-    return view_users()
-
-def assign_user_to_default_department_tool(first_name: str, last_name: str, departments: List[str]):
-    """
-    Tool: Assign a user to a department(s)..
-
-    This tool:
-    - Updates the user's 'department' field
-    - Adds the user to the "<department> Rooms Entry" group
-
-
-    Args:
-        first_name (str): First name of the user.
-        last_name (str): Last name of the user.
-        departments (List[str], optional): Department name (default is "Cancer Centrum").
-
-    Returns:
-        dict: Result of department update and group assignment.
-
-    Example:
-        assign_user_to_default_department_tool("David", "Mike", "Staff", ["Cancer Centrum"] )
-        assign_user_to_default_department_tool("Jane", "Smith", "Admin", ["Medicals", "Cancer Centrum"] )
-    """
-
-
-    upsert_user(first_name, last_name, department=departments)
-
-    if departments:
-        # return ad.assign_user_to_department_and_group(display_name, department)
-        return f"{first_name} {last_name} has been assigned to the {departments} department."
-    else:
-        return f"{first_name} {last_name} has been updated."
-
-
-def assign_permission_to_user(first_name: str, last_name: str, permissions: List[str]):
-    """
-    Tool: Assign/add permissions to a user.
-
-    This tool:
-    - Assigns, updates or adds permissions to a user in the active directory.
-
-    Args:
-        first_name (str): First name of the user.
-        last_name (str): Last name of the user.
-        permissions (List(str)): Permissions to assign to the user.
-
-    Returns:
-        dict: Result of department update and group assignment.
-
-    Example:
-        assign_user_to_default_department_tool("David", "Mike", "Staff", ["Medical Access"])
-        assign_user_to_default_department_tool("Jane", "Smith", "Admin", ["Full Access", "Read Only"])
-    """
-
-    upsert_user(first_name, last_name, permissions=permissions)
-
-    if permissions:
-        # return ad.assign_user_to_department_and_group(display_name, department)
-        return f"{first_name} {last_name} has been updated with permissions {permissions}"
-    else:
-        return f"{first_name} {last_name} has been updated."
-
-
-def assign_group_to_user(first_name: str, last_name: str,  groups: List[str]):
-    """
-    Tool: Assign/add a user to a group.
-
-    This tool:
-    - Assigns, updates or adds a user to an active directory group.
-
-
-
-    Args:
-        first_name (str): First name of the user.
-        last_name (str): Last name of the user.
-        groups (List[str]): Groups to assign to user to.
-
-    Returns:
-        dict: Result of department update and group assignment.
-
-    Example:
-        assign_user_to_default_department_tool("David", "Mike", ["Cancer Centrum Rooms Entry"])
-        assign_user_to_default_department_tool("Jane", "Smith", "Admin", ["Cancer Centrum Changing Rooms", "Cancer Centrum Rooms Entry"])
-    """
-
-    upsert_user(first_name, last_name, groups=groups)
-
-    if groups:
-        # return ad.assign_user_to_department_and_group(display_name, department)
-        return f"{first_name} {last_name} has been added to group {groups}"
-    else:
-        return f"{first_name} {last_name} has been updated."
-
-def remove_departments_from_user(first_name: str, last_name: str, departments: List[str]):
-    """
-    Tool: Remove one or more permissions from a user.
-
-    Args:
-        first_name (str): First name of the user.
-        last_name (str): Last name of the user.
-        departments (List[str]): Departments to remove.
-
-    Returns:
-        str: Result of removal.
-    """
-    return remove_user_fields(first_name, last_name, remove_department=departments)
-
-def remove_permissions_from_user(first_name: str, last_name: str, permissions: List[str]):
-    """
-    Tool: Remove one or more permissions from a user.
-
-    Args:
-        first_name (str): First name of the user.
-        last_name (str): Last name of the user.
-        permissions (List[str]): Permissions to remove.
-
-    Returns:
-        str: Result of removal.
-    """
-    return remove_user_fields(first_name, last_name, permissions=permissions)
-
-def remove_groups_from_user(first_name: str, last_name: str, groups: List[str]):
-    """
-    Tool: Remove one or more groups from a user.
-
-    Args:
-        first_name (str): First name of the user.
-        last_name (str): Last name of the user.
-        groups (List[str]): Groups to remove.
-
-    Returns:
-        str: Result of removal.
-    """
-    return remove_user_fields(first_name, last_name, groups=groups)
-
-def check_user_department_tool(first_name: str, last_name: str):
-    """
-    Tool: Check a user's department and their corresponding AD group.
-
-    This tool:
-    - Check the user's 'department' field
-
-
-    Args:
-        first_name (str): First name of the user.
-        last_name (str): Last name of the user.
-
-
-    Returns:
-        dict: Result of department update and group assignment.
-
-    Example:
-        check_user_department_tool("David Mike")
-        check_user_department_tool("Jane Smith")
-    """
-
-    user = get_user_from_db_by_name(first_name, last_name)
-    if not user:
-        return f"User is not in active directory."
-
-    return user
-
-
-# from config import CLIENT_ID, TENANT_ID, CLIENT_SECRET, AUTHORITY, SCOPE
-import msal
-import requests
-from pydantic import BaseModel, Field
-from typing import Dict, Optional, List, Any
-
-
-class PasswordProfile(BaseModel):
-    password: str = Field(..., description="A strong initial password for the user.")
-    forceChangePasswordNextSignIn: bool = Field(True, description="Require user to change password on next sign-in.")
 
 class CreateUserPayload(BaseModel):
     accountEnabled: bool = Field(..., description="Whether the account is enabled.")
@@ -225,132 +32,257 @@ class CreateUserPayload(BaseModel):
     userPrincipalName: str = Field(..., description="The user's email/login in format 'user@domain.com'.")
     passwordProfile: PasswordProfile = Field(..., description="Initial password configuration.")
 
-class ActiveDirectory:
-    """
-    A utility class for interacting with Microsoft Azure Active Directory via the Microsoft Graph API.
 
-    This class handles authentication using client credentials (MSAL) and provides high-level methods
-    to perform directory-related operations such as listing users and roles, managing user-role assignments,
-    and creating/updating/deleting user accounts.
+class FastActiveDirectory:
+    """
+    Ultra-fast async Active Directory client with ALL original operations.
 
     Features:
-    - Obtain an access token using client credentials.
-    - Make authenticated requests to Microsoft Graph API.
-    - List all users and directory roles.
-    - Get roles assigned to a specific user.
-    - Add or remove users from directory roles.
-    - Instantiate a directory role from a template.
-    - Create, update, or delete user accounts.
-
-    Requirements:
-    - Azure AD App registration with necessary permissions.
-    - `CLIENT_ID`, `TENANT_ID`, `CLIENT_SECRET`, `AUTHORITY`, and `SCOPE` configured in `config.py`.
-
-    Example usage:
-        ad = ActiveDirectory()
-        users = ad.list_users()
-        ad.create_user({...})
+    - HTTP/2 support for multiplexing
+    - Connection pooling and keep-alive
+    - Token caching
+    - Concurrent batch operations
+    - Automatic retries with exponential backoff
+    - All original ActiveDirectory methods
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, max_concurrent: int = 10):
+        """
+        Args:
+            max_concurrent: Maximum concurrent requests (default: 10)
+        """
+        self._client: Optional[httpx.AsyncClient] = None
+        self._token: Optional[str] = None
+        self._token_lock = asyncio.Lock()
+        self._semaphore = asyncio.Semaphore(max_concurrent)
+        self._max_concurrent = max_concurrent
 
-    def get_access_token(self):
-        app = msal.ConfidentialClientApplication(
+    async def __aenter__(self):
+        """Initialize async HTTP client with optimal settings"""
+        limits = httpx.Limits(
+            max_keepalive_connections=20,
+            max_connections=50,
+            keepalive_expiry=30.0
+        )
+
+        timeout = httpx.Timeout(30.0, connect=10.0)
+
+        self._client = httpx.AsyncClient(
+            http2=True,  # HTTP/2 for request multiplexing
+            limits=limits,
+            timeout=timeout,
+            follow_redirects=True
+        )
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Cleanup"""
+        if self._client:
+            await self._client.aclose()
+
+    @lru_cache(maxsize=1)
+    def _get_msal_app(self):
+        """Cached MSAL app instance"""
+        return msal.ConfidentialClientApplication(
             CLIENT_ID,
             authority=AUTHORITY,
             client_credential=CLIENT_SECRET
         )
-        result = app.acquire_token_for_client(scopes=SCOPE)
-        if "access_token" in result:
-            return result["access_token"]
-        raise Exception(f"Auth failed: {result.get('error_description')}")
 
-    def graph_api_request(self, method, endpoint, token, data=None, params=None):
-        headers = {
-            'Authorization': f'Bearer {token}',
-            'Content-Type': 'application/json'
-        }
-        url = f"https://graph.microsoft.com/v1.0/{endpoint}"
-        response = requests.request(method, url, headers=headers, json=data, params=params)
-        if not response.ok:
-            raise Exception(f"Graph API error: {response.status_code} - {response.text}")
-        return response.json() if response.content else {}
+    async def get_access_token(self, force_refresh: bool = False) -> str:
+        """
+        Get cached token or fetch new one.
+        Thread-safe with async lock.
+        """
+        async with self._token_lock:
+            if self._token and not force_refresh:
+                return self._token
 
-    def list_users(self):
-        token = self.get_access_token()
-        return self.graph_api_request("GET", "users", token)
+            # Run MSAL in thread pool (it's sync)
+            app = self._get_msal_app()
+            result = await asyncio.to_thread(
+                app.acquire_token_for_client,
+                scopes=SCOPE
+            )
 
-    def list_roles(self):
-        token = self.get_access_token()
-        return self.graph_api_request("GET", "directoryRoles", token)
+            if "access_token" in result:
+                self._token = result["access_token"]
+                return self._token
 
-    def get_user_roles(self, user_id):
-        token = self.get_access_token()
-        return self.graph_api_request("GET", f"users/{user_id}/memberOf", token)
+            raise Exception(f"Auth failed: {result.get('error_description')}")
 
-    def add_user_to_role(self, user_id, role_id):
-        token = self.get_access_token()
+    async def graph_api_request(
+            self,
+            method: str,
+            endpoint: str,
+            token: str,
+            data: Optional[dict] = None,
+            params: Optional[dict] = None
+    ) -> dict:
+        """
+        Original method signature - kept for backward compatibility.
+        """
+        return await self._request(method, endpoint, data=data, params=params)
+
+    async def _request(
+            self,
+            method: str,
+            endpoint: str,
+            data: Optional[dict] = None,
+            params: Optional[dict] = None,
+            retry_count: int = 3
+    ) -> dict:
+        """
+        Make Graph API request with automatic retries and rate limiting.
+        """
+        async with self._semaphore:  # Rate limiting
+            token = await self.get_access_token()
+            headers = {
+                'Authorization': f'Bearer {token}',
+                'Content-Type': 'application/json',
+                'ConsistencyLevel': 'eventual'  # Better performance for queries
+            }
+
+            url = f"https://graph.microsoft.com/v1.0/{endpoint}"
+
+            for attempt in range(retry_count):
+                try:
+                    response = await self._client.request(
+                        method,
+                        url,
+                        headers=headers,
+                        json=data,
+                        params=params
+                    )
+
+                    # Handle rate limiting (429)
+                    if response.status_code == 429:
+                        retry_after = int(response.headers.get('Retry-After', 5))
+                        await asyncio.sleep(retry_after)
+                        continue
+
+                    # Handle token expiration
+                    if response.status_code == 401:
+                        token = await self.get_access_token(force_refresh=True)
+                        headers['Authorization'] = f'Bearer {token}'
+                        continue
+
+                    response.raise_for_status()
+                    return response.json() if response.content else {}
+
+                except httpx.HTTPStatusError as e:
+                    if attempt == retry_count - 1:
+                        raise Exception(f"Graph API error: {e.response.status_code} - {e.response.text}")
+                    await asyncio.sleep(2 ** attempt)  # Exponential backoff
+
+                except httpx.RequestError as e:
+                    if attempt == retry_count - 1:
+                        raise Exception(f"Request failed: {str(e)}")
+                    await asyncio.sleep(2 ** attempt)
+
+    async def _paged_get(
+            self,
+            endpoint: str,
+            token: str,
+            params: Optional[dict] = None
+    ) -> List[dict]:
+        """
+        Original signature - fetch all pages.
+        """
+        items = []
+        next_link = None
+        url = endpoint
+
+        while True:
+            if next_link:
+                # Extract just the path from nextLink
+                next_link_url = next_link.replace('https://graph.microsoft.com/v1.0/', '')
+                data = await self._request("GET", next_link_url)
+            else:
+                data = await self._request("GET", url, params=params)
+
+            items.extend(data.get("value", []))
+            next_link = data.get("@odata.nextLink")
+
+            if not next_link:
+                break
+
+        return items
+
+    # ==================== ORIGINAL USER OPERATIONS ====================
+
+    async def list_users(self) -> dict:
+        """Original: List all users"""
+        token = await self.get_access_token()
+        return await self.graph_api_request("GET", "users", token)
+
+    async def create_user(self, user_data: dict) -> dict:
+        """Original: Create a new user"""
+        token = await self.get_access_token()
+        return await self.graph_api_request("POST", "users", token, data=user_data)
+
+    async def update_user(self, user_id: str, updates: dict) -> dict:
+        """Original: Update user properties"""
+        token = await self.get_access_token()
+        return await self.graph_api_request("PATCH", f"users/{user_id}", token, data=updates)
+
+    async def delete_user(self, user_id: str) -> dict:
+        """Original: Delete a user"""
+        token = await self.get_access_token()
+        return await self.graph_api_request("DELETE", f"users/{user_id}", token)
+
+    # ==================== ORIGINAL ROLE OPERATIONS ====================
+
+    async def list_roles(self) -> dict:
+        """Original: List all directory roles"""
+        token = await self.get_access_token()
+        return await self.graph_api_request("GET", "directoryRoles", token)
+
+    async def get_user_roles(self, user_id: str) -> dict:
+        """Original: Get roles for a user"""
+        token = await self.get_access_token()
+        return await self.graph_api_request("GET", f"users/{user_id}/memberOf", token)
+
+    async def add_user_to_role(self, user_id: str, role_id: str) -> dict:
+        """Original: Add user to a role"""
+        token = await self.get_access_token()
         data = {
             "@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{user_id}"
         }
-        return self.graph_api_request("POST", f"directoryRoles/{role_id}/members/$ref", token, data=data)
+        return await self.graph_api_request("POST", f"directoryRoles/{role_id}/members/$ref", token, data=data)
 
-    def remove_user_from_role(self, user_id, role_id):
-        token = self.get_access_token()
+    async def remove_user_from_role(self, user_id: str, role_id: str) -> dict:
+        """Original: Remove user from a role"""
+        token = await self.get_access_token()
         endpoint = f"directoryRoles/{role_id}/members/{user_id}/$ref"
-        return self.graph_api_request("DELETE", endpoint, token)
+        return await self.graph_api_request("DELETE", endpoint, token)
 
-    def instantiate_directory_role(self, role_template_id):
-        token = self.get_access_token()
+    async def instantiate_directory_role(self, role_template_id: str) -> dict:
+        """Original: Instantiate a directory role from template"""
+        token = await self.get_access_token()
         data = {
             "roleTemplateId": role_template_id
         }
-        return self.graph_api_request("POST", "directoryRoles", token, data=data)
+        return await self.graph_api_request("POST", "directoryRoles", token, data=data)
 
-    def create_user(self, user_data):
-        token = self.get_access_token()
-        return self.graph_api_request("POST", "users", token, data=user_data)
+    # ==================== ORIGINAL GROUP OPERATIONS ====================
 
-    def update_user(self, user_id, updates: dict):
-        token = self.get_access_token()
-        return self.graph_api_request("PATCH", f"users/{user_id}", token, data=updates)
-
-    def delete_user(self, user_id):
-        token = self.get_access_token()
-        return self.graph_api_request("DELETE", f"users/{user_id}", token)
-
-    def create_group(
+    async def create_group(
             self,
             *,
             display_name: str,
             mail_nickname: str,
             description: Optional[str] = None,
-            group_type: str = "security",  # "security" | "m365" | "dynamic-security" | "dynamic-m365"
-            visibility: Optional[str] = None,  # "Private" | "Public" (M365 groups only)
-            membership_rule: Optional[str] = None,  # required for dynamic groups
-            owners: Optional[List[str]] = None,  # list of directoryObject IDs
-            members: Optional[List[str]] = None  # list of directoryObject IDs
+            group_type: str = "security",
+            visibility: Optional[str] = None,
+            membership_rule: Optional[str] = None,
+            owners: Optional[List[str]] = None,
+            members: Optional[List[str]] = None
     ) -> Dict:
         """
-        Create an Azure AD group and optionally attach owners/members.
-
-        Returns:
-            {
-              "group": {...created group object...},
-              "owner_results": [{"id": "...", "ok": True/False, "error": "...?"}, ...],
-              "member_results": [{"id": "...", "ok": True/False, "error": "...?"}, ...]
-            }
-
-        Required Graph (Application) permissions:
-          - Create group: Group.ReadWrite.All
-          - Add owners/members: GroupMember.ReadWrite.All (or Directory.ReadWrite.All)
-        Notes:
-          - Use tokens requested with scope: ["https://graph.microsoft.com/.default"]
-          - mailNickname must be unique within the tenant.
-          - For dynamic groups, provide `membership_rule` and we'll enable processing.
+        Original: Create an Azure AD group and optionally attach owners/members.
         """
-        token = self.get_access_token()
+        token = await self.get_access_token()
 
         # Build base payload
         payload: Dict = {
@@ -406,72 +338,53 @@ class ActiveDirectory:
             raise ValueError("group_type must be one of: 'security', 'm365', 'dynamic-security', 'dynamic-m365'")
 
         # 1) Create the group
-        group = self.graph_api_request("POST", "groups", token, data=payload)
+        group = await self.graph_api_request("POST", "groups", token, data=payload)
         group_id = group.get("id")
         results = {"group": group, "owner_results": [], "member_results": []}
 
-        # 2) Optionally add owners
-        for owner_id in owners or []:
+        # 2) Add owners concurrently
+        async def add_owner(owner_id: str):
             try:
                 body = {"@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{owner_id}"}
-                self.graph_api_request("POST", f"groups/{group_id}/owners/$ref", token, data=body)
-                results["owner_results"].append({"id": owner_id, "ok": True})
+                await self.graph_api_request("POST", f"groups/{group_id}/owners/$ref", token, data=body)
+                return {"id": owner_id, "ok": True}
             except Exception as e:
-                results["owner_results"].append({"id": owner_id, "ok": False, "error": str(e)})
+                return {"id": owner_id, "ok": False, "error": str(e)}
 
-        # 3) Optionally add members
-        for member_id in members or []:
+        # 3) Add members concurrently
+        async def add_member(member_id: str):
             try:
                 body = {"@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{member_id}"}
-                self.graph_api_request("POST", f"groups/{group_id}/members/$ref", token, data=body)
-                results["member_results"].append({"id": member_id, "ok": True})
+                await self.graph_api_request("POST", f"groups/{group_id}/members/$ref", token, data=body)
+                return {"id": member_id, "ok": True}
             except Exception as e:
-                results["member_results"].append({"id": member_id, "ok": False, "error": str(e)})
+                return {"id": member_id, "ok": False, "error": str(e)}
+
+        if owners:
+            results["owner_results"] = await asyncio.gather(*[add_owner(o) for o in owners])
+
+        if members:
+            results["member_results"] = await asyncio.gather(*[add_member(m) for m in members])
 
         return results
 
-    # inside ActiveDirectory
-    def _paged_get(self, endpoint: str, token: str, params: dict | None = None) -> list[dict]:
-        """
-        GET a collection from Graph and follow @odata.nextLink to return a flat list.
-        endpoint: e.g., "users", "groups", "users/{id}/memberOf/microsoft.graph.group"
-        """
-        headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
-        url = f"https://graph.microsoft.com/v1.0/{endpoint}"
-        items: list[dict] = []
-        while True:
-            resp = requests.get(url, headers=headers, params=params if url.endswith(endpoint) else None, timeout=30)
-            if not resp.ok:
-                raise Exception(f"Graph API error: {resp.status_code} - {resp.text}")
-            data = resp.json()
-            items.extend(data.get("value", []))
-            next_link = data.get("@odata.nextLink")
-            if not next_link:
-                break
-            url = next_link
-            params = None  # nextLink already includes query params
-        return items
-
-    # inside ActiveDirectory
-    def list_groups(
+    async def list_groups(
             self,
             security_only: bool = False,
             unified_only: bool = False,
             select: str | None = "id,displayName,mailNickname,mail,securityEnabled,groupTypes",
     ) -> list[dict]:
         """
-        List groups. Set one of:
-          - security_only=True  -> classic security groups (securityEnabled true, groupTypes [])
-          - unified_only=True   -> Microsoft 365 groups (groupTypes contains 'Unified')
+        Original: List groups with optional filtering.
         """
         if security_only and unified_only:
             raise ValueError("Choose either security_only or unified_only, not both.")
-        token = self.get_access_token()
+
+        token = await self.get_access_token()
 
         # Build filter
         _filter = None
         if security_only:
-            # securityEnabled eq true AND NOT Unified
             _filter = "securityEnabled eq true and not(groupTypes/any(t:t eq 'Unified'))"
         elif unified_only:
             _filter = "groupTypes/any(t:t eq 'Unified')"
@@ -482,205 +395,251 @@ class ActiveDirectory:
         if _filter:
             params["$filter"] = _filter
 
-        return self._paged_get("groups", token, params=params)
+        return await self._paged_get("groups", token, params=params)
 
-    # inside ActiveDirectory
-    def get_user_groups(self, user_id: str, transitive: bool = False) -> list[dict]:
+    async def get_user_groups(self, user_id: str, transitive: bool = False) -> list[dict]:
         """
-        Return ONLY group objects the user is a member of.
-        Uses type-cast segment to groups to avoid roles/other directoryObjects.
+        Original: Return ONLY group objects the user is a member of.
         """
-        token = self.get_access_token()
+        token = await self.get_access_token()
         segment = "transitiveMemberOf" if transitive else "memberOf"
         endpoint = f"users/{user_id}/{segment}/microsoft.graph.group"
-        # Select a concise set of fields
         params = {"$select": "id,displayName,mailNickname,mail,securityEnabled,groupTypes"}
-        return self._paged_get(endpoint, token, params=params)
+        return await self._paged_get(endpoint, token, params=params)
 
-    # inside ActiveDirectory
-    def get_user_owned_groups(self, user_id: str) -> list[dict]:
+    async def get_user_owned_groups(self, user_id: str) -> list[dict]:
         """
-        Return groups where the user is an owner.
+        Original: Return groups where the user is an owner.
         """
-        token = self.get_access_token()
+        token = await self.get_access_token()
         endpoint = f"users/{user_id}/ownedObjects/microsoft.graph.group"
         params = {"$select": "id,displayName,mailNickname,mail,securityEnabled,groupTypes"}
-        return self._paged_get(endpoint, token, params=params)
+        return await self._paged_get(endpoint, token, params=params)
 
-    # inside ActiveDirectory
-    def list_users_with_groups(
+    async def list_users_with_groups(
             self,
             include_transitive: bool = False,
             include_owned: bool = True,
             select: str | None = "id,displayName,userPrincipalName",
     ) -> list[dict]:
         """
-        For each user, attach 'groups' (direct), optional 'transitive_groups', and optional 'owned_groups'.
+        Original: For each user, attach 'groups' (direct), optional 'transitive_groups', and optional 'owned_groups'.
         NOTE: This makes multiple Graph calls; consider batching if your directory is large.
         """
-        token = self.get_access_token()
-        users = self._paged_get("users", token, params={"$select": select} if select else None)
+        token = await self.get_access_token()
+        users_data = await self._paged_get("users", token, params={"$select": select} if select else None)
+
         enriched: list[dict] = []
 
-        for u in users:
+        # Process users concurrently in batches
+        async def enrich_user(u: dict):
             uid = u["id"]
-            user_entry = dict(u)  # shallow copy
+            user_entry = dict(u)
 
-            # direct groups
-            user_entry["groups"] = self.get_user_groups(uid, transitive=False)
+            # Fetch all data concurrently for this user
+            tasks = [self.get_user_groups(uid, transitive=False)]
 
-            # transitive groups (optional)
             if include_transitive:
-                # user_entry["transitive_groups"] = self.get_user_groups(uid, transitive=True)
-                user_entry["transitive_groups"] = []
+                tasks.append(self.get_user_groups(uid, transitive=True))
+            else:
+                tasks.append(asyncio.sleep(0))  # Dummy task
 
-            # owned groups (optional)
             if include_owned:
-                # user_entry["owned_groups"] = self.get_user_owned_groups(uid)
-                user_entry["owned_groups"] = []
+                tasks.append(self.get_user_owned_groups(uid))
+            else:
+                tasks.append(asyncio.sleep(0))  # Dummy task
 
-            enriched.append(user_entry)
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+            user_entry["groups"] = results[0] if not isinstance(results[0], Exception) else []
+
+            if include_transitive:
+                user_entry["transitive_groups"] = results[1] if not isinstance(results[1], Exception) else []
+
+            if include_owned:
+                user_entry["owned_groups"] = results[2] if not isinstance(results[2], Exception) else []
+
+            return user_entry
+
+        # Process all users concurrently
+        enriched = await asyncio.gather(*[enrich_user(u) for u in users_data])
 
         return enriched
 
-    # inside ActiveDirectory
-    def get_group_owners(self, group_id: str) -> list[dict]:
-        token = self.get_access_token()
+    async def get_group_owners(self, group_id: str) -> list[dict]:
+        """Original: Get owners of a group"""
+        token = await self.get_access_token()
         endpoint = f"groups/{group_id}/owners"
         params = {"$select": "id,displayName,userPrincipalName"}
-        return self._paged_get(endpoint, token, params=params)
+        return await self._paged_get(endpoint, token, params=params)
 
-    def get_group_members(self, group_id: str) -> list[dict]:
-        token = self.get_access_token()
+    async def get_group_members(self, group_id: str) -> list[dict]:
+        """Original: Get members of a group"""
+        token = await self.get_access_token()
         endpoint = f"groups/{group_id}/members"
         params = {"$select": "id,displayName,userPrincipalName"}
-        return self._paged_get(endpoint, token, params=params)
+        return await self._paged_get(endpoint, token, params=params)
 
-ad = ActiveDirectory()
+    # ==================== NEW: SMART USER RESOLUTION ====================
 
+    async def resolve_user(self, identifier: str) -> str:
+        """
+        NEW: Fast user resolution with multiple strategies.
+        Returns user ID (GUID).
 
-def list_users_tool(input=None):
-    """
-    Tool: List all users in Azure Active Directory.
+        Supports:
+        - User ID (GUID) - returns as-is
+        - Email (userPrincipalName) - direct lookup
+        - Display name - searches and resolves
+        """
+        # Strategy 1: Already a GUID
+        if len(identifier) == 36 and identifier.count('-') == 4:
+            return identifier
 
-    Args:
-        input (None): No input required.
+        # Strategy 2: Email - direct lookup (fastest)
+        if '@' in identifier:
+            try:
+                user = await self._request("GET", f"users/{identifier}")
+                return user.get("id")
+            except:
+                pass
 
-    Returns:
-        dict: A dictionary of users from the tenant.
-    """
-    return ad.list_users()
+        # Strategy 3: Search by displayName
+        params = {
+            "$filter": f"startsWith(displayName, '{identifier}')",
+            "$select": "id,displayName,userPrincipalName",
+            "$top": 10,
+            "$count": "true"
+        }
 
-# print(list_users_tool())
+        result = await self._request("GET", "users", params=params)
+        users = result.get("value", [])
 
-# def create_user_tool(user_data: dict):
-#     """
-#     Tool: Create a new user in Azure Active Directory.
-#
-#     Args:
-#         user_data (dict): User object payload matching Microsoft Graph user creation schema.
-#
-#     Returns:
-#         dict: The created user object.
-#     """
-#     return ad.create_user(user_data)
+        if not users:
+            raise Exception(f"❌ No user found: '{identifier}'")
 
-def create_user_tool(user_data: CreateUserPayload) -> dict:
-    """
-    Tool: Create a new user in Azure Active Directory.
+        # Exact match (case-insensitive)
+        exact = [u for u in users if u.get("displayName", "").lower() == identifier.lower()]
+        if len(exact) == 1:
+            return exact[0]["id"]
 
-    Args:
-        user_data (CreateUserPayload): The user creation payload.
+        if len(users) == 1:
+            return users[0]["id"]
 
-    Returns:
-        dict: The created user object.
-    """
-    return ad.create_user(user_data.dict())
+        # Multiple matches
+        candidates = "\n".join([
+            f"  • {u.get('displayName')} <{u.get('userPrincipalName')}>"
+            for u in users[:5]
+        ])
+        raise Exception(
+            f"❌ Multiple users found for '{identifier}':\n{candidates}\n\n"
+            f"💡 Use full name or email address"
+        )
 
-def delete_user_tool(user_id: str):
-    """
-    Tool: Delete an existing user by ID.
+    # ==================== NEW: ENHANCED BATCH OPERATIONS ====================
 
-    Args:
-        user_id (str): The unique ID of the user to delete.
+    async def batch_resolve_users(
+            self,
+            identifiers: List[str],
+            ignore_errors: bool = True
+    ) -> List[Union[str, Exception]]:
+        """
+        NEW: Resolve multiple users concurrently.
+        Up to 10x faster than sequential!
+        """
+        tasks = [self.resolve_user(ident) for ident in identifiers]
+        results = await asyncio.gather(*tasks, return_exceptions=ignore_errors)
+        return results
 
-    Returns:
-        dict: Result of the deletion request.
-    """
-    return ad.delete_user(user_id)
+    async def batch_get_user_groups(
+            self,
+            user_identifiers: List[str],
+            transitive: bool = False
+    ) -> List[Union[List[dict], Exception]]:
+        """
+        NEW: Get groups for multiple users concurrently.
+        BLAZING FAST! 🔥
+        """
+        # First resolve all users concurrently
+        user_ids = await self.batch_resolve_users(user_identifiers, ignore_errors=True)
 
-def get_user_roles_tool(user_id: str):
-    """
-    Tool: Get roles and group memberships for a specific user.
+        # Then get groups concurrently
+        async def get_groups_safe(uid):
+            if isinstance(uid, Exception):
+                return uid
+            try:
+                return await self.get_user_groups(uid, transitive=transitive)
+            except Exception as e:
+                return e
 
-    Args:
-        user_id (str): The unique Azure AD user ID.
+        tasks = [get_groups_safe(uid) for uid in user_ids]
+        return await asyncio.gather(*tasks)
 
-    Returns:
-        dict: A dictionary of directory roles and groups the user belongs to.
-    """
-    return ad.get_user_roles(user_id)
+    async def search_users_fuzzy(
+            self,
+            query: str,
+            limit: int = 10
+    ) -> List[dict]:
+        """
+        NEW: Fuzzy search for users across multiple fields.
+        Searches displayName, userPrincipalName, and mail.
+        """
+        filter_parts = [
+            f"startsWith(displayName, '{query}')",
+            f"startsWith(userPrincipalName, '{query}')",
+            f"startsWith(mail, '{query}')"
+        ]
 
-def remove_user_from_role_tool(data: dict):
-    """
-    Tool: Remove a user from a specific Azure AD directory role.
+        params = {
+            "$filter": " or ".join(filter_parts),
+            "$select": "id,displayName,userPrincipalName,mail,jobTitle,department",
+            "$top": limit,
+            "$count": "true"
+        }
 
-    Args:
-        data (dict): Dictionary with:
-            - user_id (str): The ID of the user to remove.
-            - role_id (str): The ID of the role to remove from.
+        result = await self._request("GET", "users", params=params)
+        return result.get("value", [])
 
-    Returns:
-        dict: Result of the removal operation.
-    """
-    user_id = data.get("user_id")
-    role_id = data.get("role_id")
+    # ==================== NEW: WRAPPER METHODS WITH SMART RESOLUTION ====================
 
-    if not user_id or not role_id:
-        raise ValueError("Both 'user_id' and 'role_id' must be provided.")
+    async def get_user_groups_smart(self, user_identifier: str, transitive: bool = False) -> list[dict]:
+        """
+        NEW: Get user groups with smart resolution (accepts ID, email, or name)
+        """
+        user_id = await self.resolve_user(user_identifier)
+        return await self.get_user_groups(user_id, transitive=transitive)
 
-    return ad.remove_user_from_role(user_id, role_id)
+    async def get_user_roles_smart(self, user_identifier: str) -> dict:
+        """
+        NEW: Get user roles with smart resolution (accepts ID, email, or name)
+        """
+        user_id = await self.resolve_user(user_identifier)
+        return await self.get_user_roles(user_id)
 
-def instantiate_directory_role_tool(role_template_id: str):
-    """
-    Tool: Activate a directory role based on its template ID.
+    async def add_user_to_role_smart(self, user_identifier: str, role_id: str) -> dict:
+        """
+        NEW: Add user to role with smart resolution (accepts ID, email, or name)
+        """
+        user_id = await self.resolve_user(user_identifier)
+        return await self.add_user_to_role(user_id, role_id)
 
-    Args:
-        role_template_id (str): The ID of the role template to instantiate.
+    async def remove_user_from_role_smart(self, user_identifier: str, role_id: str) -> dict:
+        """
+        NEW: Remove user from role with smart resolution (accepts ID, email, or name)
+        """
+        user_id = await self.resolve_user(user_identifier)
+        return await self.remove_user_from_role(user_id, role_id)
 
-    Returns:
-        dict: The activated directory role object.
-    """
-    return ad.instantiate_directory_role(role_template_id)
+    async def update_user_smart(self, user_identifier: str, updates: dict) -> dict:
+        """
+        NEW: Update user with smart resolution (accepts ID, email, or name)
+        """
+        user_id = await self.resolve_user(user_identifier)
+        return await self.update_user(user_id, updates)
 
-def list_roles_tool(input=None):
-    """
-    Tool: List all activated directory roles in the Azure AD tenant.
-
-    Args:
-        input (None): No input required.
-
-    Returns:
-        dict: A dictionary of active directory roles.
-    """
-    return ad.list_roles()
-
-def add_user_to_role_tool(data: dict):
-    """
-    Tool: Assign a user to a specific Azure AD directory role.
-
-    Args:
-        data (dict): Dictionary with:
-            - user_id (str): The ID of the user to add.
-            - role_id (str): The ID of the role to assign.
-
-    Returns:
-        dict: Result of the assignment operation.
-    """
-    user_id = data.get("user_id")
-    role_id = data.get("role_id")
-
-    if not user_id or not role_id:
-        raise ValueError("Both 'user_id' and 'role_id' must be provided.")
-
-    return ad.add_user_to_role(user_id, role_id)
+    async def delete_user_smart(self, user_identifier: str) -> dict:
+        """
+        NEW: Delete user with smart resolution (accepts ID, email, or name)
+        """
+        user_id = await self.resolve_user(user_identifier)
+        return await self.delete_user(user_id)

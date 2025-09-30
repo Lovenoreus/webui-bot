@@ -25,41 +25,19 @@ services:
       - mcp-network
     restart: unless-stopped
 
-  database_server:
-    build:
-      context: ./docker
-      dockerfile: DockerFile.database
-    ports:
-      - "8762:8762"
-    volumes:
-      - mcp_db_data:/app/database_data
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8762/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    networks:
-      - mcp-network
-
   mcp_server:
     build:
       context: ./docker
       dockerfile: DockerFIle.mcp
     ports:
       - "8009:8009"
-    depends_on:
-      - database_server
     environment:
-      - DATABASE_URL=http://database_server:8762
       - PYTHONPATH=/app
       - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
       - AZURE_TENANT_ID=${AZURE_TENANT_ID}
       - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
-      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
     volumes:
       - .:/app
     restart: unless-stopped
@@ -69,20 +47,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - mcp-network
-
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: qdrant
-    ports:
-      - "6333:6333"
-      - "6334:6334"
-    volumes:
-      - qdrant_storage:/qdrant/storage
-    restart: unless-stopped
-    labels:
-      compose.service: qdrant
     networks:
       - mcp-network
 
@@ -107,10 +71,8 @@ services:
       - mcp-network
 
 volumes:
-  qdrant_storage: {}
   ollama: {}
   open-webui: {}
-  mcp_db_data:
 
 networks:
   mcp-network:

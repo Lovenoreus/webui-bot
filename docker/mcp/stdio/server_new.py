@@ -1,60 +1,59 @@
-import asyncio
+# -------------------- Built-in Libraries --------------------
 import json
-import os
-import re
-import uuid
-from contextlib import asynccontextmanager
+import asyncio
 from datetime import datetime
-from typing import Dict, Optional, List, Any, Union, Literal
+from typing import Dict, Optional, List, Any, Literal
 
+# -------------------- External Libraries --------------------
 import aiohttp
-import requests
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Depends, Header, Body, Request
+from fastapi import FastAPI, HTTPException, Depends, Header, Body, Request, Response
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, ValidationError
-# from fastapi import Request
 
 from langchain_community.chat_models import ChatOllama
 from langchain_openai import ChatOpenAI
 from langchain_mistralai import ChatMistralAI
 from langchain_core.messages import SystemMessage, HumanMessage
 
-import config
+# -------------------- User-defined Modules --------------------
+from active_directory import FastActiveDirectory
 
-# Reuse your existing class/models
-from active_directory import ActiveDirectory
-
-from vector_database_tools import cosmic_database_tool
 
 # ++++++++++++++++++++++++++++++++
 # ACTIVE DIRECTORY PYDANTIC MODELS START
 # ++++++++++++++++++++++++++++++++
 
-# Simplified models for specific endpoints (without action field)
 class UserUpdates(BaseModel):
     updates: Dict[str, Any] = Field(..., description="Fields to update")
+
 
 class RoleAddMember(BaseModel):
     user_id: str = Field(..., description="User ID to add to role")
 
+
 class GroupMemberRequest(BaseModel):
     user_id: str = Field(..., description="User ID")
+
 
 class GroupOwnerRequest(BaseModel):
     user_id: str = Field(..., description="User ID")
 
+
 class GroupUpdates(BaseModel):
     updates: Dict[str, Any] = Field(..., description="Fields to update")
+
 
 class RoleInstantiation(BaseModel):
     roleTemplateId: str = Field(..., description="Role template ID to instantiate")
 
+
 class CreateUserRequest(BaseModel):
     action: Literal["create_user"]
     user: Dict[str, Any] = Field(..., description="Graph API user payload")
+
 
 class CreateGroupRequest(BaseModel):
     action: Literal["create_group"]
@@ -66,6 +65,11 @@ class CreateGroupRequest(BaseModel):
     membership_rule: Optional[str] = Field(None, description="Dynamic membership rule")
     owners: Optional[List[str]] = Field(None, description="List of owner user IDs")
     members: Optional[List[str]] = Field(None, description="List of member user IDs")
+
+
+class BatchUserIdentifiersRequest(BaseModel):
+    identifiers: List[str] = Field(..., description="List of user IDs, emails, or display names")
+
 
 # ++++++++++++++++++++++++++++++
 # ACTIVE DIRECTORY PYDANTIC MODELS END
@@ -107,720 +111,44 @@ class MCPServerInfo(BaseModel):
     capabilities: Dict[str, bool]
 
 
-ad = ActiveDirectory()
-
-ADMIN_API_KEY = os.getenv("MCP_ADMIN_API_KEY")  # set to enable header guard
-
-
 load_dotenv()
 
 # Debug flag
 DEBUG = True
 
-OPENWEATHER_API_KEY = os.environ.get("OPENWEATHER_API_KEY")
-
 app = FastAPI(title="MCP Server API", description="Standalone MCP Tools Server with LLM SQL Generation")
 
-# Add CORS middleware - this must be added immediately after creating the app
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Or specify your frontend URLs: ["http://localhost:3000", "http://localhost:8000"]
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+
+# Dependency to get FastActiveDirectory instance
+async def get_ad():
+    """Dependency that provides FastActiveDirectory instance"""
+    async with FastActiveDirectory(max_concurrent=20) as ad:
+        yield ad
+
 
 # Request models
 class GreetRequest(BaseModel):
     name: Optional[str]
 
 
-class QueryDatabaseRequest(BaseModel):
-    query: str
-    keywords: List[str]
-
-
-class WeatherRequest(BaseModel):
-    city: Optional[str] = None
-    lat: Optional[float] = None
-    lon: Optional[float] = None
-    units: Optional[str] = None
-
-
-class CosmicDatabaseRequest(BaseModel):
-    query: str = Field(..., description="The search query to find relevant information in the cosmic database")
-
-
-def extract_sql_from_json(llm_output: str) -> str:
-    """Extract SQL from LLM response - handles JSON, markdown, or plain SQL"""
-    import re
-
-    # 1. Try JSON
-    try:
-        data = json.loads(llm_output)
-        if 'query' in data:
-            return data['query'].strip()
-    except:
-        pass
-
-    # 2. Try markdown SQL block
-    match = re.search(r'```sql\s*(.*?)\s*```', llm_output, re.DOTALL | re.IGNORECASE)
-    if match:
-        return match.group(1).strip()
-
-    # 3. Try any code block
-    match = re.search(r'```\s*(.*?)\s*```', llm_output, re.DOTALL)
-    if match:
-        return match.group(1).replace('sql\n', '').strip()
-
-    # 4. Find SELECT statement
-    match = re.search(r'(SELECT\s+.*?)(?:;|\n\n|\Z)', llm_output, re.DOTALL | re.IGNORECASE)
-    if match:
-        return match.group(1).strip()
-
-    return ""
-
-
-def get_database_server_url():
-    """Determine the correct database server URL based on environment"""
-    if os.environ.get('DOCKER_CONTAINER') or os.path.exists('/.dockerenv'):
-        return config.MCP_DOCKER_DATABASE_SERVER_URL
-    else:
-        return config.MCP_DATABASE_SERVER_URL
-
-
-DATABASE_SERVER_URL = get_database_server_url()
-
-if DEBUG:
-    print(f"[MCP DEBUG] Database server URL: {DATABASE_SERVER_URL}")
-
-
-async def execute_query(query: str):
-    """Run a query on the FastAPI database server"""
-    try:
-        if DEBUG:
-            print(f"[MCP DEBUG] Executing query: {query}")
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                    f"{DATABASE_SERVER_URL}/query",
-                    json={"query": query},
-                    timeout=300
-            ) as response:
-                result = await response.json()
-
-                if DEBUG:
-                    print(f"[MCP DEBUG] Query result: {result}")
-
-                if result.get("success"):
-                    return result.get("data", [])
-                else:
-                    if DEBUG:
-                        print(f"[MCP DEBUG] Database error: {result.get('error')}")
-                    return []
-    except Exception as e:
-        if DEBUG:
-            print(f"[MCP DEBUG] Database connection error: {e}")
-        return []
-
-
-async def execute_query_stream(query: str):
-    """Stream database results as they arrive"""
-    try:
-        if DEBUG:
-            print(f"[MCP DEBUG] Starting streaming query: {query}")
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                    f"{DATABASE_SERVER_URL}/query_stream",
-                    json={"query": query},
-                    timeout=300
-            ) as response:
-
-                if response.status != 200:
-                    if DEBUG:
-                        print(f"[MCP DEBUG] Database connection failed, status: {response.status}")
-                    yield {"success": False, "error": "Database connection failed"}
-                    return
-
-                results = []
-                async for line in response.content:
-                    if line.strip():
-                        try:
-                            data = json.loads(line.decode())
-
-                            if DEBUG:
-                                print(f"[MCP DEBUG] Streaming data: {data}")
-
-                            if data["type"] == "start":
-                                yield {
-                                    "success": True,
-                                    "sql_query": data["query"],
-                                    "streaming": True,
-                                    "status": "started"
-                                }
-
-                            elif data["type"] == "row":
-                                results.append(data["data"])
-                                yield {
-                                    "success": True,
-                                    "type": "row",
-                                    "data": data["data"],
-                                    "index": data["index"],
-                                    "running_total": len(results)
-                                }
-
-                            elif data["type"] == "complete":
-                                yield {
-                                    "success": True,
-                                    "type": "complete",
-                                    "results": results,
-                                    "record_count": data["total_rows"],
-                                    "status": "finished"
-                                }
-
-                            elif data["type"] == "error":
-                                if DEBUG:
-                                    print(f"[MCP DEBUG] Database error in stream: {data['error']}")
-                                yield {"success": False, "error": data["error"]}
-
-                        except json.JSONDecodeError:
-                            if DEBUG:
-                                print(f"[MCP DEBUG] Failed to decode JSON line: {line}")
-                            continue
-
-    except Exception as e:
-        if DEBUG:
-            print(f"[MCP DEBUG] Stream execution error: {e}")
-        yield {"success": False, "error": f"Database connection error: {str(e)}"}
-
-
-class DatabaseKeywordHints:
-    def __init__(self):
-        self.all_tables = ['HealthcareFacilities', 'MedicalServicesCatalog', 'LabTestReferenceRanges',
-                           'MedicalInventory', 'InsuranceProviders', 'FacilityServices', 'InsuranceCoverage'
-                           ]
-
-    def filter_keywords_for_table(self, keywords: List[str], table_name: str) -> List[str]:
-        """Filter out keywords that match the table name to avoid false matches"""
-        table_name_lower = table_name.lower()
-        filtered_keywords = []
-
-        for keyword in keywords:
-            keyword_lower = keyword.lower()
-
-            # Skip if keyword matches table name exactly
-            if keyword_lower == table_name_lower:
-                continue
-
-            # Skip if keyword is part of table name or vice versa
-            if keyword_lower in table_name_lower or table_name_lower in keyword_lower:
-                continue
-
-            # Special cases for common table variations
-            table_variations = {
-                'healthcarefacilities': ['facility', 'facilities', 'hospital', 'clinic', 'center'],
-                'medicalservicescatalog': ['service', 'services', 'catalog', 'medical'],
-                'labtestReferenceranges': ['lab', 'test', 'range', 'reference'],
-                'medicalinventory': ['inventory', 'stock', 'supplies', 'items'],
-                'insuranceproviders': ['insurance', 'provider', 'coverage', 'insurer'],
-                'facilityservices': ['facility service', 'available service'],
-                'insurancecoverage': ['coverage', 'covered', 'deductible']
-            }
-
-            skip_keyword = False
-            for table_var, variations in table_variations.items():
-                if table_name_lower.startswith(table_var) and keyword_lower in variations:
-                    skip_keyword = True
-                    break
-
-            if not skip_keyword:
-                filtered_keywords.append(keyword)
-
-        if DEBUG:
-            print(f"[MCP DEBUG] Filtered keywords for {table_name}: {keywords} -> {filtered_keywords}")
-
-        return filtered_keywords
-
-    async def get_table_string_columns(self, table_name: str) -> List[str]:
-        """Get all string/text columns from a table dynamically"""
-        try:
-            schema_query = f"PRAGMA table_info({table_name})"
-            schema_results = await execute_query(schema_query)
-
-            string_columns = []
-            for column_info in schema_results:
-                column_name = column_info['name']
-                column_type = column_info['type'].upper()
-
-                # Check if it's a string/text type
-                if any(text_type in column_type for text_type in ['VARCHAR', 'TEXT', 'CHAR']):
-                    string_columns.append(column_name)
-
-            if DEBUG:
-                print(f"[MCP DEBUG] String columns for {table_name}: {string_columns}")
-
-            return string_columns
-        except Exception as e:
-            if DEBUG:
-                print(f"[MCP DEBUG] Error getting string columns for {table_name}: {e}")
-            return []
-
-    async def search_table_for_keywords(self, table_name: str, keywords: List[str]) -> List[Dict]:
-        """Search a single table for keyword matches in all string columns"""
-        # Filter keywords to avoid table name matches
-        filtered_keywords = self.filter_keywords_for_table(keywords, table_name)
-
-        if not filtered_keywords:
-            if DEBUG:
-                print(f"[MCP DEBUG] No relevant keywords for {table_name} after filtering")
-            return []
-
-        if DEBUG:
-            print(f"[MCP DEBUG] Searching {table_name} for keywords: {filtered_keywords}")
-
-        # Get string columns dynamically
-        string_columns = await self.get_table_string_columns(table_name)
-        if not string_columns:
-            if DEBUG:
-                print(f"[MCP DEBUG] No string columns found in {table_name}")
-            return []
-
-        # Build WHERE clause for keyword matching
-        where_conditions = []
-        for keyword in filtered_keywords:
-            keyword_conditions = []
-            for column in string_columns:
-                keyword_conditions.append(f"LOWER({column}) LIKE LOWER('%{keyword}%')")
-            if keyword_conditions:
-                where_conditions.append(f"({' OR '.join(keyword_conditions)})")
-
-        if not where_conditions:
-            return []
-
-        # Construct the search query
-        query = f"""
-        SELECT {', '.join(string_columns)}
-        FROM {table_name} 
-        WHERE {' OR '.join(where_conditions)}
-        """
-
-        try:
-            results = await execute_query(query)
-            if DEBUG:
-                print(f"[MCP DEBUG] Found {len(results)} matches in {table_name}")
-                if results:
-                    print(f"[MCP DEBUG] Sample match: {results[0]}")
-            return results
-        except Exception as e:
-            if DEBUG:
-                print(f"[MCP DEBUG] Error searching {table_name}: {e}")
-            return []
-
-    async def search_all_tables_async(self, keywords: List[str]) -> List[Dict]:
-        """Search all tables for keyword matches and return structured results"""
-        if DEBUG:
-            print(f"[MCP DEBUG] Starting async search for keywords: {keywords}")
-
-        # Create async tasks for each table search
-        search_tasks = []
-        for table_name in self.all_tables:
-            task = self.search_table_for_keywords(table_name, keywords)
-            search_tasks.append((table_name, task))
-
-        # Execute all searches concurrently
-        all_results = []
-        results = await asyncio.gather(*[task for _, task in search_tasks], return_exceptions=True)
-
-        # Process results
-        for i, (table_name, _) in enumerate(search_tasks):
-            if isinstance(results[i], Exception):
-                if DEBUG:
-                    print(f"[MCP DEBUG] Error searching {table_name}: {results[i]}")
-                continue
-
-            table_results = results[i]
-            if table_results:
-                # Add table context to results
-                for row in table_results:
-                    all_results.append({
-                        'table': table_name,
-                        'row': row,
-                        'matched_keywords': self.filter_keywords_for_table(keywords, table_name)
-                    })
-
-        if DEBUG:
-            print(f"[MCP DEBUG] Total matches found across all tables: {len(all_results)}")
-
-        return all_results
-
-    def generate_hit_results(self, matches: List[Dict], keywords: List[str]) -> List[str]:
-        """Generate hit result strings showing what was found where"""
-        hit_results = []
-
-        for match in matches:
-            table = match['table']
-            row = match['row']
-            matched_keywords = match['matched_keywords']
-
-            # Find which columns had matches
-            for column, value in row.items():
-                if not value:
-                    continue
-
-                value_str = str(value).lower()
-                found_keywords = []
-
-                for keyword in matched_keywords:
-                    if keyword.lower() in value_str:
-                        found_keywords.append(keyword)
-
-                if found_keywords:
-                    hit_text = f"In {table} table found '{value}' in column {column}"
-                    if len(found_keywords) > 1:
-                        hit_text += f" (matched keywords: {', '.join(found_keywords)})"
-                    hit_results.append(hit_text)
-
-        if DEBUG:
-            print(f"[MCP DEBUG] Generated hit results:")
-            for hit in hit_results:
-                print(f"[MCP DEBUG]   - {hit}")
-
-        return hit_results
-
-
-# Initialize the hint generator
-hint_generator = DatabaseKeywordHints()
-
-
-async def get_sql_query_stream(user_question: str, keywords: List[str], provider: str = "ollama"):
-    """Generate SQL using keyword search context - SINGLE LLM CALL"""
-
-    if DEBUG:
-        print(f"[MCP DEBUG] Starting SQL generation for: {user_question}")
-        print(f"[MCP DEBUG] Keywords: {keywords}")
-        print(f"[MCP DEBUG] Provider: {provider}")
-
-    yield {"status": "generating_sql", "message": "Searching database for context..."}
-
-    # STEP 1: Search all tables for keyword matches
-    matches = await hint_generator.search_all_tables_async(keywords)
-
-    # STEP 2: Generate hit results showing what was found
-    hit_results = hint_generator.generate_hit_results(matches, keywords)
-
-    if DEBUG:
-        print(f"[MCP DEBUG] Generated {len(hit_results)} hit results")
-
-    # STEP 3: Build system prompt with enhanced SQL generation rules
-    base_system_prompt = """You are a helpful SQL query assistant for a healthcare management database. The database contains the following tables and structure:
-    
-    ## Database Schema
-    
-    ### Core Tables
-    
-    **HealthcareFacilities**
-    ```sql
-    CREATE TABLE HealthcareFacilities (
-        FacilityID INTEGER PRIMARY KEY AUTOINCREMENT,
-        Name VARCHAR(100) NOT NULL,
-        Type VARCHAR(50) NOT NULL,
-        Address TEXT,
-        City VARCHAR(50),
-        State VARCHAR(50),
-        Country VARCHAR(50),
-        LicenseNumber VARCHAR(50),
-        AccreditationStatus VARCHAR(50),
-        OperationalSince DATE,
-        IsActive BOOLEAN DEFAULT TRUE,
-        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    ```
-    
-    **MedicalServicesCatalog**
-    ```sql
-    CREATE TABLE MedicalServicesCatalog (
-        ServiceID INTEGER PRIMARY KEY AUTOINCREMENT,
-        ServiceName VARCHAR(100) NOT NULL,
-        ServiceCode VARCHAR(50) UNIQUE NOT NULL,
-        Department VARCHAR(50),
-        Description TEXT,
-        BasePrice DECIMAL(10,2),
-        RequiresAppointment BOOLEAN DEFAULT TRUE,
-        IsActive BOOLEAN DEFAULT TRUE,
-        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    ```
-    
-    **LabTestReferenceRanges**
-    ```sql
-    CREATE TABLE LabTestReferenceRanges (
-        RangeID INTEGER PRIMARY KEY AUTOINCREMENT,
-        TestName VARCHAR(100) NOT NULL,
-        ServiceID INTEGER,
-        Unit VARCHAR(20),
-        Gender VARCHAR(10),
-        AgeMin INTEGER,
-        AgeMax INTEGER,
-        MinValue DECIMAL(10,2),
-        MaxValue DECIMAL(10,2),
-        Notes TEXT,
-        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (ServiceID) REFERENCES MedicalServicesCatalog(ServiceID)
-    );
-    ```
-    
-    **MedicalInventory**
-    ```sql
-    CREATE TABLE MedicalInventory (
-        InventoryID INTEGER PRIMARY KEY AUTOINCREMENT,
-        ItemName VARCHAR(100) NOT NULL,
-        Category VARCHAR(50),
-        Quantity INTEGER DEFAULT 0,
-        Unit VARCHAR(20),
-        FacilityID INTEGER NOT NULL,
-        ReorderThreshold INTEGER DEFAULT 10,
-        ExpiryDate DATE,
-        LastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (FacilityID) REFERENCES HealthcareFacilities(FacilityID)
-    );
-    ```
-    
-    **InsuranceProviders**
-    ```sql
-    CREATE TABLE InsuranceProviders (
-        ProviderID INTEGER PRIMARY KEY AUTOINCREMENT,
-        ProviderName VARCHAR(100) NOT NULL,
-        ContactEmail VARCHAR(100),
-        ContactPhone VARCHAR(20),
-        Address TEXT,
-        ServicesCovered TEXT,
-        Country VARCHAR(50),
-        ContractStart DATE,
-        ContractEnd DATE,
-        IsActive BOOLEAN DEFAULT TRUE,
-        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    ```
-    
-    ### Relationship Tables
-    
-    **FacilityServices**
-    ```sql
-    CREATE TABLE FacilityServices (
-        FacilityServiceID INTEGER PRIMARY KEY AUTOINCREMENT,
-        FacilityID INTEGER NOT NULL,
-        ServiceID INTEGER NOT NULL,
-        IsAvailable BOOLEAN DEFAULT TRUE,
-        EffectiveDate DATE DEFAULT CURRENT_DATE,
-        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (FacilityID) REFERENCES HealthcareFacilities(FacilityID),
-        FOREIGN KEY (ServiceID) REFERENCES MedicalServicesCatalog(ServiceID),
-        UNIQUE(FacilityID, ServiceID)
-    );
-    ```
-    
-    **InsuranceCoverage**
-    ```sql
-    CREATE TABLE InsuranceCoverage (
-        CoverageID INTEGER PRIMARY KEY AUTOINCREMENT,
-        ProviderID INTEGER NOT NULL,
-        ServiceID INTEGER NOT NULL,
-        CoveragePercentage DECIMAL(5,2) DEFAULT 0.00,
-        Deductible DECIMAL(10,2) DEFAULT 0.00,
-        IsActive BOOLEAN DEFAULT TRUE,
-        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (ProviderID) REFERENCES InsuranceProviders(ProviderID),
-        FOREIGN KEY (ServiceID) REFERENCES MedicalServicesCatalog(ServiceID),
-        UNIQUE(ProviderID, ServiceID)
-    );
-    ```
-    
-    ## Sample Data Context
-    
-    ### Facility Types
-    - Hospital, Medical Center, Clinic, Laboratory, Imaging Center, Urgent Care, Specialty Clinic
-    
-    ### Service Departments
-    - Laboratory, Radiology, Primary Care, Cardiology, Gastroenterology
-    
-    ### Inventory Categories
-    - PPE, Laboratory Supplies, Medical Equipment, Imaging Supplies, Medical Supplies
-    
-    ### Common Services
-    - Blood Chemistry Panel (LAB001), Complete Blood Count (LAB002), Chest X-Ray (RAD001), MRI Brain (RAD002), Annual Physical Exam (PREV001), Echocardiogram (CARD001), Colonoscopy (GI001), Mammogram (RAD004)
-    
-    ## Key Relationships
-    - **One-to-Many**: HealthcareFacilities → MedicalInventory
-    - **One-to-Many**: MedicalServicesCatalog → LabTestReferenceRanges
-    - **Many-to-Many**: HealthcareFacilities ↔ MedicalServicesCatalog (via FacilityServices)
-    - **Many-to-Many**: InsuranceProviders ↔ MedicalServicesCatalog (via InsuranceCoverage)
-    
-    ## Common Query Patterns
-    
-    ### Operational Queries
-    ```sql
-    -- Find services at a facility
-    SELECT f.Name, s.ServiceName, s.ServiceCode 
-    FROM HealthcareFacilities f
-    JOIN FacilityServices fs ON f.FacilityID = fs.FacilityID
-    JOIN MedicalServicesCatalog s ON fs.ServiceID = s.ServiceID
-    WHERE f.FacilityID = ?;
-    
-    -- Check low inventory
-    SELECT i.ItemName, i.Quantity, i.ReorderThreshold, f.Name
-    FROM MedicalInventory i
-    JOIN HealthcareFacilities f ON i.FacilityID = f.FacilityID
-    WHERE i.Quantity <= i.ReorderThreshold;
-    
-    -- Insurance coverage lookup
-    SELECT ip.ProviderName, ic.CoveragePercentage, ic.Deductible
-    FROM InsuranceProviders ip
-    JOIN InsuranceCoverage ic ON ip.ProviderID = ic.ProviderID
-    JOIN MedicalServicesCatalog s ON ic.ServiceID = s.ServiceID
-    WHERE s.ServiceCode = ?;
-    ```
-    
-    ## Instructions
-    1. **Always use proper JOINs** to connect related tables
-    2. **Filter by IsActive = TRUE** when querying active records
-    3. **Use table aliases** for readability (f for facilities, s for services, etc.)
-    4. **Include relevant columns** for healthcare reporting needs
-    5. **Consider date filters** for time-sensitive queries
-    6. **Handle NULL values** appropriately in conditions
-    7. **Use DECIMAL for financial data** (prices, percentages)
-    8. **Include proper ORDER BY** for meaningful result sorting
-    
-    When users ask about healthcare operations, generate efficient SQL queries using this schema. Focus on practical needs like facility management, inventory tracking, service availability, insurance verification, and operational reporting.
-    ## CRITICAL OUTPUT FORMAT
-    You must respond with ONLY a valid SQL query. No explanations, no markdown, no code blocks.
-    Return only the raw SQL statement that can be executed directly.
-    
-    Example response format:
-    SELECT * FROM HealthcareFacilities WHERE State = 'CA'
-    
-    Do not wrap in ```sql blocks. Do not add explanations. Just the SQL query.
-    """
-
-    # STEP 4: Add data context from search results
-    seen = set()
-    unique_hits = []
-    for hit in hit_results:
-        if hit not in seen:
-            unique_hits.append(hit)
-            seen.add(hit)
-
-    if unique_hits:
-        hint_text = f"\n\nDATA CONTEXT FROM SEARCH:\n"
-        for hit in unique_hits[:10]:
-            hint_text += f"- {hit}\n"
-        system_prompt = base_system_prompt + hint_text
-
-        if DEBUG:
-            print(f"[MCP DEBUG] Added {len(unique_hits)} context hints to prompt")
-    else:
-        system_prompt = base_system_prompt
-        if DEBUG:
-            print(f"[MCP DEBUG] No context hits found, using base prompt only")
-
-    # STEP 5: Set up LLM
-    if provider == "ollama":
-        llm = ChatOllama(model=config.MCP_AGENT_MODEL_NAME, temperature=0, stream=True, base_url=config.OLLAMA_BASE_URL)
-
-    elif provider == "openai":
-        api_key = os.environ.get("OPENAI_API_KEY")
-
-        if not api_key:
-            raise ValueError("OPENAI_API_KEY environment variable is required for OpenAI provider")
-
-        llm = ChatOpenAI(model=config.MCP_AGENT_MODEL_NAME, temperature=0, streaming=True, api_key=api_key)
-
-    elif provider == "mistral":
-        api_key = os.environ.get("MISTRAL_API_KEY")
-
-        llm = ChatMistralAI(
-            model=config.MCP_AGENT_MODEL_NAME,
-            temperature=0,
-            streaming=True,
-            mistral_api_key=api_key,
-            endpoint=config.MISTRAL_BASE_URL
-        )
-
-    else:
-        raise ValueError("Unsupported provider")
-
-    messages = [
-        SystemMessage(content=system_prompt),
-        HumanMessage(content=user_question)
-    ]
-
-    yield {"status": "streaming_sql", "message": "Generating SQL query..."}
-
-    # STEP 6: Stream the LLM response (SINGLE CALL)
-    accumulated_content = ""
-
-    if DEBUG:
-        print(f"[MCP DEBUG] Starting LLM streaming with context-enhanced prompt...")
-
-    async for chunk in llm.astream(messages):
-        if hasattr(chunk, 'content') and chunk.content:
-            accumulated_content += chunk.content
-            if DEBUG:
-                print(f"[MCP DEBUG] LLM chunk: {chunk.content}")
-
-            yield {
-                "status": "sql_streaming",
-                "partial_content": chunk.content,
-                "accumulated_content": accumulated_content
-            }
-
-    # STEP 7: Parse final SQL
-    if DEBUG:
-        print(f"[MCP DEBUG] Final accumulated content: {accumulated_content}")
-
-    sql_query = extract_sql_from_json(accumulated_content)
-
-    if not sql_query:
-        if DEBUG:
-            print(f"[MCP DEBUG] Failed to extract SQL from: {accumulated_content}")
-        yield {"status": "error", "message": "Failed to extract SQL from LLM response"}
-        return
-
-    # Clean up SQL - ensure single line
-    sql_query = ' '.join(sql_query.replace('\\n', ' ').replace('\n', ' ').split())
-
-    if DEBUG:
-        print(f"[MCP DEBUG] Final cleaned SQL: {sql_query}")
-
-    yield {"status": "sql_complete", "sql_query": sql_query}
-
-
-async def get_sql_query(user_question: str, keywords: List[str], provider: str = "ollama") -> str:
-    """Non-streaming version for backward compatibility"""
-    sql_query = ""
-    async for update in get_sql_query_stream(user_question, keywords, provider):
-        if update.get("status") == "sql_complete":
-            sql_query = update.get("sql_query", "")
-            break
-    return sql_query
-
-
-
 async def greet(name: Optional[str] = None) -> str:
     """
     Provide a friendly greeting to the user with appropriate time-based salutation.
     """
-    # Handle empty strings, whitespace-only strings, and None
     if not name or name.strip() == "":
         name = None
 
     hour = datetime.now().hour
+
     if 5 <= hour < 12:
         time_greeting = "Good morning"
     elif 12 <= hour < 17:
@@ -845,261 +173,28 @@ async def greet_endpoint(request: GreetRequest):
         name = request.name if request.name and request.name.strip() else None
         message = await greet(name)
         return {"message": message}
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-@app.post("/query_sql_database")
-async def query_sql_database_endpoint(request: QueryDatabaseRequest):
-    """Query database with natural language using LLM SQL generation"""
-    try:
-        if DEBUG:
-            print(f"[MCP DEBUG] Received DB request: {request.query}")
-            print(f"[MCP DEBUG] Keywords: {request.keywords}")
-
-        if config.MCP_PROVIDER_OLLAMA:
-            provider = "ollama"
-
-        elif config.MCP_PROVIDER_OPENAI:
-            provider = "openai"
-
-        elif config.MCP_PROVIDER_MISTRAL:
-            provider = "mistral"
-
-        else:
-            raise ValueError("Unsupported provider")
-
-        if DEBUG:
-            print(f'[MCP DEBUG] Using provider: {provider}')
-
-        # Generate SQL using LLM with both query and keywords
-        sql_query = await get_sql_query(request.query, request.keywords, provider)
-
-        # Remove all \n characters
-        sql_query = sql_query.replace('\\n', ' ').replace('\n', ' ')
-
-        if DEBUG:
-            print(f"[MCP DEBUG] Generated SQL query: {sql_query}")
-
-        if not sql_query:
-            return {
-                "success": False,
-                "error": "Failed to generate SQL",
-                "original_query": request.query
-            }
-
-        # Execute the SQL query
-        results = await execute_query(sql_query)
-
-        if DEBUG:
-            print(f"[MCP DEBUG] Query results: {results}")
-
-        return {
-            "success": True,
-            "sql_query": sql_query,
-            "results": results,
-            "original_query": request.query,
-            "record_count": len(results)
-        }
-
-    except Exception as e:
-        if DEBUG:
-            print(f"[MCP DEBUG] Error in query_sql_database: {e}")
-        return {
-            "success": False,
-            "error": str(e),
-            "original_query": request.query
-        }
-
-
-@app.post("/query_sql_database_stream")
-async def query_sql_database_stream_endpoint(request: QueryDatabaseRequest):
-    """Stream database query results with SQL generation"""
-
-    async def generate_response():
-        try:
-            if DEBUG:
-                print(f"[MCP DEBUG] Received streaming request: {request.query}")
-                print(f"[MCP DEBUG] Keywords: {request.keywords}")
-
-            if config.MCP_PROVIDER_OLLAMA:
-                provider = "ollama"
-
-            elif config.MCP_PROVIDER_OPENAI:
-                provider = "openai"
-
-            elif config.MCP_PROVIDER_MISTRAL:
-                provider = "mistral"
-
-            else:
-                raise ValueError("Unsupported provider")
-
-            # Stream SQL generation with keyword context
-            sql_query = ""
-
-            async for sql_update in get_sql_query_stream(request.query, request.keywords, provider):
-                if DEBUG:
-                    print(f"[MCP DEBUG] SQL update: {sql_update}")
-                yield json.dumps(sql_update) + "\n"
-                if sql_update.get("status") == "sql_complete":
-                    sql_query = sql_update.get("sql_query", "")
-
-            if not sql_query:
-                if DEBUG:
-                    print("[MCP DEBUG] No SQL query generated!")
-                yield json.dumps({
-                    "success": False,
-                    "error": "Failed to generate SQL"
-                }) + "\n"
-                return
-
-            # Stream database execution
-            if DEBUG:
-                print(f"[MCP DEBUG] Executing SQL: {sql_query}")
-
-            yield json.dumps({
-                "status": "executing_query",
-                "message": "Executing SQL query...",
-                "sql_query": sql_query
-            }) + "\n"
-
-            # Stream results from database
-            async for db_result in execute_query_stream(sql_query):
-                db_result["original_query"] = request.query
-                if DEBUG:
-                    print(f"[MCP DEBUG] Database result: {db_result}")
-                yield json.dumps(db_result) + "\n"
-
-        except Exception as e:
-            if DEBUG:
-                print(f"[MCP DEBUG] Error in streaming endpoint: {e}")
-            yield json.dumps({
-                "success": False,
-                "error": str(e),
-                "original_query": request.query
-            }) + "\n"
-
-    return StreamingResponse(
-        generate_response(),
-        media_type="application/x-ndjson"
-    )
-
-
-@app.post("/weather")
-async def weather_endpoint(request: WeatherRequest):
-    """Get current weather using OpenWeather API"""
-    try:
-        if not OPENWEATHER_API_KEY:
-            raise HTTPException(status_code=500, detail="Missing OPENWEATHER_API_KEY")
-
-        units = request.units or "metric"
-        base = "https://api.openweathermap.org/data/2.5/weather"
-        params = {"appid": OPENWEATHER_API_KEY, "units": units}
-
-        if request.city:
-            params["q"] = request.city
-        elif request.lat is not None and request.lon is not None:
-            params["lat"] = request.lat
-            params["lon"] = request.lon
-        else:
-            raise HTTPException(status_code=400, detail="Provide either 'city' or ('lat' and 'lon')")
-
-        response = requests.get(base, params=params, timeout=15)
-        response.raise_for_status()
-        data = response.json()
-
-        main = data.get("main", {})
-        wind = data.get("wind", {})
-        weather0 = (data.get("weather") or [{}])[0]
-        sysinfo = data.get("sys", {})
-
-        return {
-            "source": "openweather",
-            "units": units,
-            "coord": data.get("coord", {}),
-            "location": {
-                "name": data.get("name"),
-                "country": sysinfo.get("country"),
-            },
-            "current": {
-                "temp": main.get("temp"),
-                "feels_like": main.get("feels_like"),
-                "humidity": main.get("humidity"),
-                "pressure": main.get("pressure"),
-                "wind_speed": wind.get("speed"),
-                "wind_deg": wind.get("deg"),
-                "condition": weather0.get("main"),
-                "description": weather0.get("description"),
-            },
-        }
-
-    except requests.HTTPError as e:
-        try:
-            payload = response.json()
-        except Exception:
-            payload = {"message": str(e)}
-        raise HTTPException(status_code=400, detail=f"OpenWeather error: {payload}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/qdrant/cosmic_database_tool")
-async def cosmic_database_endpoint(request: CosmicDatabaseRequest):
-    """Search the cosmic database using vector similarity search"""
-    try:
-        if DEBUG:
-            print(f"[COSMIC DB] Searching cosmic database for query: {request.query}")
-        
-        result = await cosmic_database_tool(request.query)
-        return {
-            "success": True,
-            "query": request.query,
-            "result": result
-        }
-    
-    except Exception as e:
-        if DEBUG:
-            print(f"[COSMIC DB] Error: {e}")
-        return {
-            "success": False,
-            "query": request.query,
-            "error": str(e)
-        }
 
 # ++++++++++++++++++++++++++++++++
 # ACTIVE DIRECTORY ENDPOINTS START
 # ++++++++++++++++++++++++++++++++
-
-# ------------------------------
-# AZURE AD: Single operations endpoint
-# ------------------------------
-
-def _require_fields(action: str, body: dict, fields: list[str]):
-    missing = [f for f in fields if not str(body.get(f, "")).strip()]
-    if missing:
-        return {
-            "success": False,
-            "error": f"Missing required field(s) for '{action}': {', '.join(missing)}",
-            "missing_fields": missing
-        }
-    return None
-
-
 
 # ======================================
 # USER MANAGEMENT ENDPOINTS
 # ======================================
 
 @app.get("/ad/users")
-async def list_users_endpoint():
+async def list_users_endpoint(ad: FastActiveDirectory = Depends(get_ad)):
     """List all users in the directory"""
     try:
         if DEBUG:
             print("[AD_USERS] Listing all users")
-        
-        data = ad.list_users()
+
+        data = await ad.list_users()
         return {"success": True, "action": "list_users", "data": data}
-    
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_USERS] Error: {e}")
@@ -1107,24 +202,22 @@ async def list_users_endpoint():
 
 
 @app.post("/ad/users")
-async def create_user_endpoint(request: CreateUserRequest):
+async def create_user_endpoint(request: CreateUserRequest, ad: FastActiveDirectory = Depends(get_ad)):
     """Create a new user in the directory"""
     try:
         if DEBUG:
             print(f"[AD_USERS] Creating user")
-        
+
         user_payload = request.user
-        # Auto-generate userPrincipalName from displayName (strip spaces and lowercase)
         if "displayName" in user_payload:
             clean_name = user_payload["displayName"].replace(" ", "").lower()
             user_payload["userPrincipalName"] = f"{clean_name}@lovenoreusgmail.onmicrosoft.com"
-            # Also set mailNickname if not provided
             if "mailNickname" not in user_payload:
                 user_payload["mailNickname"] = clean_name
-        
-        data = ad.create_user(user_payload)
+
+        data = await ad.create_user(user_payload)
         return {"success": True, "action": "create_user", "data": data}
-    
+
     except ValidationError as ve:
         if DEBUG:
             print(f"[AD_USERS] Validation Error: {ve}")
@@ -1136,15 +229,15 @@ async def create_user_endpoint(request: CreateUserRequest):
 
 
 @app.patch("/ad/users/{user_id}")
-async def update_user_endpoint(user_id: str, request: UserUpdates):
+async def update_user_endpoint(user_id: str, request: UserUpdates, ad: FastActiveDirectory = Depends(get_ad)):
     """Update an existing user"""
     try:
         if DEBUG:
             print(f"[AD_USERS] Updating user: {user_id}")
-        
-        data = ad.update_user(user_id, request.updates)
+
+        data = await ad.update_user_smart(user_id, request.updates)
         return {"success": True, "action": "update_user", "user_id": user_id, "data": data}
-    
+
     except ValidationError as ve:
         if DEBUG:
             print(f"[AD_USERS] Validation Error: {ve}")
@@ -1156,15 +249,15 @@ async def update_user_endpoint(user_id: str, request: UserUpdates):
 
 
 @app.delete("/ad/users/{user_id}")
-async def delete_user_endpoint(user_id: str):
+async def delete_user_endpoint(user_id: str, ad: FastActiveDirectory = Depends(get_ad)):
     """Delete a user from the directory"""
     try:
         if DEBUG:
             print(f"[AD_USERS] Deleting user: {user_id}")
-        
-        data = ad.delete_user(user_id)
+
+        data = await ad.delete_user_smart(user_id)
         return {"success": True, "action": "delete_user", "user_id": user_id, "data": data}
-    
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_USERS] Error: {e}")
@@ -1172,15 +265,15 @@ async def delete_user_endpoint(user_id: str):
 
 
 @app.get("/ad/users/{user_id}/roles")
-async def get_user_roles_endpoint(user_id: str):
+async def get_user_roles_endpoint(user_id: str, ad: FastActiveDirectory = Depends(get_ad)):
     """Get roles assigned to a specific user"""
     try:
         if DEBUG:
             print(f"[AD_USERS] Getting roles for user: {user_id}")
-        
-        data = ad.get_user_roles(user_id)
+
+        data = await ad.get_user_roles_smart(user_id)
         return {"success": True, "action": "get_user_roles", "user_id": user_id, "data": data}
-    
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_USERS] Error: {e}")
@@ -1188,15 +281,16 @@ async def get_user_roles_endpoint(user_id: str):
 
 
 @app.get("/ad/users/{user_id}/groups")
-async def get_user_groups_endpoint(user_id: str, transitive: bool = False):
+async def get_user_groups_endpoint(user_id: str, transitive: bool = False, ad: FastActiveDirectory = Depends(get_ad)):
     """Get groups for a specific user"""
     try:
         if DEBUG:
             print(f"[AD_USERS] Getting groups for user: {user_id}, transitive: {transitive}")
-        
-        data = ad.get_user_groups(user_id, transitive=transitive)
-        return {"success": True, "action": "get_user_groups", "user_id": user_id, "transitive": transitive, "data": data}
-    
+
+        data = await ad.get_user_groups_smart(user_id, transitive=transitive)
+        return {"success": True, "action": "get_user_groups", "user_id": user_id, "transitive": transitive,
+                "data": data}
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_USERS] Error: {e}")
@@ -1204,15 +298,16 @@ async def get_user_groups_endpoint(user_id: str, transitive: bool = False):
 
 
 @app.get("/ad/users/{user_id}/owned-groups")
-async def get_user_owned_groups_endpoint(user_id: str):
+async def get_user_owned_groups_endpoint(user_id: str, ad: FastActiveDirectory = Depends(get_ad)):
     """Get groups owned by a specific user"""
     try:
         if DEBUG:
             print(f"[AD_USERS] Getting owned groups for user: {user_id}")
-        
-        data = ad.get_user_owned_groups(user_id)
+
+        user_resolved_id = await ad.resolve_user(user_id)
+        data = await ad.get_user_owned_groups(user_resolved_id)
         return {"success": True, "action": "get_user_owned_groups", "user_id": user_id, "data": data}
-    
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_USERS] Error: {e}")
@@ -1221,26 +316,77 @@ async def get_user_owned_groups_endpoint(user_id: str):
 
 @app.get("/ad/users-with-groups")
 async def list_users_with_groups_endpoint(
-    include_transitive: bool = False,
-    include_owned: bool = True,
-    select: str = "id,displayName,userPrincipalName"
+        include_transitive: bool = False,
+        include_owned: bool = True,
+        select: str = "id,displayName,userPrincipalName",
+        ad: FastActiveDirectory = Depends(get_ad)
 ):
     """List users with their group information"""
     try:
         if DEBUG:
             print(f"[AD_USERS] Listing users with groups - transitive: {include_transitive}, owned: {include_owned}")
-        
-        data = ad.list_users_with_groups(
+
+        data = await ad.list_users_with_groups(
             include_transitive=include_transitive,
             include_owned=include_owned,
             select=select
         )
         return {"success": True, "action": "list_users_with_groups", "data": data}
-    
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_USERS] Error: {e}")
         return {"success": False, "action": "list_users_with_groups", "error": str(e)}
+
+
+@app.post("/ad/users/batch/groups")
+async def batch_get_user_groups_endpoint(
+        request: BatchUserIdentifiersRequest,
+        transitive: bool = False,
+        ad: FastActiveDirectory = Depends(get_ad)
+):
+    """Get groups for MULTIPLE users concurrently"""
+    try:
+        if DEBUG:
+            print(f"[AD_USERS] Batch getting groups for {len(request.identifiers)} users")
+
+        import time
+        start = time.time()
+
+        results = await ad.batch_get_user_groups(request.identifiers, transitive=transitive)
+
+        elapsed = time.time() - start
+
+        formatted_results = []
+        for identifier, groups in zip(request.identifiers, results):
+            if isinstance(groups, Exception):
+                formatted_results.append({
+                    "identifier": identifier,
+                    "success": False,
+                    "error": str(groups)
+                })
+            else:
+                formatted_results.append({
+                    "identifier": identifier,
+                    "success": True,
+                    "groups": groups,
+                    "count": len(groups)
+                })
+
+        return {
+            "success": True,
+            "action": "batch_get_user_groups",
+            "total_users": len(request.identifiers),
+            "elapsed_seconds": round(elapsed, 2),
+            "users_per_second": round(len(request.identifiers) / elapsed, 1),
+            "transitive": transitive,
+            "results": formatted_results
+        }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[AD_USERS] Batch Error: {e}")
+        return {"success": False, "action": "batch_get_user_groups", "error": str(e)}
 
 
 # ======================================
@@ -1248,15 +394,15 @@ async def list_users_with_groups_endpoint(
 # ======================================
 
 @app.get("/ad/roles")
-async def list_roles_endpoint():
+async def list_roles_endpoint(ad: FastActiveDirectory = Depends(get_ad)):
     """List all directory roles"""
     try:
         if DEBUG:
             print("[AD_ROLES] Listing all roles")
-        
-        data = ad.list_roles()
+
+        data = await ad.list_roles()
         return {"success": True, "action": "list_roles", "data": data}
-    
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_ROLES] Error: {e}")
@@ -1264,15 +410,15 @@ async def list_roles_endpoint():
 
 
 @app.post("/ad/roles/{role_id}/members")
-async def add_user_to_role_endpoint(role_id: str, request: RoleAddMember):
+async def add_user_to_role_endpoint(role_id: str, request: RoleAddMember, ad: FastActiveDirectory = Depends(get_ad)):
     """Add a user to a role"""
     try:
         if DEBUG:
             print(f"[AD_ROLES] Adding user {request.user_id} to role {role_id}")
-        
-        data = ad.add_user_to_role(request.user_id, role_id)
+
+        data = await ad.add_user_to_role_smart(request.user_id, role_id)
         return {"success": True, "action": "add_to_role", "role_id": role_id, "user_id": request.user_id, "data": data}
-    
+
     except ValidationError as ve:
         if DEBUG:
             print(f"[AD_ROLES] Validation Error: {ve}")
@@ -1284,15 +430,15 @@ async def add_user_to_role_endpoint(role_id: str, request: RoleAddMember):
 
 
 @app.delete("/ad/roles/{role_id}/members/{user_id}")
-async def remove_user_from_role_endpoint(role_id: str, user_id: str):
+async def remove_user_from_role_endpoint(role_id: str, user_id: str, ad: FastActiveDirectory = Depends(get_ad)):
     """Remove a user from a role"""
     try:
         if DEBUG:
             print(f"[AD_ROLES] Removing user {user_id} from role {role_id}")
-        
-        data = ad.remove_user_from_role(user_id, role_id)
+
+        data = await ad.remove_user_from_role_smart(user_id, role_id)
         return {"success": True, "action": "remove_from_role", "role_id": role_id, "user_id": user_id, "data": data}
-    
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_ROLES] Error: {e}")
@@ -1300,15 +446,15 @@ async def remove_user_from_role_endpoint(role_id: str, user_id: str):
 
 
 @app.post("/ad/roles/instantiate")
-async def instantiate_role_endpoint(request: RoleInstantiation):
+async def instantiate_role_endpoint(request: RoleInstantiation, ad: FastActiveDirectory = Depends(get_ad)):
     """Instantiate a directory role from template"""
     try:
         if DEBUG:
             print(f"[AD_ROLES] Instantiating role from template: {request.roleTemplateId}")
-        
-        data = ad.instantiate_directory_role(request.roleTemplateId)
+
+        data = await ad.instantiate_directory_role(request.roleTemplateId)
         return {"success": True, "action": "instantiate_role", "roleTemplateId": request.roleTemplateId, "data": data}
-    
+
     except ValidationError as ve:
         if DEBUG:
             print(f"[AD_ROLES] Validation Error: {ve}")
@@ -1325,22 +471,23 @@ async def instantiate_role_endpoint(request: RoleInstantiation):
 
 @app.get("/ad/groups")
 async def list_groups_endpoint(
-    security_only: bool = False,
-    unified_only: bool = False,
-    select: str = "id,displayName,mailNickname,mail,securityEnabled,groupTypes"
+        security_only: bool = False,
+        unified_only: bool = False,
+        select: str = "id,displayName,mailNickname,mail,securityEnabled,groupTypes",
+        ad: FastActiveDirectory = Depends(get_ad)
 ):
     """List all groups in the directory"""
     try:
         if DEBUG:
             print(f"[AD_GROUPS] Listing groups - security_only: {security_only}, unified_only: {unified_only}")
-        
-        data = ad.list_groups(
+
+        data = await ad.list_groups(
             security_only=security_only,
             unified_only=unified_only,
             select=select
         )
         return {"success": True, "action": "list_groups", "data": data}
-    
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_GROUPS] Error: {e}")
@@ -1348,12 +495,12 @@ async def list_groups_endpoint(
 
 
 @app.post("/ad/groups")
-async def create_group_endpoint(request: CreateGroupRequest):
+async def create_group_endpoint(request: CreateGroupRequest, ad: FastActiveDirectory = Depends(get_ad)):
     """Create a new group"""
     try:
         if DEBUG:
             print(f"[AD_GROUPS] Creating group: {request.display_name}")
-        
+
         params = {
             "display_name": request.display_name,
             "mail_nickname": request.mail_nickname,
@@ -1364,9 +511,9 @@ async def create_group_endpoint(request: CreateGroupRequest):
             "owners": request.owners,
             "members": request.members
         }
-        data = ad.create_group(**{k: v for k, v in params.items() if v is not None})
+        data = await ad.create_group(**{k: v for k, v in params.items() if v is not None})
         return {"success": True, "action": "create_group", "data": data}
-    
+
     except ValidationError as ve:
         if DEBUG:
             print(f"[AD_GROUPS] Validation Error: {ve}")
@@ -1378,15 +525,15 @@ async def create_group_endpoint(request: CreateGroupRequest):
 
 
 @app.get("/ad/groups/{group_id}/members")
-async def get_group_members_endpoint(group_id: str):
+async def get_group_members_endpoint(group_id: str, ad: FastActiveDirectory = Depends(get_ad)):
     """Get members of a specific group"""
     try:
         if DEBUG:
             print(f"[AD_GROUPS] Getting members for group: {group_id}")
-        
-        data = ad.get_group_members(group_id)
+
+        data = await ad.get_group_members(group_id)
         return {"success": True, "action": "get_group_members", "group_id": group_id, "data": data}
-    
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_GROUPS] Error: {e}")
@@ -1394,15 +541,15 @@ async def get_group_members_endpoint(group_id: str):
 
 
 @app.get("/ad/groups/{group_id}/owners")
-async def get_group_owners_endpoint(group_id: str):
+async def get_group_owners_endpoint(group_id: str, ad: FastActiveDirectory = Depends(get_ad)):
     """Get owners of a specific group"""
     try:
         if DEBUG:
             print(f"[AD_GROUPS] Getting owners for group: {group_id}")
-        
-        data = ad.get_group_owners(group_id)
+
+        data = await ad.get_group_owners(group_id)
         return {"success": True, "action": "get_group_owners", "group_id": group_id, "data": data}
-    
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_GROUPS] Error: {e}")
@@ -1410,18 +557,21 @@ async def get_group_owners_endpoint(group_id: str):
 
 
 @app.post("/ad/groups/{group_id}/members")
-async def add_group_member_endpoint(group_id: str, request: GroupMemberRequest):
+async def add_group_member_endpoint(group_id: str, request: GroupMemberRequest,
+                                    ad: FastActiveDirectory = Depends(get_ad)):
     """Add a user to a group"""
     try:
         if DEBUG:
             print(f"[AD_GROUPS] Adding user {request.user_id} to group {group_id}")
-        
-        token = ad.get_access_token()
-        body = {"@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{request.user_id}"}
-        data = ad.graph_api_request("POST", f"groups/{group_id}/members/$ref", token, data=body)
-        group = ad.get_user_groups(request.user_id)
-        return {"success": True, "action": "add_group_member", "group_id": group_id, "user_id": request.user_id, "data": data, "group": group.get('data', [])}
-    
+
+        user_resolved_id = await ad.resolve_user(request.user_id)
+        token = await ad.get_access_token()
+        body = {"@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{user_resolved_id}"}
+        data = await ad.graph_api_request("POST", f"groups/{group_id}/members/$ref", token, data=body)
+        group = await ad.get_user_groups(user_resolved_id)
+        return {"success": True, "action": "add_group_member", "group_id": group_id, "user_id": request.user_id,
+                "data": data, "group": group}
+
     except ValidationError as ve:
         if DEBUG:
             print(f"[AD_GROUPS] Validation Error: {ve}")
@@ -1433,17 +583,19 @@ async def add_group_member_endpoint(group_id: str, request: GroupMemberRequest):
 
 
 @app.delete("/ad/groups/{group_id}/members/{user_id}")
-async def remove_group_member_endpoint(group_id: str, user_id: str):
+async def remove_group_member_endpoint(group_id: str, user_id: str, ad: FastActiveDirectory = Depends(get_ad)):
     """Remove a user from a group"""
     try:
         if DEBUG:
             print(f"[AD_GROUPS] Removing user {user_id} from group {group_id}")
-        
-        token = ad.get_access_token()
-        endpoint = f"groups/{group_id}/members/{user_id}/$ref"
-        data = ad.graph_api_request("DELETE", endpoint, token)
-        return {"success": True, "action": "remove_group_member", "group_id": group_id, "user_id": user_id, "data": data}
-    
+
+        user_resolved_id = await ad.resolve_user(user_id)
+        token = await ad.get_access_token()
+        endpoint = f"groups/{group_id}/members/{user_resolved_id}/$ref"
+        data = await ad.graph_api_request("DELETE", endpoint, token)
+        return {"success": True, "action": "remove_group_member", "group_id": group_id, "user_id": user_id,
+                "data": data}
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_GROUPS] Error: {e}")
@@ -1451,17 +603,20 @@ async def remove_group_member_endpoint(group_id: str, user_id: str):
 
 
 @app.post("/ad/groups/{group_id}/owners")
-async def add_group_owner_endpoint(group_id: str, request: GroupOwnerRequest):
+async def add_group_owner_endpoint(group_id: str, request: GroupOwnerRequest,
+                                   ad: FastActiveDirectory = Depends(get_ad)):
     """Add an owner to a group"""
     try:
         if DEBUG:
             print(f"[AD_GROUPS] Adding owner {request.user_id} to group {group_id}")
-        
-        token = ad.get_access_token()
-        body = {"@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{request.user_id}"}
-        data = ad.graph_api_request("POST", f"groups/{group_id}/owners/$ref", token, data=body)
-        return {"success": True, "action": "add_group_owner", "group_id": group_id, "user_id": request.user_id, "data": data}
-    
+
+        user_resolved_id = await ad.resolve_user(request.user_id)
+        token = await ad.get_access_token()
+        body = {"@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{user_resolved_id}"}
+        data = await ad.graph_api_request("POST", f"groups/{group_id}/owners/$ref", token, data=body)
+        return {"success": True, "action": "add_group_owner", "group_id": group_id, "user_id": request.user_id,
+                "data": data}
+
     except ValidationError as ve:
         if DEBUG:
             print(f"[AD_GROUPS] Validation Error: {ve}")
@@ -1473,17 +628,18 @@ async def add_group_owner_endpoint(group_id: str, request: GroupOwnerRequest):
 
 
 @app.delete("/ad/groups/{group_id}/owners/{user_id}")
-async def remove_group_owner_endpoint(group_id: str, user_id: str):
+async def remove_group_owner_endpoint(group_id: str, user_id: str, ad: FastActiveDirectory = Depends(get_ad)):
     """Remove an owner from a group"""
     try:
         if DEBUG:
             print(f"[AD_GROUPS] Removing owner {user_id} from group {group_id}")
-        
-        token = ad.get_access_token()
-        endpoint = f"groups/{group_id}/owners/{user_id}/$ref"
-        data = ad.graph_api_request("DELETE", endpoint, token)
+
+        user_resolved_id = await ad.resolve_user(user_id)
+        token = await ad.get_access_token()
+        endpoint = f"groups/{group_id}/owners/{user_resolved_id}/$ref"
+        data = await ad.graph_api_request("DELETE", endpoint, token)
         return {"success": True, "action": "remove_group_owner", "group_id": group_id, "user_id": user_id, "data": data}
-    
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_GROUPS] Error: {e}")
@@ -1491,16 +647,16 @@ async def remove_group_owner_endpoint(group_id: str, user_id: str):
 
 
 @app.patch("/ad/groups/{group_id}")
-async def update_group_endpoint(group_id: str, request: GroupUpdates):
+async def update_group_endpoint(group_id: str, request: GroupUpdates, ad: FastActiveDirectory = Depends(get_ad)):
     """Update an existing group"""
     try:
         if DEBUG:
             print(f"[AD_GROUPS] Updating group: {group_id}")
-        
-        token = ad.get_access_token()
-        data = ad.graph_api_request("PATCH", f"groups/{group_id}", token, data=request.updates)
+
+        token = await ad.get_access_token()
+        data = await ad.graph_api_request("PATCH", f"groups/{group_id}", token, data=request.updates)
         return {"success": True, "action": "update_group", "group_id": group_id, "data": data}
-    
+
     except ValidationError as ve:
         if DEBUG:
             print(f"[AD_GROUPS] Validation Error: {ve}")
@@ -1512,22 +668,20 @@ async def update_group_endpoint(group_id: str, request: GroupUpdates):
 
 
 @app.delete("/ad/groups/{group_id}")
-async def delete_group_endpoint(group_id: str):
+async def delete_group_endpoint(group_id: str, ad: FastActiveDirectory = Depends(get_ad)):
     """Delete a group"""
     try:
         if DEBUG:
             print(f"[AD_GROUPS] Deleting group: {group_id}")
-        
-        token = ad.get_access_token()
-        data = ad.graph_api_request("DELETE", f"groups/{group_id}", token)
+
+        token = await ad.get_access_token()
+        data = await ad.graph_api_request("DELETE", f"groups/{group_id}", token)
         return {"success": True, "action": "delete_group", "group_id": group_id, "data": data}
-    
+
     except Exception as e:
         if DEBUG:
             print(f"[AD_GROUPS] Error: {e}")
         return {"success": False, "action": "delete_group", "error": str(e)}
-
-
 
 
 # ++++++++++++++++++++++++++++++
@@ -1539,33 +693,16 @@ async def delete_group_endpoint(group_id: str):
 async def health_check():
     """Health check endpoint"""
     try:
-        # Test database connectivity
-        db_health = "unknown"
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(f"{DATABASE_SERVER_URL}/health", timeout=5) as response:
-                    if response.status == 200:
-                        db_health = "connected"
-                    else:
-                        db_health = "error"
-        except:
-            db_health = "disconnected"
-
         return {
             "status": "healthy",
             "service": "MCP Server",
             "timestamp": datetime.now().isoformat(),
-            "database_connection": db_health,
-            "weather_api_configured": bool(OPENWEATHER_API_KEY),
-            "llm_providers": ["openai", "ollama", "mistral"],
             "endpoints": {
                 "greet": "/greet",
-                "query_sql_database": "/query_sql_database",
-                "query_sql_database_stream": "/query_sql_database_stream",
-                "weather": "/weather",
                 "health": "/health"
             }
         }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
 
@@ -1583,61 +720,7 @@ async def mcp_tools_list():
                 "properties": {
                     "name": {"type": "string", "description": "User's name", "default": ""}
                 },
-                "required": ["name"]  # Required but has default
-            }
-        ),
-
-        # DATABASE RETRIEVAL
-        MCPTool(
-            name="query_sql_database",
-            description="TRIGGER: SQL, SQL database, query database, hospital database, healthcare database, medical facilities, facilities, services, lab tests, inventory, insurance, list facilities, count services, find hospitals, search clinics, medical inventory, insurance coverage, service availability, lab results, facility statistics, low stock, expired items | ACTION: Query healthcare SQL database with AI-generated SQL from natural language | RETURNS: Structured healthcare data with the generated SQL query",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "Natural language question about the healthcare database (facilities, services, inventory, insurance, lab tests)"
-                    },
-                    "keywords": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "Key medical/healthcare terms from the query: facility names, service types, departments (Laboratory, Radiology, Cardiology), locations (cities, states), medical procedures, insurance providers, inventory categories"
-                    }
-                },
-                "required": ["query", "keywords"]
-            }
-        ),
-
-        MCPTool(
-            name="search_cosmic_database",
-            description="TRIGGER: medical procedures, hospital policies, documentation, clinical guidelines, treatment protocols, medical knowledge, policy lookup, procedure steps, cosmic database | ACTION: Search medical documentation vector database | RETURNS: Relevant medical/policy documentation from cosmic knowledge base",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string", "description": "Medical/policy search query for cosmic database"}
-                },
-                "required": ["query"]
-            }
-        ),
-
-        # EXTERNAL SERVICES
-        MCPTool(
-            name="get_current_weather",
-            description="TRIGGER: weather, temperature, current conditions, forecast, how's the weather, what's the temperature, climate, meteorology | ACTION: Get real-time weather data from OpenWeather API | RETURNS: Current weather conditions for specified location",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "city": {"type": "string",
-                             "description": "City name (e.g., 'London', 'New York', 'Tokyo', 'Karachi')"},
-                    "lat": {"type": "number", "description": "Latitude coordinate (use with lon)"},
-                    "lon": {"type": "number", "description": "Longitude coordinate (use with lat)"},
-                    "units": {"type": "string", "enum": ["metric", "imperial", "kelvin"],
-                              "description": "Temperature units", "default": "metric"}
-                },
-                "anyOf": [
-                    {"required": ["city"]},
-                    {"required": ["lat", "lon"]}
-                ]
+                "required": ["name"]
             }
         ),
 
@@ -1663,16 +746,13 @@ async def mcp_tools_list():
                         "description": "Azure AD user payload with user properties",
                         "properties": {
                             "displayName": {"type": "string", "description": "User's display name in AD"},
-                            "mailNickname": {"type": "string",
-                                             "description": "Mail nickname (auto-generated if not provided)"},
-                            "userPrincipalName": {"type": "string",
-                                                  "description": "User principal name (auto-generated if not provided)"},
+                            "mailNickname": {"type": "string", "description": "Mail nickname (auto-generated if not provided)"},
+                            "userPrincipalName": {"type": "string", "description": "User principal name (auto-generated if not provided)"},
                             "passwordProfile": {
                                 "type": "object",
                                 "properties": {
                                     "password": {"type": "string", "description": "Temporary password"},
-                                    "forceChangePasswordNextSignIn": {"type": "boolean",
-                                                                      "description": "Force password change on next sign-in"}
+                                    "forceChangePasswordNextSignIn": {"type": "boolean", "description": "Force password change on next sign-in"}
                                 }
                             },
                             "accountEnabled": {"type": "boolean", "description": "Whether AD account is enabled"}
@@ -1686,11 +766,14 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_update_user",
-            description="TRIGGER: update AD user, modify Azure AD user, change AD user details, edit directory user, AD user updates | ACTION: Update existing Azure Active Directory user properties | RETURNS: Updated AD user information from Azure tenant",
+            description="TRIGGER: update AD user, modify Azure AD user, change AD user details, edit directory user, AD user updates | ACTION: Update existing Azure Active Directory user properties | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: Updated AD user information from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {"type": "string", "description": "Azure AD user ID to update"},
+                    "user_id": {
+                        "type": "string",
+                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                    },
                     "updates": {"type": "object", "description": "AD user properties to update"}
                 },
                 "required": ["user_id", "updates"]
@@ -1699,11 +782,14 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_delete_user",
-            description="TRIGGER: delete AD user, remove Azure AD user, deactivate directory user, remove AD account | ACTION: Delete user account from Azure Active Directory | RETURNS: AD account deletion confirmation",
+            description="TRIGGER: delete AD user, remove Azure AD user, deactivate directory user, remove AD account | ACTION: Delete user account from Azure Active Directory | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: AD account deletion confirmation",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {"type": "string", "description": "Azure AD user ID to delete"}
+                    "user_id": {
+                        "type": "string",
+                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                    }
                 },
                 "required": ["user_id"]
             }
@@ -1711,11 +797,14 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_get_user_roles",
-            description="TRIGGER: AD user roles, Azure AD user permissions, directory user roles, what AD roles does user have, check AD access | ACTION: Get Azure AD user's assigned directory roles | RETURNS: List of AD roles assigned to specific user from Azure tenant",
+            description="TRIGGER: AD user roles, Azure AD user permissions, directory user roles, what AD roles does user have, check AD access | ACTION: Get Azure AD user's assigned directory roles | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: List of AD roles assigned to specific user from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {"type": "string", "description": "Azure AD user ID to get roles for"}
+                    "user_id": {
+                        "type": "string",
+                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                    }
                 },
                 "required": ["user_id"]
             }
@@ -1723,13 +812,15 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_get_user_groups",
-            description="TRIGGER: AD user groups, Azure AD user memberships, directory user groups, what AD groups is user in, check AD group membership | ACTION: Get user's Azure Active Directory group memberships | RETURNS: List of AD groups user belongs to in Azure tenant",
+            description="TRIGGER: AD user groups, Azure AD user memberships, directory user groups, what AD groups is user in, check AD group membership | ACTION: Get user's Azure Active Directory group memberships | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: List of AD groups user belongs to in Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {"type": "string", "description": "Azure AD user ID to get groups for"},
-                    "transitive": {"type": "boolean", "description": "Include transitive AD group memberships",
-                                   "default": False}
+                    "user_id": {
+                        "type": "string",
+                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                    },
+                    "transitive": {"type": "boolean", "description": "Include transitive AD group memberships", "default": False}
                 },
                 "required": ["user_id"]
             }
@@ -1748,12 +839,15 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_add_user_to_role",
-            description="TRIGGER: assign AD role, add user to AD role, give Azure AD role, grant directory role, AD role assignment | ACTION: Assign Azure Active Directory role to user | RETURNS: AD role assignment confirmation in Azure tenant",
+            description="TRIGGER: assign AD role, add user to AD role, give Azure AD role, grant directory role, AD role assignment | ACTION: Assign Azure Active Directory role to user | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: AD role assignment confirmation in Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "role_id": {"type": "string", "description": "Azure AD role ID to assign"},
-                    "user_id": {"type": "string", "description": "Azure AD user ID to assign role to"}
+                    "role_id": {"type": "string", "description": "Azure AD role ID (must be actual GUID) to assign"},
+                    "user_id": {
+                        "type": "string",
+                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                    }
                 },
                 "required": ["role_id", "user_id"]
             }
@@ -1761,12 +855,15 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_remove_user_from_role",
-            description="TRIGGER: remove AD role, unassign Azure AD role, revoke directory role, take away AD role | ACTION: Remove Azure Active Directory role from user | RETURNS: AD role removal confirmation from Azure tenant",
+            description="TRIGGER: remove AD role, unassign Azure AD role, revoke directory role, take away AD role | ACTION: Remove Azure Active Directory role from user | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: AD role removal confirmation from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "role_id": {"type": "string", "description": "Azure AD role ID to remove"},
-                    "user_id": {"type": "string", "description": "Azure AD user ID to remove role from"}
+                    "role_id": {"type": "string", "description": "Azure AD role ID (must be actual GUID) to remove"},
+                    "user_id": {
+                        "type": "string",
+                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                    }
                 },
                 "required": ["role_id", "user_id"]
             }
@@ -1779,11 +876,9 @@ async def mcp_tools_list():
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "security_only": {"type": "boolean", "description": "List only AD security groups",
-                                      "default": False},
+                    "security_only": {"type": "boolean", "description": "List only AD security groups", "default": False},
                     "unified_only": {"type": "boolean", "description": "List only AD unified groups", "default": False},
-                    "select": {"type": "string", "description": "AD fields to select",
-                               "default": "id,displayName,mailNickname,mail,securityEnabled,groupTypes"}
+                    "select": {"type": "string", "description": "AD fields to select", "default": "id,displayName,mailNickname,mail,securityEnabled,groupTypes"}
                 },
                 "required": []
             }
@@ -1798,13 +893,10 @@ async def mcp_tools_list():
                     "display_name": {"type": "string", "description": "AD group display name"},
                     "mail_nickname": {"type": "string", "description": "AD group mail nickname"},
                     "description": {"type": "string", "description": "AD group description"},
-                    "group_type": {"type": "string", "enum": ["security", "unified"],
-                                   "description": "Azure AD group type", "default": "security"},
+                    "group_type": {"type": "string", "enum": ["security", "unified"], "description": "Azure AD group type", "default": "security"},
                     "visibility": {"type": "string", "description": "AD group visibility"},
-                    "owners": {"type": "array", "items": {"type": "string"},
-                               "description": "List of AD owner user IDs"},
-                    "members": {"type": "array", "items": {"type": "string"},
-                                "description": "List of AD member user IDs"}
+                    "owners": {"type": "array", "items": {"type": "string"}, "description": "List of AD owner user IDs"},
+                    "members": {"type": "array", "items": {"type": "string"}, "description": "List of AD member user IDs"}
                 },
                 "required": ["display_name", "mail_nickname"]
             }
@@ -1812,12 +904,15 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_add_group_member",
-            description="TRIGGER: add to AD group, add member to Azure AD group, add user to directory group, join AD group | ACTION: Add user to Azure Active Directory group | RETURNS: AD group membership confirmation in Azure tenant",
+            description="TRIGGER: add to AD group, add member to Azure AD group, add user to directory group, join AD group | ACTION: Add user to Azure Active Directory group | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: AD group membership confirmation in Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "group_id": {"type": "string", "description": "Azure AD group ID to add member to"},
-                    "user_id": {"type": "string", "description": "Azure AD user ID to add to group"}
+                    "group_id": {"type": "string", "description": "Azure AD group ID (must be actual GUID) to add member to"},
+                    "user_id": {
+                        "type": "string",
+                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                    }
                 },
                 "required": ["group_id", "user_id"]
             }
@@ -1825,12 +920,15 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_remove_group_member",
-            description="TRIGGER: remove from AD group, remove member from Azure AD group, leave directory group, kick from AD group | ACTION: Remove user from Azure Active Directory group | RETURNS: AD group removal confirmation from Azure tenant",
+            description="TRIGGER: remove from AD group, remove member from Azure AD group, leave directory group, kick from AD group | ACTION: Remove user from Azure Active Directory group | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: AD group removal confirmation from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "group_id": {"type": "string", "description": "Azure AD group ID to remove member from"},
-                    "user_id": {"type": "string", "description": "Azure AD user ID to remove from group"}
+                    "group_id": {"type": "string", "description": "Azure AD group ID (must be actual GUID) to remove member from"},
+                    "user_id": {
+                        "type": "string",
+                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                    }
                 },
                 "required": ["group_id", "user_id"]
             }
@@ -1862,113 +960,81 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         if DEBUG:
             print(f"[MCP] Calling tool: {tool_name} with args: {arguments}")
 
-        # Add thread_id to arguments if not present
         if "thread_id" not in arguments:
             arguments["thread_id"] = "default"
 
         if tool_name == "greet":
             raw_name = arguments.get("name") if arguments else None
             clean_name = raw_name if raw_name and raw_name.strip() else None
-
             greet_request = GreetRequest(name=clean_name)
             result = await greet_endpoint(greet_request)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
-        elif tool_name == "query_sql_database":
-            query_request = QueryDatabaseRequest(**arguments)
-            result = await query_sql_database_endpoint(query_request)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
-
-
-        elif tool_name == "search_cosmic_database":
-            query = arguments.get("query", "")
-            if not query:
-                return MCPToolCallResponse(
-                    content=[MCPContent(type="text", text="Error: Query parameter is required")],
-                    isError=True
-                )
-
-            result = await cosmic_database_tool(query)
-
-            # Handle None or empty results
-            if result is None:
-                result_text = "No results found for the query."
-            elif isinstance(result, str):
-                result_text = result
-            else:
-                result_text = str(result)  # Convert other types to string
-
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=result_text)]
-            )
-
-
-        elif tool_name == "get_current_weather":
-            weather_request = WeatherRequest(
-                **{k: v for k, v in arguments.items() if k in ["city", "lat", "lon", "units"]})
-            result = await weather_endpoint(weather_request)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
-
         elif tool_name == "ad_list_users":
-            result = await list_users_endpoint()
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await list_users_endpoint(ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_create_user":
             create_request = CreateUserRequest(action="create_user", user=arguments["user"])
-            result = await create_user_endpoint(create_request)
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await create_user_endpoint(create_request, ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_update_user":
             user_updates = UserUpdates(updates=arguments["updates"])
-            result = await update_user_endpoint(arguments["user_id"], user_updates)
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await update_user_endpoint(arguments["user_id"], user_updates, ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_delete_user":
-            result = await delete_user_endpoint(arguments["user_id"])
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await delete_user_endpoint(arguments["user_id"], ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_get_user_roles":
-            result = await get_user_roles_endpoint(arguments["user_id"])
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await get_user_roles_endpoint(arguments["user_id"], ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_get_user_groups":
             transitive = arguments.get("transitive", False)
-            result = await get_user_groups_endpoint(arguments["user_id"], transitive)
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await get_user_groups_endpoint(arguments["user_id"], transitive, ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_list_roles":
-            result = await list_roles_endpoint()
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await list_roles_endpoint(ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_add_user_to_role":
             role_member = RoleAddMember(user_id=arguments["user_id"])
-            result = await add_user_to_role_endpoint(arguments["role_id"], role_member)
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await add_user_to_role_endpoint(arguments["role_id"], role_member, ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_remove_user_from_role":
-            result = await remove_user_from_role_endpoint(arguments["role_id"], arguments["user_id"])
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await remove_user_from_role_endpoint(arguments["role_id"], arguments["user_id"], ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
@@ -1977,7 +1043,8 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             security_only = arguments.get("security_only", False)
             unified_only = arguments.get("unified_only", False)
             select = arguments.get("select", "id,displayName,mailNickname,mail,securityEnabled,groupTypes")
-            result = await list_groups_endpoint(security_only, unified_only, select)
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await list_groups_endpoint(security_only, unified_only, select, ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
@@ -1993,26 +1060,30 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                 owners=arguments.get("owners"),
                 members=arguments.get("members")
             )
-            result = await create_group_endpoint(create_group_request)
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await create_group_endpoint(create_group_request, ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_add_group_member":
             group_member = GroupMemberRequest(user_id=arguments["user_id"])
-            result = await add_group_member_endpoint(arguments["group_id"], group_member)
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await add_group_member_endpoint(arguments["group_id"], group_member, ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_remove_group_member":
-            result = await remove_group_member_endpoint(arguments["group_id"], arguments["user_id"])
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await remove_group_member_endpoint(arguments["group_id"], arguments["user_id"], ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_get_group_members":
-            result = await get_group_members_endpoint(arguments["group_id"])
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await get_group_members_endpoint(arguments["group_id"], ad)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
@@ -2032,16 +1103,13 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         )
 
 
-
-
-
 @app.post("/")
 async def mcp_streamable_http_endpoint(request: Request):
     """Streamable HTTP MCP protocol endpoint for MCPO compatibility"""
     try:
         body = await request.json()
         method = body.get("method")
-        request_id = body.get("id")  # Can be None for notifications
+        request_id = body.get("id")
 
         if DEBUG:
             print(f"[STREAMABLE HTTP] Received method: {method}")
@@ -2069,12 +1137,9 @@ async def mcp_streamable_http_endpoint(request: Request):
             return response
 
         elif method == "notifications/initialized":
-            # For notifications, return HTTP 204 No Content (empty response)
             if DEBUG:
                 print(f"[STREAMABLE HTTP] Received initialized notification - connection established")
-
-            from fastapi import Response
-            return Response(status_code=204)  # No content response
+            return Response(status_code=204)
 
         elif method == "tools/list":
             tools_response = await mcp_tools_list()
@@ -2131,6 +1196,7 @@ async def mcp_streamable_http_endpoint(request: Request):
             }
         }
 
+
 @app.post("/debug")
 async def debug_endpoint(request: Request):
     """Debug endpoint to see raw requests"""
@@ -2141,7 +1207,7 @@ async def debug_endpoint(request: Request):
 
 @app.get("/info")
 async def server_info():
-    """Server information endpoint (moved from root)"""
+    """Server information endpoint"""
     return {
         "service": "MCP Server with LLM SQL Generation",
         "version": "1.0.0",
@@ -2154,18 +1220,12 @@ async def server_info():
         },
         "rest_endpoints": [
             "/greet",
-            "/query_sql_database",
-            "/query_sql_database_stream",
-            "/weather",
             "/ad/users",
             "/ad/roles",
             "/ad/groups",
             "/health"
         ],
         "features": [
-            "LLM SQL Generation",
-            "OpenWeather Integration",
-            "Async Database Queries",
             "Streaming Support",
             "Active Directory Operations",
             "MCP Protocol Support",
@@ -2173,8 +1233,6 @@ async def server_info():
         ],
         "tools": [
             "greet",
-            "query_sql_database",
-            "get_current_weather",
             "ad_list_users",
             "ad_create_user",
             "ad_update_user",
@@ -2195,69 +1253,11 @@ async def server_info():
         "mcp_compatible": True
     }
 
-# @app.get("/")
-# async def root():
-#     """Root endpoint with service information"""
-#     return {
-#         "service": "MCP Server with LLM SQL Generation",
-#         "version": "1.0.0",
-#         "description": "Standalone MCP Tools Server using LLM for natural language to SQL conversion",
-#         "protocols": ["REST API", "MCP (Model Context Protocol)"],
-#         "mcp_endpoints": {
-#             "tools_list": "/mcp/tools/list",
-#             "tools_call": "/mcp/tools/call",
-#             "server_info": "/mcp/server/info"
-#         },
-#         "rest_endpoints": [
-#             "/greet",
-#             "/query_sql_database",
-#             "/query_sql_database_stream",
-#             "/weather",
-#             "/ad/users",
-#             "/ad/roles",
-#             "/ad/groups",
-#             "/health"
-#         ],
-#         "features": [
-#             "LLM SQL Generation",
-#             "OpenWeather Integration",
-#             "Async Database Queries",
-#             "Streaming Support",
-#             "Active Directory Operations",
-#             "MCP Protocol Support",
-#             "Vector Database Integration"
-#         ],
-#         "tools": [
-#             "greet",
-#             "query_sql_database",
-#             "get_current_weather",
-#             "ad_list_users",
-#             "ad_create_user",
-#             "ad_update_user",
-#             "ad_delete_user",
-#             "ad_get_user_roles",
-#             "ad_get_user_groups",
-#             "ad_list_roles",
-#             "ad_add_user_to_role",
-#             "ad_remove_user_from_role",
-#             "ad_list_groups",
-#             "ad_create_group",
-#             "ad_add_group_member",
-#             "ad_remove_group_member",
-#             "ad_get_group_members",
-#             "search_cosmic_database"
-#         ],
-#         "docs": "/docs",
-#         "mcp_compatible": True
-#     }
-
 
 if __name__ == "__main__":
     print("Starting MCP Server on port 8009...")
-    print(f"Database URL: {DATABASE_SERVER_URL}")
-    print(f"Weather API: {'Configured' if OPENWEATHER_API_KEY else 'Not configured'}")
+
     if DEBUG:
         print("[MCP DEBUG] Debug mode enabled - detailed logging active")
-    uvicorn.run(app, host="0.0.0.0", port=8009)
 
-# python -c "import requests; print(requests.post('http://mcp_server:8009/mcp/tools/call', json={'name': 'get_current_weather', 'arguments': {'city': 'Yaoundé', 'units': 'metric'}}).json()['content'][0]['text'])"
+    uvicorn.run(app, host="0.0.0.0", port=8009)
