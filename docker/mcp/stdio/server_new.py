@@ -705,8 +705,16 @@ async def query_database_endpoint(request: QueryDatabaseRequest):
         if DEBUG:
             print(f'[MCP DEBUG] Using provider: {provider}')
 
+
+        keywords = [request.query.split()]
+
+        for item in ['the', 'use', 'sql']:
+            if item in keywords:
+                keywords.remove(item)
+
         # Generate SQL using LLM with both query and keywords
-        sql_query = await get_sql_query(request.query, request.keywords, provider)
+        # sql_query = await get_sql_query(request.query, request.keywords, provider)
+        sql_query = await get_sql_query(request.query, keywords, provider)
 
         # Remove all \n characters
         sql_query = sql_query.replace('\\n', ' ').replace('\n', ' ')

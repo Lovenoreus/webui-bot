@@ -43,8 +43,8 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8009/health || exit 1
 
 # Run as non-root
-RUN useradd -m appuser && chown -R appuser:appuser /app
-USER appuserd
+# RUN useradd -m appuser && chown -R appuser:appuser /app
+# USER appuserd
 
 # Run startup script followed by the app server
 CMD ["sh", "-c", "cd /app/docker/mcp/stdio && python server_new.py"]
