@@ -11,10 +11,11 @@ import aiohttp
 import requests
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Depends, Header, Body
+from fastapi import FastAPI, HTTPException, Depends, Header, Body, Request
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, ValidationError
+# from fastapi import Request
 
 from langchain_community.chat_models import ChatOllama
 from langchain_openai import ChatOpenAI
@@ -150,18 +151,33 @@ class CosmicDatabaseRequest(BaseModel):
 
 
 def extract_sql_from_json(llm_output: str) -> str:
-    """Extract SQL from LLM JSON response"""
+    """Extract SQL from LLM response - handles JSON, markdown, or plain SQL"""
+    import re
+
+    # 1. Try JSON
     try:
-        # Try to parse as JSON first
         data = json.loads(llm_output)
-        return data.get('query', '')
+        if 'query' in data:
+            return data['query'].strip()
     except:
-        # Try regex extraction for malformed JSON
-        pattern = r'"query"\s*:\s*"([^"]*)"'
-        match = re.search(pattern, llm_output, re.DOTALL)
-        if match:
-            return match.group(1).strip()
-        return ""
+        pass
+
+    # 2. Try markdown SQL block
+    match = re.search(r'```sql\s*(.*?)\s*```', llm_output, re.DOTALL | re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+
+    # 3. Try any code block
+    match = re.search(r'```\s*(.*?)\s*```', llm_output, re.DOTALL)
+    if match:
+        return match.group(1).replace('sql\n', '').strip()
+
+    # 4. Find SELECT statement
+    match = re.search(r'(SELECT\s+.*?)(?:;|\n\n|\Z)', llm_output, re.DOTALL | re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+
+    return ""
 
 
 def get_database_server_url():
@@ -280,8 +296,9 @@ async def execute_query_stream(query: str):
 
 class DatabaseKeywordHints:
     def __init__(self):
-        self.all_tables = ['Users', 'Departments', 'Roles', 'Permissions', 'Teams', 'User_Roles', 'User_Teams',
-                           'Role_Permissions']
+        self.all_tables = ['HealthcareFacilities', 'MedicalServicesCatalog', 'LabTestReferenceRanges',
+                           'MedicalInventory', 'InsuranceProviders', 'FacilityServices', 'InsuranceCoverage'
+                           ]
 
     def filter_keywords_for_table(self, keywords: List[str], table_name: str) -> List[str]:
         """Filter out keywords that match the table name to avoid false matches"""
@@ -301,11 +318,13 @@ class DatabaseKeywordHints:
 
             # Special cases for common table variations
             table_variations = {
-                'users': ['user', 'employee', 'person', 'people'],
-                'departments': ['department', 'dept'],
-                'roles': ['role'],
-                'permissions': ['permission', 'perm'],
-                'teams': ['team']
+                'healthcarefacilities': ['facility', 'facilities', 'hospital', 'clinic', 'center'],
+                'medicalservicescatalog': ['service', 'services', 'catalog', 'medical'],
+                'labtestReferenceranges': ['lab', 'test', 'range', 'reference'],
+                'medicalinventory': ['inventory', 'stock', 'supplies', 'items'],
+                'insuranceproviders': ['insurance', 'provider', 'coverage', 'insurer'],
+                'facilityservices': ['facility service', 'available service'],
+                'insurancecoverage': ['coverage', 'covered', 'deductible']
             }
 
             skip_keyword = False
@@ -493,47 +512,200 @@ async def get_sql_query_stream(user_question: str, keywords: List[str], provider
         print(f"[MCP DEBUG] Generated {len(hit_results)} hit results")
 
     # STEP 3: Build system prompt with enhanced SQL generation rules
-    base_system_prompt = """You are an expert SQL generator for SQLite database queries.
-
-DATABASE SCHEMA:
-CREATE TABLE Departments (department_id INTEGER PRIMARY KEY AUTOINCREMENT, department_name VARCHAR(100), manager_id INTEGER NULL);
-CREATE TABLE Users (user_id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(100), email VARCHAR(100), department_id INTEGER, hire_date DATE, FOREIGN KEY (department_id) REFERENCES Departments(department_id));
-CREATE TABLE Roles (role_id INTEGER PRIMARY KEY AUTOINCREMENT, role_name VARCHAR(100), description TEXT);
-CREATE TABLE Permissions (permission_id INTEGER PRIMARY KEY AUTOINCREMENT, permission_name VARCHAR(100), description TEXT);
-CREATE TABLE Role_Permissions (role_id INTEGER, permission_id INTEGER, PRIMARY KEY (role_id, permission_id), FOREIGN KEY (role_id) REFERENCES Roles(role_id), FOREIGN KEY (permission_id) REFERENCES Permissions(permission_id));
-CREATE TABLE Teams (team_id INTEGER PRIMARY KEY AUTOINCREMENT, team_name VARCHAR(100), department_id INTEGER, FOREIGN KEY (department_id) REFERENCES Departments(department_id));
-CREATE TABLE User_Roles (user_id INTEGER, role_id INTEGER, assigned_date DATE, PRIMARY KEY (user_id, role_id), FOREIGN KEY (user_id) REFERENCES Users(user_id), FOREIGN KEY (role_id) REFERENCES Roles(role_id));
-CREATE TABLE User_Teams (user_id INTEGER, team_id INTEGER, PRIMARY KEY (user_id, team_id), FOREIGN KEY (user_id) REFERENCES Users(user_id), FOREIGN KEY (team_id) REFERENCES Teams(team_id));
-
-CRITICAL SQL GENERATION RULES:
-1. SINGLE LINE ONLY - Generate SQL as one continuous line with no newlines, line breaks, or formatting.
-2. MATCH THE QUERY EXACTLY - Understand what the user is asking for and generate SQL that returns exactly that data.
-3. USE PROPER JOINS - For complex queries involving multiple tables, use appropriate JOIN statements.
-4. USE DISTINCT when needed to avoid duplicate rows.
-5. For text searches, use LIKE with % wildcards: WHERE column LIKE '%searchterm%'
-6. Always use table aliases for clarity in joins.
-
-COMMON QUERY PATTERNS:
-- "users and permissions" = JOIN Users -> User_Roles -> Role_Permissions -> Permissions
-- "users and their complete permissions" = JOIN Users -> User_Roles -> Role_Permissions -> Permissions  
-- "users in department" = JOIN Users -> Departments
-- "users in team" = JOIN Users -> User_Teams -> Teams
-- "roles and permissions" = JOIN Roles -> Role_Permissions -> Permissions
-
-EXAMPLES:
-Query: "List all users and their permissions"
-SQL: SELECT DISTINCT u.name, p.permission_name FROM Users u JOIN User_Roles ur ON u.user_id = ur.user_id JOIN Role_Permissions rp ON ur.role_id = rp.role_id JOIN Permissions p ON rp.permission_id = p.permission_id ORDER BY u.name, p.permission_name;
-
-Query: "List all users and each of their complete permissions"  
-SQL: SELECT DISTINCT u.name AS username, p.permission_name FROM Users u JOIN User_Roles ur ON u.user_id = ur.user_id JOIN Role_Permissions rp ON ur.role_id = rp.role_id JOIN Permissions p ON rp.permission_id = p.permission_id ORDER BY u.name, p.permission_name;
-
-Query: "Show users in Engineering department"
-SQL: SELECT u.name, u.email FROM Users u JOIN Departments d ON u.department_id = d.department_id WHERE d.department_name LIKE '%Engineering%';
-
-Query: "Count users by department"
-SQL: SELECT d.department_name, COUNT(u.user_id) as user_count FROM Departments d LEFT JOIN Users u ON d.department_id = u.department_id GROUP BY d.department_name;
-
-Return ONLY valid single-line SQL in JSON format: {"query": "SELECT..."}"""
+    base_system_prompt = """You are a helpful SQL query assistant for a healthcare management database. The database contains the following tables and structure:
+    
+    ## Database Schema
+    
+    ### Core Tables
+    
+    **HealthcareFacilities**
+    ```sql
+    CREATE TABLE HealthcareFacilities (
+        FacilityID INTEGER PRIMARY KEY AUTOINCREMENT,
+        Name VARCHAR(100) NOT NULL,
+        Type VARCHAR(50) NOT NULL,
+        Address TEXT,
+        City VARCHAR(50),
+        State VARCHAR(50),
+        Country VARCHAR(50),
+        LicenseNumber VARCHAR(50),
+        AccreditationStatus VARCHAR(50),
+        OperationalSince DATE,
+        IsActive BOOLEAN DEFAULT TRUE,
+        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    ```
+    
+    **MedicalServicesCatalog**
+    ```sql
+    CREATE TABLE MedicalServicesCatalog (
+        ServiceID INTEGER PRIMARY KEY AUTOINCREMENT,
+        ServiceName VARCHAR(100) NOT NULL,
+        ServiceCode VARCHAR(50) UNIQUE NOT NULL,
+        Department VARCHAR(50),
+        Description TEXT,
+        BasePrice DECIMAL(10,2),
+        RequiresAppointment BOOLEAN DEFAULT TRUE,
+        IsActive BOOLEAN DEFAULT TRUE,
+        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    ```
+    
+    **LabTestReferenceRanges**
+    ```sql
+    CREATE TABLE LabTestReferenceRanges (
+        RangeID INTEGER PRIMARY KEY AUTOINCREMENT,
+        TestName VARCHAR(100) NOT NULL,
+        ServiceID INTEGER,
+        Unit VARCHAR(20),
+        Gender VARCHAR(10),
+        AgeMin INTEGER,
+        AgeMax INTEGER,
+        MinValue DECIMAL(10,2),
+        MaxValue DECIMAL(10,2),
+        Notes TEXT,
+        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (ServiceID) REFERENCES MedicalServicesCatalog(ServiceID)
+    );
+    ```
+    
+    **MedicalInventory**
+    ```sql
+    CREATE TABLE MedicalInventory (
+        InventoryID INTEGER PRIMARY KEY AUTOINCREMENT,
+        ItemName VARCHAR(100) NOT NULL,
+        Category VARCHAR(50),
+        Quantity INTEGER DEFAULT 0,
+        Unit VARCHAR(20),
+        FacilityID INTEGER NOT NULL,
+        ReorderThreshold INTEGER DEFAULT 10,
+        ExpiryDate DATE,
+        LastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (FacilityID) REFERENCES HealthcareFacilities(FacilityID)
+    );
+    ```
+    
+    **InsuranceProviders**
+    ```sql
+    CREATE TABLE InsuranceProviders (
+        ProviderID INTEGER PRIMARY KEY AUTOINCREMENT,
+        ProviderName VARCHAR(100) NOT NULL,
+        ContactEmail VARCHAR(100),
+        ContactPhone VARCHAR(20),
+        Address TEXT,
+        ServicesCovered TEXT,
+        Country VARCHAR(50),
+        ContractStart DATE,
+        ContractEnd DATE,
+        IsActive BOOLEAN DEFAULT TRUE,
+        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    ```
+    
+    ### Relationship Tables
+    
+    **FacilityServices**
+    ```sql
+    CREATE TABLE FacilityServices (
+        FacilityServiceID INTEGER PRIMARY KEY AUTOINCREMENT,
+        FacilityID INTEGER NOT NULL,
+        ServiceID INTEGER NOT NULL,
+        IsAvailable BOOLEAN DEFAULT TRUE,
+        EffectiveDate DATE DEFAULT CURRENT_DATE,
+        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (FacilityID) REFERENCES HealthcareFacilities(FacilityID),
+        FOREIGN KEY (ServiceID) REFERENCES MedicalServicesCatalog(ServiceID),
+        UNIQUE(FacilityID, ServiceID)
+    );
+    ```
+    
+    **InsuranceCoverage**
+    ```sql
+    CREATE TABLE InsuranceCoverage (
+        CoverageID INTEGER PRIMARY KEY AUTOINCREMENT,
+        ProviderID INTEGER NOT NULL,
+        ServiceID INTEGER NOT NULL,
+        CoveragePercentage DECIMAL(5,2) DEFAULT 0.00,
+        Deductible DECIMAL(10,2) DEFAULT 0.00,
+        IsActive BOOLEAN DEFAULT TRUE,
+        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (ProviderID) REFERENCES InsuranceProviders(ProviderID),
+        FOREIGN KEY (ServiceID) REFERENCES MedicalServicesCatalog(ServiceID),
+        UNIQUE(ProviderID, ServiceID)
+    );
+    ```
+    
+    ## Sample Data Context
+    
+    ### Facility Types
+    - Hospital, Medical Center, Clinic, Laboratory, Imaging Center, Urgent Care, Specialty Clinic
+    
+    ### Service Departments
+    - Laboratory, Radiology, Primary Care, Cardiology, Gastroenterology
+    
+    ### Inventory Categories
+    - PPE, Laboratory Supplies, Medical Equipment, Imaging Supplies, Medical Supplies
+    
+    ### Common Services
+    - Blood Chemistry Panel (LAB001), Complete Blood Count (LAB002), Chest X-Ray (RAD001), MRI Brain (RAD002), Annual Physical Exam (PREV001), Echocardiogram (CARD001), Colonoscopy (GI001), Mammogram (RAD004)
+    
+    ## Key Relationships
+    - **One-to-Many**: HealthcareFacilities → MedicalInventory
+    - **One-to-Many**: MedicalServicesCatalog → LabTestReferenceRanges
+    - **Many-to-Many**: HealthcareFacilities ↔ MedicalServicesCatalog (via FacilityServices)
+    - **Many-to-Many**: InsuranceProviders ↔ MedicalServicesCatalog (via InsuranceCoverage)
+    
+    ## Common Query Patterns
+    
+    ### Operational Queries
+    ```sql
+    -- Find services at a facility
+    SELECT f.Name, s.ServiceName, s.ServiceCode 
+    FROM HealthcareFacilities f
+    JOIN FacilityServices fs ON f.FacilityID = fs.FacilityID
+    JOIN MedicalServicesCatalog s ON fs.ServiceID = s.ServiceID
+    WHERE f.FacilityID = ?;
+    
+    -- Check low inventory
+    SELECT i.ItemName, i.Quantity, i.ReorderThreshold, f.Name
+    FROM MedicalInventory i
+    JOIN HealthcareFacilities f ON i.FacilityID = f.FacilityID
+    WHERE i.Quantity <= i.ReorderThreshold;
+    
+    -- Insurance coverage lookup
+    SELECT ip.ProviderName, ic.CoveragePercentage, ic.Deductible
+    FROM InsuranceProviders ip
+    JOIN InsuranceCoverage ic ON ip.ProviderID = ic.ProviderID
+    JOIN MedicalServicesCatalog s ON ic.ServiceID = s.ServiceID
+    WHERE s.ServiceCode = ?;
+    ```
+    
+    ## Instructions
+    1. **Always use proper JOINs** to connect related tables
+    2. **Filter by IsActive = TRUE** when querying active records
+    3. **Use table aliases** for readability (f for facilities, s for services, etc.)
+    4. **Include relevant columns** for healthcare reporting needs
+    5. **Consider date filters** for time-sensitive queries
+    6. **Handle NULL values** appropriately in conditions
+    7. **Use DECIMAL for financial data** (prices, percentages)
+    8. **Include proper ORDER BY** for meaningful result sorting
+    
+    When users ask about healthcare operations, generate efficient SQL queries using this schema. Focus on practical needs like facility management, inventory tracking, service availability, insurance verification, and operational reporting.
+    ## CRITICAL OUTPUT FORMAT
+    You must respond with ONLY a valid SQL query. No explanations, no markdown, no code blocks.
+    Return only the raw SQL statement that can be executed directly.
+    
+    Example response format:
+    SELECT * FROM HealthcareFacilities WHERE State = 'CA'
+    
+    Do not wrap in ```sql blocks. Do not add explanations. Just the SQL query.
+    """
 
     # STEP 4: Add data context from search results
     seen = set()
@@ -677,8 +849,8 @@ async def greet_endpoint(request: GreetRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/query_database")
-async def query_database_endpoint(request: QueryDatabaseRequest):
+@app.post("/query_sql_database")
+async def query_sql_database_endpoint(request: QueryDatabaseRequest):
     """Query database with natural language using LLM SQL generation"""
     try:
         if DEBUG:
@@ -732,7 +904,7 @@ async def query_database_endpoint(request: QueryDatabaseRequest):
 
     except Exception as e:
         if DEBUG:
-            print(f"[MCP DEBUG] Error in query_database: {e}")
+            print(f"[MCP DEBUG] Error in query_sql_database: {e}")
         return {
             "success": False,
             "error": str(e),
@@ -740,8 +912,8 @@ async def query_database_endpoint(request: QueryDatabaseRequest):
         }
 
 
-@app.post("/query_database_stream")
-async def query_database_stream_endpoint(request: QueryDatabaseRequest):
+@app.post("/query_sql_database_stream")
+async def query_sql_database_stream_endpoint(request: QueryDatabaseRequest):
     """Stream database query results with SQL generation"""
 
     async def generate_response():
@@ -1387,8 +1559,8 @@ async def health_check():
             "llm_providers": ["openai", "ollama", "mistral"],
             "endpoints": {
                 "greet": "/greet",
-                "query_database": "/query_database",
-                "query_database_stream": "/query_database_stream",
+                "query_sql_database": "/query_sql_database",
+                "query_sql_database_stream": "/query_sql_database_stream",
                 "weather": "/weather",
                 "health": "/health"
             }
@@ -1416,14 +1588,20 @@ async def mcp_tools_list():
 
         # DATABASE RETRIEVAL
         MCPTool(
-            name="query_database",
-            description="TRIGGER: SQL, database, query database, hospital database, list users, count users, show statistics, user data, department data, roles data, permissions data, teams data, how many, find in database, search database | ACTION: Query hospital SQL database with AI-generated SQL | RETURNS: Structured data results from hospital operational database with SQL query used",
+            name="query_sql_database",
+            description="TRIGGER: SQL, SQL database, query database, hospital database, healthcare database, medical facilities, facilities, services, lab tests, inventory, insurance, list facilities, count services, find hospitals, search clinics, medical inventory, insurance coverage, service availability, lab results, facility statistics, low stock, expired items | ACTION: Query healthcare SQL database with AI-generated SQL from natural language | RETURNS: Structured healthcare data with the generated SQL query",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "query": {"type": "string", "description": "Natural language question about hospital database"},
-                    "keywords": {"type": "array", "items": {"type": "string"},
-                                 "description": "Keywords to help with database query context"}
+                    "query": {
+                        "type": "string",
+                        "description": "Natural language question about the healthcare database (facilities, services, inventory, insurance, lab tests)"
+                    },
+                    "keywords": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Key medical/healthcare terms from the query: facility names, service types, departments (Laboratory, Radiology, Cardiology), locations (cities, states), medical procedures, insurance providers, inventory categories"
+                    }
                 },
                 "required": ["query", "keywords"]
             }
@@ -1697,9 +1875,9 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
-        elif tool_name == "query_database":
+        elif tool_name == "query_sql_database":
             query_request = QueryDatabaseRequest(**arguments)
-            result = await query_database_endpoint(query_request)
+            result = await query_sql_database_endpoint(query_request)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
@@ -1727,7 +1905,7 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                 content=[MCPContent(type="text", text=result_text)]
             )
 
-        
+
         elif tool_name == "get_current_weather":
             weather_request = WeatherRequest(
                 **{k: v for k, v in arguments.items() if k in ["city", "lat", "lon", "units"]})
@@ -1735,7 +1913,7 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
-        
+
         elif tool_name == "ad_list_users":
             result = await list_users_endpoint()
             return MCPToolCallResponse(
@@ -1853,7 +2031,7 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         )
 
 
-from fastapi import Request
+
 
 
 @app.post("/")
@@ -1975,8 +2153,8 @@ async def server_info():
         },
         "rest_endpoints": [
             "/greet",
-            "/query_database",
-            "/query_database_stream",
+            "/query_sql_database",
+            "/query_sql_database_stream",
             "/weather",
             "/ad/users",
             "/ad/roles",
@@ -1994,7 +2172,7 @@ async def server_info():
         ],
         "tools": [
             "greet",
-            "query_database",
+            "query_sql_database",
             "get_current_weather",
             "ad_list_users",
             "ad_create_user",
@@ -2031,8 +2209,8 @@ async def server_info():
 #         },
 #         "rest_endpoints": [
 #             "/greet",
-#             "/query_database",
-#             "/query_database_stream",
+#             "/query_sql_database",
+#             "/query_sql_database_stream",
 #             "/weather",
 #             "/ad/users",
 #             "/ad/roles",
@@ -2050,7 +2228,7 @@ async def server_info():
 #         ],
 #         "tools": [
 #             "greet",
-#             "query_database",
+#             "query_sql_database",
 #             "get_current_weather",
 #             "ad_list_users",
 #             "ad_create_user",

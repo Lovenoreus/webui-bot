@@ -13,8 +13,8 @@ def load_config():
     """Load configuration from config.json if it exists"""
     config_path = "config.json"
     default_config = {
-        "database_path": "company_database.db",
-        "docker_database_path": "/app/database_data/company_database.db"
+        "database_path": "healthcare_database.db",
+        "docker_database_path": "/app/database_data/healthcare_database.db"
     }
 
     if os.path.exists(config_path):
@@ -23,7 +23,6 @@ def load_config():
                 config = json.load(f)
                 return config
         except Exception as e:
-            # print((f"Error loading config.json: {e}")
             return default_config
     return default_config
 
@@ -34,9 +33,9 @@ def get_database_path():
 
     # Check if we're running in Docker by looking for docker-specific paths
     if os.path.exists("/app/database_data"):
-        return config.get("docker_database_path", "/app/database_data/company_database.db")
+        return config.get("docker_database_path", "/app/database_data/healthcare_database.db")
     else:
-        return config.get("database_path", "company_database.db")
+        return config.get("database_path", "healthcare_database.db")
 
 
 class AsyncSQLiteServer:
@@ -48,9 +47,9 @@ class AsyncSQLiteServer:
         print(f"Database file exists: {os.path.exists(self.db_path)}")
 
     async def initialize_database(self):
-        """Initialize database with tables and sample data"""
-        print(f"Initializing database at: {self.db_path}")
-        
+        """Initialize database with healthcare tables and sample data"""
+        print(f"Initializing healthcare database at: {self.db_path}")
+
         # Ensure directory exists for docker path
         try:
             db_dir = os.path.dirname(self.db_path)
@@ -68,270 +67,313 @@ class AsyncSQLiteServer:
                 await db.execute("PRAGMA temp_store=memory")
                 await db.execute("PRAGMA foreign_keys=ON")
 
-                # Drop existing tables if they exist
+                # Drop any existing tables for clean slate
                 drop_tables = [
-                    "DROP TABLE IF EXISTS User_Teams",
-                    "DROP TABLE IF EXISTS User_Roles",
-                    "DROP TABLE IF EXISTS Role_Permissions",
-                    "DROP TABLE IF EXISTS Permissions",
-                    "DROP TABLE IF EXISTS Teams",
-                    "DROP TABLE IF EXISTS Roles",
-                    "DROP TABLE IF EXISTS Users",
-                    "DROP TABLE IF EXISTS Departments"
+                    "DROP TABLE IF EXISTS InsuranceCoverage",
+                    "DROP TABLE IF EXISTS FacilityServices",
+                    "DROP TABLE IF EXISTS MedicalInventory",
+                    "DROP TABLE IF EXISTS LabTestReferenceRanges",
+                    "DROP TABLE IF EXISTS InsuranceProviders",
+                    "DROP TABLE IF EXISTS MedicalServicesCatalog",
+                    "DROP TABLE IF EXISTS HealthcareFacilities"
                 ]
 
                 for drop_sql in drop_tables:
                     await db.execute(drop_sql)
 
-                # Create tables
+                # Create healthcare tables
                 create_tables = [
-                    """CREATE TABLE IF NOT EXISTS Departments (
-                        department_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        department_name VARCHAR(100),
-                        manager_id INTEGER NULL
+                    """CREATE TABLE HealthcareFacilities (
+                        FacilityID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Name VARCHAR(100) NOT NULL,
+                        Type VARCHAR(50) NOT NULL,
+                        Address TEXT,
+                        City VARCHAR(50),
+                        State VARCHAR(50),
+                        Country VARCHAR(50),
+                        LicenseNumber VARCHAR(50),
+                        AccreditationStatus VARCHAR(50),
+                        OperationalSince DATE,
+                        IsActive BOOLEAN DEFAULT TRUE,
+                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )""",
 
-                    """CREATE TABLE IF NOT EXISTS Users (
-                        user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        name VARCHAR(100),
-                        email VARCHAR(100),
-                        department_id INTEGER,
-                        hire_date DATE,
-                        FOREIGN KEY (department_id) REFERENCES Departments(department_id)
+                    """CREATE TABLE MedicalServicesCatalog (
+                        ServiceID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ServiceName VARCHAR(100) NOT NULL,
+                        ServiceCode VARCHAR(50) UNIQUE NOT NULL,
+                        Department VARCHAR(50),
+                        Description TEXT,
+                        BasePrice DECIMAL(10,2),
+                        RequiresAppointment BOOLEAN DEFAULT TRUE,
+                        IsActive BOOLEAN DEFAULT TRUE,
+                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )""",
 
-                    """CREATE TABLE IF NOT EXISTS Roles (
-                        role_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        role_name VARCHAR(100),
-                        description TEXT
+                    """CREATE TABLE LabTestReferenceRanges (
+                        RangeID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        TestName VARCHAR(100) NOT NULL,
+                        ServiceID INTEGER,
+                        Unit VARCHAR(20),
+                        Gender VARCHAR(10),
+                        AgeMin INTEGER,
+                        AgeMax INTEGER,
+                        MinValue DECIMAL(10,2),
+                        MaxValue DECIMAL(10,2),
+                        Notes TEXT,
+                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (ServiceID) REFERENCES MedicalServicesCatalog(ServiceID)
                     )""",
 
-                    """CREATE TABLE IF NOT EXISTS Permissions (
-                        permission_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        permission_name VARCHAR(100),
-                        description TEXT
+                    """CREATE TABLE MedicalInventory (
+                        InventoryID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ItemName VARCHAR(100) NOT NULL,
+                        Category VARCHAR(50),
+                        Quantity INTEGER DEFAULT 0,
+                        Unit VARCHAR(20),
+                        FacilityID INTEGER NOT NULL,
+                        ReorderThreshold INTEGER DEFAULT 10,
+                        ExpiryDate DATE,
+                        LastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (FacilityID) REFERENCES HealthcareFacilities(FacilityID)
                     )""",
 
-                    """CREATE TABLE IF NOT EXISTS Role_Permissions (
-                        role_id INTEGER,
-                        permission_id INTEGER,
-                        PRIMARY KEY (role_id, permission_id),
-                        FOREIGN KEY (role_id) REFERENCES Roles(role_id),
-                        FOREIGN KEY (permission_id) REFERENCES Permissions(permission_id)
+                    """CREATE TABLE InsuranceProviders (
+                        ProviderID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ProviderName VARCHAR(100) NOT NULL,
+                        ContactEmail VARCHAR(100),
+                        ContactPhone VARCHAR(20),
+                        Address TEXT,
+                        ServicesCovered TEXT,
+                        Country VARCHAR(50),
+                        ContractStart DATE,
+                        ContractEnd DATE,
+                        IsActive BOOLEAN DEFAULT TRUE,
+                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )""",
 
-                    """CREATE TABLE IF NOT EXISTS Teams (
-                        team_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        team_name VARCHAR(100),
-                        department_id INTEGER,
-                        FOREIGN KEY (department_id) REFERENCES Departments(department_id)
+                    """CREATE TABLE FacilityServices (
+                        FacilityServiceID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        FacilityID INTEGER NOT NULL,
+                        ServiceID INTEGER NOT NULL,
+                        IsAvailable BOOLEAN DEFAULT TRUE,
+                        EffectiveDate DATE DEFAULT CURRENT_DATE,
+                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (FacilityID) REFERENCES HealthcareFacilities(FacilityID),
+                        FOREIGN KEY (ServiceID) REFERENCES MedicalServicesCatalog(ServiceID),
+                        UNIQUE(FacilityID, ServiceID)
                     )""",
 
-                    """CREATE TABLE IF NOT EXISTS User_Roles (
-                        user_id INTEGER,
-                        role_id INTEGER,
-                        assigned_date DATE,
-                        PRIMARY KEY (user_id, role_id),
-                        FOREIGN KEY (user_id) REFERENCES Users(user_id),
-                        FOREIGN KEY (role_id) REFERENCES Roles(role_id)
-                    )""",
-
-                    """CREATE TABLE IF NOT EXISTS User_Teams (
-                        user_id INTEGER,
-                        team_id INTEGER,
-                        PRIMARY KEY (user_id, team_id),
-                        FOREIGN KEY (user_id) REFERENCES Users(user_id),
-                        FOREIGN KEY (team_id) REFERENCES Teams(team_id)
+                    """CREATE TABLE InsuranceCoverage (
+                        CoverageID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        ProviderID INTEGER NOT NULL,
+                        ServiceID INTEGER NOT NULL,
+                        CoveragePercentage DECIMAL(5,2) DEFAULT 0.00,
+                        Deductible DECIMAL(10,2) DEFAULT 0.00,
+                        IsActive BOOLEAN DEFAULT TRUE,
+                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (ProviderID) REFERENCES InsuranceProviders(ProviderID),
+                        FOREIGN KEY (ServiceID) REFERENCES MedicalServicesCatalog(ServiceID),
+                        UNIQUE(ProviderID, ServiceID)
                     )"""
                 ]
 
                 for create_sql in create_tables:
                     await db.execute(create_sql)
 
+                # Create indexes for better performance
+                indexes = [
+                    "CREATE INDEX idx_facilities_type ON HealthcareFacilities(Type)",
+                    "CREATE INDEX idx_services_code ON MedicalServicesCatalog(ServiceCode)",
+                    "CREATE INDEX idx_inventory_facility ON MedicalInventory(FacilityID)",
+                    "CREATE INDEX idx_inventory_expiry ON MedicalInventory(ExpiryDate)",
+                    "CREATE INDEX idx_lab_ranges_test ON LabTestReferenceRanges(TestName)"
+                ]
+
+                for index_sql in indexes:
+                    await db.execute(index_sql)
+
                 # Insert sample data
-                print("Starting to insert sample data...")
+                print("Starting to insert healthcare sample data...")
                 await self.insert_sample_data(db)
-                print("Sample data insertion completed!")
+                print("Healthcare sample data insertion completed!")
 
                 await db.commit()
-                print("Database initialized successfully!")
-                
+                print("Healthcare database initialized successfully!")
+
                 # Verify data was inserted
-                cursor = await db.execute("SELECT COUNT(*) FROM Users")
+                cursor = await db.execute("SELECT COUNT(*) FROM HealthcareFacilities")
                 count = await cursor.fetchone()
-                print(f"Total users inserted: {count[0] if count else 0}")
+                print(f"Total healthcare facilities inserted: {count[0] if count else 0}")
 
     async def insert_sample_data(self, db):
-        """Insert all sample data"""
+        """Insert comprehensive healthcare sample data"""
 
-        # Insert Departments
-        departments_data = [
-            ('Human Resources', None),
-            ('Engineering', None),
-            ('Marketing', None),
-            ('Sales', None),
-            ('Finance', None),
-            ('Operations', None),
-            ('Customer Support', None)
+        # Insert Healthcare Facilities
+        facilities_data = [
+            ('Metro General Hospital', 'Hospital', '123 Main St', 'New York', 'NY', 'USA', 'LIC-H001',
+             'Joint Commission Accredited', '2010-05-15', True),
+            ('Westside Medical Center', 'Medical Center', '456 Oak Ave', 'Los Angeles', 'CA', 'USA', 'LIC-MC002',
+             'AAAHC Accredited', '2015-03-22', True),
+            ('Downtown Primary Clinic', 'Clinic', '789 Pine Rd', 'Chicago', 'IL', 'USA', 'LIC-C003', 'NCQA Certified',
+             '2018-07-10', True),
+            ('Riverside Laboratory Services', 'Laboratory', '321 River St', 'Miami', 'FL', 'USA', 'LIC-L004',
+             'CLIA Certified', '2012-11-08', True),
+            ('Central Imaging Center', 'Imaging Center', '654 Center Blvd', 'Houston', 'TX', 'USA', 'LIC-I005',
+             'ACR Accredited', '2016-09-30', True),
+            ('Northside Urgent Care', 'Urgent Care', '987 North Ave', 'Phoenix', 'AZ', 'USA', 'LIC-UC006',
+             'AAAHC Accredited', '2019-01-12', True),
+            ('Eastside Specialty Clinic', 'Specialty Clinic', '147 East St', 'Dallas', 'TX', 'USA', 'LIC-SC007',
+             'Joint Commission Accredited', '2017-08-25', True)
         ]
         await db.executemany(
-            "INSERT INTO Departments (department_name, manager_id) VALUES (?, ?)",
-            departments_data
+            """INSERT INTO HealthcareFacilities 
+               (Name, Type, Address, City, State, Country, LicenseNumber, AccreditationStatus, OperationalSince, IsActive) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            facilities_data
         )
 
-        # Insert Users
-        users_data = [
-            ('Sarah Johnson', 'sarah.johnson@company.com', 1, '2022-03-15'),
-            ('Michael Chen', 'michael.chen@company.com', 2, '2021-07-22'),
-            ('Emily Rodriguez', 'emily.rodriguez@company.com', 3, '2023-01-10'),
-            ('David Kim', 'david.kim@company.com', 2, '2020-11-08'),
-            ('Lisa Wang', 'lisa.wang@company.com', 4, '2022-09-14'),
-            ('James Thompson', 'james.thompson@company.com', 5, '2021-05-03'),
-            ('Maria Garcia', 'maria.garcia@company.com', 1, '2023-02-28'),
-            ('Robert Anderson', 'robert.anderson@company.com', 6, '2020-08-19'),
-            ('Jennifer Liu', 'jennifer.liu@company.com', 2, '2022-12-07'),
-            ('Thomas Brown', 'thomas.brown@company.com', 7, '2021-10-12'),
-            ('Amanda Davis', 'amanda.davis@company.com', 3, '2023-04-05'),
-            ('Kevin Wilson', 'kevin.wilson@company.com', 4, '2022-06-18'),
-            ('Rachel Taylor', 'rachel.taylor@company.com', 5, '2021-12-01'),
-            ('Daniel Martinez', 'daniel.martinez@company.com', 6, '2023-03-22'),
-            ('Jessica Lee', 'jessica.lee@company.com', 7, '2022-08-11')
+        # Insert Medical Services Catalog
+        services_data = [
+            ('Blood Chemistry Panel', 'LAB001', 'Laboratory',
+             'Comprehensive metabolic panel including glucose, electrolytes, kidney function', 85.00, True, True),
+            ('Complete Blood Count', 'LAB002', 'Laboratory', 'CBC with differential and platelet count', 45.00, True,
+             True),
+            ('Lipid Panel', 'LAB003', 'Laboratory', 'Total cholesterol, HDL, LDL, triglycerides', 65.00, True, True),
+            ('Thyroid Function Test', 'LAB004', 'Laboratory', 'TSH, T3, T4 levels', 95.00, True, True),
+            ('Chest X-Ray', 'RAD001', 'Radiology', 'Posterior-anterior and lateral chest radiograph', 120.00, True,
+             True),
+            ('MRI Brain', 'RAD002', 'Radiology', 'Magnetic resonance imaging of brain with contrast', 1200.00, True,
+             True),
+            ('CT Scan Abdomen', 'RAD003', 'Radiology', 'Computed tomography of abdomen and pelvis', 800.00, True, True),
+            ('Mammogram', 'RAD004', 'Radiology', 'Digital screening mammography bilateral', 180.00, True, True),
+            ('Ultrasound Abdomen', 'RAD005', 'Radiology', 'Abdominal ultrasound examination', 250.00, True, True),
+            ('Annual Physical Exam', 'PREV001', 'Primary Care', 'Comprehensive annual wellness examination', 200.00,
+             True, True),
+            ('Vaccination Service', 'PREV002', 'Primary Care', 'Immunization administration', 25.00, True, True),
+            ('Echocardiogram', 'CARD001', 'Cardiology', 'Transthoracic echocardiogram with Doppler', 350.00, True,
+             True),
+            ('Stress Test', 'CARD002', 'Cardiology', 'Exercise stress test with EKG monitoring', 400.00, True, True),
+            ('Colonoscopy', 'GI001', 'Gastroenterology', 'Diagnostic colonoscopy with biopsy capability', 800.00, True,
+             True),
+            ('Endoscopy', 'GI002', 'Gastroenterology', 'Upper endoscopy examination', 600.00, True, True)
         ]
         await db.executemany(
-            "INSERT INTO Users (name, email, department_id, hire_date) VALUES (?, ?, ?, ?)",
-            users_data
+            """INSERT INTO MedicalServicesCatalog 
+               (ServiceName, ServiceCode, Department, Description, BasePrice, RequiresAppointment, IsActive) 
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            services_data
         )
 
-        # Update Departments with manager_id
-        manager_updates = [
-            (1, 1), (2, 2), (3, 3), (5, 4), (6, 5), (8, 6), (10, 7)
-        ]
-        for manager_id, dept_id in manager_updates:
-            await db.execute(
-                "UPDATE Departments SET manager_id = ? WHERE department_id = ?",
-                (manager_id, dept_id)
-            )
-
-        # Insert Roles
-        roles_data = [
-            ('Administrator', 'Full system access and management capabilities'),
-            ('Manager', 'Department or team management responsibilities'),
-            ('Senior Developer', 'Advanced development skills with mentoring responsibilities'),
-            ('Developer', 'Software development and maintenance'),
-            ('Analyst', 'Data analysis and reporting'),
-            ('Coordinator', 'Project coordination and administrative support'),
-            ('Specialist', 'Subject matter expertise in specific domain'),
-            ('Support Agent', 'Customer service and technical support'),
-            ('Intern', 'Learning role with limited responsibilities'),
-            ('Consultant', 'External advisor with specialized knowledge')
+        # Insert Lab Test Reference Ranges
+        lab_ranges_data = [
+            ('Glucose', 1, 'mg/dL', 'All', 18, 99, 70.0, 99.0, 'Fasting glucose normal range'),
+            ('Glucose', 1, 'mg/dL', 'All', 65, 99, 70.0, 126.0, 'Fasting glucose normal range for elderly'),
+            ('Hemoglobin', 2, 'g/dL', 'Male', 18, 99, 13.8, 17.2, 'Normal range for adult males'),
+            ('Hemoglobin', 2, 'g/dL', 'Female', 18, 99, 12.1, 15.1, 'Normal range for adult females'),
+            ('Total Cholesterol', 3, 'mg/dL', 'All', 18, 99, 0.0, 200.0, 'Desirable level'),
+            ('HDL Cholesterol', 3, 'mg/dL', 'Male', 18, 99, 40.0, 999.0, 'Good HDL for males'),
+            ('HDL Cholesterol', 3, 'mg/dL', 'Female', 18, 99, 50.0, 999.0, 'Good HDL for females'),
+            ('LDL Cholesterol', 3, 'mg/dL', 'All', 18, 99, 0.0, 100.0, 'Optimal LDL level'),
+            ('TSH', 4, 'mIU/L', 'All', 18, 99, 0.4, 4.0, 'Normal thyroid stimulating hormone'),
+            ('Platelet Count', 2, 'K/uL', 'All', 18, 99, 150.0, 450.0, 'Normal platelet range')
         ]
         await db.executemany(
-            "INSERT INTO Roles (role_name, description) VALUES (?, ?)",
-            roles_data
+            """INSERT INTO LabTestReferenceRanges 
+               (TestName, ServiceID, Unit, Gender, AgeMin, AgeMax, MinValue, MaxValue, Notes) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            lab_ranges_data
         )
 
-        # Insert Permissions
-        permissions_data = [
-            ('user_management', 'Create, modify, and delete user accounts'),
-            ('role_assignment', 'Assign and modify user roles'),
-            ('system_config', 'Configure system settings and parameters'),
-            ('data_export', 'Export data from the system'),
-            ('financial_data', 'Access to financial information and reports'),
-            ('employee_records', 'Access to employee personal information'),
-            ('project_create', 'Create new projects and initiatives'),
-            ('project_manage', 'Manage existing projects and teams'),
-            ('customer_data', 'Access to customer information'),
-            ('support_tickets', 'Manage customer support requests'),
-            ('marketing_campaigns', 'Create and manage marketing initiatives'),
-            ('sales_reports', 'Access to sales data and analytics'),
-            ('inventory_management', 'Manage product inventory'),
-            ('audit_logs', 'View system audit trails'),
-            ('backup_restore', 'Perform system backups and restores')
+        # Insert Medical Inventory
+        inventory_data = [
+            ('Disposable Gloves', 'PPE', 5000, 'boxes', 1, 500, '2025-12-31'),
+            ('N95 Masks', 'PPE', 2000, 'pieces', 1, 200, '2026-06-30'),
+            ('Surgical Masks', 'PPE', 10000, 'pieces', 1, 1000, '2026-03-15'),
+            ('Blood Collection Tubes', 'Laboratory Supplies', 1500, 'units', 4, 100, '2025-09-30'),
+            ('Contrast Dye', 'Imaging Supplies', 50, 'vials', 5, 10, '2025-11-20'),
+            ('Stethoscopes', 'Medical Equipment', 25, 'units', 2, 5, None),
+            ('Blood Pressure Monitors', 'Medical Equipment', 15, 'units', 3, 3, None),
+            ('Ultrasound Gel', 'Imaging Supplies', 200, 'bottles', 5, 20, '2026-01-15'),
+            ('Syringes (10ml)', 'Medical Supplies', 3000, 'units', 1, 300, '2027-05-10'),
+            ('Gauze Pads', 'Medical Supplies', 800, 'packages', 2, 50, '2028-02-28'),
+            ('Thermometer Covers', 'Medical Supplies', 5000, 'units', 3, 500, '2026-08-12'),
+            ('X-Ray Film', 'Imaging Supplies', 100, 'sheets', 5, 20, '2025-10-31')
         ]
         await db.executemany(
-            "INSERT INTO Permissions (permission_name, description) VALUES (?, ?)",
-            permissions_data
+            """INSERT INTO MedicalInventory 
+               (ItemName, Category, Quantity, Unit, FacilityID, ReorderThreshold, ExpiryDate) 
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            inventory_data
         )
 
-        # Insert Role_Permissions
-        role_permissions_data = [
-            # Administrator - all permissions
-            *[(1, i) for i in range(1, 16)],
-            # Manager
-            (2, 2), (2, 4), (2, 6), (2, 7), (2, 8), (2, 9), (2, 12), (2, 14),
-            # Senior Developer
-            (3, 4), (3, 7), (3, 8), (3, 14),
-            # Developer
-            (4, 4), (4, 7), (4, 14),
-            # Analyst
-            (5, 4), (5, 5), (5, 12), (5, 14),
-            # Coordinator
-            (6, 4), (6, 7), (6, 8),
-            # Specialist
-            (7, 4), (7, 9), (7, 10), (7, 11), (7, 13),
-            # Support Agent
-            (8, 9), (8, 10),
-            # Intern
-            (9, 4),
-            # Consultant
-            (10, 4), (10, 12), (10, 14)
+        # Insert Insurance Providers
+        insurance_data = [
+            ('Blue Cross Blue Shield', 'info@bcbs.com', '1-800-BCBS-123', '100 Insurance Way, Chicago, IL',
+             'Primary Care,Laboratory,Radiology,Cardiology', 'USA', '2023-01-01', '2025-12-31', True),
+            ('Aetna Healthcare', 'contact@aetna.com', '1-800-AETNA-01', '200 Health Ave, Hartford, CT',
+             'Primary Care,Specialty Care,Laboratory', 'USA', '2023-06-01', '2026-05-31', True),
+            ('Cigna Health', 'support@cigna.com', '1-800-CIGNA-24', '300 Wellness Blvd, Philadelphia, PA',
+             'Primary Care,Radiology,Gastroenterology', 'USA', '2023-03-01', '2025-02-28', True),
+            ('United HealthCare', 'help@uhc.com', '1-800-UHC-CARE', '400 Coverage St, Minneapolis, MN',
+             'Primary Care,Laboratory,Cardiology,Radiology', 'USA', '2022-01-01', '2024-12-31', True),
+            ('Kaiser Permanente', 'member@kp.org', '1-800-KAISER-1', '500 Integrated Dr, Oakland, CA',
+             'Primary Care,Laboratory,Radiology,Specialty Care', 'USA', '2023-01-01', '2026-12-31', True)
         ]
         await db.executemany(
-            "INSERT INTO Role_Permissions (role_id, permission_id) VALUES (?, ?)",
-            role_permissions_data
+            """INSERT INTO InsuranceProviders 
+               (ProviderName, ContactEmail, ContactPhone, Address, ServicesCovered, Country, ContractStart, ContractEnd, IsActive) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            insurance_data
         )
 
-        # Insert Teams
-        teams_data = [
-            ('Recruitment Team', 1), ('Employee Relations', 1),
-            ('Backend Development', 2), ('Frontend Development', 2), ('DevOps Team', 2),
-            ('Digital Marketing', 3), ('Content Creation', 3),
-            ('Enterprise Sales', 4), ('Customer Success', 4),
-            ('Accounting', 5), ('Financial Planning', 5),
-            ('Supply Chain', 6), ('Quality Assurance', 6),
-            ('Technical Support', 7), ('Customer Experience', 7)
+        # Insert Facility Services (which services are available at which facilities)
+        facility_services_data = [
+            # Metro General Hospital (1) - Full service hospital
+            (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (1, 12), (1, 13),
+            (1, 14), (1, 15),
+            # Westside Medical Center (2) - Medical center
+            (2, 1), (2, 2), (2, 3), (2, 5), (2, 8), (2, 9), (2, 10), (2, 11), (2, 12),
+            # Downtown Primary Clinic (3) - Primary care focus
+            (3, 10), (3, 11), (3, 1), (3, 2), (3, 3),
+            # Riverside Laboratory Services (4) - Lab only
+            (4, 1), (4, 2), (4, 3), (4, 4),
+            # Central Imaging Center (5) - Imaging only
+            (5, 5), (5, 6), (5, 7), (5, 8), (5, 9),
+            # Northside Urgent Care (6) - Urgent care services
+            (6, 1), (6, 2), (6, 5), (6, 10), (6, 11),
+            # Eastside Specialty Clinic (7) - Specialty services
+            (7, 12), (7, 13), (7, 14), (7, 15)
         ]
         await db.executemany(
-            "INSERT INTO Teams (team_name, department_id) VALUES (?, ?)",
-            teams_data
+            """INSERT INTO FacilityServices (FacilityID, ServiceID) VALUES (?, ?)""",
+            facility_services_data
         )
 
-        # Insert User_Roles
-        user_roles_data = [
-            (1, 1, '2022-03-15'), (1, 2, '2022-03-15'),
-            (2, 2, '2021-07-22'), (2, 3, '2021-07-22'),
-            (3, 2, '2023-01-10'), (3, 7, '2023-01-10'),
-            (4, 3, '2020-11-08'),
-            (5, 2, '2022-09-14'), (5, 7, '2022-09-14'),
-            (6, 2, '2021-05-03'), (6, 5, '2021-05-03'),
-            (7, 6, '2023-02-28'),
-            (8, 2, '2020-08-19'), (8, 7, '2020-08-19'),
-            (9, 4, '2022-12-07'),
-            (10, 2, '2021-10-12'), (10, 8, '2021-10-12'),
-            (11, 7, '2023-04-05'),
-            (12, 7, '2022-06-18'),
-            (13, 5, '2021-12-01'),
-            (14, 7, '2023-03-22'),
-            (15, 8, '2022-08-11')
+        # Insert Insurance Coverage
+        coverage_data = [
+            # Blue Cross Blue Shield coverage
+            (1, 1, 80.00, 50.00), (1, 2, 80.00, 25.00), (1, 5, 70.00, 100.00), (1, 10, 90.00, 20.00),
+            (1, 12, 75.00, 200.00),
+            # Aetna Healthcare coverage
+            (2, 1, 75.00, 75.00), (2, 2, 75.00, 30.00), (2, 10, 85.00, 25.00), (2, 14, 60.00, 500.00),
+            # Cigna Health coverage
+            (3, 1, 70.00, 60.00), (3, 5, 65.00, 150.00), (3, 10, 80.00, 30.00), (3, 14, 55.00, 400.00),
+            # United HealthCare coverage
+            (4, 1, 85.00, 40.00), (4, 2, 85.00, 20.00), (4, 5, 75.00, 75.00), (4, 12, 80.00, 150.00),
+            # Kaiser Permanente coverage
+            (5, 1, 90.00, 20.00), (5, 2, 90.00, 15.00), (5, 5, 85.00, 50.00), (5, 10, 95.00, 10.00),
+            (5, 12, 85.00, 100.00)
         ]
         await db.executemany(
-            "INSERT INTO User_Roles (user_id, role_id, assigned_date) VALUES (?, ?, ?)",
-            user_roles_data
-        )
-
-        # Insert User_Teams
-        user_teams_data = [
-            (1, 1), (1, 2), (7, 1),  # HR
-            (2, 3), (2, 5), (4, 3), (9, 4),  # Engineering
-            (3, 6), (3, 7), (11, 6),  # Marketing
-            (5, 8), (5, 9), (12, 8),  # Sales
-            (6, 10), (6, 11), (13, 11),  # Finance
-            (8, 12), (8, 13), (14, 12),  # Operations
-            (10, 14), (10, 15), (15, 14)  # Customer Support
-        ]
-        await db.executemany(
-            "INSERT INTO User_Teams (user_id, team_id) VALUES (?, ?)",
-            user_teams_data
+            """INSERT INTO InsuranceCoverage (ProviderID, ServiceID, CoveragePercentage, Deductible) VALUES (?, ?, ?, ?)""",
+            coverage_data
         )
 
     async def execute_query(self, query: str) -> List[Dict[str, Any]]:
@@ -356,7 +398,7 @@ class AsyncSQLiteServer:
 
 
 # FastAPI setup
-app = FastAPI(title="Company Database API", description="AsyncSQLite Database Server for Company Management")
+app = FastAPI(title="Healthcare Database API", description="AsyncSQLite Database Server for Healthcare Management")
 db_server = AsyncSQLiteServer()
 
 
@@ -366,31 +408,33 @@ class QueryRequest(BaseModel):
 
 @app.on_event("startup")
 async def startup_event():
-    print("Starting database initialization...")
+    print("Starting healthcare database initialization...")
     await db_server.initialize_database()
-    print("Database initialization completed!")
-    
+    print("Healthcare database initialization completed!")
+
     # Test if data was inserted
     try:
-        test_result = await db_server.execute_query("SELECT COUNT(*) as count FROM Users")
-        print(f"Users count after initialization: {test_result}")
+        test_result = await db_server.execute_query("SELECT COUNT(*) as count FROM HealthcareFacilities")
+        print(f"Healthcare facilities count after initialization: {test_result}")
+
+        # Show sample of what's in the database
+        services_result = await db_server.execute_query("SELECT COUNT(*) as count FROM MedicalServicesCatalog")
+        print(f"Medical services count: {services_result}")
+
+        inventory_result = await db_server.execute_query("SELECT COUNT(*) as count FROM MedicalInventory")
+        print(f"Inventory items count: {inventory_result}")
+
     except Exception as e:
-        print(f"Error checking user count: {e}")
+        print(f"Error checking database counts: {e}")
 
 
 @app.post("/query")
 async def execute_query(request: QueryRequest):
     """Execute SQL query and return results"""
     try:
-        # print((f"Received request: {request.query}")
-
         results = await db_server.execute_query(request.query)
-
-        # print((f"Query result: {results}")
-
         return {"success": True, "data": results}
     except Exception as e:
-        # print((f"Query error: {str(e)}")
         return {"success": False, "error": str(e)}
 
 
@@ -427,22 +471,78 @@ async def execute_query_stream(request: QueryRequest):
 async def health_check():
     try:
         # Test if database is accessible and has data
-        test_query = "SELECT COUNT(*) as user_count FROM Users"
+        test_query = "SELECT COUNT(*) as facility_count FROM HealthcareFacilities"
         result = await db_server.execute_query(test_query)
-        user_count = result[0]['user_count'] if result else 0
-        
+        facility_count = result[0]['facility_count'] if result else 0
+
+        # Get additional counts for health check
+        services_result = await db_server.execute_query("SELECT COUNT(*) as service_count FROM MedicalServicesCatalog")
+        service_count = services_result[0]['service_count'] if services_result else 0
+
         return {
-            "status": "healthy", 
+            "status": "healthy",
             "database_path": db_server.db_path,
-            "user_count": user_count,
-            "tables_initialized": user_count > 0
+            "facility_count": facility_count,
+            "service_count": service_count,
+            "tables_initialized": facility_count > 0 and service_count > 0
         }
     except Exception as e:
         return {
-            "status": "error", 
+            "status": "error",
             "database_path": db_server.db_path,
             "error": str(e)
         }
+
+
+# Additional healthcare-specific endpoints
+@app.get("/facilities")
+async def get_facilities():
+    """Get all healthcare facilities"""
+    try:
+        query = """
+        SELECT FacilityID, Name, Type, City, State, AccreditationStatus, IsActive 
+        FROM HealthcareFacilities 
+        WHERE IsActive = 1
+        ORDER BY Name
+        """
+        results = await db_server.execute_query(query)
+        return {"success": True, "data": results}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.get("/services")
+async def get_services():
+    """Get all medical services"""
+    try:
+        query = """
+        SELECT ServiceID, ServiceName, ServiceCode, Department, BasePrice, IsActive 
+        FROM MedicalServicesCatalog 
+        WHERE IsActive = 1
+        ORDER BY Department, ServiceName
+        """
+        results = await db_server.execute_query(query)
+        return {"success": True, "data": results}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.get("/inventory/low-stock")
+async def get_low_stock_items():
+    """Get inventory items that are below reorder threshold"""
+    try:
+        query = """
+        SELECT i.ItemName, i.Category, i.Quantity, i.ReorderThreshold, 
+               f.Name as FacilityName, i.ExpiryDate
+        FROM MedicalInventory i
+        JOIN HealthcareFacilities f ON i.FacilityID = f.FacilityID
+        WHERE i.Quantity <= i.ReorderThreshold
+        ORDER BY i.Quantity ASC
+        """
+        results = await db_server.execute_query(query)
+        return {"success": True, "data": results}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 
 if __name__ == "__main__":
