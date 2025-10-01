@@ -880,7 +880,7 @@ async def mcp_tools_list():
                     "unified_only": {"type": "boolean", "description": "List only AD unified groups", "default": False},
                     "select": {"type": "string", "description": "AD fields to select", "default": "id,displayName,mailNickname,mail,securityEnabled,groupTypes"}
                 },
-                "required": []
+                "required": ["security_only", "unified_only", "select"]
             }
         ),
 
