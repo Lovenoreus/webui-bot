@@ -65,9 +65,9 @@ class PostgresSettings:
     pg_password = os.getenv("PG_PASSWORD", "password")
 
 class OllamaSettings:
-    llm_model = os.getenv("OLLAMA_LLM_MODEL", "llama3.2")
-    embedding_model = os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
-    direct_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")  # Use "http://ollama:11434" in Docker
+    llm_model = os.getenv("OLLAMA_LLM_MODEL")
+    embedding_model = os.getenv("OLLAMA_EMBEDDING_MODEL")
+    direct_url = os.getenv("OLLAMA_BASE_URL")  
 
 class OpenAISettings:
     api_key = os.getenv("OPENAI_API_KEY", "")
