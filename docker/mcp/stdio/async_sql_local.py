@@ -7,14 +7,16 @@ from typing import List, Dict, Any
 import aiosqlite
 import json
 import os
+from datetime import datetime, timedelta
+import random
 
 
 def load_config():
     """Load configuration from config.json if it exists"""
     config_path = "config.json"
     default_config = {
-        "database_path": "healthcare_database.db",
-        "docker_database_path": "/app/database_data/healthcare_database.db"
+        "database_path": "invoice_database.db",
+        "docker_database_path": "/app/database_data/invoice_database.db"
     }
 
     if os.path.exists(config_path):
@@ -33,9 +35,9 @@ def get_database_path():
 
     # Check if we're running in Docker by looking for docker-specific paths
     if os.path.exists("/app/database_data"):
-        return config.get("docker_database_path", "/app/database_data/healthcare_database.db")
+        return config.get("docker_database_path", "/app/database_data/invoice_database.db")
     else:
-        return config.get("database_path", "healthcare_database.db")
+        return config.get("database_path", "invoice_database.db")
 
 
 class AsyncSQLiteServer:
@@ -47,8 +49,8 @@ class AsyncSQLiteServer:
         print(f"Database file exists: {os.path.exists(self.db_path)}")
 
     async def initialize_database(self):
-        """Initialize database with healthcare tables and sample data"""
-        print(f"Initializing healthcare database at: {self.db_path}")
+        """Initialize database with invoice tables and sample data"""
+        print(f"Initializing invoice database at: {self.db_path}")
 
         # Ensure directory exists for docker path
         try:
@@ -69,312 +71,399 @@ class AsyncSQLiteServer:
 
                 # Drop any existing tables for clean slate
                 drop_tables = [
-                    "DROP TABLE IF EXISTS InsuranceCoverage",
-                    "DROP TABLE IF EXISTS FacilityServices",
-                    "DROP TABLE IF EXISTS MedicalInventory",
-                    "DROP TABLE IF EXISTS LabTestReferenceRanges",
-                    "DROP TABLE IF EXISTS InsuranceProviders",
-                    "DROP TABLE IF EXISTS MedicalServicesCatalog",
-                    "DROP TABLE IF EXISTS HealthcareFacilities"
+                    "DROP TABLE IF EXISTS Invoice_Line",
+                    "DROP TABLE IF EXISTS Invoice"
                 ]
 
                 for drop_sql in drop_tables:
                     await db.execute(drop_sql)
 
-                # Create healthcare tables
-                create_tables = [
-                    """CREATE TABLE HealthcareFacilities (
-                        FacilityID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        Name VARCHAR(100) NOT NULL,
-                        Type VARCHAR(50) NOT NULL,
-                        Address TEXT,
-                        City VARCHAR(50),
-                        State VARCHAR(50),
-                        Country VARCHAR(50),
-                        LicenseNumber VARCHAR(50),
-                        AccreditationStatus VARCHAR(50),
-                        OperationalSince DATE,
-                        IsActive BOOLEAN DEFAULT TRUE,
-                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )""",
+                # Create Invoice table
+                create_invoice_table = """
+                CREATE TABLE Invoice (
+                    INVOICE_ID TEXT NOT NULL PRIMARY KEY,
+                    ISSUE_DATE TEXT NOT NULL,
+                    SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID TEXT NOT NULL,
+                    SUPPLIER_PARTY_NAME TEXT,
+                    SUPPLIER_PARTY_STREET_NAME TEXT,
+                    SUPPLIER_PARTY_ADDITIONAL_STREET_NAME TEXT,
+                    SUPPLIER_PARTY_POSTAL_ZONE TEXT,
+                    SUPPLIER_PARTY_CITY TEXT,
+                    SUPPLIER_PARTY_COUNTRY TEXT,
+                    SUPPLIER_PARTY_ADDRESS_LINE TEXT,
+                    SUPPLIER_PARTY_LEGAL_ENTITY_REG_NAME TEXT,
+                    SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_LEGAL_FORM TEXT,
+                    SUPPLIER_PARTY_CONTACT_NAME TEXT,
+                    SUPPLIER_PARTY_CONTACT_EMAIL TEXT,
+                    SUPPLIER_PARTY_CONTACT_PHONE TEXT,
+                    SUPPLIER_PARTY_ENDPOINT_ID TEXT,
+                    CUSTOMER_PARTY_ID TEXT,
+                    CUSTOMER_PARTY_ID_SCHEME_ID TEXT,
+                    CUSTOMER_PARTY_ENDPOINT_ID TEXT,
+                    CUSTOMER_PARTY_ENDPOINT_ID_SCHEME_ID TEXT,
+                    CUSTOMER_PARTY_NAME TEXT,
+                    CUSTOMER_PARTY_STREET_NAME TEXT,
+                    CUSTOMER_PARTY_POSTAL_ZONE TEXT,
+                    CUSTOMER_PARTY_COUNTRY TEXT,
+                    CUSTOMER_PARTY_LEGAL_ENTITY_REG_NAME TEXT,
+                    CUSTOMER_PARTY_LEGAL_ENTITY_COMPANY_ID TEXT,
+                    CUSTOMER_PARTY_CONTACT_NAME TEXT,
+                    CUSTOMER_PARTY_CONTACT_EMAIL TEXT,
+                    CUSTOMER_PARTY_CONTACT_PHONE TEXT,
+                    DUE_DATE TEXT,
+                    DOCUMENT_CURRENCY_CODE TEXT,
+                    DELIVERY_LOCATION_STREET_NAME TEXT,
+                    DELIVERY_LOCATION_ADDITIONAL_STREET_NAME TEXT,
+                    DELIVERY_LOCATION_CITY_NAME TEXT,
+                    DELIVERY_LOCATION_POSTAL_ZONE TEXT,
+                    DELIVERY_LOCATION_ADDRESS_LINE TEXT,
+                    DELIVERY_LOCATION_COUNTRY TEXT,
+                    DELIVERY_PARTY_NAME TEXT,
+                    ACTUAL_DELIVERY_DATE TEXT,
+                    TAX_AMOUNT_CURRENCY TEXT,
+                    TAX_AMOUNT REAL,
+                    PERIOD_START_DATE TEXT,
+                    PERIOD_END_DATE TEXT,
+                    LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT_CURRENCY TEXT,
+                    LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT REAL,
+                    LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT_CURRENCY TEXT,
+                    LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT REAL,
+                    LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT_CURRENCY TEXT,
+                    LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT REAL,
+                    LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT_CURRENCY TEXT,
+                    LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT REAL,
+                    LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT_CURRENCY TEXT,
+                    LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT REAL,
+                    LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT_CURRENCY TEXT,
+                    LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT REAL,
+                    LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT_CURRENCY TEXT,
+                    LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT REAL,
+                    LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT_CURRENCY TEXT,
+                    LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT REAL,
+                    BUYER_REFERENCE TEXT,
+                    PROJECT_REFERENCE_ID TEXT,
+                    INVOICE_TYPE_CODE TEXT,
+                    NOTE TEXT,
+                    TAX_POINT_DATE TEXT,
+                    ACCOUNTING_COST TEXT,
+                    ORDER_REFERENCE_ID TEXT,
+                    ORDER_REFERENCE_SALES_ORDER_ID TEXT,
+                    PAYMENT_TERMS_NOTE TEXT,
+                    BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ID TEXT,
+                    BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ISSUE_DATE TEXT,
+                    CONTRACT_DOCUMENT_REFERENCE_ID TEXT,
+                    DESPATCH_DOCUMENT_REFERENCE_ID TEXT,
+                    ETL_LOAD_TS TEXT
+                )
+                """
 
-                    """CREATE TABLE MedicalServicesCatalog (
-                        ServiceID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        ServiceName VARCHAR(100) NOT NULL,
-                        ServiceCode VARCHAR(50) UNIQUE NOT NULL,
-                        Department VARCHAR(50),
-                        Description TEXT,
-                        BasePrice DECIMAL(10,2),
-                        RequiresAppointment BOOLEAN DEFAULT TRUE,
-                        IsActive BOOLEAN DEFAULT TRUE,
-                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )""",
+                # Create Invoice_Line table
+                create_invoice_line_table = """
+                CREATE TABLE Invoice_Line (
+                    INVOICE_ID TEXT NOT NULL,
+                    ISSUE_DATE TEXT NOT NULL,
+                    SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID TEXT NOT NULL,
+                    INVOICE_LINE_ID TEXT NOT NULL,
+                    ORDER_LINE_REFERENCE_LINE_ID TEXT,
+                    ACCOUNTING_COST TEXT,
+                    INVOICED_QUANTITY REAL,
+                    INVOICED_QUANTITY_UNIT_CODE TEXT,
+                    INVOICED_LINE_EXTENSION_AMOUNT REAL,
+                    INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID TEXT,
+                    INVOICE_PERIOD_START_DATE TEXT,
+                    INVOICE_PERIOD_END_DATE TEXT,
+                    INVOICE_LINE_DOCUMENT_REFERENCE_ID TEXT,
+                    INVOICE_LINE_DOCUMENT_REFERENCE_DOCUMENT_TYPE_CODE TEXT,
+                    INVOICE_LINE_NOTE TEXT,
+                    ITEM_DESCRIPTION TEXT,
+                    ITEM_NAME TEXT,
+                    ITEM_TAXCAT_ID TEXT,
+                    ITEM_TAXCAT_PERCENT REAL,
+                    ITEM_BUYERS_ID TEXT,
+                    ITEM_SELLERS_ITEM_ID TEXT,
+                    ITEM_STANDARD_ITEM_ID TEXT,
+                    ITEM_COMMODITYCLASS_CLASSIFICATION TEXT,
+                    ITEM_COMMODITYCLASS_CLASSIFICATION_LIST_ID TEXT,
+                    PRICE_AMOUNT REAL,
+                    PRICE_AMOUNT_CURRENCY_ID TEXT,
+                    PRICE_BASE_QUANTITY REAL,
+                    PRICE_BASE_QUANTITY_UNIT_CODE TEXT,
+                    PRICE_ALLOWANCE_CHARGE_AMOUNT REAL,
+                    PRICE_ALLOWANCE_CHARGE_INDICATOR TEXT,
+                    ETL_LOAD_TS TEXT,
+                    PRIMARY KEY (INVOICE_ID, INVOICE_LINE_ID),
+                    FOREIGN KEY (INVOICE_ID) REFERENCES Invoice(INVOICE_ID)
+                )
+                """
 
-                    """CREATE TABLE LabTestReferenceRanges (
-                        RangeID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        TestName VARCHAR(100) NOT NULL,
-                        ServiceID INTEGER,
-                        Unit VARCHAR(20),
-                        Gender VARCHAR(10),
-                        AgeMin INTEGER,
-                        AgeMax INTEGER,
-                        MinValue DECIMAL(10,2),
-                        MaxValue DECIMAL(10,2),
-                        Notes TEXT,
-                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (ServiceID) REFERENCES MedicalServicesCatalog(ServiceID)
-                    )""",
-
-                    """CREATE TABLE MedicalInventory (
-                        InventoryID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        ItemName VARCHAR(100) NOT NULL,
-                        Category VARCHAR(50),
-                        Quantity INTEGER DEFAULT 0,
-                        Unit VARCHAR(20),
-                        FacilityID INTEGER NOT NULL,
-                        ReorderThreshold INTEGER DEFAULT 10,
-                        ExpiryDate DATE,
-                        LastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (FacilityID) REFERENCES HealthcareFacilities(FacilityID)
-                    )""",
-
-                    """CREATE TABLE InsuranceProviders (
-                        ProviderID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        ProviderName VARCHAR(100) NOT NULL,
-                        ContactEmail VARCHAR(100),
-                        ContactPhone VARCHAR(20),
-                        Address TEXT,
-                        ServicesCovered TEXT,
-                        Country VARCHAR(50),
-                        ContractStart DATE,
-                        ContractEnd DATE,
-                        IsActive BOOLEAN DEFAULT TRUE,
-                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    )""",
-
-                    """CREATE TABLE FacilityServices (
-                        FacilityServiceID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        FacilityID INTEGER NOT NULL,
-                        ServiceID INTEGER NOT NULL,
-                        IsAvailable BOOLEAN DEFAULT TRUE,
-                        EffectiveDate DATE DEFAULT CURRENT_DATE,
-                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (FacilityID) REFERENCES HealthcareFacilities(FacilityID),
-                        FOREIGN KEY (ServiceID) REFERENCES MedicalServicesCatalog(ServiceID),
-                        UNIQUE(FacilityID, ServiceID)
-                    )""",
-
-                    """CREATE TABLE InsuranceCoverage (
-                        CoverageID INTEGER PRIMARY KEY AUTOINCREMENT,
-                        ProviderID INTEGER NOT NULL,
-                        ServiceID INTEGER NOT NULL,
-                        CoveragePercentage DECIMAL(5,2) DEFAULT 0.00,
-                        Deductible DECIMAL(10,2) DEFAULT 0.00,
-                        IsActive BOOLEAN DEFAULT TRUE,
-                        CreatedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        ModifiedDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (ProviderID) REFERENCES InsuranceProviders(ProviderID),
-                        FOREIGN KEY (ServiceID) REFERENCES MedicalServicesCatalog(ServiceID),
-                        UNIQUE(ProviderID, ServiceID)
-                    )"""
-                ]
-
-                for create_sql in create_tables:
-                    await db.execute(create_sql)
+                await db.execute(create_invoice_table)
+                await db.execute(create_invoice_line_table)
 
                 # Create indexes for better performance
                 indexes = [
-                    "CREATE INDEX idx_facilities_type ON HealthcareFacilities(Type)",
-                    "CREATE INDEX idx_services_code ON MedicalServicesCatalog(ServiceCode)",
-                    "CREATE INDEX idx_inventory_facility ON MedicalInventory(FacilityID)",
-                    "CREATE INDEX idx_inventory_expiry ON MedicalInventory(ExpiryDate)",
-                    "CREATE INDEX idx_lab_ranges_test ON LabTestReferenceRanges(TestName)"
+                    "CREATE INDEX idx_invoice_issue_date ON Invoice(ISSUE_DATE)",
+                    "CREATE INDEX idx_invoice_supplier ON Invoice(SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID)",
+                    "CREATE INDEX idx_invoice_customer ON Invoice(CUSTOMER_PARTY_ID)",
+                    "CREATE INDEX idx_invoice_line_invoice_id ON Invoice_Line(INVOICE_ID)",
+                    "CREATE INDEX idx_invoice_line_issue_date ON Invoice_Line(ISSUE_DATE)",
+                    "CREATE INDEX idx_invoice_line_supplier ON Invoice_Line(SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID)"
                 ]
 
                 for index_sql in indexes:
                     await db.execute(index_sql)
 
                 # Insert sample data
-                print("Starting to insert healthcare sample data...")
+                print("Starting to insert invoice sample data...")
                 await self.insert_sample_data(db)
-                print("Healthcare sample data insertion completed!")
+                print("Invoice sample data insertion completed!")
 
                 await db.commit()
-                print("Healthcare database initialized successfully!")
+                print("Invoice database initialized successfully!")
 
                 # Verify data was inserted
-                cursor = await db.execute("SELECT COUNT(*) FROM HealthcareFacilities")
+                cursor = await db.execute("SELECT COUNT(*) FROM Invoice")
                 count = await cursor.fetchone()
-                print(f"Total healthcare facilities inserted: {count[0] if count else 0}")
+                print(f"Total invoices inserted: {count[0] if count else 0}")
 
     async def insert_sample_data(self, db):
-        """Insert comprehensive healthcare sample data"""
+        """Insert comprehensive invoice sample data"""
 
-        # Insert Healthcare Facilities
-        facilities_data = [
-            ('Metro General Hospital', 'Hospital', '123 Main St', 'New York', 'NY', 'USA', 'LIC-H001',
-             'Joint Commission Accredited', '2010-05-15', True),
-            ('Westside Medical Center', 'Medical Center', '456 Oak Ave', 'Los Angeles', 'CA', 'USA', 'LIC-MC002',
-             'AAAHC Accredited', '2015-03-22', True),
-            ('Downtown Primary Clinic', 'Clinic', '789 Pine Rd', 'Chicago', 'IL', 'USA', 'LIC-C003', 'NCQA Certified',
-             '2018-07-10', True),
-            ('Riverside Laboratory Services', 'Laboratory', '321 River St', 'Miami', 'FL', 'USA', 'LIC-L004',
-             'CLIA Certified', '2012-11-08', True),
-            ('Central Imaging Center', 'Imaging Center', '654 Center Blvd', 'Houston', 'TX', 'USA', 'LIC-I005',
-             'ACR Accredited', '2016-09-30', True),
-            ('Northside Urgent Care', 'Urgent Care', '987 North Ave', 'Phoenix', 'AZ', 'USA', 'LIC-UC006',
-             'AAAHC Accredited', '2019-01-12', True),
-            ('Eastside Specialty Clinic', 'Specialty Clinic', '147 East St', 'Dallas', 'TX', 'USA', 'LIC-SC007',
-             'Joint Commission Accredited', '2017-08-25', True)
+        # Generate realistic Swedish companies and data
+        suppliers = [
+            ('5592985237', 'JA Hotel Karlskrona', 'Borgmästaregatan 13', '37115', 'Karlskrona', 'info@jahotel.se',
+             '045555560'),
+            ('5565783957', 'Visma Draftit AB', 'Styrmansgatan 2', '21118', 'Malmo', 'support@vismadraftit.se',
+             '+46101992350'),
+            ('5560466137', 'Abbott Scandinavia', 'Hemvärnsgatan 9', '171 29', 'Solna', 'contact@abbott.se',
+             '+46850123400'),
+            ('5591234567', 'Nordic IT Solutions AB', 'Sveavägen 45', '111 34', 'Stockholm', 'info@nordicit.se',
+             '+46812345678'),
+            ('5598765432', 'Malmö Tech Services', 'Drottninggatan 22', '211 15', 'Malmö', 'support@malmotech.se',
+             '+46401234567'),
+            ('5587654321', 'Göteborg Consulting Group', 'Avenyn 12', '411 36', 'Göteborg', 'hello@gbgconsult.se',
+             '+46312345678'),
+            ('5576543210', 'Uppsala Innovation Labs', 'Kungsgatan 8', '753 21', 'Uppsala', 'lab@uppsalainnovation.se',
+             '+46181234567'),
+            ('5565432109', 'Linköping Software House', 'Storgatan 33', '582 23', 'Linköping', 'dev@linkopingsw.se',
+             '+46131234567')
         ]
-        await db.executemany(
-            """INSERT INTO HealthcareFacilities 
-               (Name, Type, Address, City, State, Country, LicenseNumber, AccreditationStatus, OperationalSince, IsActive) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            facilities_data
-        )
 
-        # Insert Medical Services Catalog
-        services_data = [
-            ('Blood Chemistry Panel', 'LAB001', 'Laboratory',
-             'Comprehensive metabolic panel including glucose, electrolytes, kidney function', 85.00, True, True),
-            ('Complete Blood Count', 'LAB002', 'Laboratory', 'CBC with differential and platelet count', 45.00, True,
-             True),
-            ('Lipid Panel', 'LAB003', 'Laboratory', 'Total cholesterol, HDL, LDL, triglycerides', 65.00, True, True),
-            ('Thyroid Function Test', 'LAB004', 'Laboratory', 'TSH, T3, T4 levels', 95.00, True, True),
-            ('Chest X-Ray', 'RAD001', 'Radiology', 'Posterior-anterior and lateral chest radiograph', 120.00, True,
-             True),
-            ('MRI Brain', 'RAD002', 'Radiology', 'Magnetic resonance imaging of brain with contrast', 1200.00, True,
-             True),
-            ('CT Scan Abdomen', 'RAD003', 'Radiology', 'Computed tomography of abdomen and pelvis', 800.00, True, True),
-            ('Mammogram', 'RAD004', 'Radiology', 'Digital screening mammography bilateral', 180.00, True, True),
-            ('Ultrasound Abdomen', 'RAD005', 'Radiology', 'Abdominal ultrasound examination', 250.00, True, True),
-            ('Annual Physical Exam', 'PREV001', 'Primary Care', 'Comprehensive annual wellness examination', 200.00,
-             True, True),
-            ('Vaccination Service', 'PREV002', 'Primary Care', 'Immunization administration', 25.00, True, True),
-            ('Echocardiogram', 'CARD001', 'Cardiology', 'Transthoracic echocardiogram with Doppler', 350.00, True,
-             True),
-            ('Stress Test', 'CARD002', 'Cardiology', 'Exercise stress test with EKG monitoring', 400.00, True, True),
-            ('Colonoscopy', 'GI001', 'Gastroenterology', 'Diagnostic colonoscopy with biopsy capability', 800.00, True,
-             True),
-            ('Endoscopy', 'GI002', 'Gastroenterology', 'Upper endoscopy examination', 600.00, True, True)
+        customers = [
+            ('7362321000224', 'Region Västerbotten', '2321000222', 'DEJA01', 'daniel.stromberg@regionvasterbotten.se'),
+            ('7365432100001', 'Stockholms Stad', '2123456789', 'STOCK01', 'procurement@stockholm.se'),
+            ('7367654321002', 'Region Skåne', '2987654321', 'SKANE01', 'inkop@skane.se'),
+            ('7361234567003', 'Västra Götaland', '2456789012', 'VGR01', 'inköp@vgregion.se'),
+            ('7368765432004', 'Region Uppsala', '2345678901', 'UPP01', 'ekonomi@regionuppsala.se')
         ]
-        await db.executemany(
-            """INSERT INTO MedicalServicesCatalog 
-               (ServiceName, ServiceCode, Department, Description, BasePrice, RequiresAppointment, IsActive) 
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            services_data
-        )
 
-        # Insert Lab Test Reference Ranges
-        lab_ranges_data = [
-            ('Glucose', 1, 'mg/dL', 'All', 18, 99, 70.0, 99.0, 'Fasting glucose normal range'),
-            ('Glucose', 1, 'mg/dL', 'All', 65, 99, 70.0, 126.0, 'Fasting glucose normal range for elderly'),
-            ('Hemoglobin', 2, 'g/dL', 'Male', 18, 99, 13.8, 17.2, 'Normal range for adult males'),
-            ('Hemoglobin', 2, 'g/dL', 'Female', 18, 99, 12.1, 15.1, 'Normal range for adult females'),
-            ('Total Cholesterol', 3, 'mg/dL', 'All', 18, 99, 0.0, 200.0, 'Desirable level'),
-            ('HDL Cholesterol', 3, 'mg/dL', 'Male', 18, 99, 40.0, 999.0, 'Good HDL for males'),
-            ('HDL Cholesterol', 3, 'mg/dL', 'Female', 18, 99, 50.0, 999.0, 'Good HDL for females'),
-            ('LDL Cholesterol', 3, 'mg/dL', 'All', 18, 99, 0.0, 100.0, 'Optimal LDL level'),
-            ('TSH', 4, 'mIU/L', 'All', 18, 99, 0.4, 4.0, 'Normal thyroid stimulating hormone'),
-            ('Platelet Count', 2, 'K/uL', 'All', 18, 99, 150.0, 450.0, 'Normal platelet range')
-        ]
-        await db.executemany(
-            """INSERT INTO LabTestReferenceRanges 
-               (TestName, ServiceID, Unit, Gender, AgeMin, AgeMax, MinValue, MaxValue, Notes) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            lab_ranges_data
-        )
+        # Insert sample invoices
+        current_date = datetime.now()
+        invoice_data = []
 
-        # Insert Medical Inventory
-        inventory_data = [
-            ('Disposable Gloves', 'PPE', 5000, 'boxes', 1, 500, '2025-12-31'),
-            ('N95 Masks', 'PPE', 2000, 'pieces', 1, 200, '2026-06-30'),
-            ('Surgical Masks', 'PPE', 10000, 'pieces', 1, 1000, '2026-03-15'),
-            ('Blood Collection Tubes', 'Laboratory Supplies', 1500, 'units', 4, 100, '2025-09-30'),
-            ('Contrast Dye', 'Imaging Supplies', 50, 'vials', 5, 10, '2025-11-20'),
-            ('Stethoscopes', 'Medical Equipment', 25, 'units', 2, 5, None),
-            ('Blood Pressure Monitors', 'Medical Equipment', 15, 'units', 3, 3, None),
-            ('Ultrasound Gel', 'Imaging Supplies', 200, 'bottles', 5, 20, '2026-01-15'),
-            ('Syringes (10ml)', 'Medical Supplies', 3000, 'units', 1, 300, '2027-05-10'),
-            ('Gauze Pads', 'Medical Supplies', 800, 'packages', 2, 50, '2028-02-28'),
-            ('Thermometer Covers', 'Medical Supplies', 5000, 'units', 3, 500, '2026-08-12'),
-            ('X-Ray Film', 'Imaging Supplies', 100, 'sheets', 5, 20, '2025-10-31')
-        ]
-        await db.executemany(
-            """INSERT INTO MedicalInventory 
-               (ItemName, Category, Quantity, Unit, FacilityID, ReorderThreshold, ExpiryDate) 
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            inventory_data
-        )
+        for i in range(50):  # Generate 50 invoices
+            invoice_id = f"INV{str(i + 1).zfill(6)}"
+            issue_date = (current_date - timedelta(days=random.randint(1, 365))).strftime('%Y-%m-%d')
+            due_date = (datetime.strptime(issue_date, '%Y-%m-%d') + timedelta(days=30)).strftime('%Y-%m-%d')
 
-        # Insert Insurance Providers
-        insurance_data = [
-            ('Blue Cross Blue Shield', 'info@bcbs.com', '1-800-BCBS-123', '100 Insurance Way, Chicago, IL',
-             'Primary Care,Laboratory,Radiology,Cardiology', 'USA', '2023-01-01', '2025-12-31', True),
-            ('Aetna Healthcare', 'contact@aetna.com', '1-800-AETNA-01', '200 Health Ave, Hartford, CT',
-             'Primary Care,Specialty Care,Laboratory', 'USA', '2023-06-01', '2026-05-31', True),
-            ('Cigna Health', 'support@cigna.com', '1-800-CIGNA-24', '300 Wellness Blvd, Philadelphia, PA',
-             'Primary Care,Radiology,Gastroenterology', 'USA', '2023-03-01', '2025-02-28', True),
-            ('United HealthCare', 'help@uhc.com', '1-800-UHC-CARE', '400 Coverage St, Minneapolis, MN',
-             'Primary Care,Laboratory,Cardiology,Radiology', 'USA', '2022-01-01', '2024-12-31', True),
-            ('Kaiser Permanente', 'member@kp.org', '1-800-KAISER-1', '500 Integrated Dr, Oakland, CA',
-             'Primary Care,Laboratory,Radiology,Specialty Care', 'USA', '2023-01-01', '2026-12-31', True)
-        ]
-        await db.executemany(
-            """INSERT INTO InsuranceProviders 
-               (ProviderName, ContactEmail, ContactPhone, Address, ServicesCovered, Country, ContractStart, ContractEnd, IsActive) 
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-            insurance_data
-        )
+            supplier = random.choice(suppliers)
+            customer = random.choice(customers)
 
-        # Insert Facility Services (which services are available at which facilities)
-        facility_services_data = [
-            # Metro General Hospital (1) - Full service hospital
-            (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (1, 12), (1, 13),
-            (1, 14), (1, 15),
-            # Westside Medical Center (2) - Medical center
-            (2, 1), (2, 2), (2, 3), (2, 5), (2, 8), (2, 9), (2, 10), (2, 11), (2, 12),
-            # Downtown Primary Clinic (3) - Primary care focus
-            (3, 10), (3, 11), (3, 1), (3, 2), (3, 3),
-            # Riverside Laboratory Services (4) - Lab only
-            (4, 1), (4, 2), (4, 3), (4, 4),
-            # Central Imaging Center (5) - Imaging only
-            (5, 5), (5, 6), (5, 7), (5, 8), (5, 9),
-            # Northside Urgent Care (6) - Urgent care services
-            (6, 1), (6, 2), (6, 5), (6, 10), (6, 11),
-            # Eastside Specialty Clinic (7) - Specialty services
-            (7, 12), (7, 13), (7, 14), (7, 15)
-        ]
-        await db.executemany(
-            """INSERT INTO FacilityServices (FacilityID, ServiceID) VALUES (?, ?)""",
-            facility_services_data
-        )
+            tax_amount = round(random.uniform(100, 5000), 2)
+            line_ext_amount = round(random.uniform(1000, 25000), 2)
+            tax_incl_amount = line_ext_amount + tax_amount
 
-        # Insert Insurance Coverage
-        coverage_data = [
-            # Blue Cross Blue Shield coverage
-            (1, 1, 80.00, 50.00), (1, 2, 80.00, 25.00), (1, 5, 70.00, 100.00), (1, 10, 90.00, 20.00),
-            (1, 12, 75.00, 200.00),
-            # Aetna Healthcare coverage
-            (2, 1, 75.00, 75.00), (2, 2, 75.00, 30.00), (2, 10, 85.00, 25.00), (2, 14, 60.00, 500.00),
-            # Cigna Health coverage
-            (3, 1, 70.00, 60.00), (3, 5, 65.00, 150.00), (3, 10, 80.00, 30.00), (3, 14, 55.00, 400.00),
-            # United HealthCare coverage
-            (4, 1, 85.00, 40.00), (4, 2, 85.00, 20.00), (4, 5, 75.00, 75.00), (4, 12, 80.00, 150.00),
-            # Kaiser Permanente coverage
-            (5, 1, 90.00, 20.00), (5, 2, 90.00, 15.00), (5, 5, 85.00, 50.00), (5, 10, 95.00, 10.00),
-            (5, 12, 85.00, 100.00)
+            etl_timestamp = (current_date + timedelta(days=random.randint(1, 30))).strftime('%Y-%m-%d %H:%M:%S.000')
+
+            invoice_data.append((
+                invoice_id,  # INVOICE_ID
+                issue_date,  # ISSUE_DATE
+                supplier[0],  # SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID
+                supplier[1],  # SUPPLIER_PARTY_NAME
+                supplier[2],  # SUPPLIER_PARTY_STREET_NAME
+                None,  # SUPPLIER_PARTY_ADDITIONAL_STREET_NAME
+                supplier[3],  # SUPPLIER_PARTY_POSTAL_ZONE
+                supplier[4],  # SUPPLIER_PARTY_CITY
+                'SE',  # SUPPLIER_PARTY_COUNTRY
+                None,  # SUPPLIER_PARTY_ADDRESS_LINE
+                supplier[1],  # SUPPLIER_PARTY_LEGAL_ENTITY_REG_NAME
+                'Aktiebolag',  # SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_LEGAL_FORM
+                None,  # SUPPLIER_PARTY_CONTACT_NAME
+                supplier[5],  # SUPPLIER_PARTY_CONTACT_EMAIL
+                supplier[6],  # SUPPLIER_PARTY_CONTACT_PHONE
+                supplier[0],  # SUPPLIER_PARTY_ENDPOINT_ID
+                customer[0],  # CUSTOMER_PARTY_ID
+                '0088',  # CUSTOMER_PARTY_ID_SCHEME_ID
+                customer[0],  # CUSTOMER_PARTY_ENDPOINT_ID
+                '0088',  # CUSTOMER_PARTY_ENDPOINT_ID_SCHEME_ID
+                customer[1],  # CUSTOMER_PARTY_NAME
+                None,  # CUSTOMER_PARTY_STREET_NAME
+                None,  # CUSTOMER_PARTY_POSTAL_ZONE
+                'SE',  # CUSTOMER_PARTY_COUNTRY
+                customer[1],  # CUSTOMER_PARTY_LEGAL_ENTITY_REG_NAME
+                customer[2],  # CUSTOMER_PARTY_LEGAL_ENTITY_COMPANY_ID
+                customer[3],  # CUSTOMER_PARTY_CONTACT_NAME
+                customer[4],  # CUSTOMER_PARTY_CONTACT_EMAIL
+                None,  # CUSTOMER_PARTY_CONTACT_PHONE
+                due_date,  # DUE_DATE
+                'SEK',  # DOCUMENT_CURRENCY_CODE
+                None,  # DELIVERY_LOCATION_STREET_NAME
+                None,  # DELIVERY_LOCATION_ADDITIONAL_STREET_NAME
+                None,  # DELIVERY_LOCATION_CITY_NAME
+                None,  # DELIVERY_LOCATION_POSTAL_ZONE
+                None,  # DELIVERY_LOCATION_ADDRESS_LINE
+                None,  # DELIVERY_LOCATION_COUNTRY
+                None,  # DELIVERY_PARTY_NAME
+                None,  # ACTUAL_DELIVERY_DATE
+                'SEK',  # TAX_AMOUNT_CURRENCY
+                tax_amount,  # TAX_AMOUNT
+                None,  # PERIOD_START_DATE
+                None,  # PERIOD_END_DATE
+                'SEK',  # LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT_CURRENCY
+                line_ext_amount,  # LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT
+                'SEK',  # LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT_CURRENCY
+                line_ext_amount,  # LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT
+                'SEK',  # LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT_CURRENCY
+                tax_incl_amount,  # LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT
+                'SEK',  # LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT_CURRENCY
+                tax_incl_amount,  # LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+                None,  # LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT_CURRENCY
+                None,  # LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT
+                None,  # LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT_CURRENCY
+                None,  # LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT
+                'SEK',  # LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT_CURRENCY
+                0.0,  # LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT
+                None,  # LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT_CURRENCY
+                None,  # LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT
+                customer[3],  # BUYER_REFERENCE
+                None,  # PROJECT_REFERENCE_ID
+                '380',  # INVOICE_TYPE_CODE
+                f'Invoice for {supplier[1]} services',  # NOTE
+                None,  # TAX_POINT_DATE
+                None,  # ACCOUNTING_COST
+                f'PO-{str(i + 1).zfill(4)}',  # ORDER_REFERENCE_ID
+                None,  # ORDER_REFERENCE_SALES_ORDER_ID
+                'Net 30',  # PAYMENT_TERMS_NOTE
+                None,  # BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ID
+                None,  # BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ISSUE_DATE
+                None,  # CONTRACT_DOCUMENT_REFERENCE_ID
+                None,  # DESPATCH_DOCUMENT_REFERENCE_ID
+                etl_timestamp  # ETL_LOAD_TS
+            ))
+
+        invoice_columns = [
+            'INVOICE_ID', 'ISSUE_DATE', 'SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID', 'SUPPLIER_PARTY_NAME',
+            'SUPPLIER_PARTY_STREET_NAME', 'SUPPLIER_PARTY_ADDITIONAL_STREET_NAME', 'SUPPLIER_PARTY_POSTAL_ZONE',
+            'SUPPLIER_PARTY_CITY', 'SUPPLIER_PARTY_COUNTRY', 'SUPPLIER_PARTY_ADDRESS_LINE',
+            'SUPPLIER_PARTY_LEGAL_ENTITY_REG_NAME', 'SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_LEGAL_FORM',
+            'SUPPLIER_PARTY_CONTACT_NAME', 'SUPPLIER_PARTY_CONTACT_EMAIL', 'SUPPLIER_PARTY_CONTACT_PHONE',
+            'SUPPLIER_PARTY_ENDPOINT_ID', 'CUSTOMER_PARTY_ID', 'CUSTOMER_PARTY_ID_SCHEME_ID',
+            'CUSTOMER_PARTY_ENDPOINT_ID', 'CUSTOMER_PARTY_ENDPOINT_ID_SCHEME_ID', 'CUSTOMER_PARTY_NAME',
+            'CUSTOMER_PARTY_STREET_NAME', 'CUSTOMER_PARTY_POSTAL_ZONE', 'CUSTOMER_PARTY_COUNTRY',
+            'CUSTOMER_PARTY_LEGAL_ENTITY_REG_NAME', 'CUSTOMER_PARTY_LEGAL_ENTITY_COMPANY_ID',
+            'CUSTOMER_PARTY_CONTACT_NAME', 'CUSTOMER_PARTY_CONTACT_EMAIL', 'CUSTOMER_PARTY_CONTACT_PHONE',
+            'DUE_DATE', 'DOCUMENT_CURRENCY_CODE', 'DELIVERY_LOCATION_STREET_NAME',
+            'DELIVERY_LOCATION_ADDITIONAL_STREET_NAME', 'DELIVERY_LOCATION_CITY_NAME',
+            'DELIVERY_LOCATION_POSTAL_ZONE', 'DELIVERY_LOCATION_ADDRESS_LINE', 'DELIVERY_LOCATION_COUNTRY',
+            'DELIVERY_PARTY_NAME', 'ACTUAL_DELIVERY_DATE', 'TAX_AMOUNT_CURRENCY', 'TAX_AMOUNT',
+            'PERIOD_START_DATE', 'PERIOD_END_DATE', 'LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT_CURRENCY',
+            'LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT', 'LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT_CURRENCY',
+            'LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT', 'LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT_CURRENCY',
+            'LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT', 'LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT_CURRENCY',
+            'LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT', 'LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT_CURRENCY',
+            'LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT', 'LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT_CURRENCY',
+            'LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT', 'LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT_CURRENCY',
+            'LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT', 'LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT_CURRENCY',
+            'LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT', 'BUYER_REFERENCE', 'PROJECT_REFERENCE_ID',
+            'INVOICE_TYPE_CODE', 'NOTE', 'TAX_POINT_DATE', 'ACCOUNTING_COST', 'ORDER_REFERENCE_ID',
+            'ORDER_REFERENCE_SALES_ORDER_ID', 'PAYMENT_TERMS_NOTE', 'BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ID',
+            'BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ISSUE_DATE', 'CONTRACT_DOCUMENT_REFERENCE_ID',
+            'DESPATCH_DOCUMENT_REFERENCE_ID', 'ETL_LOAD_TS'
         ]
-        await db.executemany(
-            """INSERT INTO InsuranceCoverage (ProviderID, ServiceID, CoveragePercentage, Deductible) VALUES (?, ?, ?, ?)""",
-            coverage_data
-        )
+
+        placeholders = ', '.join(['?' for _ in invoice_columns])
+        insert_sql = f"INSERT INTO Invoice ({', '.join(invoice_columns)}) VALUES ({placeholders})"
+        await db.executemany(insert_sql, invoice_data)
+
+        # Insert invoice lines
+        services = [
+            ('IT Consulting', 'ITCONS', 'HR', 25.0),
+            ('Software License', 'SWLIC', 'S', 25.0),
+            ('Hotel Accommodation', 'HOTEL', 'S', 12.0),
+            ('Training Services', 'TRAIN', 'S', 25.0),
+            ('Medical Supplies', 'MEDSUP', 'S', 25.0),
+            ('Office Equipment', 'OFFICE', 'S', 25.0),
+            ('Maintenance Service', 'MAINT', 'S', 25.0),
+            ('Consulting Fee', 'CONFEE', 'S', 25.0)
+        ]
+
+        invoice_line_data = []
+        for i, invoice in enumerate(invoice_data):
+            invoice_id = invoice[0]
+            issue_date = invoice[1]
+            supplier_id = invoice[2]
+
+            # Generate 1-3 lines per invoice
+            num_lines = random.randint(1, 3)
+            for line_num in range(1, num_lines + 1):
+                service = random.choice(services)
+                quantity = round(random.uniform(1, 10), 3)
+                unit_price = round(random.uniform(500, 3000), 2)
+                line_amount = round(quantity * unit_price, 2)
+
+                etl_timestamp = invoice[69]  # Use same ETL timestamp as invoice
+
+                invoice_line_data.append((
+                    invoice_id,  # INVOICE_ID
+                    issue_date,  # ISSUE_DATE
+                    supplier_id,  # SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID
+                    str(line_num),  # INVOICE_LINE_ID
+                    None,  # ORDER_LINE_REFERENCE_LINE_ID
+                    None,  # ACCOUNTING_COST
+                    quantity,  # INVOICED_QUANTITY
+                    'EA',  # INVOICED_QUANTITY_UNIT_CODE
+                    line_amount,  # INVOICED_LINE_EXTENSION_AMOUNT
+                    'SEK',  # INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID
+                    None,  # INVOICE_PERIOD_START_DATE
+                    None,  # INVOICE_PERIOD_END_DATE
+                    None,  # INVOICE_LINE_DOCUMENT_REFERENCE_ID
+                    None,  # INVOICE_LINE_DOCUMENT_REFERENCE_DOCUMENT_TYPE_CODE
+                    None,  # INVOICE_LINE_NOTE
+                    None,  # ITEM_DESCRIPTION
+                    service[0],  # ITEM_NAME
+                    service[2],  # ITEM_TAXCAT_ID
+                    service[3],  # ITEM_TAXCAT_PERCENT
+                    None,  # ITEM_BUYERS_ID
+                    service[1],  # ITEM_SELLERS_ITEM_ID
+                    None,  # ITEM_STANDARD_ITEM_ID
+                    None,  # ITEM_COMMODITYCLASS_CLASSIFICATION
+                    None,  # ITEM_COMMODITYCLASS_CLASSIFICATION_LIST_ID
+                    unit_price,  # PRICE_AMOUNT
+                    'SEK',  # PRICE_AMOUNT_CURRENCY_ID
+                    None,  # PRICE_BASE_QUANTITY
+                    None,  # PRICE_BASE_QUANTITY_UNIT_CODE
+                    None,  # PRICE_ALLOWANCE_CHARGE_AMOUNT
+                    None,  # PRICE_ALLOWANCE_CHARGE_INDICATOR
+                    etl_timestamp  # ETL_LOAD_TS
+                ))
+
+        invoice_line_columns = [
+            'INVOICE_ID', 'ISSUE_DATE', 'SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID', 'INVOICE_LINE_ID',
+            'ORDER_LINE_REFERENCE_LINE_ID', 'ACCOUNTING_COST', 'INVOICED_QUANTITY',
+            'INVOICED_QUANTITY_UNIT_CODE', 'INVOICED_LINE_EXTENSION_AMOUNT',
+            'INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID', 'INVOICE_PERIOD_START_DATE',
+            'INVOICE_PERIOD_END_DATE', 'INVOICE_LINE_DOCUMENT_REFERENCE_ID',
+            'INVOICE_LINE_DOCUMENT_REFERENCE_DOCUMENT_TYPE_CODE', 'INVOICE_LINE_NOTE',
+            'ITEM_DESCRIPTION', 'ITEM_NAME', 'ITEM_TAXCAT_ID', 'ITEM_TAXCAT_PERCENT',
+            'ITEM_BUYERS_ID', 'ITEM_SELLERS_ITEM_ID', 'ITEM_STANDARD_ITEM_ID',
+            'ITEM_COMMODITYCLASS_CLASSIFICATION', 'ITEM_COMMODITYCLASS_CLASSIFICATION_LIST_ID',
+            'PRICE_AMOUNT', 'PRICE_AMOUNT_CURRENCY_ID', 'PRICE_BASE_QUANTITY',
+            'PRICE_BASE_QUANTITY_UNIT_CODE', 'PRICE_ALLOWANCE_CHARGE_AMOUNT',
+            'PRICE_ALLOWANCE_CHARGE_INDICATOR', 'ETL_LOAD_TS'
+        ]
+
+        line_placeholders = ', '.join(['?' for _ in invoice_line_columns])
+        line_insert_sql = f"INSERT INTO Invoice_Line ({', '.join(invoice_line_columns)}) VALUES ({line_placeholders})"
+        await db.executemany(line_insert_sql, invoice_line_data)
 
     async def execute_query(self, query: str) -> List[Dict[str, Any]]:
         """Execute any SQL query and return results"""
@@ -398,7 +487,7 @@ class AsyncSQLiteServer:
 
 
 # FastAPI setup
-app = FastAPI(title="Healthcare Database API", description="AsyncSQLite Database Server for Healthcare Management")
+app = FastAPI(title="Invoice Database API", description="AsyncSQLite Database Server for Invoice Management")
 db_server = AsyncSQLiteServer()
 
 
@@ -408,21 +497,18 @@ class QueryRequest(BaseModel):
 
 @app.on_event("startup")
 async def startup_event():
-    print("Starting healthcare database initialization...")
+    print("Starting invoice database initialization...")
     await db_server.initialize_database()
-    print("Healthcare database initialization completed!")
+    print("Invoice database initialization completed!")
 
     # Test if data was inserted
     try:
-        test_result = await db_server.execute_query("SELECT COUNT(*) as count FROM HealthcareFacilities")
-        print(f"Healthcare facilities count after initialization: {test_result}")
+        test_result = await db_server.execute_query("SELECT COUNT(*) as count FROM Invoice")
+        print(f"Invoice count after initialization: {test_result}")
 
         # Show sample of what's in the database
-        services_result = await db_server.execute_query("SELECT COUNT(*) as count FROM MedicalServicesCatalog")
-        print(f"Medical services count: {services_result}")
-
-        inventory_result = await db_server.execute_query("SELECT COUNT(*) as count FROM MedicalInventory")
-        print(f"Inventory items count: {inventory_result}")
+        lines_result = await db_server.execute_query("SELECT COUNT(*) as count FROM Invoice_Line")
+        print(f"Invoice lines count: {lines_result}")
 
     except Exception as e:
         print(f"Error checking database counts: {e}")
@@ -471,20 +557,20 @@ async def execute_query_stream(request: QueryRequest):
 async def health_check():
     try:
         # Test if database is accessible and has data
-        test_query = "SELECT COUNT(*) as facility_count FROM HealthcareFacilities"
+        test_query = "SELECT COUNT(*) as invoice_count FROM Invoice"
         result = await db_server.execute_query(test_query)
-        facility_count = result[0]['facility_count'] if result else 0
+        invoice_count = result[0]['invoice_count'] if result else 0
 
         # Get additional counts for health check
-        services_result = await db_server.execute_query("SELECT COUNT(*) as service_count FROM MedicalServicesCatalog")
-        service_count = services_result[0]['service_count'] if services_result else 0
+        lines_result = await db_server.execute_query("SELECT COUNT(*) as line_count FROM Invoice_Line")
+        line_count = lines_result[0]['line_count'] if lines_result else 0
 
         return {
             "status": "healthy",
             "database_path": db_server.db_path,
-            "facility_count": facility_count,
-            "service_count": service_count,
-            "tables_initialized": facility_count > 0 and service_count > 0
+            "invoice_count": invoice_count,
+            "line_count": line_count,
+            "tables_initialized": invoice_count > 0 and line_count > 0
         }
     except Exception as e:
         return {
@@ -494,16 +580,17 @@ async def health_check():
         }
 
 
-# Additional healthcare-specific endpoints
-@app.get("/facilities")
-async def get_facilities():
-    """Get all healthcare facilities"""
+# Additional invoice-specific endpoints
+@app.get("/invoices")
+async def get_invoices():
+    """Get all invoices"""
     try:
         query = """
-        SELECT FacilityID, Name, Type, City, State, AccreditationStatus, IsActive 
-        FROM HealthcareFacilities 
-        WHERE IsActive = 1
-        ORDER BY Name
+        SELECT INVOICE_ID, ISSUE_DATE, SUPPLIER_PARTY_NAME, CUSTOMER_PARTY_NAME, 
+               LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT, DOCUMENT_CURRENCY_CODE
+        FROM Invoice 
+        ORDER BY ISSUE_DATE DESC
+        LIMIT 100
         """
         results = await db_server.execute_query(query)
         return {"success": True, "data": results}
@@ -511,15 +598,15 @@ async def get_facilities():
         return {"success": False, "error": str(e)}
 
 
-@app.get("/services")
-async def get_services():
-    """Get all medical services"""
+@app.get("/suppliers")
+async def get_suppliers():
+    """Get all suppliers"""
     try:
         query = """
-        SELECT ServiceID, ServiceName, ServiceCode, Department, BasePrice, IsActive 
-        FROM MedicalServicesCatalog 
-        WHERE IsActive = 1
-        ORDER BY Department, ServiceName
+        SELECT DISTINCT SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID, SUPPLIER_PARTY_NAME, 
+               SUPPLIER_PARTY_CITY, SUPPLIER_PARTY_COUNTRY
+        FROM Invoice 
+        ORDER BY SUPPLIER_PARTY_NAME
         """
         results = await db_server.execute_query(query)
         return {"success": True, "data": results}
@@ -527,17 +614,19 @@ async def get_services():
         return {"success": False, "error": str(e)}
 
 
-@app.get("/inventory/low-stock")
-async def get_low_stock_items():
-    """Get inventory items that are below reorder threshold"""
+@app.get("/invoice-summary")
+async def get_invoice_summary():
+    """Get invoice summary statistics"""
     try:
         query = """
-        SELECT i.ItemName, i.Category, i.Quantity, i.ReorderThreshold, 
-               f.Name as FacilityName, i.ExpiryDate
-        FROM MedicalInventory i
-        JOIN HealthcareFacilities f ON i.FacilityID = f.FacilityID
-        WHERE i.Quantity <= i.ReorderThreshold
-        ORDER BY i.Quantity ASC
+        SELECT 
+            COUNT(*) as total_invoices,
+            SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) as total_amount,
+            AVG(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) as avg_amount,
+            MIN(ISSUE_DATE) as earliest_date,
+            MAX(ISSUE_DATE) as latest_date,
+            COUNT(DISTINCT SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID) as unique_suppliers
+        FROM Invoice
         """
         results = await db_server.execute_query(query)
         return {"success": True, "data": results}
