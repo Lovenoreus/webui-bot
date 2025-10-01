@@ -35,7 +35,7 @@ WORKDIR /app
 RUN apk add --no-cache git
 
 # Copy pre-downloaded binaries
-COPY local-binaries/ /tmp/onnx-cache/
+# COPY local-binaries/ /tmp/onnx-cache/
 
 COPY package.json package-lock.json ./
 

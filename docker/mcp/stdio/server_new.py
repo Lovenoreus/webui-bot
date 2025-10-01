@@ -1,6 +1,9 @@
 # -------------------- Built-in Libraries --------------------
 import json
 import asyncio
+import uuid
+import re
+import os
 from datetime import datetime
 from typing import Dict, Optional, List, Any, Literal
 
@@ -20,6 +23,8 @@ from langchain_core.messages import SystemMessage, HumanMessage
 
 # -------------------- User-defined Modules --------------------
 from active_directory import FastActiveDirectory
+from vector_mistral_tool import hospital_support_questions_tool
+from create_jira_ticket import create_jira_ticket
 
 
 # ++++++++++++++++++++++++++++++++
@@ -109,6 +114,36 @@ class MCPServerInfo(BaseModel):
     author: Optional[str] = None
     homepage: Optional[str] = None
     capabilities: Dict[str, bool]
+
+
+# ++++++++++++++++++++++++++++++++
+# TICKET SYSTEM PYDANTIC MODELS START
+# ++++++++++++++++++++++++++++++++
+
+class ThreadTicketRequest(BaseModel):
+    thread_id: str
+
+class KnownProblemsRequest(BaseModel):
+    query: str
+    ticket_id: Optional[str] = None
+
+class CreateJiraRequest(BaseModel):
+    thread_id: str
+    conversation_topic: str
+    description: str
+    location: str
+    queue: str
+    priority: str
+    department: str
+    name: str
+    category: str
+
+class HospitalSupportQuestionsRequest(BaseModel):
+    query: str = Field(..., description="The support question to search for in the hospital support knowledge base")
+
+# ++++++++++++++++++++++++++++++
+# TICKET SYSTEM PYDANTIC MODELS END
+# ++++++++++++++++++++++++++++++
 
 
 load_dotenv()
@@ -689,6 +724,334 @@ async def delete_group_endpoint(group_id: str, ad: FastActiveDirectory = Depends
 # ++++++++++++++++++++++++++++++
 
 
+# +++++++++++++++++++++++++++
+# TICKET AGENT SYSTEM START
+# +++++++++++++++++++++++++++
+
+class ThreadTicketManager:
+    def __init__(self):
+        self._tickets = {}  # thread_id -> ticket_data
+        self._lock = asyncio.Lock()
+
+    async def get_or_create_ticket(self, thread_id: str) -> Dict[str, Any]:
+        """Get existing ticket or create new one for thread"""
+        async with self._lock:
+            if thread_id not in self._tickets:
+                self._tickets[thread_id] = {
+                    "thread_id": thread_id,
+                    "description": "",
+                    "location": "",
+                    "priority": "",
+                    "category": "",
+                    "queue": "",
+                    "department": "",
+                    "name": "",
+                    "conversation_topic": "",
+                    "created_at": datetime.now().isoformat(),
+                    "last_updated": datetime.now().isoformat(),
+                    "status": "draft",
+                    "is_active": True,
+                    "field_entries": []
+                }
+                if DEBUG:
+                    print(f"[THREAD_TICKET] Created new ticket for thread: {thread_id}")
+
+            return self._tickets[thread_id]
+
+    async def has_active_ticket(self, thread_id: str) -> tuple[bool, Dict[str, Any]]:
+        """Check if thread has an active ticket"""
+        async with self._lock:
+            if thread_id in self._tickets:
+                ticket = self._tickets[thread_id]
+                is_active = ticket.get("is_active", False) and ticket.get("status") != "completed"
+                return is_active, ticket
+            return False, {}
+
+    async def complete_ticket(self, thread_id: str) -> Dict[str, Any]:
+        """Mark ticket as completed and ready for creation"""
+        async with self._lock:
+            if thread_id in self._tickets:
+                self._tickets[thread_id]["status"] = "completed"
+                self._tickets[thread_id]["completed_at"] = datetime.now().isoformat()
+                self._tickets[thread_id]["is_active"] = False
+                if DEBUG:
+                    print(f"[THREAD_TICKET] Completed ticket for thread: {thread_id}")
+                return self._tickets[thread_id]
+            return {}
+
+    async def update_field(self, thread_id: str, field_name: str, field_value: str) -> Dict[str, Any]:
+        """Update a field for specific thread"""
+        ticket = await self.get_or_create_ticket(thread_id)
+
+        async with self._lock:
+            old_value = ticket.get(field_name, "")
+            ticket[field_name] = field_value
+            ticket["last_updated"] = datetime.now().isoformat()
+
+            # Add to field entries log
+            ticket["field_entries"].append({
+                "timestamp": datetime.now().isoformat(),
+                "field": field_name,
+                "old_value": old_value,
+                "new_value": field_value,
+                "action": "update"
+            })
+
+            if DEBUG:
+                print(f"[THREAD_TICKET] Updated {field_name} for thread {thread_id}: '{old_value}' -> '{field_value}'")
+
+            return ticket
+
+    async def append_to_description(self, thread_id: str, text: str) -> Dict[str, Any]:
+        """Append text to description for specific thread"""
+        ticket = await self.get_or_create_ticket(thread_id)
+
+        async with self._lock:
+            old_description = ticket["description"]
+
+            if ticket["description"]:
+                ticket["description"] += f"\n\n{text}"
+            else:
+                ticket["description"] = text
+
+            ticket["last_updated"] = datetime.now().isoformat()
+
+            # Add to field entries log
+            ticket["field_entries"].append({
+                "timestamp": datetime.now().isoformat(),
+                "field": "description",
+                "old_value": old_description,
+                "new_value": ticket["description"],
+                "action": "append",
+                "appended_text": text
+            })
+
+            if DEBUG:
+                print(f"[THREAD_TICKET] Appended to description for thread {thread_id}")
+
+            return ticket
+
+    async def is_complete(self, thread_id: str) -> tuple[bool, list]:
+        """Check if ticket is complete for specific thread"""
+        ticket = await self.get_or_create_ticket(thread_id)
+
+        required_fields = ["description", "category", "priority"]
+        missing = []
+
+        for field in required_fields:
+            value = ticket.get(field, "").strip()
+            if not value:
+                missing.append(field)
+
+        is_complete_status = len(missing) == 0
+
+        if DEBUG:
+            print(f"[THREAD_TICKET] Thread {thread_id} complete: {is_complete_status}, missing: {missing}")
+
+        return is_complete_status, missing
+
+
+# Global thread ticket manager
+thread_ticket_manager = ThreadTicketManager()
+
+
+@app.post("/ticket/known_problems")
+async def known_problems_endpoint(request: KnownProblemsRequest):
+    """
+    Get known problems based on a query. Handle both new tickets and existing ticket updates.
+    If ticket_id is provided, this is an existing ticket - return continuation message.
+    If ticket_id is None, this is a new issue - process with Qdrant and LLM.
+    """
+    try:
+        # Get thread_id from request
+        thread_id = getattr(request, 'thread_id', None) or request.dict().get('thread_id', 'default')
+
+        if DEBUG:
+            print(f"[KNOWN_PROBLEMS] Processing query for thread: {thread_id}")
+
+        # This is a new ticket - proceed with full hospital support tool flow
+        if DEBUG:
+            print(f"[API DEBUG] New ticket - Querying hospital support for: {request.query}")
+
+        # Step 1: Query hospital support protocols
+        qdrant_result = await hospital_support_questions_tool(request.query)
+
+        if DEBUG:
+            print(f"[API DEBUG] Hospital support result: {qdrant_result}")
+
+        # Step 2: Process the result and generate ticket ID
+        if qdrant_result:
+            ticket_id = str(uuid.uuid4())
+            
+            # Create ticket in thread manager
+            await thread_ticket_manager.get_or_create_ticket(thread_id)
+
+            if DEBUG:
+                print(f"[API DEBUG] Generated new ticket ID: {ticket_id}")
+
+            return {
+                "success": True,
+                "result": qdrant_result,
+                "ticket_id": ticket_id,
+                "is_new_ticket": True,
+                "thread_id": thread_id
+            }
+        else:
+            return {
+                "success": False,
+                "error": "No hospital support information found",
+                "trigger_fallback": True
+            }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[API DEBUG] Known problems error: {e}")
+
+        return {
+            "success": False,
+            "error": str(e),
+            "trigger_fallback": True
+        }
+
+
+@app.post("/ticket/check_active")
+async def check_active_ticket_endpoint(request: ThreadTicketRequest):
+    """Check if a thread has an active ticket."""
+    try:
+        thread_id = request.thread_id
+
+        if DEBUG:
+            print(f"[CHECK_ACTIVE] Checking active ticket for thread: {thread_id}")
+
+        has_active, ticket_data = await thread_ticket_manager.has_active_ticket(thread_id)
+
+        if has_active:
+            # Check if ticket is ready for completion
+            is_complete, missing_fields = await thread_ticket_manager.is_complete(thread_id)
+
+            response = {
+                "success": True,
+                "has_active_ticket": True,
+                "ticket_status": ticket_data.get("status", "draft"),
+                "is_complete": is_complete,
+                "missing_fields": missing_fields,
+                "created_at": ticket_data.get("created_at"),
+                "last_updated": ticket_data.get("last_updated"),
+                "field_count": len(ticket_data.get("field_entries", [])),
+                "message": "Active ticket found. Continue with this ticket or complete it to create a new one."
+            }
+
+            if is_complete:
+                response["message"] = "Ticket is complete and ready for JIRA creation."
+                response["ready_for_creation"] = True
+            else:
+                response["message"] = f"Active ticket in progress. Missing fields: {', '.join(missing_fields)}"
+                response["ready_for_creation"] = False
+
+            if DEBUG:
+                print(f"[CHECK_ACTIVE] Active ticket found - Status: {response['ticket_status']}, Complete: {is_complete}")
+
+            return response
+        else:
+            if DEBUG:
+                print(f"[CHECK_ACTIVE] No active ticket found for thread: {thread_id}")
+
+            return {
+                "success": True,
+                "has_active_ticket": False,
+                "message": "No active ticket found. Ready to create new ticket.",
+                "ready_for_new_ticket": True
+            }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[CHECK_ACTIVE] Error: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+
+@app.patch("/ticket/{thread_id}/fields")
+async def update_ticket_fields_endpoint(thread_id: str, request: dict = Body(...)):
+    """Update one or more fields in a ticket"""
+    try:
+        fields_data = request.get('fields', {})
+
+        if DEBUG:
+            print(f"[TICKET] Updating fields for thread {thread_id}: {list(fields_data.keys())}")
+
+        if not fields_data:
+            return {"success": False, "error": "fields dictionary required"}
+
+        # Validate field names
+        ALLOWED_FIELDS = {
+            "description", "conversation_topic", "category", "queue",
+            "priority", "department", "name", "location"
+        }
+
+        invalid_fields = [f for f in fields_data.keys() if f not in ALLOWED_FIELDS]
+        if invalid_fields:
+            return {
+                "success": False,
+                "error": f"Invalid fields: {invalid_fields}. Allowed: {list(ALLOWED_FIELDS)}"
+            }
+
+        # Update each field
+        updated_fields = {}
+        for field_name, field_value in fields_data.items():
+            if field_value and str(field_value).strip():
+                await thread_ticket_manager.update_field(thread_id, field_name, str(field_value))
+                updated_fields[field_name] = field_value
+
+        # Get current state after updates
+        ticket = await thread_ticket_manager.get_or_create_ticket(thread_id)
+        is_complete, missing = await thread_ticket_manager.is_complete(thread_id)
+
+        return {
+            "success": True,
+            "action": "update_fields",
+            "thread_id": thread_id,
+            "updated_fields": updated_fields,
+            "ticket_data": ticket,
+            "is_complete": is_complete,
+            "missing_fields": missing,
+            "message": f"Updated {len(updated_fields)} fields for thread {thread_id}"
+        }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[TICKET] Error: {e}")
+        return {"success": False, "action": "update_fields", "error": str(e)}
+
+
+@app.post("/ticket/create_jira")
+async def create_jira_endpoint(request: CreateJiraRequest):
+    """Create a JIRA ticket"""
+    try:
+        payload = request.model_dump()
+        thread_id = payload.get("thread_id")
+
+        # Keep asyncio.to_thread for synchronous create_jira_ticket function
+        result = await asyncio.to_thread(create_jira_ticket, **payload)
+
+        # Mark the ticket as completed after successful JIRA creation
+        if thread_id:
+            await thread_ticket_manager.complete_ticket(thread_id)
+
+            if DEBUG:
+                print(f"[CREATE_JIRA] Marked ticket as completed for thread: {thread_id}")
+
+        return {"success": True, "result": result}
+
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+# +++++++++++++++++++++++++++
+# TICKET AGENT SYSTEM END
+# +++++++++++++++++++++++++++
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -944,6 +1307,106 @@ async def mcp_tools_list():
                 },
                 "required": ["group_id"]
             }
+        ),
+
+        # TICKET SYSTEM TOOLS
+        MCPTool(
+            name="hospital_support_questions_tool",
+            description="TRIGGER: technical support, equipment issues, software problems, facility maintenance, IT help, system down, printer not working, network issues, computer problems, medical equipment malfunction | ACTION: Analyze hospital support queries and return diagnostic protocols | RETURNS: Structured support protocols, diagnostic questions, and routing information for hospital technical issues",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The support question or problem description to analyze"
+                    }
+                },
+                "required": ["query"]
+            }
+        ),
+
+        MCPTool(
+            name="ticket_known_problems",
+            description="TRIGGER: report issue, create ticket, problem with, need help with, having trouble, technical issue, equipment failure, software bug | ACTION: Search for known problems and initiate ticket creation process | RETURNS: Relevant solutions or starts ticket creation workflow with diagnostic questions",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Description of the problem or issue to search for"
+                    },
+                    "thread_id": {
+                        "type": "string",
+                        "description": "Thread ID for ticket management",
+                        "default": "default"
+                    }
+                },
+                "required": ["query"]
+            }
+        ),
+
+        MCPTool(
+            name="ticket_check_active",
+            description="TRIGGER: check ticket status, active ticket, ticket in progress, current ticket | ACTION: Check if thread has an active ticket in progress | RETURNS: Active ticket status and completion information",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "thread_id": {
+                        "type": "string",
+                        "description": "Thread ID to check for active tickets"
+                    }
+                },
+                "required": ["thread_id"]
+            }
+        ),
+
+        MCPTool(
+            name="ticket_update_fields",
+            description="TRIGGER: update ticket, add information, set priority, specify location, add details | ACTION: Update ticket fields with collected information | RETURNS: Updated ticket status and completeness check",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "thread_id": {
+                        "type": "string",
+                        "description": "Thread ID of the ticket to update"
+                    },
+                    "fields": {
+                        "type": "object",
+                        "description": "Dictionary of field names and values to update",
+                        "properties": {
+                            "description": {"type": "string"},
+                            "conversation_topic": {"type": "string"},
+                            "category": {"type": "string"},
+                            "queue": {"type": "string"},
+                            "priority": {"type": "string"},
+                            "department": {"type": "string"},
+                            "name": {"type": "string"},
+                            "location": {"type": "string"}
+                        }
+                    }
+                },
+                "required": ["thread_id", "fields"]
+            }
+        ),
+
+        MCPTool(
+            name="create_jira_ticket",
+            description="TRIGGER: create ticket, submit ticket, finalize ticket, ready to create | ACTION: Create final JIRA ticket with all collected information | RETURNS: JIRA ticket creation confirmation and ticket reference",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "thread_id": {"type": "string", "description": "Thread ID for ticket context"},
+                    "conversation_topic": {"type": "string", "description": "Brief summary/title of the issue"},
+                    "description": {"type": "string", "description": "Detailed description of the problem"},
+                    "location": {"type": "string", "description": "Location where issue occurs"},
+                    "queue": {"type": "string", "description": "Support queue/department to route ticket"},
+                    "priority": {"type": "string", "description": "Priority level (Critical/High/Normal/Low)"},
+                    "department": {"type": "string", "description": "Department affected or responsible"},
+                    "name": {"type": "string", "description": "Name of person reporting issue"},
+                    "category": {"type": "string", "description": "Issue category (hardware/software/facility/etc)"}
+                },
+                "required": ["thread_id", "conversation_topic", "description", "location", "queue", "priority", "department", "name", "category"]
+            }
         )
     ]
 
@@ -1084,6 +1547,46 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         elif tool_name == "ad_get_group_members":
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await get_group_members_endpoint(arguments["group_id"], ad)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
+
+        elif tool_name == "hospital_support_questions_tool":
+            hospital_request = HospitalSupportQuestionsRequest(query=arguments["query"])
+            result = await hospital_support_questions_tool(hospital_request.query)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps({"success": True, "result": result}, indent=2))]
+            )
+
+        elif tool_name == "ticket_known_problems":
+            # Add thread_id if not present
+            if "thread_id" not in arguments:
+                arguments["thread_id"] = "default"
+            
+            known_problems_request = KnownProblemsRequest(**arguments)
+            result = await known_problems_endpoint(known_problems_request)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
+
+        elif tool_name == "ticket_check_active":
+            check_request = ThreadTicketRequest(thread_id=arguments["thread_id"])
+            result = await check_active_ticket_endpoint(check_request)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
+
+        elif tool_name == "ticket_update_fields":
+            thread_id = arguments["thread_id"]
+            fields_data = {"fields": arguments["fields"]}
+            result = await update_ticket_fields_endpoint(thread_id, fields_data)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
+
+        elif tool_name == "create_jira_ticket":
+            create_jira_request = CreateJiraRequest(**arguments)
+            result = await create_jira_endpoint(create_jira_request)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
