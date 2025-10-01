@@ -31,7 +31,163 @@
 - Set Tool:
 - Go ahead an test.
 
-## ACTIVE DIRECTORY
+## ACTIVE DIRECTORY CURRENT QUESTIONS SCOPE
+# Azure AD MCP Server Test Questions
+**Generated: October 01, 2025**
+
+---
+
+## 1. Greet Tool
+
+**Test 1:** Hello, my name is Michael Stevens_10_01_2025
+
+**Test 2:** Good morning!
+
+**Test 3:** Hi there, I'm Dr. Patricia Wilson_10_01_2025
+
+---
+
+## 2. AD List Users
+
+**Test 1:** Show me all users in Active Directory
+
+**Test 2:** List everyone in Azure AD
+
+**Test 3:** Give me a complete directory of all AD accounts
+
+---
+
+## 3. AD Create User
+
+**Test 1:** Create a new user named Marcus Thompson_10_01_2025 with temporary password SecurePass123! and force them to change password on first login
+
+**Test 2:** Add a user called Jennifer Lee_10_01_2025 to Active Directory with email jennifer.lee_10_01_2025@lovenoreusgmail.onmicrosoft.com
+
+**Test 3:** Register a new employee David Chen_10_01_2025 with password TempP@ss456 and enable their account
+
+---
+
+## 4. AD Update User
+
+**Test 1:** Update Marcus Thompson_10_01_2025's job title to Senior Developer
+
+**Test 2:** Change the department of jennifer.lee_10_01_2025@lovenoreusgmail.onmicrosoft.com to Marketing
+
+**Test 3:** Modify David Chen_10_01_2025's display name to David Chen (Senior) and set his office location to Building A
+
+---
+
+## 5. AD Delete User
+
+**Test 1:** Delete the user Marcus Thompson_10_01_2025 from Active Directory
+
+**Test 2:** Remove jennifer.lee_10_01_2025@lovenoreusgmail.onmicrosoft.com from Azure AD
+
+**Test 3:** Deactivate and delete David Chen_10_01_2025's account
+
+---
+
+## 6. AD Get User Roles
+
+**Test 1:** What roles does Marcus Thompson_10_01_2025 have?
+
+**Test 2:** Show me all directory roles assigned to jennifer.lee_10_01_2025@lovenoreusgmail.onmicrosoft.com
+
+**Test 3:** List the permissions for David Chen_10_01_2025
+
+---
+
+## 7. AD Get User Groups
+
+**Test 1:** What groups is Marcus Thompson_10_01_2025 a member of?
+
+**Test 2:** Show me all groups that jennifer.lee_10_01_2025@lovenoreusgmail.onmicrosoft.com belongs to, including nested groups
+
+**Test 3:** List the group memberships for David Chen_10_01_2025
+
+---
+
+## 8. AD List Roles
+
+**Test 1:** Show me all available roles in Azure Active Directory
+
+**Test 2:** What directory roles exist in our tenant?
+
+**Test 3:** List all AD roles that can be assigned
+
+---
+
+## 9. AD Add User to Role
+
+**Test 1:** Assign the Global Administrator role to Marcus Thompson_10_01_2025
+
+**Test 2:** Give jennifer.lee_10_01_2025@lovenoreusgmail.onmicrosoft.com the User Administrator role
+
+**Test 3:** Grant David Chen_10_01_2025 the Helpdesk Administrator role
+
+---
+
+## 10. AD Remove User from Role
+
+**Test 1:** Remove the Global Administrator role from Marcus Thompson_10_01_2025
+
+**Test 2:** Revoke the User Administrator role from jennifer.lee_10_01_2025@lovenoreusgmail.onmicrosoft.com
+
+**Test 3:** Take away David Chen_10_01_2025's Helpdesk Administrator role
+
+---
+
+## 11. AD List Groups
+
+**Test 1:** Show me all groups in Active Directory
+
+**Test 2:** List only security groups in Azure AD
+
+**Test 3:** Display all Microsoft 365 groups in our directory
+
+---
+
+## 12. AD Create Group
+
+**Test 1:** Create a security group called Engineering_Team_10_01_2025 with mail nickname engteam_10_01_2025
+
+**Test 2:** Make a new group named Marketing_Department_10_01_2025 with description "Marketing team members" and mail nickname marketing_10_01_2025
+
+**Test 3:** Add a security group called Project_Alpha_10_01_2025 with mail nickname projtalpha_10_01_2025 and make Marcus Thompson_10_01_2025 the owner
+
+---
+
+## 13. AD Add Group Member
+
+**Test 1:** Add Marcus Thompson_10_01_2025 to the Engineering_Team_10_01_2025 group
+
+**Test 2:** Put jennifer.lee_10_01_2025@lovenoreusgmail.onmicrosoft.com in the Marketing_Department_10_01_2025 group
+
+**Test 3:** Make David Chen_10_01_2025 a member of Project_Alpha_10_01_2025
+
+---
+
+## 14. AD Remove Group Member
+
+**Test 1:** Remove Marcus Thompson_10_01_2025 from the Engineering_Team_10_01_2025 group
+
+**Test 2:** Take jennifer.lee_10_01_2025@lovenoreusgmail.onmicrosoft.com out of the Marketing_Department_10_01_2025 group
+
+**Test 3:** Remove David Chen_10_01_2025 from Project_Alpha_10_01_2025 membership
+
+---
+
+## 15. AD Get Group Members
+
+**Test 1:** Who are the members of Engineering_Team_10_01_2025?
+
+**Test 2:** Show me everyone in the Marketing_Department_10_01_2025 group
+
+**Test 3:** List all members of Project_Alpha_10_01_2025
+
+---
+
+**Note:** For tests requiring actual GUIDs (role_id, group_id), you'll need to first run the list commands to get the actual IDs from your Azure AD tenant before testing assignment/removal operations.
 
 # In-case of any deployment issues
 - Contact: **The one who shall not be named**
