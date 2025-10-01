@@ -72,20 +72,6 @@ services:
     networks:
       - mcp-network
 
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: qdrant
-    ports:
-      - "6333:6333"
-      - "6334:6334"
-    volumes:
-      - qdrant_storage:/qdrant/storage
-    restart: unless-stopped
-    labels:
-      compose.service: qdrant
-    networks:
-      - mcp-network
-
   mcpo:
     image: ghcr.io/open-webui/mcpo:main
     ports:
@@ -107,8 +93,6 @@ services:
       - mcp-network
 
 volumes:
-  qdrant_storage: {}
-  ollama: {}
   open-webui: {}
   mcp_db_data:
 

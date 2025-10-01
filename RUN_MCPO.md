@@ -5,7 +5,6 @@
 - List all tool. (MCPO probably blocks this by default. Need to do more research on this.)
 
 ## WHAT CAN BE TESTED.
-- ACTIVE DIRECTORY (No need to say from active directory. List all users is ok.)
 - SQL DATABASE (No need to say from the database all the time. Sample questions can be found at the bottom of this .md)
 
 ## WHAT CAN BE CONFIGURED.
@@ -15,7 +14,7 @@
 
 ## Deployment steps.
 - Git fetch.
-- Git checkout to regional_mcpo branch.
+- Git checkout to regional_main branch.
 - docker compose down.
 - Destroy all current docker images.
 - navigate to webui root.

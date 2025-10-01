@@ -58,7 +58,7 @@
 
   },
   "mcp":{
-    "database_path": "C:/Users/shahw/OneDrive/Desktop/Langgraph/multi_agent/Healthbot-agentic/database_data",
+    "database_path": "/database_data",
     "docker_database_path": "/app/database_data/social_media_database.db",
     "database_server_url": "http://localhost:8762",
     "docker_database_server_url": "http://database_server:8762",
