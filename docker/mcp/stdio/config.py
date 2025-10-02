@@ -11,8 +11,9 @@ from langchain_openai import ChatOpenAI
 global_config_path = '/.omnigate/config.json'
 script_dir = os.path.dirname(os.path.abspath(__file__))
 local_config_path = os.path.join(script_dir, 'config.json')
-
-load_dotenv()
+env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..","..", ".env"))
+print(f"THIS IS THE .ENV PATH: {env_path}")
+load_dotenv(dotenv_path=env_path)
 
 
 def get_nested(d: Dict[str, Any], keys: List[str], default: Any = None) -> Any:
@@ -142,9 +143,34 @@ LANGSMITH_ENABLED = to_bool(get_nested(config, ["langsmith", "enabled"], False),
 LANGSMITH_TRACING = to_bool(get_nested(config, ["langsmith", "tracing"], False), default=False)
 
 # 11) Database configuration
-MCP_DATABASE_PATH = get_nested(config, ["mcp", "database_path"], "social_media_database.db")
+
+DATABASE_CHOICE = get_nested(config, ["mcp", "database_choice"], "local")  # "local" or "remote"
+
+# Remote SQL Server configuration
+# SQL_SERVER_HOST = "vs837/UIPORCH"
+# SQL_SERVER_DATABASE = "Nodinite"
+# SQL_SERVER_DRIVER = "ODBC Driver 17 for SQL Server"
+# SQL_SERVER_USE_WINDOWS_AUTH = True
+# SQL_SERVER_USERNAME = os.getenv("SQL_SERVER_USERNAME", None)
+# SQL_SERVER_PASSWORD = os.getenv("SQL_SERVER_PASSWORD", None)
+
+SQL_SERVER_HOST = os.getenv("SQL_SERVER_HOST", None)
+SQL_SERVER_DATABASE = os.getenv("SQL_SERVER_DATABASE", None)
+SQL_SERVER_DRIVER = os.getenv("SQL_SERVER_DRIVER", None)
+SQL_SERVER_USE_WINDOWS_AUTH = os.getenv("SQL_SERVER_USE_WINDOWS_AUTH", None)
+SQL_SERVER_USERNAME = os.getenv("SQL_SERVER_USERNAME", None)
+SQL_SERVER_PASSWORD = os.getenv("SQL_SERVER_PASSWORD", None)
+
+print(f"SQL_SERVER_HOST: {SQL_SERVER_HOST}")
+print(f"SQL_SERVER_DATABASE: {SQL_SERVER_DATABASE}")
+print(f"SQL_SERVER_DRIVER: {SQL_SERVER_DRIVER}")
+print(f"SQL_SERVER_USE_WINDOWS_AUTH: {SQL_SERVER_USE_WINDOWS_AUTH}")
+print(f"SQL_SERVER_USERNAME: {SQL_SERVER_USERNAME}")
+print(f"SQL_SERVER_PASSWORD: {'*' * len(SQL_SERVER_PASSWORD) if SQL_SERVER_PASSWORD else None}")
+
+MCP_DATABASE_PATH = get_nested(config, ["mcp", "database_path"], "sqlite_invoices_full.db")
 MCP_DOCKER_DATABASE_PATH = get_nested(config, ["mcp", "docker_database_path"],
-                                      "/app/database_data/social_media_database.db")
+                                      "/app/database_data/sqlite_invoices_full.db")
 MCP_DATABASE_SERVER_URL = get_nested(config, ["mcp", "database_server_url"], "http://localhost:8762")
 MCP_DOCKER_DATABASE_SERVER_URL = get_nested(config, ["mcp", "docker_database_server_url"],
                                             "http://database_server:8762")

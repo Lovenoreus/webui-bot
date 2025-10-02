@@ -14,18 +14,22 @@ import random
 def load_config():
     """Load configuration from config.json if it exists"""
     config_path = "config.json"
+
     default_config = {
-        "database_path": "invoice_database.db",
-        "docker_database_path": "/app/database_data/invoice_database.db"
+        "database_path": "sqlite_invoices_full.db",
+        "docker_database_path": "/app/database_data/sqlite_invoices_full.db"
     }
 
     if os.path.exists(config_path):
         try:
             with open(config_path, 'r') as f:
                 config = json.load(f)
+
                 return config
+
         except Exception as e:
             return default_config
+
     return default_config
 
 
@@ -35,9 +39,10 @@ def get_database_path():
 
     # Check if we're running in Docker by looking for docker-specific paths
     if os.path.exists("/app/database_data"):
-        return config.get("docker_database_path", "/app/database_data/invoice_database.db")
+        return config.get("docker_database_path", "/app/database_data/sqlite_invoices_full.db")
+
     else:
-        return config.get("database_path", "invoice_database.db")
+        return config.get("database_path", "sqlite_invoices_full.db")
 
 
 class AsyncSQLiteServer:
@@ -58,6 +63,7 @@ class AsyncSQLiteServer:
             print(f"Creating database directory: {db_dir}")
             os.makedirs(db_dir, exist_ok=True)
             print(f"Directory created successfully. Exists: {os.path.exists(db_dir)}")
+
         except Exception as e:
             print(f"Error creating directory: {e}")
 
@@ -68,6 +74,22 @@ class AsyncSQLiteServer:
                 await db.execute("PRAGMA cache_size=10000")
                 await db.execute("PRAGMA temp_store=memory")
                 await db.execute("PRAGMA foreign_keys=ON")
+
+                # Check if tables already exist with data
+                cursor = await db.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='Invoice'"
+                )
+                table_exists = await cursor.fetchone()
+
+                if table_exists:
+                    # Check if there's data
+                    cursor = await db.execute("SELECT COUNT(*) FROM Invoice")
+                    count = await cursor.fetchone()
+                    if count and count[0] > 0:
+                        print(f"Database already initialized with {count[0]} invoices. Skipping initialization.")
+                        return
+
+                print("Database is empty or doesn't exist. Initializing with sample data...")
 
                 # Drop any existing tables for clean slate
                 drop_tables = [
@@ -578,60 +600,6 @@ async def health_check():
             "database_path": db_server.db_path,
             "error": str(e)
         }
-
-
-# Additional invoice-specific endpoints
-@app.get("/invoices")
-async def get_invoices():
-    """Get all invoices"""
-    try:
-        query = """
-        SELECT INVOICE_ID, ISSUE_DATE, SUPPLIER_PARTY_NAME, CUSTOMER_PARTY_NAME, 
-               LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT, DOCUMENT_CURRENCY_CODE
-        FROM Invoice 
-        ORDER BY ISSUE_DATE DESC
-        LIMIT 100
-        """
-        results = await db_server.execute_query(query)
-        return {"success": True, "data": results}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
-
-
-@app.get("/suppliers")
-async def get_suppliers():
-    """Get all suppliers"""
-    try:
-        query = """
-        SELECT DISTINCT SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID, SUPPLIER_PARTY_NAME, 
-               SUPPLIER_PARTY_CITY, SUPPLIER_PARTY_COUNTRY
-        FROM Invoice 
-        ORDER BY SUPPLIER_PARTY_NAME
-        """
-        results = await db_server.execute_query(query)
-        return {"success": True, "data": results}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
-
-
-@app.get("/invoice-summary")
-async def get_invoice_summary():
-    """Get invoice summary statistics"""
-    try:
-        query = """
-        SELECT 
-            COUNT(*) as total_invoices,
-            SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) as total_amount,
-            AVG(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) as avg_amount,
-            MIN(ISSUE_DATE) as earliest_date,
-            MAX(ISSUE_DATE) as latest_date,
-            COUNT(DISTINCT SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID) as unique_suppliers
-        FROM Invoice
-        """
-        results = await db_server.execute_query(query)
-        return {"success": True, "data": results}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
 
 
 if __name__ == "__main__":

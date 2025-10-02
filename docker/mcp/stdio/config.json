@@ -58,8 +58,9 @@
 
   },
   "mcp":{
-    "database_path": "/database_data",
-    "docker_database_path": "/app/database_data/social_media_database.db",
+    "database_choice": "local",
+    "database_path": "sqlite_invoices_full.db",
+    "docker_database_path": "/app/database_data/sqlite_invoices_full.db",
     "database_server_url": "http://localhost:8762",
     "docker_database_server_url": "http://database_server:8762",
     "provider": {

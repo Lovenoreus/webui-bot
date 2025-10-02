@@ -14,7 +14,7 @@ services:
       - ${OPEN_WEBUI_PORT-3000}:8080
     environment:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
-      - 'WEBUI_SECRET_KEY='
+      - 'WEBUI_SECRET_KEY=ae8c0b7e4f3a1c9efc83d4a7b59c193f7e194baf55f06e3cc5824c1e9f79b1d7'
       - 'OPENAI_API_KEY=${OPENAI_API_KEY}'
       - 'ENV=dev'
       - 'RESET_CONFIG_ON_START=True'
@@ -32,7 +32,7 @@ services:
     ports:
       - "8762:8762"
     volumes:
-      - mcp_db_data:/app/database_data
+      - ./docker/mcp/stdio/database_data:/app/database_data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8762/health"]
@@ -94,7 +94,6 @@ services:
 
 volumes:
   open-webui: {}
-  mcp_db_data:
 
 networks:
   mcp-network:

@@ -1,10 +1,7 @@
 FROM python:3.11-slim
-
 # Build argument to control cert usage - SET THIS MANUALLY
 ARG USE_CERTS=false
-
 WORKDIR /app
-
 # Apply cert-related configs ONLY when USE_CERTS=true
 RUN if [ "$USE_CERTS" = "true" ]; then \
         printf "[global]\n\
@@ -13,17 +10,14 @@ trusted-host = pypi.org\n\
 \tpypi.python.org\n\
 \tdownload.pytorch.org\n" > /etc/pip.conf; \
     fi
-
 # Conditionally set PIP_NO_VERIFY_CERTS
 RUN if [ "$USE_CERTS" = "true" ]; then \
         echo "export PIP_NO_VERIFY_CERTS=1" >> /etc/environment; \
     fi
-
 # Conditionally install uv with or without trusted-host flags (if you need uv)
 RUN if [ "$USE_CERTS" = "true" ]; then \
         pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host download.pytorch.org --no-cache-dir uv; \
     fi
-
 # Conditionally copy and configure certificates
 RUN if [ "$USE_CERTS" = "true" ]; then \
         mkdir -p /usr/local/share/ca-certificates && \
@@ -31,41 +25,42 @@ RUN if [ "$USE_CERTS" = "true" ]; then \
             cp certs/fw.cer /usr/local/share/ca-certificates/fw.crt; \
         fi; \
     fi
-
-# Install system dependencies (if needed)
+# Install system dependencies including ODBC drivers for SQL Server
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates curl && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        apt-transport-https \
+        gnupg2 \
+        unixodbc \
+        unixodbc-dev && \
+    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg && \
+    curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql17 && \
     if [ "$USE_CERTS" = "true" ]; then \
         update-ca-certificates; \
     fi && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
 # Conditionally set certificate environment variables
 RUN if [ "$USE_CERTS" = "true" ]; then \
         echo "export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt" >> /etc/environment; \
         echo "export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> /etc/environment; \
     fi
-
 # Copy requirements and install (from the mounted volume location)
 COPY mcp/requirements.mcp.txt /tmp/requirements.mcp.txt
-
 RUN pip install --no-cache-dir --default-timeout=300 --retries=20 -r /tmp/requirements.mcp.txt
-
 # App files will be available via volume mount at runtime
-
 # Set PYTHONPATH to include the stdio directory
 ENV PYTHONPATH=/app:/app/docker/mcp/stdio
-
 # Expose port
 EXPOSE 8009
-
 # Healthcheck (assumes a /health endpoint; adjust as needed)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8009/health || exit 1
-
 # Run as non-root
 RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
-
 # Run the app server (use uvicorn/gunicorn if applicable for production)
 CMD ["sh", "-c", "cd /app/docker/mcp/stdio && python server_new.py"]
