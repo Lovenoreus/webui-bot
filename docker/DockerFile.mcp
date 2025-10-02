@@ -32,12 +32,23 @@ RUN if [ "$USE_CERTS" = "true" ]; then \
         fi; \
     fi
 
-# Install system dependencies (add more if needed, e.g., libpq-dev for PostgreSQL)
+# Install system dependencies including ODBC drivers for SQL Server
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates curl && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        apt-transport-https \
+        gnupg2 \
+        unixodbc \
+        unixodbc-dev && \
+    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg && \
+    curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql17 && \
     if [ "$USE_CERTS" = "true" ]; then \
         update-ca-certificates; \
     fi && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Conditionally set certificate environment variables
@@ -46,28 +57,26 @@ RUN if [ "$USE_CERTS" = "true" ]; then \
         echo "export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> /etc/environment; \
     fi
 
-# Copy requirements and install
-COPY mcp/requirements.database.txt .
+# Copy requirements and install (from the mounted volume location)
+COPY mcp/requirements.mcp.txt /tmp/requirements.mcp.txt
 
-RUN pip install --no-cache-dir --default-timeout=300 --retries=20 -r requirements.database.txt
+RUN pip install --no-cache-dir --default-timeout=300 --retries=20 -r /tmp/requirements.mcp.txt
 
-# Copy app files
-COPY mcp/stdio/async_sql_local.py .
-COPY mcp/stdio/config.json .
+# App files will be available via volume mount at runtime
 
-# Create data dir
-RUN mkdir -p /app/database_data
+# Set PYTHONPATH to include the stdio directory
+ENV PYTHONPATH=/app:/app/docker/mcp/stdio
 
 # Expose port
-EXPOSE 8762
+EXPOSE 8009
 
-# Healthcheck (assumes your script has a /health endpoint or similar; adjust if needed)
+# Healthcheck (assumes a /health endpoint; adjust as needed)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8762/health || exit 1
+    CMD curl -f http://localhost:8009/health || exit 1
 
 # Run as non-root
 RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
 
-# Run the DB server
-CMD ["python", "async_sql_local.py"]
+# Run the app server (use uvicorn/gunicorn if applicable for production)
+CMD ["sh", "-c", "cd /app/docker/mcp/stdio && python server_new.py"]

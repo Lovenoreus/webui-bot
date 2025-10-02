@@ -32,7 +32,7 @@ services:
     ports:
       - "8762:8762"
     volumes:
-      - mcp_db_data:/app/database_data
+      - ./docker/mcp/stdio/database_data:/app/database_data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8762/health"]
@@ -46,7 +46,7 @@ services:
   mcp_server:
     build:
       context: ./docker
-      dockerfile: DockerFIle.mcp
+      dockerfile: docker/DockerFile.mcp
     ports:
       - "8009:8009"
     depends_on:
@@ -94,7 +94,6 @@ services:
 
 volumes:
   open-webui: {}
-  mcp_db_data:
 
 networks:
   mcp-network:

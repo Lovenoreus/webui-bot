@@ -2,6 +2,7 @@
 """
 Query Engine - SQL Database Query Generator with LLM Assistance
 Handles natural language to SQL conversion for any database domain
+Supports both local SQLite (via API) and remote SQL Server (direct connection)
 """
 
 import json
@@ -11,6 +12,9 @@ from typing import List, Dict, Optional
 import re
 
 import aiohttp
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import text
 from langchain_community.chat_models import ChatOllama
 from langchain_openai import ChatOpenAI
 from langchain_mistralai import ChatMistralAI
@@ -28,23 +32,74 @@ class QueryEngine:
             tables: List[str],
             table_variations: Dict[str, List[str]],
             system_prompt: str,
-            debug: bool = False
+            debug: bool = False,
+            use_remote: bool = False
     ):
         """
         Initialize the query engine with domain-specific configuration.
 
         Args:
-            database_url: URL of the database server
+            database_url: URL of the database server (for local) or connection info (for remote)
             tables: List of table names in the database
             table_variations: Dict mapping table names to keyword variations to filter
             system_prompt: LLM system prompt with schema and instructions
             debug: Enable debug logging
+            use_remote: Use remote SQL Server instead of local SQLite API
         """
         self.database_url = database_url
         self.all_tables = tables
         self.table_variations = table_variations
         self.system_prompt = system_prompt
         self.debug = debug
+        self.use_remote = use_remote
+
+        # Initialize remote SQL Server connection if needed
+        if self.use_remote:
+            self._init_remote_connection()
+        else:
+            self.engine = None
+            self.async_session = None
+
+    def _init_remote_connection(self):
+        """Initialize async SQL Server connection"""
+        server = config.SQL_SERVER_HOST
+        database = config.SQL_SERVER_DATABASE
+        driver = config.SQL_SERVER_DRIVER
+
+        if config.SQL_SERVER_USE_WINDOWS_AUTH:
+            connection_string = (
+                f"mssql+aioodbc://@{server}/{database}"
+                f"?driver={driver.replace(' ', '+')}"
+                "&trusted_connection=yes"
+            )
+
+        else:
+            username = config.SQL_SERVER_USERNAME
+            password = config.SQL_SERVER_PASSWORD
+            connection_string = (
+                f"mssql+aioodbc://{username}:{password}@{server}/{database}"
+                f"?driver={driver.replace(' ', '+')}"
+            )
+
+        if self.debug:
+            print(f"[QueryEngine] Initializing remote SQL Server connection")
+            print(f"[QueryEngine] Server: {server}")
+            print(f"[QueryEngine] Database: {database}")
+            print(f"[QueryEngine] Auth: {'Windows' if config.SQL_SERVER_USE_WINDOWS_AUTH else 'SQL Server'}")
+
+        self.engine = create_async_engine(
+            connection_string,
+            echo=self.debug,
+            pool_pre_ping=True,
+            pool_size=10,
+            max_overflow=0
+        )
+
+        self.async_session = sessionmaker(
+            self.engine,
+            expire_on_commit=False,
+            class_=AsyncSession
+        )
 
     def extract_sql_from_json(self, llm_output: str) -> str:
         """Extract SQL from LLM response - handles JSON, markdown, or plain SQL"""
@@ -74,10 +129,17 @@ class QueryEngine:
         return ""
 
     async def execute_query(self, query: str):
-        """Run a query on the database server"""
+        """Run a query on the database - routes to local or remote"""
+        if self.use_remote:
+            return await self._execute_query_remote(query)
+        else:
+            return await self._execute_query_local(query)
+
+    async def _execute_query_local(self, query: str):
+        """Execute query via local SQLite API server"""
         try:
             if self.debug:
-                print(f"[QueryEngine] Executing query: {query}")
+                print(f"[QueryEngine] Executing LOCAL query: {query}")
 
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -101,11 +163,56 @@ class QueryEngine:
                 print(f"[QueryEngine] Database connection error: {e}")
             return []
 
-    async def execute_query_stream(self, query: str):
-        """Stream database results as they arrive"""
+    async def _execute_query_remote(self, query: str):
+        """Execute query directly on remote SQL Server"""
         try:
             if self.debug:
-                print(f"[QueryEngine] Starting streaming query: {query}")
+                print(f"[QueryEngine] Executing REMOTE query: {query}")
+
+            async with self.async_session() as session:
+                result = await session.execute(text(query))
+
+                # Fetch all rows and convert to dict
+                rows = result.fetchall()
+                columns = result.keys()
+
+                data = []
+                for row in rows:
+                    row_dict = {}
+                    for i, col in enumerate(columns):
+                        value = row[i]
+                        # Convert datetime and decimal to string for JSON serialization
+                        if hasattr(value, 'isoformat'):
+                            value = value.isoformat()
+                        elif hasattr(value, '__float__'):
+                            value = float(value)
+                        row_dict[col] = value
+                    data.append(row_dict)
+
+                if self.debug:
+                    print(f"[QueryEngine] Remote query returned {len(data)} rows")
+
+                return data
+
+        except Exception as e:
+            if self.debug:
+                print(f"[QueryEngine] Remote database error: {e}")
+            return []
+
+    async def execute_query_stream(self, query: str):
+        """Stream database results - routes to local or remote"""
+        if self.use_remote:
+            async for result in self._execute_query_stream_remote(query):
+                yield result
+        else:
+            async for result in self._execute_query_stream_local(query):
+                yield result
+
+    async def _execute_query_stream_local(self, query: str):
+        """Stream results from local SQLite API"""
+        try:
+            if self.debug:
+                print(f"[QueryEngine] Starting LOCAL streaming query: {query}")
 
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -171,6 +278,59 @@ class QueryEngine:
                 print(f"[QueryEngine] Stream execution error: {e}")
             yield {"success": False, "error": f"Database connection error: {str(e)}"}
 
+    async def _execute_query_stream_remote(self, query: str):
+        """Stream results from remote SQL Server"""
+        try:
+            if self.debug:
+                print(f"[QueryEngine] Starting REMOTE streaming query: {query}")
+
+            yield {
+                "success": True,
+                "sql_query": f"```sql {query} ```",
+                "streaming": True,
+                "status": "started"
+            }
+
+            async with self.async_session() as session:
+                result = await session.execute(text(query))
+                rows = result.fetchall()
+                columns = result.keys()
+
+                results = []
+                for idx, row in enumerate(rows, 1):
+                    row_dict = {}
+                    for i, col in enumerate(columns):
+                        value = row[i]
+                        # Convert datetime and decimal to string for JSON serialization
+                        if hasattr(value, 'isoformat'):
+                            value = value.isoformat()
+                        elif hasattr(value, '__float__'):
+                            value = float(value)
+                        row_dict[col] = value
+
+                    results.append(row_dict)
+
+                    yield {
+                        "success": True,
+                        "type": "row",
+                        "data": row_dict,
+                        "index": idx,
+                        "running_total": len(results)
+                    }
+
+                yield {
+                    "success": True,
+                    "type": "complete",
+                    "results": results,
+                    "record_count": len(results),
+                    "status": "finished"
+                }
+
+        except Exception as e:
+            if self.debug:
+                print(f"[QueryEngine] Remote stream error: {e}")
+            yield {"success": False, "error": f"Remote database error: {str(e)}"}
+
     def filter_keywords_for_table(self, keywords: List[str], table_name: str) -> List[str]:
         """Filter out keywords that match the table name to avoid false matches"""
         table_name_lower = table_name.lower()
@@ -205,17 +365,36 @@ class QueryEngine:
     async def get_table_string_columns(self, table_name: str) -> List[str]:
         """Get all string/text columns from a table dynamically"""
         try:
-            schema_query = f"PRAGMA table_info({table_name})"
-            schema_results = await self.execute_query(schema_query)
+            if self.use_remote:
+                # SQL Server schema query
+                schema_query = f"""
+                SELECT COLUMN_NAME, DATA_TYPE 
+                FROM INFORMATION_SCHEMA.COLUMNS 
+                WHERE TABLE_NAME = '{table_name}'
+                """
+                schema_results = await self.execute_query(schema_query)
 
-            string_columns = []
-            for column_info in schema_results:
-                column_name = column_info['name']
-                column_type = column_info['type'].upper()
+                string_columns = []
+                for column_info in schema_results:
+                    column_name = column_info['COLUMN_NAME']
+                    column_type = column_info['DATA_TYPE'].upper()
 
-                # Check if it's a string/text type
-                if any(text_type in column_type for text_type in ['VARCHAR', 'TEXT', 'CHAR']):
-                    string_columns.append(column_name)
+                    # Check if it's a string/text type in SQL Server
+                    if any(text_type in column_type for text_type in ['VARCHAR', 'NVARCHAR', 'TEXT', 'CHAR', 'NCHAR']):
+                        string_columns.append(column_name)
+            else:
+                # SQLite schema query
+                schema_query = f"PRAGMA table_info({table_name})"
+                schema_results = await self.execute_query(schema_query)
+
+                string_columns = []
+                for column_info in schema_results:
+                    column_name = column_info['name']
+                    column_type = column_info['type'].upper()
+
+                    # Check if it's a string/text type
+                    if any(text_type in column_type for text_type in ['VARCHAR', 'TEXT', 'CHAR']):
+                        string_columns.append(column_name)
 
             if self.debug:
                 print(f"[QueryEngine] String columns for {table_name}: {string_columns}")
@@ -347,6 +526,7 @@ class QueryEngine:
             print(f"[QueryEngine] Starting SQL generation for: {user_question}")
             print(f"[QueryEngine] Keywords: {keywords}")
             print(f"[QueryEngine] Provider: {provider}")
+            print(f"[QueryEngine] Database mode: {'REMOTE' if self.use_remote else 'LOCAL'}")
 
         yield {"status": "generating_sql", "message": "Searching database for context..."}
 

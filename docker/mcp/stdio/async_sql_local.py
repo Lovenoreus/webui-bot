@@ -10,13 +10,16 @@ import os
 from datetime import datetime, timedelta
 import random
 
+import config as configurations
+
 
 def load_config():
     """Load configuration from config.json if it exists"""
     config_path = "config.json"
+
     default_config = {
-        "database_path": "invoice_database.db",
-        "docker_database_path": "/app/database_data/invoice_database.db"
+        "database_path": configurations.DATABASE_PATH,
+        "docker_database_path": configurations.DOCKER_DATABASE_PATH,
     }
 
     if os.path.exists(config_path):
@@ -24,6 +27,7 @@ def load_config():
             with open(config_path, 'r') as f:
                 config = json.load(f)
                 return config
+
         except Exception as e:
             return default_config
     return default_config
@@ -68,6 +72,22 @@ class AsyncSQLiteServer:
                 await db.execute("PRAGMA cache_size=10000")
                 await db.execute("PRAGMA temp_store=memory")
                 await db.execute("PRAGMA foreign_keys=ON")
+
+                # Check if tables already exist with data
+                cursor = await db.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='Invoice'"
+                )
+                table_exists = await cursor.fetchone()
+
+                if table_exists:
+                    # Check if there's data
+                    cursor = await db.execute("SELECT COUNT(*) FROM Invoice")
+                    count = await cursor.fetchone()
+                    if count and count[0] > 0:
+                        print(f"Database already initialized with {count[0]} invoices. Skipping initialization.")
+                        return
+
+                print("Database is empty or doesn't exist. Initializing with sample data...")
 
                 # Drop any existing tables for clean slate
                 drop_tables = [

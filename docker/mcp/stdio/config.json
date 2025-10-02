@@ -54,12 +54,11 @@
   "cosmic_database":{
     "collection_name":"cosmic_documents",
     "document_path":"C:/RemoteRepos/omnigate/cosmic_documents"
-
-
   },
   "mcp":{
-    "database_path": "/database_data",
-    "docker_database_path": "/app/database_data/social_media_database.db",
+    "database_choice": "local",
+    "database_path": "invoice_database.db",
+    "docker_database_path": "/app/database_data/invoice_database.db",
     "database_server_url": "http://localhost:8762",
     "docker_database_server_url": "http://database_server:8762",
     "provider": {

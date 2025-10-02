@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # -------------------- User-defined Modules --------------------
 import config
 from query_engine import QueryEngine
+from instructions import SQLITE_INVOICE_PROMPT, SQLSERVER_INVOICE_PROMPT
 from models import (
     QueryDatabaseRequest,
     GreetRequest,
@@ -31,7 +32,7 @@ load_dotenv()
 DEBUG = True
 
 app = FastAPI(
-    title="Invoice SQL MCP Server", 
+    title="Invoice SQL MCP Server",
     description="MCP Tools Server with LLM SQL Generation for Invoice Management"
 )
 
@@ -49,15 +50,23 @@ def get_database_server_url():
     """Determine the correct database server URL based on environment"""
     if os.environ.get('DOCKER_CONTAINER') or os.path.exists('/.dockerenv'):
         return config.MCP_DOCKER_DATABASE_SERVER_URL
+
     else:
         return config.MCP_DATABASE_SERVER_URL
 
 
-DATABASE_SERVER_URL = get_database_server_url()
+# Database configuration
+DATABASE_CHOICE = config.DATABASE_CHOICE
+USE_REMOTE = DATABASE_CHOICE == "remote"
+
+if USE_REMOTE:
+    DATABASE_SERVER_URL = f"SQL Server: {config.SQL_SERVER_HOST}/{config.SQL_SERVER_DATABASE}"
+else:
+    DATABASE_SERVER_URL = get_database_server_url()
 
 if DEBUG:
-    print(f"[MCP DEBUG] Database server URL: {DATABASE_SERVER_URL}")
-
+    print(f"[MCP DEBUG] Database mode: {DATABASE_CHOICE}")
+    print(f"[MCP DEBUG] Database info: {DATABASE_SERVER_URL}")
 
 # Invoice-specific configuration
 INVOICE_TABLES = [
@@ -70,215 +79,26 @@ INVOICE_TABLE_VARIATIONS = {
     'invoice_line': ['line', 'item', 'product', 'service']
 }
 
-INVOICE_SYSTEM_PROMPT = """You are a helpful SQL query assistant for an invoice management database. The database contains the following tables and structure:
 
-    ## Database Schema
+if USE_REMOTE:
+    INVOICE_SYSTEM_PROMPT = SQLSERVER_INVOICE_PROMPT
 
-    ### Core Tables
+else:
+    INVOICE_SYSTEM_PROMPT = SQLITE_INVOICE_PROMPT
 
-    **Invoice**
-    ```sql
-    CREATE TABLE Invoice (
-        INVOICE_ID TEXT NOT NULL PRIMARY KEY,
-        ISSUE_DATE TEXT NOT NULL,
-        SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID TEXT NOT NULL,
-        SUPPLIER_PARTY_NAME TEXT,
-        SUPPLIER_PARTY_STREET_NAME TEXT,
-        SUPPLIER_PARTY_ADDITIONAL_STREET_NAME TEXT,
-        SUPPLIER_PARTY_POSTAL_ZONE TEXT,
-        SUPPLIER_PARTY_CITY TEXT,
-        SUPPLIER_PARTY_COUNTRY TEXT,
-        SUPPLIER_PARTY_ADDRESS_LINE TEXT,
-        SUPPLIER_PARTY_LEGAL_ENTITY_REG_NAME TEXT,
-        SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_LEGAL_FORM TEXT,
-        SUPPLIER_PARTY_CONTACT_NAME TEXT,
-        SUPPLIER_PARTY_CONTACT_EMAIL TEXT,
-        SUPPLIER_PARTY_CONTACT_PHONE TEXT,
-        SUPPLIER_PARTY_ENDPOINT_ID TEXT,
-        CUSTOMER_PARTY_ID TEXT,
-        CUSTOMER_PARTY_ID_SCHEME_ID TEXT,
-        CUSTOMER_PARTY_ENDPOINT_ID TEXT,
-        CUSTOMER_PARTY_ENDPOINT_ID_SCHEME_ID TEXT,
-        CUSTOMER_PARTY_NAME TEXT,
-        CUSTOMER_PARTY_STREET_NAME TEXT,
-        CUSTOMER_PARTY_POSTAL_ZONE TEXT,
-        CUSTOMER_PARTY_COUNTRY TEXT,
-        CUSTOMER_PARTY_LEGAL_ENTITY_REG_NAME TEXT,
-        CUSTOMER_PARTY_LEGAL_ENTITY_COMPANY_ID TEXT,
-        CUSTOMER_PARTY_CONTACT_NAME TEXT,
-        CUSTOMER_PARTY_CONTACT_EMAIL TEXT,
-        CUSTOMER_PARTY_CONTACT_PHONE TEXT,
-        DUE_DATE TEXT,
-        DOCUMENT_CURRENCY_CODE TEXT,
-        DELIVERY_LOCATION_STREET_NAME TEXT,
-        DELIVERY_LOCATION_ADDITIONAL_STREET_NAME TEXT,
-        DELIVERY_LOCATION_CITY_NAME TEXT,
-        DELIVERY_LOCATION_POSTAL_ZONE TEXT,
-        DELIVERY_LOCATION_ADDRESS_LINE TEXT,
-        DELIVERY_LOCATION_COUNTRY TEXT,
-        DELIVERY_PARTY_NAME TEXT,
-        ACTUAL_DELIVERY_DATE TEXT,
-        TAX_AMOUNT_CURRENCY TEXT,
-        TAX_AMOUNT REAL,
-        PERIOD_START_DATE TEXT,
-        PERIOD_END_DATE TEXT,
-        LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT_CURRENCY TEXT,
-        LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT REAL,
-        LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT_CURRENCY TEXT,
-        LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT REAL,
-        LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT_CURRENCY TEXT,
-        LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT REAL,
-        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT_CURRENCY TEXT,
-        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT REAL,
-        LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT_CURRENCY TEXT,
-        LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT REAL,
-        LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT_CURRENCY TEXT,
-        LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT REAL,
-        LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT_CURRENCY TEXT,
-        LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT REAL,
-        LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT_CURRENCY TEXT,
-        LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT REAL,
-        BUYER_REFERENCE TEXT,
-        PROJECT_REFERENCE_ID TEXT,
-        INVOICE_TYPE_CODE TEXT,
-        NOTE TEXT,
-        TAX_POINT_DATE TEXT,
-        ACCOUNTING_COST TEXT,
-        ORDER_REFERENCE_ID TEXT,
-        ORDER_REFERENCE_SALES_ORDER_ID TEXT,
-        PAYMENT_TERMS_NOTE TEXT,
-        BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ID TEXT,
-        BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ISSUE_DATE TEXT,
-        CONTRACT_DOCUMENT_REFERENCE_ID TEXT,
-        DESPATCH_DOCUMENT_REFERENCE_ID TEXT,
-        ETL_LOAD_TS TEXT
-    );
-    ```
-
-    **Invoice_Line**
-    ```sql
-    CREATE TABLE Invoice_Line (
-        INVOICE_ID TEXT NOT NULL,
-        ISSUE_DATE TEXT NOT NULL,
-        SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID TEXT NOT NULL,
-        INVOICE_LINE_ID TEXT NOT NULL,
-        ORDER_LINE_REFERENCE_LINE_ID TEXT,
-        ACCOUNTING_COST TEXT,
-        INVOICED_QUANTITY REAL,
-        INVOICED_QUANTITY_UNIT_CODE TEXT,
-        INVOICED_LINE_EXTENSION_AMOUNT REAL,
-        INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID TEXT,
-        INVOICE_PERIOD_START_DATE TEXT,
-        INVOICE_PERIOD_END_DATE TEXT,
-        INVOICE_LINE_DOCUMENT_REFERENCE_ID TEXT,
-        INVOICE_LINE_DOCUMENT_REFERENCE_DOCUMENT_TYPE_CODE TEXT,
-        INVOICE_LINE_NOTE TEXT,
-        ITEM_DESCRIPTION TEXT,
-        ITEM_NAME TEXT,
-        ITEM_TAXCAT_ID TEXT,
-        ITEM_TAXCAT_PERCENT REAL,
-        ITEM_BUYERS_ID TEXT,
-        ITEM_SELLERS_ITEM_ID TEXT,
-        ITEM_STANDARD_ITEM_ID TEXT,
-        ITEM_COMMODITYCLASS_CLASSIFICATION TEXT,
-        ITEM_COMMODITYCLASS_CLASSIFICATION_LIST_ID TEXT,
-        PRICE_AMOUNT REAL,
-        PRICE_AMOUNT_CURRENCY_ID TEXT,
-        PRICE_BASE_QUANTITY REAL,
-        PRICE_BASE_QUANTITY_UNIT_CODE TEXT,
-        PRICE_ALLOWANCE_CHARGE_AMOUNT REAL,
-        PRICE_ALLOWANCE_CHARGE_INDICATOR TEXT,
-        ETL_LOAD_TS TEXT,
-        PRIMARY KEY (INVOICE_ID, INVOICE_LINE_ID),
-        FOREIGN KEY (INVOICE_ID) REFERENCES Invoice(INVOICE_ID)
-    );
-    ```
-
-    ## Sample Data Context
-
-    ### Common Swedish Suppliers
-    - JA Hotel Karlskrona, Visma Draftit AB, Abbott Scandinavia, Nordic IT Solutions AB
-
-    ### Common Customers  
-    - Region Västerbotten, Stockholms Stad, Region Skåne, Västra Götaland
-
-    ### Common Services/Items
-    - IT Consulting, Software License, Hotel Accommodation, Training Services, Medical Supplies, Office Equipment
-
-    ### Currency
-    - All amounts in SEK (Swedish Krona)
-
-    ## Key Relationships
-    - **One-to-Many**: Invoice → Invoice_Line (one invoice can have multiple line items)
-    - **Join Key**: INVOICE_ID
-
-    ## Common Query Patterns
-
-    ### Financial Queries
-    ```sql
-    -- Total invoice amounts by supplier
-    SELECT SUPPLIER_PARTY_NAME, SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) as total_amount
-    FROM Invoice 
-    GROUP BY SUPPLIER_PARTY_NAME;
-
-    -- Invoice details with line items
-    SELECT i.INVOICE_ID, i.SUPPLIER_PARTY_NAME, il.ITEM_NAME, il.INVOICED_QUANTITY, il.PRICE_AMOUNT
-    FROM Invoice i
-    JOIN Invoice_Line il ON i.INVOICE_ID = il.INVOICE_ID
-    WHERE i.INVOICE_ID = ?;
-
-    -- Overdue invoices
-    SELECT INVOICE_ID, SUPPLIER_PARTY_NAME, DUE_DATE, LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
-    FROM Invoice 
-    WHERE DUE_DATE < date('now');
-    ```
-
-    ### Reporting Queries
-    ```sql
-    -- Monthly invoice summary
-    SELECT strftime('%Y-%m', ISSUE_DATE) as month, 
-           COUNT(*) as invoice_count,
-           SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) as total_amount
-    FROM Invoice 
-    GROUP BY strftime('%Y-%m', ISSUE_DATE);
-
-    -- Top suppliers by volume
-    SELECT SUPPLIER_PARTY_NAME, COUNT(*) as invoice_count, 
-           SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) as total_spent
-    FROM Invoice 
-    GROUP BY SUPPLIER_PARTY_NAME 
-    ORDER BY total_spent DESC;
-    ```
-
-    ## Instructions
-    1. **Always use proper JOINs** to connect Invoice and Invoice_Line tables
-    2. **Use table aliases** for readability (i for Invoice, il for Invoice_Line)
-    3. **Include relevant financial columns** for business reporting
-    4. **Consider date filters** using SQLite date functions
-    5. **Handle NULL values** appropriately in conditions
-    6. **Use REAL for monetary calculations**
-    7. **Include proper ORDER BY** for meaningful result sorting
-    8. **Group by supplier/customer** for aggregation queries
-
-    When users ask about invoices, generate efficient SQL queries using this schema. Focus on financial reporting, supplier analysis, payment tracking, and business intelligence needs.
-
-    ## CRITICAL OUTPUT FORMAT
-    You must respond with ONLY a valid SQL query. No explanations, no markdown, no code blocks.
-    Return only the raw SQL statement that can be executed directly.
-
-    Example response format:
-    SELECT * FROM Invoice WHERE SUPPLIER_PARTY_COUNTRY = 'SE'
-
-    Do not wrap in ```sql blocks. Do not add explanations. Just the SQL query.
-    """
+if DEBUG:
+    print(f"[MCP DEBUG] Database mode: {DATABASE_CHOICE}")
+    print(f"[MCP DEBUG] Using prompt: {'SQL Server' if USE_REMOTE else 'SQLite'}")
+    print(f"[MCP DEBUG] Database info: {DATABASE_SERVER_URL}")
 
 # Initialize QueryEngine with invoice configuration
 query_engine = QueryEngine(
-    database_url=DATABASE_SERVER_URL,
+    database_url=DATABASE_SERVER_URL if not USE_REMOTE else None,
     tables=INVOICE_TABLES,
     table_variations=INVOICE_TABLE_VARIATIONS,
     system_prompt=INVOICE_SYSTEM_PROMPT,
-    debug=DEBUG
+    debug=DEBUG,
+    use_remote=USE_REMOTE
 )
 
 
@@ -300,6 +120,7 @@ async def greet(name: Optional[str] = None) -> str:
 
     if name:
         response = f"[RESPONSE]: {time_greeting} {name}! I'm your Invoice Management assistant. I can help with invoice queries, supplier information, customer data, and payment tracking. What can I do for you?"
+
     else:
         response = f"[RESPONSE]: {time_greeting}! I'm your Invoice Management assistant. I can help with invoice queries, supplier information, customer data, and payment tracking. How can I assist you today?"
 
@@ -384,31 +205,97 @@ async def query_sql_database_stream_endpoint(request: QueryDatabaseRequest):
 async def health_check():
     """Health check endpoint"""
     try:
-        # Test database connectivity
         db_health = "unknown"
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(f"{DATABASE_SERVER_URL}/health", timeout=5) as response:
-                    if response.status == 200:
-                        db_health = "connected"
-                    else:
-                        db_health = "error"
-        except:
-            db_health = "disconnected"
+        db_type = "remote" if USE_REMOTE else "local"
 
-        return {
-            "status": "healthy",
-            "service": "Invoice MCP Server",
-            "timestamp": datetime.now().isoformat(),
-            "database_connection": db_health,
-            "llm_providers": ["openai", "ollama", "mistral"],
-            "endpoints": {
-                "greet": "/greet",
-                "query_sql_database": "/query_sql_database",
-                "query_sql_database_stream": "/query_sql_database_stream",
-                "health": "/health"
+        if USE_REMOTE:
+            # Test remote SQL Server connectivity
+            try:
+                test_query = "SELECT COUNT(*) as invoice_count FROM Invoice"
+                result = await query_engine.execute_query(test_query)
+                invoice_count = result[0]['invoice_count'] if result else 0
+
+                lines_result = await query_engine.execute_query("SELECT COUNT(*) as line_count FROM Invoice_Line")
+                line_count = lines_result[0]['line_count'] if lines_result else 0
+
+                db_health = "connected"
+
+                return {
+                    "status": "healthy",
+                    "service": "Invoice MCP Server",
+                    "timestamp": datetime.now().isoformat(),
+                    "database_type": db_type,
+                    "database_connection": db_health,
+                    "database_info": {
+                        "server": config.SQL_SERVER_HOST,
+                        "database": config.SQL_SERVER_DATABASE,
+                        "auth": "Windows" if config.SQL_SERVER_USE_WINDOWS_AUTH else "SQL Server"
+                    },
+                    "invoice_count": invoice_count,
+                    "line_count": line_count,
+                    "tables_initialized": invoice_count > 0 and line_count > 0,
+                    "llm_providers": ["openai", "ollama", "mistral"],
+                    "endpoints": {
+                        "greet": "/greet",
+                        "query_sql_database": "/query_sql_database",
+                        "query_sql_database_stream": "/query_sql_database_stream",
+                        "health": "/health"
+                    }
+                }
+            except Exception as e:
+                return {
+                    "status": "error",
+                    "service": "Invoice MCP Server",
+                    "timestamp": datetime.now().isoformat(),
+                    "database_type": db_type,
+                    "database_connection": "error",
+                    "database_info": {
+                        "server": config.SQL_SERVER_HOST,
+                        "database": config.SQL_SERVER_DATABASE
+                    },
+                    "error": str(e)
+                }
+        else:
+            # Test local SQLite API connectivity
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(f"{DATABASE_SERVER_URL}/health", timeout=5) as response:
+                        if response.status == 200:
+                            db_health = "connected"
+                            health_data = await response.json()
+                            return {
+                                "status": "healthy",
+                                "service": "Invoice MCP Server",
+                                "timestamp": datetime.now().isoformat(),
+                                "database_type": db_type,
+                                "database_connection": db_health,
+                                "database_server": DATABASE_SERVER_URL,
+                                "invoice_count": health_data.get("invoice_count", 0),
+                                "line_count": health_data.get("line_count", 0),
+                                "tables_initialized": health_data.get("tables_initialized", False),
+                                "llm_providers": ["openai", "ollama", "mistral"],
+                                "endpoints": {
+                                    "greet": "/greet",
+                                    "query_sql_database": "/query_sql_database",
+                                    "query_sql_database_stream": "/query_sql_database_stream",
+                                    "health": "/health"
+                                }
+                            }
+                        else:
+                            db_health = "error"
+            except:
+                db_health = "disconnected"
+
+            return {
+                "status": "error" if db_health != "connected" else "healthy",
+                "service": "Invoice MCP Server",
+                "timestamp": datetime.now().isoformat(),
+                "database_type": db_type,
+                "database_connection": db_health,
+                "database_server": DATABASE_SERVER_URL,
+                "error": "Cannot connect to database server" if db_health != "connected" else None
             }
-        }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
 
@@ -441,7 +328,7 @@ async def mcp_tools_list():
                     "keywords": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "Key invoice/business terms from the query: supplier names, customer names, invoice IDs, cities, amounts, currencies, item names, payment terms, dates"
+                        "description": "Extract keywords from the query"
                     }
                 },
                 "required": ["query", "keywords"]
@@ -603,6 +490,8 @@ async def server_info():
         "version": "1.0.0",
         "description": "MCP Tools Server with LLM-powered natural language to SQL conversion for invoice database queries",
         "protocols": ["REST API", "MCP (Model Context Protocol)"],
+        "database_mode": DATABASE_CHOICE,
+        "database_info": DATABASE_SERVER_URL,
 
         "mcp_endpoints": {
             "streamable_http": "/",
@@ -625,11 +514,12 @@ async def server_info():
             "Streaming Query Execution",
             "Invoice Domain Optimization",
             "MCP Protocol Support",
-            "Async Database Operations"
+            "Async Database Operations",
+            "Local SQLite + Remote SQL Server Support"
         ],
 
         "database": {
-            "url": DATABASE_SERVER_URL,
+            "mode": DATABASE_CHOICE,
             "tables": query_engine.all_tables,
             "table_count": len(query_engine.all_tables)
         },
@@ -647,7 +537,8 @@ async def server_info():
 
 if __name__ == "__main__":
     print(f"Starting Invoice MCP Server on port 8009...")
-    print(f"Database: {DATABASE_SERVER_URL}")
+    print(f"Database mode: {DATABASE_CHOICE}")
+    print(f"Database info: {DATABASE_SERVER_URL}")
 
     if DEBUG:
         print("[DEBUG] Debug mode enabled")
