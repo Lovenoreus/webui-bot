@@ -1,14 +1,50 @@
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim
+
+# Build argument to control cert usage - SET THIS MANUALLY
+ARG USE_CERTS=true
 
 WORKDIR /app
 
-# Use HTTPS for Debian Bookworm repositories
-RUN echo "deb https://deb.debian.org/debian bookworm main" > /etc/apt/sources.list && \
-    echo "deb https://deb.debian.org/debian bookworm-updates main" >> /etc/apt/sources.list && \
-    echo "deb https://deb.debian.org/debian-security bookworm-security main" >> /etc/apt/sources.list && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
+# Apply cert-related configs ONLY when USE_CERTS=true
+RUN if [ "$USE_CERTS" = "true" ]; then \
+        printf "[global]\n\
+trusted-host = pypi.org\n\
+\tfiles.pythonhosted.org\n\
+\tpypi.python.org\n\
+\tdownload.pytorch.org\n" > /etc/pip.conf; \
+    fi
+
+# Conditionally set PIP_NO_VERIFY_CERTS
+RUN if [ "$USE_CERTS" = "true" ]; then \
+        echo "export PIP_NO_VERIFY_CERTS=1" >> /etc/environment; \
+    fi
+
+# Conditionally install uv with or without trusted-host flags (if you need uv)
+RUN if [ "$USE_CERTS" = "true" ]; then \
+        pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host download.pytorch.org --no-cache-dir uv; \
+    fi
+
+# Conditionally copy and configure certificates
+RUN if [ "$USE_CERTS" = "true" ]; then \
+        mkdir -p /usr/local/share/ca-certificates && \
+        if [ -f certs/fw.cer ]; then \
+            cp certs/fw.cer /usr/local/share/ca-certificates/fw.crt; \
+        fi; \
+    fi
+
+# Install system dependencies (if needed)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates curl && \
+    if [ "$USE_CERTS" = "true" ]; then \
+        update-ca-certificates; \
+    fi && \
     rm -rf /var/lib/apt/lists/*
+
+# Conditionally set certificate environment variables
+RUN if [ "$USE_CERTS" = "true" ]; then \
+        echo "export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt" >> /etc/environment; \
+        echo "export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> /etc/environment; \
+    fi
 
 # Copy requirements and install (from the mounted volume location)
 COPY mcp/requirements.mcp.txt /tmp/requirements.mcp.txt
