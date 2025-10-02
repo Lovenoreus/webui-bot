@@ -5,13 +5,14 @@ ARG USE_CUDA=false
 ARG USE_OLLAMA=false
 ARG USE_SLIM=false
 ARG USE_PERMISSION_HARDENING=false
+ARG USE_CERTS=false
 # Tested with cu117 for CUDA 11 and cu121 for CUDA 12 (default)
 ARG USE_CUDA_VER=cu128
 # any sentence transformer model; models to use can be found at https://huggingface.co/models?library=sentence-transformers
-# Leaderboard: https://huggingface.co/spaces/mteb/leaderboard 
+# Leaderboard: https://huggingface.co/spaces/mteb/leaderboard
 # for better performance and multilangauge support use "intfloat/multilingual-e5-large" (~2.5GB) or "intfloat/multilingual-e5-base" (~1.5GB)
 # IMPORTANT: If you change the embedding model (sentence-transformers/all-MiniLM-L6-v2) and vice versa, you aren't able to use RAG Chat with your previous documents loaded in the WebUI! You need to re-embed them.
-ARG USE_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+#ARG USE_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 ARG USE_RERANKING_MODEL=""
 
 # Tiktoken encoding name; models to use can be found at https://huggingface.co/models?library=tiktoken
@@ -25,6 +26,7 @@ ARG GID=0
 ######## WebUI frontend ########
 FROM --platform=$BUILDPLATFORM node:22-alpine3.20 AS build
 ARG BUILD_HASH
+ARG USE_CERTS
 
 # Set Node.js options (heap limit Allocation failed - JavaScript heap out of memory)
 ENV NODE_OPTIONS="--max-old-space-size=4096"
@@ -33,6 +35,20 @@ WORKDIR /app
 
 # to store git revision in build
 RUN apk add --no-cache git
+
+# Corporate CA (conditionally applied when USE_CERTS=true)
+RUN if [ "$USE_CERTS" = "true" ]; then \
+        mkdir -p /usr/local/share/ca-certificates && \
+        if [ -f certs/fw.cer ]; then \
+            cp certs/fw.cer /usr/local/share/ca-certificates/fw.crt && \
+            ls -l /usr/local/share/ca-certificates/fw.crt; \
+        fi; \
+    fi
+
+# Conditionally set NODE_EXTRA_CA_CERTS when USE_CERTS=true
+RUN if [ "$USE_CERTS" = "true" ]; then \
+        echo "export NODE_EXTRA_CA_CERTS=/usr/local/share/ca-certificates/fw.crt" >> /etc/profile; \
+    fi
 
 # Copy pre-downloaded binaries
 COPY local-binaries/ /tmp/onnx-cache/
@@ -58,10 +74,6 @@ COPY . .
 ENV APP_BUILD_HASH=${BUILD_HASH}
 RUN npm run build
 
-COPY . .
-ENV APP_BUILD_HASH=${BUILD_HASH}
-RUN npm run build
-
 ######## WebUI backend ########
 FROM python:3.11-slim-bookworm AS base
 
@@ -75,6 +87,16 @@ ARG USE_EMBEDDING_MODEL
 ARG USE_RERANKING_MODEL
 ARG UID
 ARG GID
+ARG USE_CERTS
+
+# Disable TLS verification for these hosts by marking them as trusted (when USE_CERTS=true)
+RUN if [ "$USE_CERTS" = "true" ]; then \
+        printf "[global]\n\
+trusted-host = pypi.org\n\
+\tfiles.pythonhosted.org\n\
+\tpypi.python.org\n\
+\tdownload.pytorch.org\n" > /etc/pip.conf; \
+    fi
 
 ## Basis ##
 ENV ENV=prod \
@@ -137,18 +159,60 @@ RUN echo -n 00000000-0000-0000-0000-000000000000 > $HOME/.cache/chroma/telemetry
 # Make sure the user has access to the app and root directory
 RUN chown -R $UID:$GID /app $HOME
 
+# Corporate CA (conditionally applied when USE_CERTS=true)
+RUN if [ "$USE_CERTS" = "true" ]; then \
+        mkdir -p /usr/local/share/ca-certificates && \
+        if [ -f certs/fw.cer ]; then \
+            cp certs/fw.cer /usr/local/share/ca-certificates/fw.crt; \
+        fi; \
+    fi
+
 # Install common system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     git build-essential pandoc gcc netcat-openbsd curl jq \
     python3-dev \
     ffmpeg libsm6 libxext6 \
-    && rm -rf /var/lib/apt/lists/*
+    ca-certificates && \
+    if [ "$USE_CERTS" = "true" ]; then \
+        update-ca-certificates; \
+    fi && \
+    rm -rf /var/lib/apt/lists/*
+
+# Conditionally set ALL certificate-related environment variables
+# These need to be set as ENV directives to persist at runtime
+RUN if [ "$USE_CERTS" = "true" ]; then \
+        mkdir -p /etc/docker-env.d && \
+        echo "SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt" > /etc/docker-env.d/certs.env && \
+        echo "REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> /etc/docker-env.d/certs.env && \
+        echo "CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> /etc/docker-env.d/certs.env && \
+        echo "PIP_NO_VERIFY_CERTS=1" >> /etc/docker-env.d/certs.env && \
+        echo "PYTHONHTTPSVERIFY=0" >> /etc/docker-env.d/certs.env && \
+        echo "GIT_SSL_NO_VERIFY=1" >> /etc/docker-env.d/certs.env && \
+        echo "NODE_TLS_REJECT_UNAUTHORIZED=0" >> /etc/docker-env.d/certs.env && \
+        echo "HF_HUB_DISABLE_SSL_VERIFICATION=1" >> /etc/docker-env.d/certs.env; \
+    fi
+
+# Source cert environment variables for all future RUN commands and runtime
+RUN if [ "$USE_CERTS" = "true" ] && [ -f /etc/docker-env.d/certs.env ]; then \
+        cat /etc/docker-env.d/certs.env >> /etc/environment && \
+        cat /etc/docker-env.d/certs.env | sed 's/^/export /' >> /root/.bashrc && \
+        cat /etc/docker-env.d/certs.env | sed 's/^/export /' >> /etc/profile.d/certs.sh && \
+        chmod +x /etc/profile.d/certs.sh; \
+    fi
 
 # install python dependencies
 COPY --chown=$UID:$GID ./backend/requirements.txt ./requirements.txt
 
-RUN pip3 install --no-cache-dir uv && \
+RUN if [ "$USE_CERTS" = "true" ]; then \
+        set -a && . /etc/docker-env.d/certs.env && set +a && \
+        pip3 install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host download.pytorch.org --no-cache-dir uv; \
+    else \
+        pip3 install --no-cache-dir uv; \
+    fi && \
+    if [ "$USE_CERTS" = "true" ]; then \
+        set -a && . /etc/docker-env.d/certs.env && set +a; \
+    fi && \
     if [ "$USE_CUDA" = "true" ]; then \
     # If you use CUDA the whisper and embedding model will be downloaded on first use
     pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/$USE_CUDA_DOCKER_VER --no-cache-dir && \
