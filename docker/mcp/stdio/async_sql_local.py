@@ -10,26 +10,26 @@ import os
 from datetime import datetime, timedelta
 import random
 
-import config as configurations
-
 
 def load_config():
     """Load configuration from config.json if it exists"""
     config_path = "config.json"
 
     default_config = {
-        "database_path": configurations.DATABASE_PATH,
-        "docker_database_path": configurations.DOCKER_DATABASE_PATH,
+        "database_path": "sqlite_invoices_full.db",
+        "docker_database_path": "/app/database_data/sqlite_invoices_full.db"
     }
 
     if os.path.exists(config_path):
         try:
             with open(config_path, 'r') as f:
                 config = json.load(f)
+
                 return config
 
         except Exception as e:
             return default_config
+
     return default_config
 
 
@@ -39,9 +39,10 @@ def get_database_path():
 
     # Check if we're running in Docker by looking for docker-specific paths
     if os.path.exists("/app/database_data"):
-        return config.get("docker_database_path", "/app/database_data/invoice_database.db")
+        return config.get("docker_database_path", "/app/database_data/sqlite_invoices_full.db")
+
     else:
-        return config.get("database_path", "invoice_database.db")
+        return config.get("database_path", "sqlite_invoices_full.db")
 
 
 class AsyncSQLiteServer:
@@ -62,6 +63,7 @@ class AsyncSQLiteServer:
             print(f"Creating database directory: {db_dir}")
             os.makedirs(db_dir, exist_ok=True)
             print(f"Directory created successfully. Exists: {os.path.exists(db_dir)}")
+
         except Exception as e:
             print(f"Error creating directory: {e}")
 

@@ -3,7 +3,7 @@
     "name": "omnibot",
     "version": "1.0.0",
     "description": "AI chatbot for cosmic medical journaling support and ticket creation",
-    "run_local":true,
+    "run_local": true,
     "debug": true
   },
   "ollama": {
@@ -57,8 +57,8 @@
   },
   "mcp":{
     "database_choice": "local",
-    "database_path": "invoice_database.db",
-    "docker_database_path": "/app/database_data/invoice_database.db",
+    "database_path": "sqlite_invoices_full.db",
+    "docker_database_path": "/app/database_data/sqlite_invoices_full.db",
     "database_server_url": "http://localhost:8762",
     "docker_database_server_url": "http://database_server:8762",
     "provider": {

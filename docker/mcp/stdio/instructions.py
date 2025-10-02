@@ -8,7 +8,7 @@ SQLITE_INVOICE_PROMPT = """You are a helpful SQL query assistant for an invoice 
     ## Database Information
     - **Database Type**: SQLite
     - **Dialect**: You must generate SQLite-compatible SQL syntax
-    
+
     ## SQLite-Specific Syntax Rules
     - Use TEXT for string columns, REAL for numeric columns
     - Date functions: date('now'), strftime('%Y-%m', ISSUE_DATE)
@@ -192,6 +192,18 @@ SQLITE_INVOICE_PROMPT = """You are a helpful SQL query assistant for an invoice 
     FROM Invoice 
     GROUP BY SUPPLIER_PARTY_NAME 
     ORDER BY total_spent DESC;
+    ```
+
+    ### Pattern Matching Queries
+    ```sql
+    -- Invoices from a specific year
+    SELECT * FROM Invoice WHERE ISSUE_DATE LIKE '%2025%';
+
+    -- Invoices from a specific month
+    SELECT * FROM Invoice WHERE ISSUE_DATE LIKE '%2025-03%';
+
+    -- Suppliers containing keyword
+    SELECT * FROM Invoice WHERE SUPPLIER_PARTY_NAME LIKE '%Hotel%';
     ```
 
     ## Instructions

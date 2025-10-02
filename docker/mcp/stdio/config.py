@@ -163,9 +163,9 @@ print(f"SQL_SERVER_USE_WINDOWS_AUTH: {SQL_SERVER_USE_WINDOWS_AUTH}")
 print(f"SQL_SERVER_USERNAME: {SQL_SERVER_USERNAME}")
 print(f"SQL_SERVER_PASSWORD: {'*' * len(SQL_SERVER_PASSWORD) if SQL_SERVER_PASSWORD else None}")
 
-MCP_DATABASE_PATH = get_nested(config, ["mcp", "database_path"], "invoice_database.db")
+MCP_DATABASE_PATH = get_nested(config, ["mcp", "database_path"], "sqlite_invoices_full.db")
 MCP_DOCKER_DATABASE_PATH = get_nested(config, ["mcp", "docker_database_path"],
-                                      "/app/database_data/invoice_database.db")
+                                      "/app/database_data/sqlite_invoices_full.db")
 MCP_DATABASE_SERVER_URL = get_nested(config, ["mcp", "database_server_url"], "http://localhost:8762")
 MCP_DOCKER_DATABASE_SERVER_URL = get_nested(config, ["mcp", "docker_database_server_url"],
                                             "http://database_server:8762")
