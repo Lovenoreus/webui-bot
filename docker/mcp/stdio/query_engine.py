@@ -132,7 +132,7 @@ class QueryEngine:
         """Run a query on the database - routes to local or remote"""
         # TODO: FIX - Search for a better alternative.
         # Hardcoded fix to limit the data returned.
-        query = query if "limit" in query.lower() else query.strip().rstrip(";") + " LIMIT 20;"
+        # query = query if "limit" in query.lower() else query.strip().rstrip(";") + " LIMIT 20;"
 
         if self.use_remote:
             return await self._execute_query_remote(query)

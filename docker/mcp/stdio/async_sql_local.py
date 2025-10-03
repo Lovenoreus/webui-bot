@@ -9,6 +9,7 @@ import json
 import os
 from datetime import datetime, timedelta
 import random
+from contextlib import asynccontextmanager
 
 
 def load_config():
@@ -17,16 +18,15 @@ def load_config():
 
     default_config = {
         "database_path": "sqlite_invoices_full.db",
-        "docker_database_path": "/app/database_data/sqlite_invoices_full.db"
+        "docker_database_path": "/app/database_data/sqlite_invoices_full.db",
+        "connection_pool_size": 10
     }
 
     if os.path.exists(config_path):
         try:
             with open(config_path, 'r') as f:
                 config = json.load(f)
-
                 return config
-
         except Exception as e:
             return default_config
 
@@ -40,212 +40,286 @@ def get_database_path():
     # Check if we're running in Docker by looking for docker-specific paths
     if os.path.exists("/app/database_data"):
         return config.get("docker_database_path", "/app/database_data/sqlite_invoices_full.db")
-
     else:
         return config.get("database_path", "sqlite_invoices_full.db")
 
 
 class AsyncSQLiteServer:
-    def __init__(self, db_path: str = None):
+    def __init__(self, db_path: str = None, pool_size: int = None):
+        config = load_config()
         self.db_path = db_path or get_database_path()
-        self.connection_semaphore = asyncio.Semaphore(20)
+        self.pool_size = pool_size or config.get("connection_pool_size", 10)
+        self.pool = asyncio.Queue(maxsize=self.pool_size)
+        self.pool_initialized = False
         print(f"Database path: {self.db_path}")
-        print(f"Directory exists: {os.path.exists(os.path.dirname(self.db_path))}")
+        print(f"Connection pool size: {self.pool_size}")
+        print(
+            f"Directory exists: {os.path.exists(os.path.dirname(self.db_path)) if os.path.dirname(self.db_path) else True}")
         print(f"Database file exists: {os.path.exists(self.db_path)}")
+
+    def is_database_initialized(self):
+        """Check if database has been initialized using a flag file"""
+        flag_file = f"{self.db_path}.initialized"
+        return os.path.exists(flag_file)
+
+    def mark_database_initialized(self):
+        """Mark database as initialized"""
+        flag_file = f"{self.db_path}.initialized"
+        with open(flag_file, 'w') as f:
+            f.write(str(datetime.now()))
+
+    async def _create_connection(self):
+        """Create a new database connection with optimal settings"""
+        db = await aiosqlite.connect(self.db_path)
+        await db.execute("PRAGMA journal_mode=WAL")
+        await db.execute("PRAGMA synchronous=NORMAL")
+        await db.execute("PRAGMA cache_size=10000")
+        await db.execute("PRAGMA temp_store=memory")
+        await db.execute("PRAGMA foreign_keys=ON")
+        db.row_factory = aiosqlite.Row
+        return db
+
+    async def initialize_pool(self):
+        """Initialize the connection pool - ALL CONNECTIONS IN PARALLEL!"""
+        if self.pool_initialized:
+            return
+
+        print(f"Initializing connection pool with {self.pool_size} connections in parallel...")
+        start_time = asyncio.get_event_loop().time()
+
+        # Create ALL connections simultaneously
+        connections = await asyncio.gather(
+            *[self._create_connection() for _ in range(self.pool_size)]
+        )
+
+        # Add all connections to the pool
+        for conn in connections:
+            await self.pool.put(conn)
+
+        self.pool_initialized = True
+        elapsed = asyncio.get_event_loop().time() - start_time
+        print(f"✅ Connection pool initialized in {elapsed * 1000:.2f}ms!")
+        print(f"   ({self.pool_size} connections ready)")
+
+    @asynccontextmanager
+    async def get_connection(self):
+        """Get a connection from the pool"""
+        if not self.pool_initialized:
+            await self.initialize_pool()
+
+        conn = await self.pool.get()
+        try:
+            yield conn
+        finally:
+            await self.pool.put(conn)
+
+    async def close_pool(self):
+        """Close all connections in the pool - also in parallel!"""
+        if not self.pool_initialized:
+            return
+
+        print("Closing connection pool...")
+        connections = []
+
+        # Collect all connections from pool
+        while not self.pool.empty():
+            connections.append(await self.pool.get())
+
+        # Close all connections in parallel
+        await asyncio.gather(*[conn.close() for conn in connections])
+
+        self.pool_initialized = False
+        print(f"✅ Closed {len(connections)} connections")
 
     async def initialize_database(self):
         """Initialize database with invoice tables and sample data"""
-        print(f"Initializing invoice database at: {self.db_path}")
+        print(f"Checking invoice database at: {self.db_path}")
+
+        # Fast flag-based check
+        if self.is_database_initialized():
+            print("✅ Database already initialized. Ready to use!")
+            return
+
+        print("Initializing new database...")
 
         # Ensure directory exists for docker path
         try:
             db_dir = os.path.dirname(self.db_path)
-            print(f"Creating database directory: {db_dir}")
-            os.makedirs(db_dir, exist_ok=True)
-            print(f"Directory created successfully. Exists: {os.path.exists(db_dir)}")
-
+            if db_dir:
+                print(f"Creating database directory: {db_dir}")
+                os.makedirs(db_dir, exist_ok=True)
+                print(f"Directory created successfully. Exists: {os.path.exists(db_dir)}")
         except Exception as e:
             print(f"Error creating directory: {e}")
 
-        async with self.connection_semaphore:
-            async with aiosqlite.connect(self.db_path) as db:
-                await db.execute("PRAGMA journal_mode=WAL")
-                await db.execute("PRAGMA synchronous=NORMAL")
-                await db.execute("PRAGMA cache_size=10000")
-                await db.execute("PRAGMA temp_store=memory")
-                await db.execute("PRAGMA foreign_keys=ON")
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute("PRAGMA journal_mode=WAL")
+            await db.execute("PRAGMA synchronous=NORMAL")
+            await db.execute("PRAGMA cache_size=10000")
+            await db.execute("PRAGMA temp_store=memory")
+            await db.execute("PRAGMA foreign_keys=ON")
 
-                # Check if tables already exist with data
-                cursor = await db.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND name='Invoice'"
-                )
-                table_exists = await cursor.fetchone()
+            print("Creating database tables...")
 
-                if table_exists:
-                    # Check if there's data
-                    cursor = await db.execute("SELECT COUNT(*) FROM Invoice")
-                    count = await cursor.fetchone()
-                    if count and count[0] > 0:
-                        print(f"Database already initialized with {count[0]} invoices. Skipping initialization.")
-                        return
+            # Drop any existing tables for clean slate
+            drop_tables = [
+                "DROP TABLE IF EXISTS Invoice_Line",
+                "DROP TABLE IF EXISTS Invoice"
+            ]
 
-                print("Database is empty or doesn't exist. Initializing with sample data...")
+            for drop_sql in drop_tables:
+                await db.execute(drop_sql)
 
-                # Drop any existing tables for clean slate
-                drop_tables = [
-                    "DROP TABLE IF EXISTS Invoice_Line",
-                    "DROP TABLE IF EXISTS Invoice"
-                ]
+            # Create Invoice table
+            create_invoice_table = """
+            CREATE TABLE Invoice (
+                INVOICE_ID TEXT NOT NULL PRIMARY KEY,
+                ISSUE_DATE TEXT NOT NULL,
+                SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID TEXT NOT NULL,
+                SUPPLIER_PARTY_NAME TEXT,
+                SUPPLIER_PARTY_STREET_NAME TEXT,
+                SUPPLIER_PARTY_ADDITIONAL_STREET_NAME TEXT,
+                SUPPLIER_PARTY_POSTAL_ZONE TEXT,
+                SUPPLIER_PARTY_CITY TEXT,
+                SUPPLIER_PARTY_COUNTRY TEXT,
+                SUPPLIER_PARTY_ADDRESS_LINE TEXT,
+                SUPPLIER_PARTY_LEGAL_ENTITY_REG_NAME TEXT,
+                SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_LEGAL_FORM TEXT,
+                SUPPLIER_PARTY_CONTACT_NAME TEXT,
+                SUPPLIER_PARTY_CONTACT_EMAIL TEXT,
+                SUPPLIER_PARTY_CONTACT_PHONE TEXT,
+                SUPPLIER_PARTY_ENDPOINT_ID TEXT,
+                CUSTOMER_PARTY_ID TEXT,
+                CUSTOMER_PARTY_ID_SCHEME_ID TEXT,
+                CUSTOMER_PARTY_ENDPOINT_ID TEXT,
+                CUSTOMER_PARTY_ENDPOINT_ID_SCHEME_ID TEXT,
+                CUSTOMER_PARTY_NAME TEXT,
+                CUSTOMER_PARTY_STREET_NAME TEXT,
+                CUSTOMER_PARTY_POSTAL_ZONE TEXT,
+                CUSTOMER_PARTY_COUNTRY TEXT,
+                CUSTOMER_PARTY_LEGAL_ENTITY_REG_NAME TEXT,
+                CUSTOMER_PARTY_LEGAL_ENTITY_COMPANY_ID TEXT,
+                CUSTOMER_PARTY_CONTACT_NAME TEXT,
+                CUSTOMER_PARTY_CONTACT_EMAIL TEXT,
+                CUSTOMER_PARTY_CONTACT_PHONE TEXT,
+                DUE_DATE TEXT,
+                DOCUMENT_CURRENCY_CODE TEXT,
+                DELIVERY_LOCATION_STREET_NAME TEXT,
+                DELIVERY_LOCATION_ADDITIONAL_STREET_NAME TEXT,
+                DELIVERY_LOCATION_CITY_NAME TEXT,
+                DELIVERY_LOCATION_POSTAL_ZONE TEXT,
+                DELIVERY_LOCATION_ADDRESS_LINE TEXT,
+                DELIVERY_LOCATION_COUNTRY TEXT,
+                DELIVERY_PARTY_NAME TEXT,
+                ACTUAL_DELIVERY_DATE TEXT,
+                TAX_AMOUNT_CURRENCY TEXT,
+                TAX_AMOUNT REAL,
+                PERIOD_START_DATE TEXT,
+                PERIOD_END_DATE TEXT,
+                LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT_CURRENCY TEXT,
+                LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT REAL,
+                LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT_CURRENCY TEXT,
+                LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT REAL,
+                LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT_CURRENCY TEXT,
+                LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT REAL,
+                LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT_CURRENCY TEXT,
+                LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT REAL,
+                LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT_CURRENCY TEXT,
+                LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT REAL,
+                LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT_CURRENCY TEXT,
+                LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT REAL,
+                LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT_CURRENCY TEXT,
+                LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT REAL,
+                LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT_CURRENCY TEXT,
+                LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT REAL,
+                BUYER_REFERENCE TEXT,
+                PROJECT_REFERENCE_ID TEXT,
+                INVOICE_TYPE_CODE TEXT,
+                NOTE TEXT,
+                TAX_POINT_DATE TEXT,
+                ACCOUNTING_COST TEXT,
+                ORDER_REFERENCE_ID TEXT,
+                ORDER_REFERENCE_SALES_ORDER_ID TEXT,
+                PAYMENT_TERMS_NOTE TEXT,
+                BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ID TEXT,
+                BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ISSUE_DATE TEXT,
+                CONTRACT_DOCUMENT_REFERENCE_ID TEXT,
+                DESPATCH_DOCUMENT_REFERENCE_ID TEXT,
+                ETL_LOAD_TS TEXT
+            )
+            """
 
-                for drop_sql in drop_tables:
-                    await db.execute(drop_sql)
+            # Create Invoice_Line table
+            create_invoice_line_table = """
+            CREATE TABLE Invoice_Line (
+                INVOICE_ID TEXT NOT NULL,
+                ISSUE_DATE TEXT NOT NULL,
+                SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID TEXT NOT NULL,
+                INVOICE_LINE_ID TEXT NOT NULL,
+                ORDER_LINE_REFERENCE_LINE_ID TEXT,
+                ACCOUNTING_COST TEXT,
+                INVOICED_QUANTITY REAL,
+                INVOICED_QUANTITY_UNIT_CODE TEXT,
+                INVOICED_LINE_EXTENSION_AMOUNT REAL,
+                INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID TEXT,
+                INVOICE_PERIOD_START_DATE TEXT,
+                INVOICE_PERIOD_END_DATE TEXT,
+                INVOICE_LINE_DOCUMENT_REFERENCE_ID TEXT,
+                INVOICE_LINE_DOCUMENT_REFERENCE_DOCUMENT_TYPE_CODE TEXT,
+                INVOICE_LINE_NOTE TEXT,
+                ITEM_DESCRIPTION TEXT,
+                ITEM_NAME TEXT,
+                ITEM_TAXCAT_ID TEXT,
+                ITEM_TAXCAT_PERCENT REAL,
+                ITEM_BUYERS_ID TEXT,
+                ITEM_SELLERS_ITEM_ID TEXT,
+                ITEM_STANDARD_ITEM_ID TEXT,
+                ITEM_COMMODITYCLASS_CLASSIFICATION TEXT,
+                ITEM_COMMODITYCLASS_CLASSIFICATION_LIST_ID TEXT,
+                PRICE_AMOUNT REAL,
+                PRICE_AMOUNT_CURRENCY_ID TEXT,
+                PRICE_BASE_QUANTITY REAL,
+                PRICE_BASE_QUANTITY_UNIT_CODE TEXT,
+                PRICE_ALLOWANCE_CHARGE_AMOUNT REAL,
+                PRICE_ALLOWANCE_CHARGE_INDICATOR TEXT,
+                ETL_LOAD_TS TEXT,
+                PRIMARY KEY (INVOICE_ID, INVOICE_LINE_ID),
+                FOREIGN KEY (INVOICE_ID) REFERENCES Invoice(INVOICE_ID)
+            )
+            """
 
-                # Create Invoice table
-                create_invoice_table = """
-                CREATE TABLE Invoice (
-                    INVOICE_ID TEXT NOT NULL PRIMARY KEY,
-                    ISSUE_DATE TEXT NOT NULL,
-                    SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID TEXT NOT NULL,
-                    SUPPLIER_PARTY_NAME TEXT,
-                    SUPPLIER_PARTY_STREET_NAME TEXT,
-                    SUPPLIER_PARTY_ADDITIONAL_STREET_NAME TEXT,
-                    SUPPLIER_PARTY_POSTAL_ZONE TEXT,
-                    SUPPLIER_PARTY_CITY TEXT,
-                    SUPPLIER_PARTY_COUNTRY TEXT,
-                    SUPPLIER_PARTY_ADDRESS_LINE TEXT,
-                    SUPPLIER_PARTY_LEGAL_ENTITY_REG_NAME TEXT,
-                    SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_LEGAL_FORM TEXT,
-                    SUPPLIER_PARTY_CONTACT_NAME TEXT,
-                    SUPPLIER_PARTY_CONTACT_EMAIL TEXT,
-                    SUPPLIER_PARTY_CONTACT_PHONE TEXT,
-                    SUPPLIER_PARTY_ENDPOINT_ID TEXT,
-                    CUSTOMER_PARTY_ID TEXT,
-                    CUSTOMER_PARTY_ID_SCHEME_ID TEXT,
-                    CUSTOMER_PARTY_ENDPOINT_ID TEXT,
-                    CUSTOMER_PARTY_ENDPOINT_ID_SCHEME_ID TEXT,
-                    CUSTOMER_PARTY_NAME TEXT,
-                    CUSTOMER_PARTY_STREET_NAME TEXT,
-                    CUSTOMER_PARTY_POSTAL_ZONE TEXT,
-                    CUSTOMER_PARTY_COUNTRY TEXT,
-                    CUSTOMER_PARTY_LEGAL_ENTITY_REG_NAME TEXT,
-                    CUSTOMER_PARTY_LEGAL_ENTITY_COMPANY_ID TEXT,
-                    CUSTOMER_PARTY_CONTACT_NAME TEXT,
-                    CUSTOMER_PARTY_CONTACT_EMAIL TEXT,
-                    CUSTOMER_PARTY_CONTACT_PHONE TEXT,
-                    DUE_DATE TEXT,
-                    DOCUMENT_CURRENCY_CODE TEXT,
-                    DELIVERY_LOCATION_STREET_NAME TEXT,
-                    DELIVERY_LOCATION_ADDITIONAL_STREET_NAME TEXT,
-                    DELIVERY_LOCATION_CITY_NAME TEXT,
-                    DELIVERY_LOCATION_POSTAL_ZONE TEXT,
-                    DELIVERY_LOCATION_ADDRESS_LINE TEXT,
-                    DELIVERY_LOCATION_COUNTRY TEXT,
-                    DELIVERY_PARTY_NAME TEXT,
-                    ACTUAL_DELIVERY_DATE TEXT,
-                    TAX_AMOUNT_CURRENCY TEXT,
-                    TAX_AMOUNT REAL,
-                    PERIOD_START_DATE TEXT,
-                    PERIOD_END_DATE TEXT,
-                    LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT_CURRENCY TEXT,
-                    LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT REAL,
-                    LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT_CURRENCY TEXT,
-                    LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT REAL,
-                    LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT_CURRENCY TEXT,
-                    LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT REAL,
-                    LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT_CURRENCY TEXT,
-                    LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT REAL,
-                    LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT_CURRENCY TEXT,
-                    LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT REAL,
-                    LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT_CURRENCY TEXT,
-                    LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT REAL,
-                    LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT_CURRENCY TEXT,
-                    LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT REAL,
-                    LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT_CURRENCY TEXT,
-                    LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT REAL,
-                    BUYER_REFERENCE TEXT,
-                    PROJECT_REFERENCE_ID TEXT,
-                    INVOICE_TYPE_CODE TEXT,
-                    NOTE TEXT,
-                    TAX_POINT_DATE TEXT,
-                    ACCOUNTING_COST TEXT,
-                    ORDER_REFERENCE_ID TEXT,
-                    ORDER_REFERENCE_SALES_ORDER_ID TEXT,
-                    PAYMENT_TERMS_NOTE TEXT,
-                    BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ID TEXT,
-                    BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ISSUE_DATE TEXT,
-                    CONTRACT_DOCUMENT_REFERENCE_ID TEXT,
-                    DESPATCH_DOCUMENT_REFERENCE_ID TEXT,
-                    ETL_LOAD_TS TEXT
-                )
-                """
+            await db.execute(create_invoice_table)
+            await db.execute(create_invoice_line_table)
 
-                # Create Invoice_Line table
-                create_invoice_line_table = """
-                CREATE TABLE Invoice_Line (
-                    INVOICE_ID TEXT NOT NULL,
-                    ISSUE_DATE TEXT NOT NULL,
-                    SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID TEXT NOT NULL,
-                    INVOICE_LINE_ID TEXT NOT NULL,
-                    ORDER_LINE_REFERENCE_LINE_ID TEXT,
-                    ACCOUNTING_COST TEXT,
-                    INVOICED_QUANTITY REAL,
-                    INVOICED_QUANTITY_UNIT_CODE TEXT,
-                    INVOICED_LINE_EXTENSION_AMOUNT REAL,
-                    INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID TEXT,
-                    INVOICE_PERIOD_START_DATE TEXT,
-                    INVOICE_PERIOD_END_DATE TEXT,
-                    INVOICE_LINE_DOCUMENT_REFERENCE_ID TEXT,
-                    INVOICE_LINE_DOCUMENT_REFERENCE_DOCUMENT_TYPE_CODE TEXT,
-                    INVOICE_LINE_NOTE TEXT,
-                    ITEM_DESCRIPTION TEXT,
-                    ITEM_NAME TEXT,
-                    ITEM_TAXCAT_ID TEXT,
-                    ITEM_TAXCAT_PERCENT REAL,
-                    ITEM_BUYERS_ID TEXT,
-                    ITEM_SELLERS_ITEM_ID TEXT,
-                    ITEM_STANDARD_ITEM_ID TEXT,
-                    ITEM_COMMODITYCLASS_CLASSIFICATION TEXT,
-                    ITEM_COMMODITYCLASS_CLASSIFICATION_LIST_ID TEXT,
-                    PRICE_AMOUNT REAL,
-                    PRICE_AMOUNT_CURRENCY_ID TEXT,
-                    PRICE_BASE_QUANTITY REAL,
-                    PRICE_BASE_QUANTITY_UNIT_CODE TEXT,
-                    PRICE_ALLOWANCE_CHARGE_AMOUNT REAL,
-                    PRICE_ALLOWANCE_CHARGE_INDICATOR TEXT,
-                    ETL_LOAD_TS TEXT,
-                    PRIMARY KEY (INVOICE_ID, INVOICE_LINE_ID),
-                    FOREIGN KEY (INVOICE_ID) REFERENCES Invoice(INVOICE_ID)
-                )
-                """
+            # Create indexes for better performance
+            indexes = [
+                "CREATE INDEX idx_invoice_issue_date ON Invoice(ISSUE_DATE)",
+                "CREATE INDEX idx_invoice_supplier ON Invoice(SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID)",
+                "CREATE INDEX idx_invoice_customer ON Invoice(CUSTOMER_PARTY_ID)",
+                "CREATE INDEX idx_invoice_line_invoice_id ON Invoice_Line(INVOICE_ID)",
+                "CREATE INDEX idx_invoice_line_issue_date ON Invoice_Line(ISSUE_DATE)",
+                "CREATE INDEX idx_invoice_line_supplier ON Invoice_Line(SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID)"
+            ]
 
-                await db.execute(create_invoice_table)
-                await db.execute(create_invoice_line_table)
+            for index_sql in indexes:
+                await db.execute(index_sql)
 
-                # Create indexes for better performance
-                indexes = [
-                    "CREATE INDEX idx_invoice_issue_date ON Invoice(ISSUE_DATE)",
-                    "CREATE INDEX idx_invoice_supplier ON Invoice(SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID)",
-                    "CREATE INDEX idx_invoice_customer ON Invoice(CUSTOMER_PARTY_ID)",
-                    "CREATE INDEX idx_invoice_line_invoice_id ON Invoice_Line(INVOICE_ID)",
-                    "CREATE INDEX idx_invoice_line_issue_date ON Invoice_Line(ISSUE_DATE)",
-                    "CREATE INDEX idx_invoice_line_supplier ON Invoice_Line(SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID)"
-                ]
+            # Insert sample data
+            print("Starting to insert invoice sample data...")
+            await self.insert_sample_data(db)
+            print("Invoice sample data insertion completed!")
 
-                for index_sql in indexes:
-                    await db.execute(index_sql)
+            await db.commit()
+            print("Invoice database initialized successfully!")
 
-                # Insert sample data
-                print("Starting to insert invoice sample data...")
-                await self.insert_sample_data(db)
-                print("Invoice sample data insertion completed!")
+            # Verify data was inserted
+            cursor = await db.execute("SELECT COUNT(*) FROM Invoice")
+            count = await cursor.fetchone()
+            print(f"Total invoices inserted: {count[0] if count else 0}")
 
-                await db.commit()
-                print("Invoice database initialized successfully!")
-
-                # Verify data was inserted
-                cursor = await db.execute("SELECT COUNT(*) FROM Invoice")
-                count = await cursor.fetchone()
-                print(f"Total invoices inserted: {count[0] if count else 0}")
+            # Mark as initialized
+            self.mark_database_initialized()
+            print("✅ Database initialization complete!")
 
     async def insert_sample_data(self, db):
         """Insert comprehensive invoice sample data"""
@@ -489,29 +563,27 @@ class AsyncSQLiteServer:
 
     async def execute_query(self, query: str) -> List[Dict[str, Any]]:
         """Execute any SQL query and return results"""
-        async with self.connection_semaphore:
-            async with aiosqlite.connect(self.db_path) as db:
-                await db.execute("PRAGMA foreign_keys=ON")
-                db.row_factory = aiosqlite.Row
-                async with db.execute(query) as cursor:
-                    rows = await cursor.fetchall()
-                    return [dict(row) for row in rows]
+        async with self.get_connection() as db:
+            async with db.execute(query) as cursor:
+                rows = await cursor.fetchall()
+                return [dict(row) for row in rows]
 
     async def execute_query_stream(self, query: str):
         """Execute SQL query and yield results one row at a time"""
-        async with self.connection_semaphore:
-            async with aiosqlite.connect(self.db_path) as db:
-                await db.execute("PRAGMA foreign_keys=ON")
-                db.row_factory = aiosqlite.Row
-                async with db.execute(query) as cursor:
-                    async for row in cursor:
-                        yield dict(row)
-
+        async with self.get_connection() as db:
+            async with db.execute(query) as cursor:
+                async for row in cursor:
+                    yield dict(row)
 
 # FastAPI setup
 app = FastAPI(title="Invoice Database API", description="AsyncSQLite Database Server for Invoice Management")
-db_server = AsyncSQLiteServer()
 
+
+# Initialize with configurable pool size
+config = load_config()
+db_server = AsyncSQLiteServer(
+    pool_size=config.get("connection_pool_size", 10)
+)
 
 class QueryRequest(BaseModel):
     query: str
@@ -519,21 +591,33 @@ class QueryRequest(BaseModel):
 
 @app.on_event("startup")
 async def startup_event():
-    print("Starting invoice database initialization...")
+    print("🚀 Starting invoice database initialization...")
+    start_time = asyncio.get_event_loop().time()
+
     await db_server.initialize_database()
-    print("Invoice database initialization completed!")
+    await db_server.initialize_pool()
 
-    # Test if data was inserted
+    elapsed = asyncio.get_event_loop().time() - start_time
+    print(f"✅ System ready in {elapsed * 1000:.2f}ms!")
+
+    # ✅ FAST: Just verify tables exist
     try:
-        test_result = await db_server.execute_query("SELECT COUNT(*) as count FROM Invoice")
-        print(f"Invoice count after initialization: {test_result}")
+        test_result = await db_server.execute_query("SELECT 1 FROM Invoice LIMIT 1")
+        lines_result = await db_server.execute_query("SELECT 1 FROM Invoice_Line LIMIT 1")
 
-        # Show sample of what's in the database
-        lines_result = await db_server.execute_query("SELECT COUNT(*) as count FROM Invoice_Line")
-        print(f"Invoice lines count: {lines_result}")
-
+        if test_result and lines_result:
+            print(f"✅ Database validated - tables ready!")
+        else:
+            print(f"⚠️ Database may be empty")
     except Exception as e:
-        print(f"Error checking database counts: {e}")
+        print(f"❌ Error checking database: {e}")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    print("🛑 Shutting down database connections...")
+    await db_server.close_pool()
+    print("✅ All connections closed gracefully!")
 
 
 @app.post("/query")
@@ -578,82 +662,24 @@ async def execute_query_stream(request: QueryRequest):
 @app.get("/health")
 async def health_check():
     try:
-        # Test if database is accessible and has data
-        test_query = "SELECT COUNT(*) as invoice_count FROM Invoice"
-        result = await db_server.execute_query(test_query)
-        invoice_count = result[0]['invoice_count'] if result else 0
-
-        # Get additional counts for health check
-        lines_result = await db_server.execute_query("SELECT COUNT(*) as line_count FROM Invoice_Line")
-        line_count = lines_result[0]['line_count'] if lines_result else 0
+        # ✅ Just verify tables exist
+        invoice_exists = await db_server.execute_query("SELECT 1 FROM Invoice LIMIT 1")
+        line_exists = await db_server.execute_query("SELECT 1 FROM Invoice_Line LIMIT 1")
 
         return {
             "status": "healthy",
             "database_path": db_server.db_path,
-            "invoice_count": invoice_count,
-            "line_count": line_count,
-            "tables_initialized": invoice_count > 0 and line_count > 0
+            "pool_size": db_server.pool_size,
+            "pool_available": db_server.pool.qsize(),
+            "tables_initialized": bool(invoice_exists and line_exists)
         }
     except Exception as e:
         return {
             "status": "error",
             "database_path": db_server.db_path,
+            "pool_size": db_server.pool_size,
             "error": str(e)
         }
-
-
-# Additional invoice-specific endpoints
-@app.get("/invoices")
-async def get_invoices():
-    """Get all invoices"""
-    try:
-        query = """
-        SELECT INVOICE_ID, ISSUE_DATE, SUPPLIER_PARTY_NAME, CUSTOMER_PARTY_NAME, 
-               LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT, DOCUMENT_CURRENCY_CODE
-        FROM Invoice 
-        ORDER BY ISSUE_DATE DESC
-        LIMIT 100
-        """
-        results = await db_server.execute_query(query)
-        return {"success": True, "data": results}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
-
-
-@app.get("/suppliers")
-async def get_suppliers():
-    """Get all suppliers"""
-    try:
-        query = """
-        SELECT DISTINCT SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID, SUPPLIER_PARTY_NAME, 
-               SUPPLIER_PARTY_CITY, SUPPLIER_PARTY_COUNTRY
-        FROM Invoice 
-        ORDER BY SUPPLIER_PARTY_NAME
-        """
-        results = await db_server.execute_query(query)
-        return {"success": True, "data": results}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
-
-
-@app.get("/invoice-summary")
-async def get_invoice_summary():
-    """Get invoice summary statistics"""
-    try:
-        query = """
-        SELECT 
-            COUNT(*) as total_invoices,
-            SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) as total_amount,
-            AVG(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) as avg_amount,
-            MIN(ISSUE_DATE) as earliest_date,
-            MAX(ISSUE_DATE) as latest_date,
-            COUNT(DISTINCT SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID) as unique_suppliers
-        FROM Invoice
-        """
-        results = await db_server.execute_query(query)
-        return {"success": True, "data": results}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
 
 
 if __name__ == "__main__":
