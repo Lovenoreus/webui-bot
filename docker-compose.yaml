@@ -14,7 +14,7 @@ services:
       - ${OPEN_WEBUI_PORT-3000}:8080
     environment:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
-      - 'WEBUI_SECRET_KEY='
+      - 'WEBUI_SECRET_KEY=ae8c0b7e4f3a1c9efc83d4a7b59c193f7e194baf55f06e3cc5824c1e9f79b1d7'
       - 'OPENAI_API_KEY=${OPENAI_API_KEY}'
       - 'ENV=dev'
       - 'RESET_CONFIG_ON_START=True'

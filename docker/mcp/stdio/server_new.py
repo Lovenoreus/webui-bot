@@ -10,7 +10,7 @@ from typing import Dict, Optional, List, Any, Literal
 # -------------------- External Libraries --------------------
 import aiohttp
 import uvicorn
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, HTTPException, Depends, Header, Body, Request, Response
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -1129,63 +1129,91 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_update_user",
-            description="TRIGGER: update AD user, modify Azure AD user, change AD user details, edit directory user, AD user updates | ACTION: Update existing Azure Active Directory user properties | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: Updated AD user information from Azure tenant",
+            description="TRIGGER: update AD user, modify Azure AD user, change AD user details, edit directory user, AD user updates | ACTION: Update existing Azure Active Directory user properties | INSTRUCTION: Accepts flexible user identification - use name ('John Marks'), email ('john@company.com'), or GUID. System auto-resolves to actual Azure AD user ID | RETURNS: Updated AD user information from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {
+                    "user_identifier": {
                         "type": "string",
-                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                        "description": "Flexible user identifier - accepts Azure AD GUID, email address (userPrincipalName like 'john@company.com'), or display name (like 'John Marks'). Smart resolution automatically finds the correct user."
                     },
                     "updates": {"type": "object", "description": "AD user properties to update"}
                 },
-                "required": ["user_id", "updates"]
+                "required": ["user_identifier", "updates"]
             }
         ),
 
         MCPTool(
             name="ad_delete_user",
-            description="TRIGGER: delete AD user, remove Azure AD user, deactivate directory user, remove AD account | ACTION: Delete user account from Azure Active Directory | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: AD account deletion confirmation",
+            description="TRIGGER: delete AD user, remove Azure AD user, deactivate directory user, remove AD account | ACTION: Delete user account from Azure Active Directory | INSTRUCTION: Accepts flexible user identification - use name ('John Marks'), email ('john@company.com'), or GUID. System auto-resolves to actual Azure AD user ID | RETURNS: AD account deletion confirmation",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {
+                    "user_identifier": {
                         "type": "string",
-                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                        "description": "Flexible user identifier - accepts Azure AD GUID, email address (userPrincipalName like 'john@company.com'), or display name (like 'John Marks'). Smart resolution automatically finds the correct user."
                     }
                 },
-                "required": ["user_id"]
+                "required": ["user_identifier"]
             }
         ),
 
         MCPTool(
             name="ad_get_user_roles",
-            description="TRIGGER: AD user roles, Azure AD user permissions, directory user roles, what AD roles does user have, check AD access | ACTION: Get Azure AD user's assigned directory roles | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: List of AD roles assigned to specific user from Azure tenant",
+            description="TRIGGER: AD user roles, Azure AD user permissions, directory user roles, what AD roles does user have, check AD access | ACTION: Get Azure AD user's assigned directory roles | INSTRUCTION: Accepts flexible user identification - use name, email, or GUID. System auto-resolves | RETURNS: List of AD roles assigned to specific user from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {
+                    "user_identifier": {
                         "type": "string",
-                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                        "description": "Flexible user identifier - accepts Azure AD GUID, email address, or display name. Smart resolution automatically finds the correct user."
                     }
                 },
-                "required": ["user_id"]
+                "required": ["user_identifier"]
             }
         ),
 
         MCPTool(
             name="ad_get_user_groups",
-            description="TRIGGER: AD user groups, Azure AD user memberships, directory user groups, what AD groups is user in, check AD group membership | ACTION: Get user's Azure Active Directory group memberships | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: List of AD groups user belongs to in Azure tenant",
+            description="TRIGGER: AD user groups, Azure AD user memberships, directory user groups, what AD groups is user in, check AD group membership | ACTION: Get user's Azure Active Directory group memberships | INSTRUCTION: Accepts flexible user identification - use name, email, or GUID. System auto-resolves | RETURNS: List of AD groups user belongs to in Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "user_id": {
+                    "user_identifier": {
                         "type": "string",
-                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                        "description": "Flexible user identifier - accepts Azure AD GUID, email address, or display name. Smart resolution automatically finds the correct user."
                     },
                     "transitive": {"type": "boolean", "description": "Include transitive AD group memberships", "default": False}
                 },
-                "required": ["user_id"]
+                "required": ["user_identifier", "transitive"]
+            }
+        ),
+
+        MCPTool(
+            name="ad_get_user_full_profile",
+            description="TRIGGER: user profile, full AD user info, complete user details, user information, comprehensive user data | ACTION: Get complete user profile with groups, roles, and owned groups in single call | INSTRUCTION: Accepts flexible user identification - use name, email, or GUID | RETURNS: Comprehensive user data including basic info, groups, roles, and owned groups",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "user_identifier": {
+                        "type": "string",
+                        "description": "Flexible user identifier - accepts Azure AD GUID, email address, or display name. Smart resolution automatically finds the correct user."
+                    }
+                },
+                "required": ["user_identifier"]
+            }
+        ),
+
+        MCPTool(
+            name="ad_search_users",
+            description="TRIGGER: find user, search AD users, lookup user, search for user, find employee | ACTION: Fuzzy search across display name, email, and userPrincipalName | RETURNS: List of matching users with details",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Search query - partial name, email, etc."},
+                    "limit": {"type": "integer", "description": "Maximum results to return", "default": 10}
+                },
+                "required": ["query", "limit"]
             }
         ),
 
@@ -1202,33 +1230,81 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_add_user_to_role",
-            description="TRIGGER: assign AD role, add user to AD role, give Azure AD role, grant directory role, AD role assignment | ACTION: Assign Azure Active Directory role to user | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: AD role assignment confirmation in Azure tenant",
+            description="TRIGGER: assign AD role, add user to AD role, give Azure AD role, grant directory role, AD role assignment | ACTION: Assign Azure Active Directory role to user | INSTRUCTION: Accepts flexible identifiers for BOTH user and role - use names, emails, or GUIDs. System auto-resolves both | RETURNS: AD role assignment confirmation in Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "role_id": {"type": "string", "description": "Azure AD role ID (must be actual GUID) to assign"},
-                    "user_id": {
+                    "user_identifier": {
                         "type": "string",
-                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                        "description": "Flexible user identifier - accepts Azure AD GUID, email address, or display name. Smart resolution automatically finds the correct user."
+                    },
+                    "role_identifier": {
+                        "type": "string",
+                        "description": "Flexible role identifier - accepts Azure AD role GUID or role display name (like 'Global Administrator'). Smart resolution automatically finds the correct role."
                     }
                 },
-                "required": ["role_id", "user_id"]
+                "required": ["user_identifier", "role_identifier"]
             }
         ),
 
         MCPTool(
             name="ad_remove_user_from_role",
-            description="TRIGGER: remove AD role, unassign Azure AD role, revoke directory role, take away AD role | ACTION: Remove Azure Active Directory role from user | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: AD role removal confirmation from Azure tenant",
+            description="TRIGGER: remove AD role, unassign Azure AD role, revoke directory role, take away AD role | ACTION: Remove Azure Active Directory role from user | INSTRUCTION: Accepts flexible identifiers for BOTH user and role - use names, emails, or GUIDs. System auto-resolves both | RETURNS: AD role removal confirmation from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "role_id": {"type": "string", "description": "Azure AD role ID (must be actual GUID) to remove"},
-                    "user_id": {
+                    "user_identifier": {
                         "type": "string",
-                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                        "description": "Flexible user identifier - accepts Azure AD GUID, email address, or display name. Smart resolution automatically finds the correct user."
+                    },
+                    "role_identifier": {
+                        "type": "string",
+                        "description": "Flexible role identifier - accepts Azure AD role GUID or role display name (like 'Global Administrator'). Smart resolution automatically finds the correct role."
                     }
                 },
-                "required": ["role_id", "user_id"]
+                "required": ["user_identifier", "role_identifier", ]
+            }
+        ),
+
+        MCPTool(
+            name="ad_batch_add_users_to_role",
+            description="TRIGGER: assign role to multiple users, bulk role assignment, add many users to role | ACTION: Assign Azure AD role to multiple users concurrently | INSTRUCTION: Accepts flexible identifiers for users and role | RETURNS: Batch operation results with success/failure counts",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "user_identifiers": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "List of user identifiers (names, emails, or GUIDs)"
+                    },
+                    "role_identifier": {
+                        "type": "string",
+                        "description": "Role identifier (GUID or display name like 'User Administrator')"
+                    },
+                    "ignore_errors": {"type": "boolean", "description": "Continue on errors", "default": True}
+                },
+                "required": ["user_identifiers", "role_identifier", "ignore_errors"]
+            }
+        ),
+
+        MCPTool(
+            name="ad_batch_remove_users_from_role",
+            description="TRIGGER: remove role from multiple users, bulk role removal, revoke role from many users | ACTION: Remove Azure AD role from multiple users concurrently | RETURNS: Batch operation results with success/failure counts",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "user_identifiers": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "List of user identifiers (names, emails, or GUIDs)"
+                    },
+                    "role_identifier": {
+                        "type": "string",
+                        "description": "Role identifier (GUID or display name)"
+                    },
+                    "ignore_errors": {"type": "boolean", "description": "Continue on errors", "default": True}
+                },
+                "required": ["user_identifiers", "role_identifier", "ignore_errors"]
             }
         ),
 
@@ -1243,7 +1319,7 @@ async def mcp_tools_list():
                     "unified_only": {"type": "boolean", "description": "List only AD unified groups", "default": False},
                     "select": {"type": "string", "description": "AD fields to select", "default": "id,displayName,mailNickname,mail,securityEnabled,groupTypes"}
                 },
-                "required": ["security_only", "unified_only", "select"]
+                "required": ["select", "security_only", "unified_only"]
             }
         ),
 
@@ -1256,10 +1332,11 @@ async def mcp_tools_list():
                     "display_name": {"type": "string", "description": "AD group display name"},
                     "mail_nickname": {"type": "string", "description": "AD group mail nickname"},
                     "description": {"type": "string", "description": "AD group description"},
-                    "group_type": {"type": "string", "enum": ["security", "unified"], "description": "Azure AD group type", "default": "security"},
-                    "visibility": {"type": "string", "description": "AD group visibility"},
-                    "owners": {"type": "array", "items": {"type": "string"}, "description": "List of AD owner user IDs"},
-                    "members": {"type": "array", "items": {"type": "string"}, "description": "List of AD member user IDs"}
+                    "group_type": {"type": "string", "enum": ["security", "m365", "dynamic-security", "dynamic-m365"], "description": "Azure AD group type", "default": "security"},
+                    "visibility": {"type": "string", "enum": ["Private", "Public"], "description": "AD group visibility (for M365 groups)"},
+                    "membership_rule": {"type": "string", "description": "Dynamic membership rule (for dynamic groups)"},
+                    "owners": {"type": "array", "items": {"type": "string"}, "description": "List of owner identifiers (names, emails, or GUIDs)"},
+                    "members": {"type": "array", "items": {"type": "string"}, "description": "List of member identifiers (names, emails, or GUIDs)"}
                 },
                 "required": ["display_name", "mail_nickname"]
             }
@@ -1267,43 +1344,67 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_add_group_member",
-            description="TRIGGER: add to AD group, add member to Azure AD group, add user to directory group, join AD group | ACTION: Add user to Azure Active Directory group | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: AD group membership confirmation in Azure tenant",
+            description="TRIGGER: add to AD group, add member to Azure AD group, add user to directory group, join AD group | ACTION: Add user to Azure Active Directory group | INSTRUCTION: Accepts flexible identifiers for BOTH user and group - use names, emails, or GUIDs. System auto-resolves both | RETURNS: AD group membership confirmation in Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "group_id": {"type": "string", "description": "Azure AD group ID (must be actual GUID) to add member to"},
-                    "user_id": {
+                    "user_identifier": {
                         "type": "string",
-                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                        "description": "Flexible user identifier - accepts Azure AD GUID, email address, or display name. Smart resolution automatically finds the correct user."
+                    },
+                    "group_identifier": {
+                        "type": "string",
+                        "description": "Flexible group identifier - accepts Azure AD GUID, group email, mail nickname, or display name. Smart resolution automatically finds the correct group."
                     }
                 },
-                "required": ["group_id", "user_id"]
+                "required": ["user_identifier", "group_identifier"]
             }
         ),
 
         MCPTool(
             name="ad_remove_group_member",
-            description="TRIGGER: remove from AD group, remove member from Azure AD group, leave directory group, kick from AD group | ACTION: Remove user from Azure Active Directory group | INSTRUCTION: If you know the user's name, email, or display name, use that as user_id. The system will automatically resolve it to the actual Azure AD user ID. You do NOT need the actual GUID - just provide whatever identifier you have (name like 'John Marks', email like 'john@company.com', or the actual user ID) | RETURNS: AD group removal confirmation from Azure tenant",
+            description="TRIGGER: remove from AD group, remove member from Azure AD group, leave directory group, kick from AD group | ACTION: Remove user from Azure Active Directory group | INSTRUCTION: Accepts flexible identifiers for BOTH user and group - use names, emails, or GUIDs. System auto-resolves both | RETURNS: AD group removal confirmation from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "group_id": {"type": "string", "description": "Azure AD group ID (must be actual GUID) to remove member from"},
-                    "user_id": {
+                    "user_identifier": {
                         "type": "string",
-                        "description": "User identifier - can be Azure AD user GUID, email address (userPrincipalName), or display name (e.g., 'John Marks'). The system automatically resolves any format to the actual user ID."
+                        "description": "Flexible user identifier - accepts Azure AD GUID, email address, or display name. Smart resolution automatically finds the correct user."
+                    },
+                    "group_identifier": {
+                        "type": "string",
+                        "description": "Flexible group identifier - accepts Azure AD GUID, group email, mail nickname, or display name. Smart resolution automatically finds the correct group."
                     }
                 },
-                "required": ["group_id", "user_id"]
+                "required": ["user_identifier", "group_identifier"]
             }
         ),
 
         MCPTool(
             name="ad_get_group_members",
-            description="TRIGGER: AD group members, Azure AD group members, who is in directory group, show AD group members, list AD group members | ACTION: Get Azure Active Directory group member list | RETURNS: All members of specified AD group from Azure tenant",
+            description="TRIGGER: AD group members, Azure AD group members, who is in directory group, show AD group members, list AD group members | ACTION: Get Azure Active Directory group member list | INSTRUCTION: Accepts flexible group identification - use name, email, mail nickname, or GUID | RETURNS: All members of specified AD group from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "group_id": {"type": "string", "description": "Azure AD group ID to get members for"}
+                    "group_identifier": {
+                        "type": "string",
+                        "description": "Flexible group identifier - accepts Azure AD GUID, group email, mail nickname, or display name. Smart resolution automatically finds the correct group."
+                    }
+                },
+                "required": ["group_identifier"]
+            }
+        ),
+
+        MCPTool(
+            name="ad_get_group_owners",
+            description="TRIGGER: AD group owners, Azure AD group owners, who owns group, group administrators | ACTION: Get Azure Active Directory group owner list | INSTRUCTION: Accepts flexible group identification - use name, email, mail nickname, or GUID | RETURNS: All owners of specified AD group from Azure tenant",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "group_identifier": {
+                        "type": "string",
+                        "description": "Flexible group identifier - accepts Azure AD GUID, group email, mail nickname, or display name. Smart resolution automatically finds the correct group."
+                    }
                 },
                 "required": ["group_id"]
             }
@@ -1426,6 +1527,7 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         if "thread_id" not in arguments:
             arguments["thread_id"] = "default"
 
+        # ==================== CONVERSATIONAL ====================
         if tool_name == "greet":
             raw_name = arguments.get("name") if arguments else None
             clean_name = raw_name if raw_name and raw_name.strip() else None
@@ -1435,6 +1537,7 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
+        # ==================== USER MANAGEMENT ====================
         elif tool_name == "ad_list_users":
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await list_users_endpoint(ad)
@@ -1451,35 +1554,57 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             )
 
         elif tool_name == "ad_update_user":
+            user_identifier = arguments["user_identifier"]
             user_updates = UserUpdates(updates=arguments["updates"])
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await update_user_endpoint(arguments["user_id"], user_updates, ad)
+                result = await ad.update_user_smart(user_identifier, user_updates.updates)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_delete_user":
+            user_identifier = arguments["user_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await delete_user_endpoint(arguments["user_id"], ad)
+                result = await ad.delete_user_smart(user_identifier)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_get_user_roles":
+            user_identifier = arguments["user_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await get_user_roles_endpoint(arguments["user_id"], ad)
+                result = await ad.get_user_roles_smart(user_identifier)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_get_user_groups":
+            user_identifier = arguments["user_identifier"]
             transitive = arguments.get("transitive", False)
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await get_user_groups_endpoint(arguments["user_id"], transitive, ad)
+                result = await ad.get_user_groups_smart(user_identifier, transitive=transitive)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
+        elif tool_name == "ad_get_user_full_profile":
+            user_identifier = arguments["user_identifier"]
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await ad.get_user_full_profile(user_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
+
+        elif tool_name == "ad_search_users":
+            query = arguments["query"]
+            limit = arguments.get("limit", 10)
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await ad.search_users_fuzzy(query, limit=limit)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
+
+        # ==================== ROLE MANAGEMENT ====================
         elif tool_name == "ad_list_roles":
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await list_roles_endpoint(ad)
@@ -1488,20 +1613,68 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             )
 
         elif tool_name == "ad_add_user_to_role":
-            role_member = RoleAddMember(user_id=arguments["user_id"])
+            user_identifier = arguments["user_identifier"]
+            role_identifier = arguments["role_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await add_user_to_role_endpoint(arguments["role_id"], role_member, ad)
+                result = await ad.add_user_to_role_smart(user_identifier, role_identifier)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_remove_user_from_role":
+            user_identifier = arguments["user_identifier"]
+            role_identifier = arguments["role_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await remove_user_from_role_endpoint(arguments["role_id"], arguments["user_id"], ad)
+                result = await ad.remove_user_from_role_smart(user_identifier, role_identifier)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
+        elif tool_name == "ad_batch_add_users_to_role":
+            user_identifiers = arguments["user_identifiers"]
+            role_identifier = arguments["role_identifier"]
+            ignore_errors = arguments.get("ignore_errors", True)
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await ad.batch_add_users_to_role(
+                    user_identifiers,
+                    role_identifier,
+                    ignore_errors=ignore_errors
+                )
+            # Format results with success/failure counts
+            success_count = len([r for r in result if not isinstance(r, Exception)])
+            error_count = len([r for r in result if isinstance(r, Exception)])
+            formatted_result = {
+                "success_count": success_count,
+                "error_count": error_count,
+                "results": [str(r) if isinstance(r, Exception) else "Success" for r in result]
+            }
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(formatted_result, indent=2))]
+            )
+
+        elif tool_name == "ad_batch_remove_users_from_role":
+            user_identifiers = arguments["user_identifiers"]
+            role_identifier = arguments["role_identifier"]
+            ignore_errors = arguments.get("ignore_errors", True)
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await ad.batch_remove_users_from_role(
+                    user_identifiers,
+                    role_identifier,
+                    ignore_errors=ignore_errors
+                )
+            # Format results
+            success_count = len([r for r in result if not isinstance(r, Exception)])
+            error_count = len([r for r in result if isinstance(r, Exception)])
+            formatted_result = {
+                "success_count": success_count,
+                "error_count": error_count,
+                "results": [str(r) if isinstance(r, Exception) else "Success" for r in result]
+            }
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(formatted_result, indent=2))]
+            )
+
+        # ==================== GROUP MANAGEMENT ====================
         elif tool_name == "ad_list_groups":
             security_only = arguments.get("security_only", False)
             unified_only = arguments.get("unified_only", False)
@@ -1520,6 +1693,7 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                 description=arguments.get("description"),
                 group_type=arguments.get("group_type", "security"),
                 visibility=arguments.get("visibility"),
+                membership_rule=arguments.get("membership_rule"),
                 owners=arguments.get("owners"),
                 members=arguments.get("members")
             )
@@ -1530,21 +1704,25 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             )
 
         elif tool_name == "ad_add_group_member":
-            group_member = GroupMemberRequest(user_id=arguments["user_id"])
+            user_identifier = arguments["user_identifier"]
+            group_identifier = arguments["group_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await add_group_member_endpoint(arguments["group_id"], group_member, ad)
+                result = await ad.add_user_to_group_smart(user_identifier, group_identifier)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_remove_group_member":
+            user_identifier = arguments["user_identifier"]
+            group_identifier = arguments["group_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await remove_group_member_endpoint(arguments["group_id"], arguments["user_id"], ad)
+                result = await ad.remove_user_from_group_smart(user_identifier, group_identifier)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
         elif tool_name == "ad_get_group_members":
+            group_identifier = arguments["group_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await get_group_members_endpoint(arguments["group_id"], ad)
             return MCPToolCallResponse(
@@ -1600,6 +1778,8 @@ async def mcp_tools_call(request: MCPToolCallRequest):
     except Exception as e:
         if DEBUG:
             print(f"[MCP] Error calling tool {request.name}: {e}")
+            import traceback
+            traceback.print_exc()
         return MCPToolCallResponse(
             content=[MCPContent(type="text", text=f"Error calling tool {request.name}: {str(e)}")],
             isError=True

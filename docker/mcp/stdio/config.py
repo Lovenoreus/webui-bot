@@ -1,18 +1,16 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import json
 from typing import Any, Dict, List
 from langchain.chat_models.base import init_chat_model
 from langchain_community.chat_models import ChatOllama
 from langchain_openai import ChatOpenAI
 
-
-
 global_config_path = '/.omnigate/config.json'
 script_dir = os.path.dirname(os.path.abspath(__file__))
 local_config_path = os.path.join(script_dir, 'config.json')
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 
 def get_nested(d: Dict[str, Any], keys: List[str], default: Any = None) -> Any:
