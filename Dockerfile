@@ -273,4 +273,6 @@ ARG BUILD_HASH
 ENV WEBUI_BUILD_VERSION=${BUILD_HASH}
 ENV DOCKER=true
 
+RUN pip3 install uvicorn
+
 CMD [ "bash", "start.sh"]
