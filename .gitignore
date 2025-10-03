@@ -78,8 +78,8 @@ db.sqlite3
 db.sqlite3-journal
 
 # sqlite stuff:
-database_data/
-sqlite_*.db
+docker/mcp/stdio/database_data/
+/sqlite_*.db
 
 # Flask stuff:
 instance/
