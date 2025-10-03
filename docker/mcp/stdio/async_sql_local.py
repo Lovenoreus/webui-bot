@@ -1,3 +1,7 @@
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
+
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -5,11 +9,20 @@ import asyncio
 import uvicorn
 from typing import List, Dict, Any
 import aiosqlite
+import aioodbc  # Add this for MSSQL
 import json
 import os
 from datetime import datetime, timedelta
 import random
 from contextlib import asynccontextmanager
+import config as configuration
+
+# Database configuration
+DATABASE_CHOICE = configuration.DATABASE_CHOICE
+USE_REMOTE = DATABASE_CHOICE == "remote"
+
+print(f"Database choice: {DATABASE_CHOICE}")
+print(f"Using remote database: {USE_REMOTE}")
 
 
 def load_config():
@@ -44,40 +57,80 @@ def get_database_path():
         return config.get("database_path", "sqlite_invoices_full.db")
 
 
-class AsyncSQLiteServer:
+def get_mssql_connection_string():
+    """Build MSSQL connection string based on auth type"""
+    if configuration.SQL_SERVER_USE_WINDOWS_AUTH:
+        return (
+            f"DRIVER={{{configuration.SQL_SERVER_DRIVER}}};"
+            f"SERVER={configuration.SQL_SERVER_HOST};"
+            f"DATABASE={configuration.SQL_SERVER_DATABASE};"
+            f"Trusted_Connection=yes;"
+        )
+    else:
+        return (
+            f"DRIVER={{{configuration.SQL_SERVER_DRIVER}}};"
+            f"SERVER={configuration.SQL_SERVER_HOST};"
+            f"DATABASE={configuration.SQL_SERVER_DATABASE};"
+            f"UID={configuration.SQL_SERVER_USERNAME};"
+            f"PWD={configuration.SQL_SERVER_PASSWORD};"
+        )
+
+
+class AsyncDatabaseServer:
     def __init__(self, db_path: str = None, pool_size: int = None):
         config = load_config()
-        self.db_path = db_path or get_database_path()
-        self.pool_size = pool_size or config.get("connection_pool_size", 10)
+        self.use_remote = USE_REMOTE
+
+        if self.use_remote:
+            # MSSQL configuration
+            self.connection_string = get_mssql_connection_string()
+            self.pool_size = pool_size or config.get("connection_pool_size", 10)
+            print(f"Using MSSQL Server: {configuration.SQL_SERVER_HOST}")
+            print(f"Database: {configuration.SQL_SERVER_DATABASE}")
+            print(f"Auth: {'Windows' if configuration.SQL_SERVER_USE_WINDOWS_AUTH else 'SQL Server'}")
+        else:
+            # SQLite configuration
+            self.db_path = db_path or get_database_path()
+            self.pool_size = pool_size or config.get("connection_pool_size", 10)
+            print(f"Using SQLite")
+            print(f"Database path: {self.db_path}")
+            print(f"Database file exists: {os.path.exists(self.db_path)}")
+
         self.pool = asyncio.Queue(maxsize=self.pool_size)
         self.pool_initialized = False
-        print(f"Database path: {self.db_path}")
         print(f"Connection pool size: {self.pool_size}")
-        print(
-            f"Directory exists: {os.path.exists(os.path.dirname(self.db_path)) if os.path.dirname(self.db_path) else True}")
-        print(f"Database file exists: {os.path.exists(self.db_path)}")
 
     def is_database_initialized(self):
         """Check if database has been initialized using a flag file"""
+        if self.use_remote:
+            return True  # Remote DB should already exist
         flag_file = f"{self.db_path}.initialized"
         return os.path.exists(flag_file)
 
     def mark_database_initialized(self):
         """Mark database as initialized"""
+        if self.use_remote:
+            return  # No need for flag file with remote DB
         flag_file = f"{self.db_path}.initialized"
         with open(flag_file, 'w') as f:
             f.write(str(datetime.now()))
 
     async def _create_connection(self):
         """Create a new database connection with optimal settings"""
-        db = await aiosqlite.connect(self.db_path)
-        await db.execute("PRAGMA journal_mode=WAL")
-        await db.execute("PRAGMA synchronous=NORMAL")
-        await db.execute("PRAGMA cache_size=10000")
-        await db.execute("PRAGMA temp_store=memory")
-        await db.execute("PRAGMA foreign_keys=ON")
-        db.row_factory = aiosqlite.Row
-        return db
+        if self.use_remote:
+            # Create MSSQL connection
+            conn = await aioodbc.connect(dsn=self.connection_string)
+            return conn
+        else:
+            # Create SQLite connection
+            db = await aiosqlite.connect(self.db_path)
+            await db.execute("PRAGMA journal_mode=WAL")
+            await db.execute("PRAGMA synchronous=NORMAL")
+            await db.execute("PRAGMA cache_size=10000")
+            await db.execute("PRAGMA temp_store=memory")
+            await db.execute("PRAGMA foreign_keys=ON")
+            db.row_factory = aiosqlite.Row
+            return db
 
     async def initialize_pool(self):
         """Initialize the connection pool - ALL CONNECTIONS IN PARALLEL!"""
@@ -133,6 +186,10 @@ class AsyncSQLiteServer:
 
     async def initialize_database(self):
         """Initialize database with invoice tables and sample data"""
+        if self.use_remote:
+            print(f"Using remote MSSQL database - skipping initialization")
+            return
+
         print(f"Checking invoice database at: {self.db_path}")
 
         # Fast flag-based check
@@ -323,7 +380,7 @@ class AsyncSQLiteServer:
 
     async def insert_sample_data(self, db):
         """Insert comprehensive invoice sample data"""
-
+        # ... (keep all the existing sample data code - it's only used for SQLite initialization)
         # Generate realistic Swedish companies and data
         suppliers = [
             ('5592985237', 'JA Hotel Karlskrona', 'Borgmästaregatan 13', '37115', 'Karlskrona', 'info@jahotel.se',
@@ -564,26 +621,46 @@ class AsyncSQLiteServer:
     async def execute_query(self, query: str) -> List[Dict[str, Any]]:
         """Execute any SQL query and return results"""
         async with self.get_connection() as db:
-            async with db.execute(query) as cursor:
-                rows = await cursor.fetchall()
-                return [dict(row) for row in rows]
+            if self.use_remote:
+                # MSSQL query execution
+                async with db.cursor() as cursor:
+                    await cursor.execute(query)
+                    rows = await cursor.fetchall()
+                    # Get column names from cursor description
+                    columns = [column[0] for column in cursor.description]
+                    return [dict(zip(columns, row)) for row in rows]
+            else:
+                # SQLite query execution
+                async with db.execute(query) as cursor:
+                    rows = await cursor.fetchall()
+                    return [dict(row) for row in rows]
 
     async def execute_query_stream(self, query: str):
         """Execute SQL query and yield results one row at a time"""
         async with self.get_connection() as db:
-            async with db.execute(query) as cursor:
-                async for row in cursor:
-                    yield dict(row)
+            if self.use_remote:
+                # MSSQL streaming
+                async with db.cursor() as cursor:
+                    await cursor.execute(query)
+                    columns = [column[0] for column in cursor.description]
+                    async for row in cursor:
+                        yield dict(zip(columns, row))
+            else:
+                # SQLite streaming
+                async with db.execute(query) as cursor:
+                    async for row in cursor:
+                        yield dict(row)
+
 
 # FastAPI setup
-app = FastAPI(title="Invoice Database API", description="AsyncSQLite Database Server for Invoice Management")
+app = FastAPI(title="Invoice Database API", description="Database Server for Invoice Management")
 
-
-# Initialize with configurable pool size
+# Initialize database server
 config = load_config()
-db_server = AsyncSQLiteServer(
+db_server = AsyncDatabaseServer(
     pool_size=config.get("connection_pool_size", 10)
 )
+
 
 class QueryRequest(BaseModel):
     query: str
@@ -600,10 +677,14 @@ async def startup_event():
     elapsed = asyncio.get_event_loop().time() - start_time
     print(f"✅ System ready in {elapsed * 1000:.2f}ms!")
 
-    # ✅ FAST: Just verify tables exist
+    # Verify database is accessible
     try:
-        test_result = await db_server.execute_query("SELECT 1 FROM Invoice LIMIT 1")
-        lines_result = await db_server.execute_query("SELECT 1 FROM Invoice_Line LIMIT 1")
+        if USE_REMOTE:
+            test_result = await db_server.execute_query("SELECT TOP 1 1 FROM Invoice")
+            lines_result = await db_server.execute_query("SELECT TOP 1 1 FROM Invoice_Line")
+        else:
+            test_result = await db_server.execute_query("SELECT 1 FROM Invoice LIMIT 1")
+            lines_result = await db_server.execute_query("SELECT 1 FROM Invoice_Line LIMIT 1")
 
         if test_result and lines_result:
             print(f"✅ Database validated - tables ready!")
@@ -662,13 +743,18 @@ async def execute_query_stream(request: QueryRequest):
 @app.get("/health")
 async def health_check():
     try:
-        # ✅ Just verify tables exist
-        invoice_exists = await db_server.execute_query("SELECT 1 FROM Invoice LIMIT 1")
-        line_exists = await db_server.execute_query("SELECT 1 FROM Invoice_Line LIMIT 1")
+        # Verify tables exist
+        if USE_REMOTE:
+            invoice_exists = await db_server.execute_query("SELECT TOP 1 1 FROM Invoice")
+            line_exists = await db_server.execute_query("SELECT TOP 1 1 FROM Invoice_Line")
+        else:
+            invoice_exists = await db_server.execute_query("SELECT 1 FROM Invoice LIMIT 1")
+            line_exists = await db_server.execute_query("SELECT 1 FROM Invoice_Line LIMIT 1")
 
         return {
             "status": "healthy",
-            "database_path": db_server.db_path,
+            "database_type": "MSSQL" if USE_REMOTE else "SQLite",
+            "database_location": configuration.SQL_SERVER_HOST if USE_REMOTE else db_server.db_path,
             "pool_size": db_server.pool_size,
             "pool_available": db_server.pool.qsize(),
             "tables_initialized": bool(invoice_exists and line_exists)
@@ -676,7 +762,7 @@ async def health_check():
     except Exception as e:
         return {
             "status": "error",
-            "database_path": db_server.db_path,
+            "database_type": "MSSQL" if USE_REMOTE else "SQLite",
             "pool_size": db_server.pool_size,
             "error": str(e)
         }
