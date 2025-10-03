@@ -152,10 +152,12 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
 
         # TODO: QUERY HARDCODED TO [].
         #  BECAUSE KEYWORD HITTING FAILS FOR LARGE DBs
+        keywords = []
 
         provider = "ollama" if config.MCP_PROVIDER_OLLAMA else "openai" if config.MCP_PROVIDER_OPENAI else "mistral"
 
-        sql_query = await query_engine.generate_sql(request.query, request.keywords, provider)
+        # sql_query = await query_engine.generate_sql(request.query, request.keywords, provider)
+        sql_query = await query_engine.generate_sql(request.query, keywords, provider)
 
         if not sql_query:
             return {"success": False, "error": "Failed to generate SQL", "original_query": request.query}
