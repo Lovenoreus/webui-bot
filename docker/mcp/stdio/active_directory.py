@@ -1,7 +1,7 @@
 # -------------------- Built-in Libraries --------------------
 import os
 import asyncio
-from typing import Dict, Optional, List, Union
+from typing import Dict, Optional, List, Union, Any
 from functools import lru_cache
 
 # -------------------- External Libraries --------------------
@@ -44,6 +44,7 @@ class FastActiveDirectory:
     - Concurrent batch operations
     - Automatic retries with exponential backoff
     - All original ActiveDirectory methods
+    - Smart resolution for users, groups, and roles
     """
 
     def __init__(self, max_concurrent: int = 10):
@@ -51,6 +52,9 @@ class FastActiveDirectory:
         Args:
             max_concurrent: Maximum concurrent requests (default: 10)
         """
+        if not all([CLIENT_ID, TENANT_ID, CLIENT_SECRET]):
+            raise ValueError("Missing required Azure AD credentials in environment variables")
+
         self._client: Optional[httpx.AsyncClient] = None
         self._token: Optional[str] = None
         self._token_lock = asyncio.Lock()
@@ -372,8 +376,8 @@ class FastActiveDirectory:
             self,
             security_only: bool = False,
             unified_only: bool = False,
-            select: str | None = "id,displayName,mailNickname,mail,securityEnabled,groupTypes",
-    ) -> list[dict]:
+            select: Optional[str] = "id,displayName,mailNickname,mail,securityEnabled,groupTypes",
+    ) -> List[dict]:
         """
         Original: List groups with optional filtering.
         """
@@ -397,7 +401,7 @@ class FastActiveDirectory:
 
         return await self._paged_get("groups", token, params=params)
 
-    async def get_user_groups(self, user_id: str, transitive: bool = False) -> list[dict]:
+    async def get_user_groups(self, user_id: str, transitive: bool = False) -> List[dict]:
         """
         Original: Return ONLY group objects the user is a member of.
         """
@@ -407,7 +411,7 @@ class FastActiveDirectory:
         params = {"$select": "id,displayName,mailNickname,mail,securityEnabled,groupTypes"}
         return await self._paged_get(endpoint, token, params=params)
 
-    async def get_user_owned_groups(self, user_id: str) -> list[dict]:
+    async def get_user_owned_groups(self, user_id: str) -> List[dict]:
         """
         Original: Return groups where the user is an owner.
         """
@@ -420,8 +424,8 @@ class FastActiveDirectory:
             self,
             include_transitive: bool = False,
             include_owned: bool = True,
-            select: str | None = "id,displayName,userPrincipalName",
-    ) -> list[dict]:
+            select: Optional[str] = "id,displayName,userPrincipalName",
+    ) -> List[dict]:
         """
         Original: For each user, attach 'groups' (direct), optional 'transitive_groups', and optional 'owned_groups'.
         NOTE: This makes multiple Graph calls; consider batching if your directory is large.
@@ -429,7 +433,7 @@ class FastActiveDirectory:
         token = await self.get_access_token()
         users_data = await self._paged_get("users", token, params={"$select": select} if select else None)
 
-        enriched: list[dict] = []
+        enriched: List[dict] = []
 
         # Process users concurrently in batches
         async def enrich_user(u: dict):
@@ -466,25 +470,25 @@ class FastActiveDirectory:
 
         return enriched
 
-    async def get_group_owners(self, group_id: str) -> list[dict]:
+    async def get_group_owners(self, group_id: str) -> List[dict]:
         """Original: Get owners of a group"""
         token = await self.get_access_token()
         endpoint = f"groups/{group_id}/owners"
         params = {"$select": "id,displayName,userPrincipalName"}
         return await self._paged_get(endpoint, token, params=params)
 
-    async def get_group_members(self, group_id: str) -> list[dict]:
+    async def get_group_members(self, group_id: str) -> List[dict]:
         """Original: Get members of a group"""
         token = await self.get_access_token()
         endpoint = f"groups/{group_id}/members"
         params = {"$select": "id,displayName,userPrincipalName"}
         return await self._paged_get(endpoint, token, params=params)
 
-    # ==================== NEW: SMART USER RESOLUTION ====================
+    # ==================== SMART USER RESOLUTION ====================
 
     async def resolve_user(self, identifier: str) -> str:
         """
-        NEW: Fast user resolution with multiple strategies.
+        Fast user resolution with multiple strategies.
         Returns user ID (GUID).
 
         Supports:
@@ -536,7 +540,161 @@ class FastActiveDirectory:
             f"💡 Use full name or email address"
         )
 
-    # ==================== NEW: ENHANCED BATCH OPERATIONS ====================
+    # ==================== SMART GROUP RESOLUTION ====================
+
+    async def resolve_group(self, identifier: str) -> str:
+        """
+        Smart group resolution with multiple strategies.
+        Returns group ID (GUID).
+
+        Supports:
+        - Group ID (GUID) - returns as-is
+        - Email/mail (for M365 groups)
+        - Display name - searches and resolves
+        - Mail nickname
+        """
+        # Strategy 1: Already a GUID
+        if len(identifier) == 36 and identifier.count('-') == 4:
+            return identifier
+
+        # Strategy 2: Email/mail - direct lookup for M365 groups
+        if '@' in identifier:
+            try:
+                params = {
+                    "$filter": f"mail eq '{identifier}'",
+                    "$select": "id,displayName,mail",
+                    "$top": 1
+                }
+                result = await self._request("GET", "groups", params=params)
+                groups = result.get("value", [])
+                if groups:
+                    return groups[0]["id"]
+            except:
+                pass
+
+        # Strategy 3: Mail nickname
+        try:
+            params = {
+                "$filter": f"mailNickname eq '{identifier}'",
+                "$select": "id,displayName,mailNickname",
+                "$top": 1
+            }
+            result = await self._request("GET", "groups", params=params)
+            groups = result.get("value", [])
+            if groups:
+                return groups[0]["id"]
+        except:
+            pass
+
+        # Strategy 4: Search by displayName
+        params = {
+            "$filter": f"startsWith(displayName, '{identifier}')",
+            "$select": "id,displayName,mailNickname,mail,securityEnabled",
+            "$top": 10,
+            "$count": "true"
+        }
+
+        result = await self._request("GET", "groups", params=params)
+        groups = result.get("value", [])
+
+        if not groups:
+            raise Exception(f"❌ No group found: '{identifier}'")
+
+        # Exact match (case-insensitive)
+        exact = [g for g in groups if g.get("displayName", "").lower() == identifier.lower()]
+        if len(exact) == 1:
+            return exact[0]["id"]
+
+        if len(groups) == 1:
+            return groups[0]["id"]
+
+        # Multiple matches
+        candidates = "\n".join([
+            f"  • {g.get('displayName')} ({g.get('mailNickname', 'N/A')}) - "
+            f"{'Security' if g.get('securityEnabled') else 'M365'}"
+            for g in groups[:5]
+        ])
+        raise Exception(
+            f"❌ Multiple groups found for '{identifier}':\n{candidates}\n\n"
+            f"💡 Use full name, mail nickname, or email address"
+        )
+
+    # ==================== SMART ROLE RESOLUTION ====================
+
+    async def resolve_role(self, identifier: str) -> str:
+        """
+        Smart role resolution with multiple strategies.
+        Returns role ID (GUID).
+
+        Supports:
+        - Role ID (GUID) - returns as-is
+        - Role display name (e.g., "Global Administrator")
+        - Role template ID (for activating roles)
+        """
+        # Strategy 1: Already a GUID
+        if len(identifier) == 36 and identifier.count('-') == 4:
+            return identifier
+
+        # Strategy 2: Search by displayName in active roles
+        token = await self.get_access_token()
+        roles_data = await self.graph_api_request("GET", "directoryRoles", token)
+        roles = roles_data.get("value", [])
+
+        # Exact match (case-insensitive)
+        exact = [r for r in roles if r.get("displayName", "").lower() == identifier.lower()]
+        if len(exact) == 1:
+            return exact[0]["id"]
+
+        # Partial match
+        partial = [r for r in roles if identifier.lower() in r.get("displayName", "").lower()]
+        if len(partial) == 1:
+            return partial[0]["id"]
+
+        # Strategy 3: Check role templates (inactive roles)
+        templates_data = await self.graph_api_request("GET", "directoryRoleTemplates", token)
+        templates = templates_data.get("value", [])
+
+        template_matches = [
+            t for t in templates
+            if identifier.lower() in t.get("displayName", "").lower()
+        ]
+
+        if template_matches:
+            if len(template_matches) == 1:
+                # Role exists as template but not activated
+                template_id = template_matches[0]["id"]
+                raise Exception(
+                    f"⚠️  Role '{template_matches[0]['displayName']}' exists but is not activated.\n"
+                    f"💡 Activate it first with: instantiate_directory_role('{template_id}')"
+                )
+
+            candidates = "\n".join([
+                f"  • {t.get('displayName')} (template, not activated)"
+                for t in template_matches[:5]
+            ])
+            raise Exception(
+                f"❌ Multiple role templates found for '{identifier}':\n{candidates}\n\n"
+                f"💡 Activate the role first, then use exact name"
+            )
+
+        # Nothing found
+        if not roles and not templates:
+            raise Exception(f"❌ No role found: '{identifier}'")
+
+        # Multiple matches in active roles
+        if len(partial) > 1:
+            candidates = "\n".join([
+                f"  • {r.get('displayName')}"
+                for r in partial[:5]
+            ])
+            raise Exception(
+                f"❌ Multiple active roles found for '{identifier}':\n{candidates}\n\n"
+                f"💡 Use exact role name"
+            )
+
+        raise Exception(f"❌ No role found: '{identifier}'")
+
+    # ==================== ENHANCED BATCH OPERATIONS ====================
 
     async def batch_resolve_users(
             self,
@@ -544,10 +702,34 @@ class FastActiveDirectory:
             ignore_errors: bool = True
     ) -> List[Union[str, Exception]]:
         """
-        NEW: Resolve multiple users concurrently.
+        Resolve multiple users concurrently.
         Up to 10x faster than sequential!
         """
         tasks = [self.resolve_user(ident) for ident in identifiers]
+        results = await asyncio.gather(*tasks, return_exceptions=ignore_errors)
+        return results
+
+    async def batch_resolve_groups(
+            self,
+            identifiers: List[str],
+            ignore_errors: bool = True
+    ) -> List[Union[str, Exception]]:
+        """
+        Resolve multiple groups concurrently.
+        """
+        tasks = [self.resolve_group(ident) for ident in identifiers]
+        results = await asyncio.gather(*tasks, return_exceptions=ignore_errors)
+        return results
+
+    async def batch_resolve_roles(
+            self,
+            identifiers: List[str],
+            ignore_errors: bool = True
+    ) -> List[Union[str, Exception]]:
+        """
+        Resolve multiple roles concurrently.
+        """
+        tasks = [self.resolve_role(ident) for ident in identifiers]
         results = await asyncio.gather(*tasks, return_exceptions=ignore_errors)
         return results
 
@@ -557,7 +739,7 @@ class FastActiveDirectory:
             transitive: bool = False
     ) -> List[Union[List[dict], Exception]]:
         """
-        NEW: Get groups for multiple users concurrently.
+        Get groups for multiple users concurrently.
         BLAZING FAST! 🔥
         """
         # First resolve all users concurrently
@@ -581,7 +763,7 @@ class FastActiveDirectory:
             limit: int = 10
     ) -> List[dict]:
         """
-        NEW: Fuzzy search for users across multiple fields.
+        Fuzzy search for users across multiple fields.
         Searches displayName, userPrincipalName, and mail.
         """
         filter_parts = [
@@ -600,46 +782,481 @@ class FastActiveDirectory:
         result = await self._request("GET", "users", params=params)
         return result.get("value", [])
 
-    # ==================== NEW: WRAPPER METHODS WITH SMART RESOLUTION ====================
-
-    async def get_user_groups_smart(self, user_identifier: str, transitive: bool = False) -> list[dict]:
+    async def search_groups_fuzzy(
+            self,
+            query: str,
+            limit: int = 10
+    ) -> List[dict]:
         """
-        NEW: Get user groups with smart resolution (accepts ID, email, or name)
+        Fuzzy search for groups across multiple fields.
+        Searches displayName, mailNickname, and mail.
+        """
+        filter_parts = [
+            f"startsWith(displayName, '{query}')",
+            f"startsWith(mailNickname, '{query}')",
+            f"startsWith(mail, '{query}')"
+        ]
+
+        params = {
+            "$filter": " or ".join(filter_parts),
+            "$select": "id,displayName,mailNickname,mail,securityEnabled,groupTypes",
+            "$top": limit,
+            "$count": "true"
+        }
+
+        result = await self._request("GET", "groups", params=params)
+        return result.get("value", [])
+
+    # ==================== SMART WRAPPER METHODS (USERS) ====================
+
+    async def get_user_groups_smart(self, user_identifier: str, transitive: bool = False) -> List[dict]:
+        """
+        Get user groups with smart resolution (accepts ID, email, or name)
         """
         user_id = await self.resolve_user(user_identifier)
         return await self.get_user_groups(user_id, transitive=transitive)
 
     async def get_user_roles_smart(self, user_identifier: str) -> dict:
         """
-        NEW: Get user roles with smart resolution (accepts ID, email, or name)
+        Get user roles with smart resolution (accepts ID, email, or name)
         """
         user_id = await self.resolve_user(user_identifier)
         return await self.get_user_roles(user_id)
 
-    async def add_user_to_role_smart(self, user_identifier: str, role_id: str) -> dict:
-        """
-        NEW: Add user to role with smart resolution (accepts ID, email, or name)
-        """
-        user_id = await self.resolve_user(user_identifier)
-        return await self.add_user_to_role(user_id, role_id)
-
-    async def remove_user_from_role_smart(self, user_identifier: str, role_id: str) -> dict:
-        """
-        NEW: Remove user from role with smart resolution (accepts ID, email, or name)
-        """
-        user_id = await self.resolve_user(user_identifier)
-        return await self.remove_user_from_role(user_id, role_id)
-
     async def update_user_smart(self, user_identifier: str, updates: dict) -> dict:
         """
-        NEW: Update user with smart resolution (accepts ID, email, or name)
+        Update user with smart resolution (accepts ID, email, or name)
         """
         user_id = await self.resolve_user(user_identifier)
         return await self.update_user(user_id, updates)
 
     async def delete_user_smart(self, user_identifier: str) -> dict:
         """
-        NEW: Delete user with smart resolution (accepts ID, email, or name)
+        Delete user with smart resolution (accepts ID, email, or name)
         """
         user_id = await self.resolve_user(user_identifier)
         return await self.delete_user(user_id)
+
+    # ==================== SMART WRAPPER METHODS (ROLES) ====================
+
+    async def add_user_to_role_smart(
+            self,
+            user_identifier: str,
+            role_identifier: str
+    ) -> dict:
+        """
+        Add user to role with smart resolution (accepts ID, email, or name for user; ID or name for role)
+        """
+        user_id = await self.resolve_user(user_identifier)
+        role_id = await self.resolve_role(role_identifier)
+        return await self.add_user_to_role(user_id, role_id)
+
+    async def remove_user_from_role_smart(
+            self,
+            user_identifier: str,
+            role_identifier: str
+    ) -> dict:
+        """
+        Remove user from role with smart resolution (accepts ID, email, or name for user; ID or name for role)
+        """
+        user_id = await self.resolve_user(user_identifier)
+        role_id = await self.resolve_role(role_identifier)
+        return await self.remove_user_from_role(user_id, role_id)
+
+    # ==================== SMART WRAPPER METHODS (GROUPS) ====================
+
+    async def get_group_members_smart(self, group_identifier: str) -> List[dict]:
+        """
+        Get group members with smart group resolution (accepts ID, email, mail nickname, or name)
+        """
+        group_id = await self.resolve_group(group_identifier)
+        return await self.get_group_members(group_id)
+
+    async def get_group_owners_smart(self, group_identifier: str) -> List[dict]:
+        """
+        Get group owners with smart group resolution (accepts ID, email, mail nickname, or name)
+        """
+        group_id = await self.resolve_group(group_identifier)
+        return await self.get_group_owners(group_id)
+
+    async def add_user_to_group_smart(
+            self,
+            user_identifier: str,
+            group_identifier: str
+    ) -> dict:
+        """
+        Add user to group with smart resolution for both user and group
+        """
+        user_id = await self.resolve_user(user_identifier)
+        group_id = await self.resolve_group(group_identifier)
+
+        token = await self.get_access_token()
+        data = {
+            "@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{user_id}"
+        }
+        return await self.graph_api_request(
+            "POST",
+            f"groups/{group_id}/members/$ref",
+            token,
+            data=data
+        )
+
+    async def remove_user_from_group_smart(
+            self,
+            user_identifier: str,
+            group_identifier: str
+    ) -> dict:
+        """
+        Remove user from group with smart resolution for both user and group
+        """
+        user_id = await self.resolve_user(user_identifier)
+        group_id = await self.resolve_group(group_identifier)
+
+        token = await self.get_access_token()
+        return await self.graph_api_request(
+            "DELETE",
+            f"groups/{group_id}/members/{user_id}/$ref",
+            token
+        )
+
+    async def add_owner_to_group_smart(
+            self,
+            user_identifier: str,
+            group_identifier: str
+    ) -> dict:
+        """
+        Add owner to group with smart resolution for both user and group
+        """
+        user_id = await self.resolve_user(user_identifier)
+        group_id = await self.resolve_group(group_identifier)
+
+        token = await self.get_access_token()
+        data = {
+            "@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{user_id}"
+        }
+        return await self.graph_api_request(
+            "POST",
+            f"groups/{group_id}/owners/$ref",
+            token,
+            data=data
+        )
+
+    async def remove_owner_from_group_smart(
+            self,
+            user_identifier: str,
+            group_identifier: str
+    ) -> dict:
+        """
+        Remove owner from group with smart resolution for both user and group
+        """
+        user_id = await self.resolve_user(user_identifier)
+        group_id = await self.resolve_group(group_identifier)
+
+        token = await self.get_access_token()
+        return await self.graph_api_request(
+            "DELETE",
+            f"groups/{group_id}/owners/{user_id}/$ref",
+            token
+        )
+
+    async def update_group_smart(
+            self,
+            group_identifier: str,
+            updates: dict
+    ) -> dict:
+        """
+        Update group with smart resolution (accepts ID, email, mail nickname, or name)
+        """
+        group_id = await self.resolve_group(group_identifier)
+        token = await self.get_access_token()
+        return await self.graph_api_request("PATCH", f"groups/{group_id}", token, data=updates)
+
+    async def delete_group_smart(self, group_identifier: str) -> dict:
+        """
+        Delete group with smart resolution (accepts ID, email, mail nickname, or name)
+        """
+        group_id = await self.resolve_group(group_identifier)
+        token = await self.get_access_token()
+        return await self.graph_api_request("DELETE", f"groups/{group_id}", token)
+
+    async def get_group_details_smart(self, group_identifier: str) -> dict:
+        """
+        Get detailed group information with smart resolution
+        """
+        group_id = await self.resolve_group(group_identifier)
+        token = await self.get_access_token()
+        return await self.graph_api_request("GET", f"groups/{group_id}", token)
+
+    # ==================== ADVANCED BATCH OPERATIONS ====================
+
+    async def batch_add_users_to_group(
+            self,
+            user_identifiers: List[str],
+            group_identifier: str,
+            ignore_errors: bool = True
+    ) -> List[Union[dict, Exception]]:
+        """
+        Add multiple users to a group concurrently.
+        Returns list of results or exceptions.
+        """
+        # Resolve group once
+        group_id = await self.resolve_group(group_identifier)
+
+        # Resolve all users concurrently
+        user_ids = await self.batch_resolve_users(user_identifiers, ignore_errors=True)
+
+        # Add all users concurrently
+        async def add_user_safe(uid):
+            if isinstance(uid, Exception):
+                return uid
+            try:
+                token = await self.get_access_token()
+                data = {
+                    "@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{uid}"
+                }
+                return await self.graph_api_request(
+                    "POST",
+                    f"groups/{group_id}/members/$ref",
+                    token,
+                    data=data
+                )
+            except Exception as e:
+                return e
+
+        tasks = [add_user_safe(uid) for uid in user_ids]
+        return await asyncio.gather(*tasks, return_exceptions=ignore_errors)
+
+    async def batch_remove_users_from_group(
+            self,
+            user_identifiers: List[str],
+            group_identifier: str,
+            ignore_errors: bool = True
+    ) -> List[Union[dict, Exception]]:
+        """
+        Remove multiple users from a group concurrently.
+        Returns list of results or exceptions.
+        """
+        # Resolve group once
+        group_id = await self.resolve_group(group_identifier)
+
+        # Resolve all users concurrently
+        user_ids = await self.batch_resolve_users(user_identifiers, ignore_errors=True)
+
+        # Remove all users concurrently
+        async def remove_user_safe(uid):
+            if isinstance(uid, Exception):
+                return uid
+            try:
+                token = await self.get_access_token()
+                return await self.graph_api_request(
+                    "DELETE",
+                    f"groups/{group_id}/members/{uid}/$ref",
+                    token
+                )
+            except Exception as e:
+                return e
+
+        tasks = [remove_user_safe(uid) for uid in user_ids]
+        return await asyncio.gather(*tasks, return_exceptions=ignore_errors)
+
+    async def batch_add_users_to_role(
+            self,
+            user_identifiers: List[str],
+            role_identifier: str,
+            ignore_errors: bool = True
+    ) -> List[Union[dict, Exception]]:
+        """
+        Add multiple users to a role concurrently.
+        Returns list of results or exceptions.
+        """
+        # Resolve role once
+        role_id = await self.resolve_role(role_identifier)
+
+        # Resolve all users concurrently
+        user_ids = await self.batch_resolve_users(user_identifiers, ignore_errors=True)
+
+        # Add all users concurrently
+        async def add_user_safe(uid):
+            if isinstance(uid, Exception):
+                return uid
+            try:
+                return await self.add_user_to_role(uid, role_id)
+            except Exception as e:
+                return e
+
+        tasks = [add_user_safe(uid) for uid in user_ids]
+        return await asyncio.gather(*tasks, return_exceptions=ignore_errors)
+
+    async def batch_remove_users_from_role(
+            self,
+            user_identifiers: List[str],
+            role_identifier: str,
+            ignore_errors: bool = True
+    ) -> List[Union[dict, Exception]]:
+        """
+        Remove multiple users from a role concurrently.
+        Returns list of results or exceptions.
+        """
+        # Resolve role once
+        role_id = await self.resolve_role(role_identifier)
+
+        # Resolve all users concurrently
+        user_ids = await self.batch_resolve_users(user_identifiers, ignore_errors=True)
+
+        # Remove all users concurrently
+        async def remove_user_safe(uid):
+            if isinstance(uid, Exception):
+                return uid
+            try:
+                return await self.remove_user_from_role(uid, role_id)
+            except Exception as e:
+                return e
+
+        tasks = [remove_user_safe(uid) for uid in user_ids]
+        return await asyncio.gather(*tasks, return_exceptions=ignore_errors)
+
+    async def get_group_full_details(self, group_identifier: str) -> dict:
+        """
+        Get comprehensive group information including members and owners.
+        All data fetched concurrently for maximum speed.
+        """
+        group_id = await self.resolve_group(group_identifier)
+
+        # Fetch everything concurrently
+        tasks = [
+            self.get_group_details_smart(group_id),
+            self.get_group_members(group_id),
+            self.get_group_owners(group_id)
+        ]
+
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        return {
+            "details": results[0] if not isinstance(results[0], Exception) else {},
+            "members": results[1] if not isinstance(results[1], Exception) else [],
+            "owners": results[2] if not isinstance(results[2], Exception) else []
+        }
+
+    async def get_user_full_profile(self, user_identifier: str) -> dict:
+        """
+        Get comprehensive user information including groups, roles, and owned groups.
+        All data fetched concurrently for maximum speed.
+        """
+        user_id = await self.resolve_user(user_identifier)
+        token = await self.get_access_token()
+
+        # Fetch everything concurrently
+        tasks = [
+            self.graph_api_request("GET", f"users/{user_id}", token),
+            self.get_user_groups(user_id, transitive=False),
+            self.get_user_roles(user_id),
+            self.get_user_owned_groups(user_id)
+        ]
+
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        return {
+            "user": results[0] if not isinstance(results[0], Exception) else {},
+            "groups": results[1] if not isinstance(results[1], Exception) else [],
+            "roles": results[2] if not isinstance(results[2], Exception) else {},
+            "owned_groups": results[3] if not isinstance(results[3], Exception) else []
+        }
+
+    # ==================== UTILITY METHODS ====================
+
+    async def check_user_membership(
+            self,
+            user_identifier: str,
+            group_identifier: str
+    ) -> bool:
+        """
+        Check if a user is a member of a specific group.
+        Returns True if user is a member, False otherwise.
+        """
+        try:
+            user_id = await self.resolve_user(user_identifier)
+            group_id = await self.resolve_group(group_identifier)
+
+            token = await self.get_access_token()
+            endpoint = f"groups/{group_id}/members/{user_id}"
+
+            await self.graph_api_request("GET", endpoint, token)
+            return True
+        except:
+            return False
+
+    async def check_user_ownership(
+            self,
+            user_identifier: str,
+            group_identifier: str
+    ) -> bool:
+        """
+        Check if a user is an owner of a specific group.
+        Returns True if user is an owner, False otherwise.
+        """
+        try:
+            user_id = await self.resolve_user(user_identifier)
+            group_id = await self.resolve_group(group_identifier)
+
+            token = await self.get_access_token()
+            endpoint = f"groups/{group_id}/owners/{user_id}"
+
+            await self.graph_api_request("GET", endpoint, token)
+            return True
+        except:
+            return False
+
+    async def sync_group_members(
+            self,
+            group_identifier: str,
+            desired_user_identifiers: List[str]
+    ) -> dict:
+        """
+        Synchronize group membership to match a desired list of users.
+        Adds missing users and removes extra users.
+        Returns summary of changes made.
+        """
+        group_id = await self.resolve_group(group_identifier)
+
+        # Get current members
+        current_members = await self.get_group_members(group_id)
+        current_member_ids = {m["id"] for m in current_members}
+
+        # Resolve desired members
+        desired_ids = await self.batch_resolve_users(desired_user_identifiers, ignore_errors=True)
+        desired_member_ids = {uid for uid in desired_ids if not isinstance(uid, Exception)}
+
+        # Calculate changes
+        to_add = desired_member_ids - current_member_ids
+        to_remove = current_member_ids - desired_member_ids
+
+        # Apply changes concurrently
+        add_tasks = []
+        remove_tasks = []
+
+        for user_id in to_add:
+            token = await self.get_access_token()
+            data = {
+                "@odata.id": f"https://graph.microsoft.com/v1.0/directoryObjects/{user_id}"
+            }
+            add_tasks.append(
+                self.graph_api_request("POST", f"groups/{group_id}/members/$ref", token, data=data)
+            )
+
+        for user_id in to_remove:
+            token = await self.get_access_token()
+            remove_tasks.append(
+                self.graph_api_request("DELETE", f"groups/{group_id}/members/{user_id}/$ref", token)
+            )
+
+        add_results = await asyncio.gather(*add_tasks, return_exceptions=True) if add_tasks else []
+        remove_results = await asyncio.gather(*remove_tasks, return_exceptions=True) if remove_tasks else []
+
+        return {
+            "group_id": group_id,
+            "added_count": len([r for r in add_results if not isinstance(r, Exception)]),
+            "removed_count": len([r for r in remove_results if not isinstance(r, Exception)]),
+            "add_errors": [str(r) for r in add_results if isinstance(r, Exception)],
+            "remove_errors": [str(r) for r in remove_results if isinstance(r, Exception)],
+            "total_changes": len(to_add) + len(to_remove)
+        }
