@@ -7,7 +7,7 @@ import os
 # -------------------- External Libraries --------------------
 import aiohttp
 import uvicorn
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,7 +26,7 @@ from models import (
     MCPToolCallResponse,
 )
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 # Debug flag
 DEBUG = True

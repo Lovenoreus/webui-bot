@@ -1,5 +1,5 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv, find_dotenv
 import json
 from typing import Any, Dict, List
 from langchain.chat_models.base import init_chat_model
@@ -10,7 +10,7 @@ global_config_path = '/.omnigate/config.json'
 script_dir = os.path.dirname(os.path.abspath(__file__))
 local_config_path = os.path.join(script_dir, 'config.json')
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 
 def get_nested(d: Dict[str, Any], keys: List[str], default: Any = None) -> Any:
@@ -144,15 +144,11 @@ LANGSMITH_TRACING = to_bool(get_nested(config, ["langsmith", "tracing"], False),
 DATABASE_CHOICE = get_nested(config, ["mcp", "database_choice"], "local")  # "local" or "remote"
 
 # Remote SQL Server configuration
-# SQL_SERVER_HOST = os.getenv("SQL_SERVER_HOST", "localhost\\SQLEXPRESS")
-# SQL_SERVER_DATABASE = os.getenv("SQL_SERVER_DATABASE", "InvoiceDB")
-# SQL_SERVER_DRIVER = os.getenv("SQL_SERVER_DRIVER", "ODBC Driver 17 for SQL Server")
-# SQL_SERVER_USE_WINDOWS_AUTH = os.getenv("SQL_SERVER_USE_WINDOWS_AUTH", "true").lower() == "true"
+SQL_SERVER_HOST = os.getenv("SQL_SERVER_HOST", "localhost\\SQLEXPRESS")
+SQL_SERVER_DATABASE = os.getenv("SQL_SERVER_DATABASE", "InvoiceDB")
+SQL_SERVER_DRIVER = os.getenv("SQL_SERVER_DRIVER", "ODBC Driver 17 for SQL Server")
+SQL_SERVER_USE_WINDOWS_AUTH = os.getenv("SQL_SERVER_USE_WINDOWS_AUTH", "true").lower() == "true"
 
-SQL_SERVER_HOST = "vs837/UIPORCH"
-SQL_SERVER_DATABASE = "Nodinite"
-SQL_SERVER_DRIVER = "ODBC Driver 17 for SQL Server"
-SQL_SERVER_USE_WINDOWS_AUTH = True
 SQL_SERVER_USERNAME = os.getenv("SQL_SERVER_USERNAME", None)
 SQL_SERVER_PASSWORD = os.getenv("SQL_SERVER_PASSWORD", None)
 
