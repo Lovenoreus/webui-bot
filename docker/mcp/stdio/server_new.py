@@ -7,7 +7,7 @@ from typing import Dict, Optional, List, Any, Literal
 # -------------------- External Libraries --------------------
 import aiohttp
 import uvicorn
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from fastapi import FastAPI, HTTPException, Depends, Header, Body, Request, Response
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -111,7 +111,7 @@ class MCPServerInfo(BaseModel):
     capabilities: Dict[str, bool]
 
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 # Debug flag
 DEBUG = True

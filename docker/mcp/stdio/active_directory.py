@@ -5,13 +5,13 @@ from typing import Dict, Optional, List, Union
 from functools import lru_cache
 
 # -------------------- External Libraries --------------------
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import msal
 import httpx
 from pydantic import BaseModel, Field
 
 # Load environment variables
-load_dotenv()
+load_dotenv(find_dotenv())
 
 CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
 TENANT_ID = os.getenv("AZURE_TENANT_ID")
