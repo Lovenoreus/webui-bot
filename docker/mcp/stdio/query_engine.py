@@ -10,11 +10,10 @@ import asyncio
 import os
 from typing import List, Dict, Optional
 import re
+from concurrent.futures import ThreadPoolExecutor
 
 import aiohttp
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import text
+import pymssql
 from langchain_community.chat_models import ChatOllama
 from langchain_openai import ChatOpenAI
 from langchain_mistralai import ChatMistralAI
@@ -55,51 +54,55 @@ class QueryEngine:
 
         # Initialize remote SQL Server connection if needed
         if self.use_remote:
+            self.executor = ThreadPoolExecutor(max_workers=5)
             self._init_remote_connection()
         else:
-            self.engine = None
-            self.async_session = None
+            self.executor = None
 
     def _init_remote_connection(self):
-        """Initialize async SQL Server connection"""
-        server = config.SQL_SERVER_HOST
-        database = config.SQL_SERVER_DATABASE
-        driver = config.SQL_SERVER_DRIVER
-
-        if config.SQL_SERVER_USE_WINDOWS_AUTH:
-            connection_string = (
-                f"mssql+aioodbc://@{server}/{database}"
-                f"?driver={driver.replace(' ', '+')}"
-                "&trusted_connection=yes"
-            )
-
-        else:
-            username = config.SQL_SERVER_USERNAME
-            password = config.SQL_SERVER_PASSWORD
-            connection_string = (
-                f"mssql+aioodbc://{username}:{password}@{server}/{database}"
-                f"?driver={driver.replace(' ', '+')}"
-            )
+        """Initialize pymssql connection info (connections created on demand)"""
+        self.server = config.SQL_SERVER_HOST
+        self.database = config.SQL_SERVER_DATABASE
+        self.use_windows_auth = config.SQL_SERVER_USE_WINDOWS_AUTH
+        
+        if not self.use_windows_auth:
+            self.username = config.SQL_SERVER_USERNAME
+            self.password = config.SQL_SERVER_PASSWORD
 
         if self.debug:
-            print(f"[QueryEngine] Initializing remote SQL Server connection")
-            print(f"[QueryEngine] Server: {server}")
-            print(f"[QueryEngine] Database: {database}")
-            print(f"[QueryEngine] Auth: {'Windows' if config.SQL_SERVER_USE_WINDOWS_AUTH else 'SQL Server'}")
+            print(f"[QueryEngine] Remote SQL Server configuration loaded")
+            print(f"[QueryEngine] Server: {self.server}")
+            print(f"[QueryEngine] Database: {self.database}")
+            print(f"[QueryEngine] Auth: {'Windows' if self.use_windows_auth else 'SQL Server'}")
 
-        self.engine = create_async_engine(
-            connection_string,
-            echo=self.debug,
-            pool_pre_ping=True,
-            pool_size=10,
-            max_overflow=0
-        )
+    def _create_connection_sync(self):
+        """Create synchronous pymssql connection"""
+        if self.use_windows_auth:
+            return pymssql.connect(
+                server=self.server,
+                database=self.database,
+                as_dict=True
+            )
+        else:
+            return pymssql.connect(
+                server=self.server,
+                user=self.username,
+                password=self.password,
+                database=self.database,
+                as_dict=True
+            )
 
-        self.async_session = sessionmaker(
-            self.engine,
-            expire_on_commit=False,
-            class_=AsyncSession
-        )
+    def _execute_query_sync(self, query: str):
+        """Execute query synchronously with pymssql"""
+        conn = self._create_connection_sync()
+        try:
+            cursor = conn.cursor()
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            cursor.close()
+            return rows
+        finally:
+            conn.close()
 
     def extract_sql_from_json(self, llm_output: str) -> str:
         """Extract SQL from LLM response - handles JSON, markdown, or plain SQL"""
@@ -130,10 +133,6 @@ class QueryEngine:
 
     async def execute_query(self, query: str):
         """Run a query on the database - routes to local or remote"""
-        # TODO: FIX - Search for a better alternative.
-        # Hardcoded fix to limit the data returned.
-        # query = query if "limit" in query.lower() else query.strip().rstrip(";") + " LIMIT 20;"
-
         if self.use_remote:
             return await self._execute_query_remote(query)
         else:
@@ -168,35 +167,35 @@ class QueryEngine:
             return []
 
     async def _execute_query_remote(self, query: str):
-        """Execute query directly on remote SQL Server"""
+        """Execute query on remote SQL Server using pymssql in executor"""
         try:
             if self.debug:
                 print(f"[QueryEngine] Executing REMOTE query: {query}")
 
-            async with self.async_session() as session:
-                result = await session.execute(text(query))
+            loop = asyncio.get_running_loop()
+            rows = await loop.run_in_executor(
+                self.executor,
+                self._execute_query_sync,
+                query
+            )
 
-                # Fetch all rows and convert to dict
-                rows = result.fetchall()
-                columns = result.keys()
+            # Convert to list of dicts (pymssql already returns dicts with as_dict=True)
+            data = []
+            for row in rows:
+                row_dict = {}
+                for key, value in row.items():
+                    # Convert datetime and decimal to string for JSON serialization
+                    if hasattr(value, 'isoformat'):
+                        value = value.isoformat()
+                    elif hasattr(value, '__float__'):
+                        value = float(value)
+                    row_dict[key] = value
+                data.append(row_dict)
 
-                data = []
-                for row in rows:
-                    row_dict = {}
-                    for i, col in enumerate(columns):
-                        value = row[i]
-                        # Convert datetime and decimal to string for JSON serialization
-                        if hasattr(value, 'isoformat'):
-                            value = value.isoformat()
-                        elif hasattr(value, '__float__'):
-                            value = float(value)
-                        row_dict[col] = value
-                    data.append(row_dict)
+            if self.debug:
+                print(f"[QueryEngine] Remote query returned {len(data)} rows")
 
-                if self.debug:
-                    print(f"[QueryEngine] Remote query returned {len(data)} rows")
-
-                return data
+            return data
 
         except Exception as e:
             if self.debug:
@@ -295,40 +294,41 @@ class QueryEngine:
                 "status": "started"
             }
 
-            async with self.async_session() as session:
-                result = await session.execute(text(query))
-                rows = result.fetchall()
-                columns = result.keys()
+            loop = asyncio.get_running_loop()
+            rows = await loop.run_in_executor(
+                self.executor,
+                self._execute_query_sync,
+                query
+            )
 
-                results = []
-                for idx, row in enumerate(rows, 1):
-                    row_dict = {}
-                    for i, col in enumerate(columns):
-                        value = row[i]
-                        # Convert datetime and decimal to string for JSON serialization
-                        if hasattr(value, 'isoformat'):
-                            value = value.isoformat()
-                        elif hasattr(value, '__float__'):
-                            value = float(value)
-                        row_dict[col] = value
+            results = []
+            for idx, row in enumerate(rows, 1):
+                row_dict = {}
+                for key, value in row.items():
+                    # Convert datetime and decimal to string for JSON serialization
+                    if hasattr(value, 'isoformat'):
+                        value = value.isoformat()
+                    elif hasattr(value, '__float__'):
+                        value = float(value)
+                    row_dict[key] = value
 
-                    results.append(row_dict)
-
-                    yield {
-                        "success": True,
-                        "type": "row",
-                        "data": row_dict,
-                        "index": idx,
-                        "running_total": len(results)
-                    }
+                results.append(row_dict)
 
                 yield {
                     "success": True,
-                    "type": "complete",
-                    "results": results,
-                    "record_count": len(results),
-                    "status": "finished"
+                    "type": "row",
+                    "data": row_dict,
+                    "index": idx,
+                    "running_total": len(results)
                 }
+
+            yield {
+                "success": True,
+                "type": "complete",
+                "results": results,
+                "record_count": len(results),
+                "status": "finished"
+            }
 
         except Exception as e:
             if self.debug:
