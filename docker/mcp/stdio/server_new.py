@@ -116,6 +116,45 @@ load_dotenv(find_dotenv())
 # Debug flag
 DEBUG = True
 
+
+def format_mcp_response(result: dict, tool_name: str) -> MCPToolCallResponse:
+    """
+    Format Active Directory results for MCP tool responses with proper error handling
+    """
+    # If result has success field (our enhanced format)
+    if isinstance(result, dict) and "success" in result:
+        if result["success"]:
+            # Success case - return the result as JSON
+            content_text = json.dumps(result, indent=2)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=content_text)],
+                isError=False
+            )
+        else:
+            # Check if this is a friendly message or technical error
+            if "message" in result and "error" not in result:
+                # Friendly message - treat as informational, not an error
+                content_text = json.dumps(result, indent=2)
+                return MCPToolCallResponse(
+                    content=[MCPContent(type="text", text=content_text)],
+                    isError=False  # Don't mark as error - it's a helpful message
+                )
+            else:
+                # Technical error case
+                content_text = json.dumps(result, indent=2)
+                return MCPToolCallResponse(
+                    content=[MCPContent(type="text", text=content_text)],
+                    isError=True
+                )
+    
+    # Legacy format (no success field) - assume success if no exception
+    else:
+        content_text = json.dumps(result, indent=2)
+        return MCPToolCallResponse(
+            content=[MCPContent(type="text", text=content_text)],
+            isError=False
+        )
+
 app = FastAPI(title="MCP Server API", description="Standalone MCP Tools Server with LLM SQL Generation")
 
 # Add CORS middleware
@@ -737,25 +776,26 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_create_user",
-            description="TRIGGER: create AD user, add Azure AD user, new AD account, register AD user, add employee to directory | ACTION: Create new Azure Active Directory user account | RETURNS: Created AD user details with generated ID and tenant information",
+            description="TRIGGER: create AD user, add Azure AD user, new AD account, register AD user, add employee to directory | ACTION: Create new Azure Active Directory user account with automatic password generation | RETURNS: Created AD user details with temporary password and login instructions",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "user": {
                         "type": "object",
-                        "description": "Azure AD user payload with user properties",
+                        "description": "Azure AD user payload - only displayName is required, other fields are auto-generated",
                         "properties": {
-                            "displayName": {"type": "string", "description": "User's display name in AD"},
-                            "mailNickname": {"type": "string", "description": "Mail nickname (auto-generated if not provided)"},
-                            "userPrincipalName": {"type": "string", "description": "User principal name (auto-generated if not provided)"},
+                            "displayName": {"type": "string", "description": "User's full display name (REQUIRED)"},
+                            "mailNickname": {"type": "string", "description": "Mail nickname (auto-generated from displayName if not provided)"},
+                            "userPrincipalName": {"type": "string", "description": "User login email (auto-generated as displayname@domain if not provided)"},
                             "passwordProfile": {
                                 "type": "object",
+                                "description": "Password settings (secure password auto-generated if not provided)",
                                 "properties": {
-                                    "password": {"type": "string", "description": "Temporary password"},
-                                    "forceChangePasswordNextSignIn": {"type": "boolean", "description": "Force password change on next sign-in"}
+                                    "password": {"type": ["string", "null"], "description": "Custom password (secure password auto-generated if null or not specified)"},
+                                    "forceChangePasswordNextSignIn": {"type": "boolean", "description": "Force password change on first login (defaults to true)"}
                                 }
                             },
-                            "accountEnabled": {"type": "boolean", "description": "Whether AD account is enabled"}
+                            "accountEnabled": {"type": "boolean", "description": "Whether account is enabled (defaults to true)"}
                         },
                         "required": ["displayName"]
                     }
@@ -968,12 +1008,12 @@ async def mcp_tools_list():
                 "properties": {
                     "display_name": {"type": "string", "description": "AD group display name"},
                     "mail_nickname": {"type": "string", "description": "AD group mail nickname"},
-                    "description": {"type": "string", "description": "AD group description"},
+                    "description": {"type": ["string", "null"], "description": "AD group description (optional)"},
                     "group_type": {"type": "string", "enum": ["security", "m365", "dynamic-security", "dynamic-m365"], "description": "Azure AD group type", "default": "security"},
-                    "visibility": {"type": "string", "enum": ["Private", "Public"], "description": "AD group visibility (for M365 groups)"},
-                    "membership_rule": {"type": "string", "description": "Dynamic membership rule (for dynamic groups)"},
-                    "owners": {"type": "array", "items": {"type": "string"}, "description": "List of owner identifiers (names, emails, or GUIDs)"},
-                    "members": {"type": "array", "items": {"type": "string"}, "description": "List of member identifiers (names, emails, or GUIDs)"}
+                    "visibility": {"type": ["string", "null"], "enum": ["Private", "Public"], "description": "AD group visibility (for M365 groups, optional)"},
+                    "membership_rule": {"type": ["string", "null"], "description": "Dynamic membership rule (for dynamic groups, optional)"},
+                    "owners": {"type": ["array", "null"], "items": {"type": "string"}, "description": "List of owner identifiers (names, emails, or GUIDs, optional)"},
+                    "members": {"type": ["array", "null"], "items": {"type": "string"}, "description": "List of member identifiers (names, emails, or GUIDs, optional)"}
                 },
                 "required": ["display_name", "mail_nickname"]
             }
@@ -1305,95 +1345,476 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         # ==================== USER MANAGEMENT ====================
         elif tool_name == "ad_list_users":
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await list_users_endpoint(ad)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                data = await ad.list_users()
+                result = {
+                    "success": True,
+                    "action": "list_users",
+                    "message": f"✅ Found {len(data)} users in the directory",
+                    "data": data,
+                    "count": len(data)
+                }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_create_user":
-            create_request = CreateUserRequest(action="create_user", user=arguments["user"])
-            async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await create_user_endpoint(create_request, ad)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+            import secrets
+            import string
+            
+            user_data = arguments["user"].copy()
+            
+            # Ensure required fields are present
+            if "displayName" not in user_data:
+                result = {
+                    "success": False,
+                    "action": "create_user",
+                    "message": "❌ Display name is required to create a user",
+                    "error": "Missing required field: displayName"
+                }
+                return format_mcp_response(result, tool_name)
+            
+            # Auto-generate userPrincipalName if not provided OR correct domain if wrong domain used
+            if "userPrincipalName" not in user_data:
+                clean_name = user_data["displayName"].replace(" ", "").lower()
+                user_data["userPrincipalName"] = f"{clean_name}@lovenoreusgmail.onmicrosoft.com"
+            else:
+                # Ensure correct domain is used - override if different domain provided
+                current_upn = user_data["userPrincipalName"]
+                if "@" in current_upn and not current_upn.endswith("@lovenoreusgmail.onmicrosoft.com"):
+                    username_part = current_upn.split("@")[0]
+                    user_data["userPrincipalName"] = f"{username_part}@lovenoreusgmail.onmicrosoft.com"
+                    # Add a note about domain correction
+                    user_data["_domain_corrected"] = True
+            
+            # Auto-generate mailNickname if not provided
+            if "mailNickname" not in user_data:
+                clean_name = user_data["displayName"].replace(" ", "").lower()
+                user_data["mailNickname"] = clean_name
+            
+            # Set accountEnabled to True by default if not specified
+            if "accountEnabled" not in user_data:
+                user_data["accountEnabled"] = True
+            
+            # Generate secure password if not provided or if password is null/empty
+            password_profile = user_data.get("passwordProfile", {})
+            password = password_profile.get("password") if password_profile else None
+            
+            if not password or password is None or str(password).strip() == "" or str(password).lower() == "null":
+                # Generate a secure 12-character password
+                alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+                secure_password = ''.join(secrets.choice(alphabet) for i in range(12))
+                
+                user_data["passwordProfile"] = {
+                    "password": secure_password,
+                    "forceChangePasswordNextSignIn": True
+                }
+            
+            try:
+                create_request = CreateUserRequest(action="create_user", user=user_data)
+                async with FastActiveDirectory(max_concurrent=20) as ad:
+                    raw_result = await create_user_endpoint(create_request, ad)
+                
+                # Check if the operation was successful
+                if raw_result.get("success"):
+                    # Success - enhance the response with helpful information
+                    message = f"✅ Successfully created user '{user_data['displayName']}'"
+                    if user_data.get("_domain_corrected"):
+                        message += " (domain corrected to organization domain)"
+                    
+                    result = {
+                        "success": True,
+                        "action": "create_user",
+                        "message": message,
+                        "user_data": {
+                            "displayName": user_data["displayName"],
+                            "userPrincipalName": user_data["userPrincipalName"],
+                            "mailNickname": user_data["mailNickname"],
+                            "accountEnabled": user_data["accountEnabled"],
+                            "temporaryPassword": user_data["passwordProfile"]["password"] if user_data["passwordProfile"]["forceChangePasswordNextSignIn"] else "*** (password set by user)"
+                        },
+                        "data": raw_result.get("data"),
+                        "next_steps": [
+                            "The user should sign in and change their password on first login",
+                            f"User can sign in at: https://login.microsoftonline.com with email: {user_data['userPrincipalName']}"
+                        ]
+                    }
+                else:
+                    # Handle errors from the endpoint
+                    error_message = raw_result.get("error", "Unknown error")
+                    
+                    # Check for specific error conditions
+                    if "already exists" in error_message.lower() or "same value for property userPrincipalName already exists" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "create_user",
+                            "message": f"❌ A user with email '{user_data.get('userPrincipalName', 'unknown')}' already exists",
+                            "suggestion": f"Try creating the user with a different email address, or check if user '{user_data['displayName']}' is already in the system",
+                            "user_data": {
+                                "attempted_displayName": user_data["displayName"],
+                                "attempted_userPrincipalName": user_data["userPrincipalName"]
+                            },
+                            "error": "User already exists"
+                        }
+                    elif "password must be specified" in error_message.lower():
+                        result = {
+                            "success": False,
+                            "action": "create_user", 
+                            "message": f"❌ Password is required to create user '{user_data['displayName']}'",
+                            "suggestion": "The system should have auto-generated a password. Please try again.",
+                            "error": "Missing password"
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "create_user",
+                            "message": f"❌ Failed to create user '{user_data['displayName']}'",
+                            "suggestion": "Please check the user details and try again with different values",
+                            "user_data": {
+                                "attempted_displayName": user_data["displayName"],
+                                "attempted_userPrincipalName": user_data["userPrincipalName"]
+                            },
+                            "error": error_message
+                        }
+            except Exception as e:
+                error_message = str(e)
+                if "already exists" in error_message.lower():
+                    result = {
+                        "success": False,
+                        "action": "create_user",
+                        "message": f"❌ A user with email '{user_data.get('userPrincipalName', 'unknown')}' already exists",
+                        "error": "User already exists"
+                    }
+                else:
+                    result = {
+                        "success": False,
+                        "action": "create_user", 
+                        "message": f"❌ Failed to create user '{user_data['displayName']}'. {error_message}",
+                        "error": error_message
+                    }
+            
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_update_user":
             user_identifier = arguments["user_identifier"]
             user_updates = UserUpdates(updates=arguments["updates"])
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.update_user_smart(user_identifier, user_updates.updates)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    # Resolve user first to get actual details
+                    user_id = await ad.resolve_user(user_identifier)
+                    
+                    # Perform the update
+                    raw_result = await ad.update_user_smart(user_identifier, user_updates.updates)
+                    
+                    # Success - Graph API returns empty response for successful updates
+                    result = {
+                        "success": True,
+                        "action": "update_user",
+                        "message": f"✅ Successfully updated user '{user_identifier}'",
+                        "user_identifier": user_identifier,
+                        "user_id": user_id,
+                        "updated_fields": list(user_updates.updates.keys())
+                    }
+                except Exception as e:
+                    error_message = str(e)
+                    if "No user found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "update_user",
+                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
+                            "user_identifier": user_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "update_user",
+                            "message": f"❌ Failed to update user '{user_identifier}'. {error_message}",
+                            "user_identifier": user_identifier,
+                            "error": error_message
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_delete_user":
             user_identifier = arguments["user_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.delete_user_smart(user_identifier)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    # Resolve user first to get actual details
+                    user_id = await ad.resolve_user(user_identifier)
+                    
+                    # Perform the delete
+                    raw_result = await ad.delete_user_smart(user_identifier)
+                    
+                    # Success - Graph API returns empty response for successful deletes
+                    result = {
+                        "success": True,
+                        "action": "delete_user",
+                        "message": f"✅ Successfully deleted user '{user_identifier}'",
+                        "user_identifier": user_identifier,
+                        "user_id": user_id,
+                        "warning": "This action cannot be undone. The user account has been permanently removed."
+                    }
+                except Exception as e:
+                    error_message = str(e)
+                    if "No user found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "delete_user",
+                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
+                            "user_identifier": user_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "delete_user",
+                            "message": f"❌ Failed to delete user '{user_identifier}'. {error_message}",
+                            "user_identifier": user_identifier,
+                            "error": error_message
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_get_user_roles":
             user_identifier = arguments["user_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.get_user_roles_smart(user_identifier)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    user_id = await ad.resolve_user(user_identifier)
+                    data = await ad.get_user_roles(user_id)
+                    result = {
+                        "success": True,
+                        "action": "get_user_roles",
+                        "message": f"✅ Found {len(data)} roles for user '{user_identifier}'",
+                        "user_identifier": user_identifier,
+                        "user_id": user_id,
+                        "data": data,
+                        "count": len(data)
+                    }
+                except Exception as e:
+                    if "No user found" in str(e):
+                        result = {
+                            "success": False,
+                            "action": "get_user_roles",
+                            "message": f"Please check the username '{user_identifier}' - I couldn't find anyone with that name. You might want to try their full name or email address.",
+                            "user_identifier": user_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "get_user_roles",
+                            "message": f"There was an issue retrieving roles for '{user_identifier}'. Please try again.",
+                            "user_identifier": user_identifier,
+                            "error": str(e)
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_get_user_groups":
             user_identifier = arguments["user_identifier"]
             transitive = arguments.get("transitive", False)
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.get_user_groups_smart(user_identifier, transitive=transitive)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    user_id = await ad.resolve_user(user_identifier)
+                    data = await ad.get_user_groups(user_id, transitive=transitive)
+                    result = {
+                        "success": True,
+                        "action": "get_user_groups",
+                        "message": f"✅ Found {len(data)} groups for user '{user_identifier}'",
+                        "user_identifier": user_identifier,
+                        "user_id": user_id,
+                        "transitive": transitive,
+                        "data": data,
+                        "count": len(data)
+                    }
+                except Exception as e:
+                    if "No user found" in str(e):
+                        result = {
+                            "success": False,
+                            "action": "get_user_groups",
+                            "message": f"Please check the username '{user_identifier}' - I couldn't find anyone with that name. You might want to try their full name or email address.",
+                            "user_identifier": user_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "get_user_groups",
+                            "message": f"There was an issue retrieving groups for '{user_identifier}'. Please try again.",
+                            "user_identifier": user_identifier,
+                            "error": str(e)
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_get_user_full_profile":
             user_identifier = arguments["user_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.get_user_full_profile(user_identifier)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    user_id = await ad.resolve_user(user_identifier)
+                    data = await ad.get_user_full_profile(user_id)
+                    result = {
+                        "success": True,
+                        "action": "get_user_full_profile",
+                        "message": f"✅ Retrieved full profile for user '{user_identifier}'",
+                        "user_identifier": user_identifier,
+                        "user_id": user_id,
+                        "data": data
+                    }
+                except Exception as e:
+                    if "No user found" in str(e):
+                        result = {
+                            "success": False,
+                            "action": "get_user_full_profile",
+                            "message": f"Please check the username '{user_identifier}' - I couldn't find anyone with that name. You might want to try their full name or email address.",
+                            "user_identifier": user_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "get_user_full_profile",
+                            "message": f"There was an issue retrieving profile for '{user_identifier}'. Please try again.",
+                            "user_identifier": user_identifier,
+                            "error": str(e)
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_search_users":
             query = arguments["query"]
             limit = arguments.get("limit", 10)
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.search_users_fuzzy(query, limit=limit)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                data = await ad.search_users_fuzzy(query, limit=limit)
+                result = {
+                    "success": True,
+                    "action": "search_users",
+                    "message": f"✅ Found {len(data)} users matching '{query}'",
+                    "query": query,
+                    "limit": limit,
+                    "data": data,
+                    "count": len(data)
+                }
+            return format_mcp_response(result, tool_name)
 
         # ==================== ROLE MANAGEMENT ====================
         elif tool_name == "ad_list_roles":
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await list_roles_endpoint(ad)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                data = await ad.list_roles()
+                result = {
+                    "success": True,
+                    "action": "list_roles",
+                    "message": f"✅ Found {len(data)} roles in the directory",
+                    "data": data,
+                    "count": len(data)
+                }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_add_user_to_role":
             user_identifier = arguments["user_identifier"]
             role_identifier = arguments["role_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.add_user_to_role_smart(user_identifier, role_identifier)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    # Resolve identifiers first to get actual names/IDs
+                    user_id = await ad.resolve_user(user_identifier)
+                    role_id = await ad.resolve_role(role_identifier)
+                    
+                    # Perform the add operation
+                    raw_result = await ad.add_user_to_role_smart(user_identifier, role_identifier)
+                    
+                    # Success - Graph API returns empty response for successful adds
+                    result = {
+                        "success": True,
+                        "action": "add_user_to_role",
+                        "message": f"✅ Successfully added '{user_identifier}' to role '{role_identifier}'",
+                        "user_identifier": user_identifier,
+                        "role_identifier": role_identifier,
+                        "user_id": user_id,
+                        "role_id": role_id
+                    }
+                except Exception as e:
+                    error_message = str(e)
+                    if "No user found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "add_user_to_role",
+                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
+                            "user_identifier": user_identifier,
+                            "role_identifier": role_identifier
+                        }
+                    elif "No role found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "add_user_to_role",
+                            "message": f"❌ Could not find role '{role_identifier}'. Please check the role name.",
+                            "user_identifier": user_identifier,
+                            "role_identifier": role_identifier
+                        }
+                    elif "already exists" in error_message.lower() or "already assigned" in error_message.lower():
+                        result = {
+                            "success": False,
+                            "action": "add_user_to_role",
+                            "message": f"ℹ️ User '{user_identifier}' already has role '{role_identifier}'",
+                            "user_identifier": user_identifier,
+                            "role_identifier": role_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "add_user_to_role",
+                            "message": f"❌ Failed to add '{user_identifier}' to role '{role_identifier}'. {error_message}",
+                            "user_identifier": user_identifier,
+                            "role_identifier": role_identifier,
+                            "error": error_message
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_remove_user_from_role":
             user_identifier = arguments["user_identifier"]
             role_identifier = arguments["role_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.remove_user_from_role_smart(user_identifier, role_identifier)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    # Resolve identifiers first to get actual names/IDs
+                    user_id = await ad.resolve_user(user_identifier)
+                    role_id = await ad.resolve_role(role_identifier)
+                    
+                    # Perform the remove operation
+                    raw_result = await ad.remove_user_from_role_smart(user_identifier, role_identifier)
+                    
+                    # Success - Graph API returns empty response for successful removes
+                    result = {
+                        "success": True,
+                        "action": "remove_user_from_role",
+                        "message": f"✅ Successfully removed '{user_identifier}' from role '{role_identifier}'",
+                        "user_identifier": user_identifier,
+                        "role_identifier": role_identifier,
+                        "user_id": user_id,
+                        "role_id": role_id
+                    }
+                except Exception as e:
+                    error_message = str(e)
+                    if "No user found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "remove_user_from_role",
+                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
+                            "user_identifier": user_identifier,
+                            "role_identifier": role_identifier
+                        }
+                    elif "No role found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "remove_user_from_role",
+                            "message": f"❌ Could not find role '{role_identifier}'. Please check the role name.",
+                            "user_identifier": user_identifier,
+                            "role_identifier": role_identifier
+                        }
+                    elif "does not exist" in error_message.lower() or "not assigned" in error_message.lower():
+                        result = {
+                            "success": False,
+                            "action": "remove_user_from_role",
+                            "message": f"ℹ️ User '{user_identifier}' does not have role '{role_identifier}'",
+                            "user_identifier": user_identifier,
+                            "role_identifier": role_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "remove_user_from_role",
+                            "message": f"❌ Failed to remove '{user_identifier}' from role '{role_identifier}'. {error_message}",
+                            "user_identifier": user_identifier,
+                            "role_identifier": role_identifier,
+                            "error": error_message
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_batch_add_users_to_role":
             user_identifiers = arguments["user_identifiers"]
@@ -1409,13 +1830,16 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             success_count = len([r for r in result if not isinstance(r, Exception)])
             error_count = len([r for r in result if isinstance(r, Exception)])
             formatted_result = {
+                "success": error_count == 0,
+                "action": "batch_add_users_to_role",
+                "message": f"✅ Batch operation completed: {success_count} successful, {error_count} failed" if error_count == 0 else f"⚠️ Batch operation completed with issues: {success_count} successful, {error_count} failed",
                 "success_count": success_count,
                 "error_count": error_count,
-                "results": [str(r) if isinstance(r, Exception) else "Success" for r in result]
+                "total_users": len(user_identifiers),
+                "role_identifier": role_identifier,
+                "results": [str(r) if isinstance(r, Exception) else "✅ Added successfully" for r in result]
             }
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(formatted_result, indent=2))]
-            )
+            return format_mcp_response(formatted_result, tool_name)
 
         elif tool_name == "ad_batch_remove_users_from_role":
             user_identifiers = arguments["user_identifiers"]
@@ -1431,111 +1855,512 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             success_count = len([r for r in result if not isinstance(r, Exception)])
             error_count = len([r for r in result if isinstance(r, Exception)])
             formatted_result = {
+                "success": error_count == 0,
+                "action": "batch_remove_users_from_role",
+                "message": f"✅ Batch operation completed: {success_count} successful, {error_count} failed" if error_count == 0 else f"⚠️ Batch operation completed with issues: {success_count} successful, {error_count} failed",
                 "success_count": success_count,
                 "error_count": error_count,
-                "results": [str(r) if isinstance(r, Exception) else "Success" for r in result]
+                "total_users": len(user_identifiers),
+                "role_identifier": role_identifier,
+                "results": [str(r) if isinstance(r, Exception) else "✅ Removed successfully" for r in result]
             }
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(formatted_result, indent=2))]
-            )
+            return format_mcp_response(formatted_result, tool_name)
 
         # ==================== GROUP MANAGEMENT ====================
         elif tool_name == "ad_list_groups":
             security_only = arguments.get("security_only", False)
             unified_only = arguments.get("unified_only", False)
-            select = arguments.get("select", "id,displayName,mailNickname,mail,securityEnabled,groupTypes")
+            limit = arguments.get("limit", 50)
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await list_groups_endpoint(security_only, unified_only, select, ad)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                data = await ad.list_groups(security_only=security_only, unified_only=unified_only)
+                # Apply limit if specified
+                if limit and len(data) > limit:
+                    data = data[:limit]
+                result = {
+                    "success": True,
+                    "action": "list_groups",
+                    "message": f"✅ Found {len(data)} groups in the directory",
+                    "security_only": security_only,
+                    "unified_only": unified_only,
+                    "data": data,
+                    "count": len(data)
+                }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_create_group":
-            create_group_request = CreateGroupRequest(
-                action="create_group",
-                display_name=arguments["display_name"],
-                mail_nickname=arguments["mail_nickname"],
-                description=arguments.get("description"),
-                group_type=arguments.get("group_type", "security"),
-                visibility=arguments.get("visibility"),
-                membership_rule=arguments.get("membership_rule"),
-                owners=arguments.get("owners"),
-                members=arguments.get("members")
-            )
-            async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await create_group_endpoint(create_group_request, ad)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+            try:
+                # Handle null values by converting them to None or appropriate defaults
+                description = arguments.get("description")
+                if description is None or str(description).lower() == "null":
+                    description = None
+                    
+                visibility = arguments.get("visibility")
+                if visibility is None or str(visibility).lower() == "null":
+                    visibility = None
+                    
+                membership_rule = arguments.get("membership_rule")
+                if membership_rule is None or str(membership_rule).lower() == "null":
+                    membership_rule = None
+                    
+                owners = arguments.get("owners")
+                if owners is None or str(owners).lower() == "null":
+                    owners = None
+                elif isinstance(owners, list) and len(owners) == 0:
+                    owners = None
+                    
+                members = arguments.get("members")
+                if members is None or str(members).lower() == "null":
+                    members = None
+                elif isinstance(members, list) and len(members) == 0:
+                    members = None
+                
+                create_group_request = CreateGroupRequest(
+                    action="create_group",
+                    display_name=arguments["display_name"],
+                    mail_nickname=arguments["mail_nickname"],
+                    description=description,
+                    group_type=arguments.get("group_type", "security"),
+                    visibility=visibility,
+                    membership_rule=membership_rule,
+                    owners=owners,
+                    members=members
+                )
+                async with FastActiveDirectory(max_concurrent=20) as ad:
+                    raw_result = await create_group_endpoint(create_group_request, ad)
+                
+                # Enhance the response with helpful information
+                if raw_result.get("success"):
+                    group_data = raw_result.get("data", {})
+                    if isinstance(group_data, dict) and "group" in group_data:
+                        group_info = group_data["group"]
+                        result = {
+                            "success": True,
+                            "action": "create_group",
+                            "message": f"✅ Successfully created group '{arguments['display_name']}'",
+                            "group_data": {
+                                "displayName": arguments["display_name"],
+                                "mailNickname": arguments["mail_nickname"],
+                                "groupType": arguments.get("group_type", "security"),
+                                "description": arguments.get("description", "No description provided"),
+                                "id": group_info.get("id"),
+                                "mail": group_info.get("mail")
+                            },
+                            "data": raw_result.get("data"),
+                            "next_steps": [
+                                "You can now add members and owners to this group",
+                                "Use ad_add_group_member to add users to the group",
+                                "Use ad_add_group_owner to add group administrators"
+                            ]
+                        }
+                    else:
+                        result = raw_result
+                else:
+                    result = raw_result
+            except ValidationError as ve:
+                result = {
+                    "success": False,
+                    "action": "create_group",
+                    "message": f"❌ Invalid group parameters provided for '{arguments.get('display_name', 'unknown')}'",
+                    "suggestion": "Please check that required fields (display_name, mail_nickname) are provided and optional fields have valid values",
+                    "error": f"Validation error: {str(ve)}"
+                }
+            except Exception as e:
+                error_message = str(e)
+                if "already exists" in error_message.lower():
+                    result = {
+                        "success": False,
+                        "action": "create_group",
+                        "message": f"❌ A group with name '{arguments.get('display_name', 'unknown')}' or mail nickname '{arguments.get('mail_nickname', 'unknown')}' already exists",
+                        "suggestion": "Try using a different display name or mail nickname",
+                        "error": "Group already exists"
+                    }
+                else:
+                    result = {
+                        "success": False,
+                        "action": "create_group",
+                        "message": f"❌ Failed to create group '{arguments.get('display_name', 'unknown')}'. {error_message}",
+                        "error": error_message
+                    }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_add_group_member":
             user_identifier = arguments["user_identifier"]
             group_identifier = arguments["group_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.add_user_to_group_smart(user_identifier, group_identifier)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    # Resolve identifiers first to get actual names/IDs
+                    user_id = await ad.resolve_user(user_identifier)
+                    group_id = await ad.resolve_group(group_identifier)
+                    
+                    # Perform the add operation
+                    raw_result = await ad.add_user_to_group_smart(user_identifier, group_identifier)
+                    
+                    # Success - Graph API returns empty response for successful adds
+                    result = {
+                        "success": True,
+                        "action": "add_group_member",
+                        "message": f"✅ Successfully added '{user_identifier}' to group '{group_identifier}'",
+                        "user_identifier": user_identifier,
+                        "group_identifier": group_identifier,
+                        "user_id": user_id,
+                        "group_id": group_id
+                    }
+                except Exception as e:
+                    error_message = str(e)
+                    if "No user found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "add_group_member",
+                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier
+                        }
+                    elif "No group found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "add_group_member",
+                            "message": f"❌ Could not find group '{group_identifier}'. Please check the group name or mail nickname.",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier
+                        }
+                    elif "already exists" in error_message.lower() or "already a member" in error_message.lower():
+                        result = {
+                            "success": False,
+                            "action": "add_group_member",
+                            "message": f"ℹ️ User '{user_identifier}' is already a member of group '{group_identifier}'",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "add_group_member",
+                            "message": f"❌ Failed to add '{user_identifier}' to group '{group_identifier}'. {error_message}",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier,
+                            "error": error_message
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_remove_group_member":
             user_identifier = arguments["user_identifier"]
             group_identifier = arguments["group_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.remove_user_from_group_smart(user_identifier, group_identifier)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    # Resolve identifiers first to get actual names/IDs
+                    user_id = await ad.resolve_user(user_identifier)
+                    group_id = await ad.resolve_group(group_identifier)
+                    
+                    # Perform the remove operation
+                    raw_result = await ad.remove_user_from_group_smart(user_identifier, group_identifier)
+                    
+                    # Success - Graph API returns empty response for successful removes
+                    result = {
+                        "success": True,
+                        "action": "remove_group_member",
+                        "message": f"✅ Successfully removed '{user_identifier}' from group '{group_identifier}'",
+                        "user_identifier": user_identifier,
+                        "group_identifier": group_identifier,
+                        "user_id": user_id,
+                        "group_id": group_id
+                    }
+                except Exception as e:
+                    error_message = str(e)
+                    if "No user found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "remove_group_member",
+                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier
+                        }
+                    elif "No group found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "remove_group_member",
+                            "message": f"❌ Could not find group '{group_identifier}'. Please check the group name or mail nickname.",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier
+                        }
+                    elif "does not exist" in error_message.lower() or "not a member" in error_message.lower():
+                        result = {
+                            "success": False,
+                            "action": "remove_group_member",
+                            "message": f"ℹ️ User '{user_identifier}' is not a member of group '{group_identifier}'",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "remove_group_member",
+                            "message": f"❌ Failed to remove '{user_identifier}' from group '{group_identifier}'. {error_message}",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier,
+                            "error": error_message
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_get_group_members":
             group_identifier = arguments["group_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.get_group_members_smart(group_identifier)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    group_id = await ad.resolve_group(group_identifier)
+                    data = await ad.get_group_members(group_id)
+                    result = {
+                        "success": True,
+                        "action": "get_group_members",
+                        "message": f"✅ Found {len(data)} members in group '{group_identifier}'",
+                        "group_identifier": group_identifier,
+                        "group_id": group_id,
+                        "data": data,
+                        "count": len(data)
+                    }
+                except Exception as e:
+                    if "No group found" in str(e):
+                        result = {
+                            "success": False,
+                            "action": "get_group_members",
+                            "message": f"Please check the group name '{group_identifier}' - I couldn't find a group with that name. You might want to try the full group name or mail nickname.",
+                            "group_identifier": group_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "get_group_members",
+                            "message": f"There was an issue retrieving members for group '{group_identifier}'. Please try again.",
+                            "group_identifier": group_identifier,
+                            "error": str(e)
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_get_group_owners":
             group_identifier = arguments["group_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.get_group_owners_smart(group_identifier)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    group_id = await ad.resolve_group(group_identifier)
+                    data = await ad.get_group_owners(group_id)
+                    result = {
+                        "success": True,
+                        "action": "get_group_owners",
+                        "message": f"✅ Found {len(data)} owners for group '{group_identifier}'",
+                        "group_identifier": group_identifier,
+                        "group_id": group_id,
+                        "data": data,
+                        "count": len(data)
+                    }
+                except Exception as e:
+                    if "No group found" in str(e):
+                        result = {
+                            "success": False,
+                            "action": "get_group_owners",
+                            "message": f"Please check the group name '{group_identifier}' - I couldn't find a group with that name. You might want to try the full group name or mail nickname.",
+                            "group_identifier": group_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "get_group_owners",
+                            "message": f"There was an issue retrieving owners for group '{group_identifier}'. Please try again.",
+                            "group_identifier": group_identifier,
+                            "error": str(e)
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_add_group_owner":
             user_identifier = arguments["user_identifier"]
             group_identifier = arguments["group_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.add_owner_to_group_smart(user_identifier, group_identifier)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    # Resolve identifiers first to get actual names/IDs
+                    user_id = await ad.resolve_user(user_identifier)
+                    group_id = await ad.resolve_group(group_identifier)
+                    
+                    # Perform the add owner operation
+                    raw_result = await ad.add_owner_to_group_smart(user_identifier, group_identifier)
+                    
+                    # Success - Graph API returns empty response for successful adds
+                    result = {
+                        "success": True,
+                        "action": "add_group_owner",
+                        "message": f"✅ Successfully added '{user_identifier}' as owner of group '{group_identifier}'",
+                        "user_identifier": user_identifier,
+                        "group_identifier": group_identifier,
+                        "user_id": user_id,
+                        "group_id": group_id
+                    }
+                except Exception as e:
+                    error_message = str(e)
+                    if "No user found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "add_group_owner",
+                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier
+                        }
+                    elif "No group found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "add_group_owner",
+                            "message": f"❌ Could not find group '{group_identifier}'. Please check the group name or mail nickname.",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier
+                        }
+                    elif "already exists" in error_message.lower() or "already an owner" in error_message.lower():
+                        result = {
+                            "success": False,
+                            "action": "add_group_owner",
+                            "message": f"ℹ️ User '{user_identifier}' is already an owner of group '{group_identifier}'",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "add_group_owner",
+                            "message": f"❌ Failed to add '{user_identifier}' as owner of group '{group_identifier}'. {error_message}",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier,
+                            "error": error_message
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_remove_group_owner":
             user_identifier = arguments["user_identifier"]
             group_identifier = arguments["group_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.remove_owner_from_group_smart(user_identifier, group_identifier)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    # Resolve identifiers first to get actual names/IDs
+                    user_id = await ad.resolve_user(user_identifier)
+                    group_id = await ad.resolve_group(group_identifier)
+                    
+                    # Perform the remove owner operation
+                    raw_result = await ad.remove_owner_from_group_smart(user_identifier, group_identifier)
+                    
+                    # Success - Graph API returns empty response for successful removes
+                    result = {
+                        "success": True,
+                        "action": "remove_group_owner",
+                        "message": f"✅ Successfully removed '{user_identifier}' as owner from group '{group_identifier}'",
+                        "user_identifier": user_identifier,
+                        "group_identifier": group_identifier,
+                        "user_id": user_id,
+                        "group_id": group_id
+                    }
+                except Exception as e:
+                    error_message = str(e)
+                    if "No user found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "remove_group_owner",
+                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier
+                        }
+                    elif "No group found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "remove_group_owner",
+                            "message": f"❌ Could not find group '{group_identifier}'. Please check the group name or mail nickname.",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier
+                        }
+                    elif "does not exist" in error_message.lower() or "not an owner" in error_message.lower():
+                        result = {
+                            "success": False,
+                            "action": "remove_group_owner",
+                            "message": f"ℹ️ User '{user_identifier}' is not an owner of group '{group_identifier}'",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "remove_group_owner",
+                            "message": f"❌ Failed to remove '{user_identifier}' as owner from group '{group_identifier}'. {error_message}",
+                            "user_identifier": user_identifier,
+                            "group_identifier": group_identifier,
+                            "error": error_message
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_update_group":
             group_identifier = arguments["group_identifier"]
             updates = arguments["updates"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.update_group_smart(group_identifier, updates)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    # Resolve group first to get actual details
+                    group_id = await ad.resolve_group(group_identifier)
+                    
+                    # Perform the update
+                    raw_result = await ad.update_group_smart(group_identifier, updates)
+                    
+                    # Success - Graph API returns empty response for successful updates
+                    result = {
+                        "success": True,
+                        "action": "update_group",
+                        "message": f"✅ Successfully updated group '{group_identifier}'",
+                        "group_identifier": group_identifier,
+                        "group_id": group_id,
+                        "updated_fields": list(updates.keys())
+                    }
+                except Exception as e:
+                    error_message = str(e)
+                    if "No group found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "update_group",
+                            "message": f"❌ Could not find group '{group_identifier}'. Please check the group name or mail nickname.",
+                            "group_identifier": group_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "update_group",
+                            "message": f"❌ Failed to update group '{group_identifier}'. {error_message}",
+                            "group_identifier": group_identifier,
+                            "error": error_message
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_delete_group":
             group_identifier = arguments["group_identifier"]
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                result = await ad.delete_group_smart(group_identifier)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
+                try:
+                    # Resolve group first to get actual details
+                    group_id = await ad.resolve_group(group_identifier)
+                    
+                    # Perform the delete
+                    raw_result = await ad.delete_group_smart(group_identifier)
+                    
+                    # Success - Graph API returns empty response for successful deletes
+                    result = {
+                        "success": True,
+                        "action": "delete_group",
+                        "message": f"✅ Successfully deleted group '{group_identifier}'",
+                        "group_identifier": group_identifier,
+                        "group_id": group_id,
+                        "warning": "This action cannot be undone. The group and all its settings have been permanently removed."
+                    }
+                except Exception as e:
+                    error_message = str(e)
+                    if "No group found" in error_message:
+                        result = {
+                            "success": False,
+                            "action": "delete_group",
+                            "message": f"❌ Could not find group '{group_identifier}'. Please check the group name or mail nickname.",
+                            "group_identifier": group_identifier
+                        }
+                    else:
+                        result = {
+                            "success": False,
+                            "action": "delete_group",
+                            "message": f"❌ Failed to delete group '{group_identifier}'. {error_message}",
+                            "group_identifier": group_identifier,
+                            "error": error_message
+                        }
+            return format_mcp_response(result, tool_name)
 
         elif tool_name == "ad_get_group_full_details":
             group_identifier = arguments["group_identifier"]

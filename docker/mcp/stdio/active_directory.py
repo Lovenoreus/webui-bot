@@ -21,7 +21,7 @@ SCOPE = ["https://graph.microsoft.com/.default"]
 
 
 class PasswordProfile(BaseModel):
-    password: str = Field(..., description="A strong initial password for the user.")
+    password: Optional[str] = Field(None, description="A strong initial password for the user. Will be auto-generated if not provided.")
     forceChangePasswordNextSignIn: bool = Field(True, description="Require user to change password on next sign-in.")
 
 
