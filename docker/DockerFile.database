@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
 # Build argument to control cert usage - SET THIS MANUALLY
-ARG USE_CERTS=true
+ARG USE_CERTS=false
 
 WORKDIR /app
 
@@ -32,25 +32,12 @@ RUN if [ "$USE_CERTS" = "true" ]; then \
         fi; \
     fi
 
-# Install system dependencies including ODBC drivers
+# Install system dependencies (add more if needed, e.g., libpq-dev for PostgreSQL)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    ca-certificates \
-    curl \
-    gnupg \
-    apt-transport-https \
-    unixodbc \
-    unixodbc-dev \
-    && if [ "$USE_CERTS" = "true" ]; then \
+    apt-get install -y --no-install-recommends ca-certificates curl && \
+    if [ "$USE_CERTS" = "true" ]; then \
         update-ca-certificates; \
     fi && \
-    rm -rf /var/lib/apt/lists/*
-
-# Install Microsoft ODBC Driver 17 for SQL Server
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
-    apt-get update && \
-    ACCEPT_EULA=Y apt-get install -y msodbcsql17 && \
     rm -rf /var/lib/apt/lists/*
 
 # Conditionally set certificate environment variables
@@ -65,8 +52,9 @@ COPY mcp/requirements.database.txt .
 RUN pip install --no-cache-dir --default-timeout=300 --retries=20 -r requirements.database.txt
 
 # Copy app files
-COPY mcp/stdio/async_sql_local.py .
-COPY mcp/stdio/config.json .
+COPY /mcp/stdio/async_sql_local.py .
+COPY /mcp/stdio/config.json .
+COPY .env .
 
 # Create data dir
 RUN mkdir -p /app/database_data

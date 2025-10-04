@@ -1,97 +1,127 @@
-from dotenv import load_dotenv, find_dotenv
-
-load_dotenv(find_dotenv())
-
-from fastapi import FastAPI
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+# -------------------- Built-in Libraries --------------------
 import asyncio
-import uvicorn
-from typing import List, Dict, Any
-import aiosqlite
-import aioodbc  # Add this for MSSQL
 import json
 import os
-from datetime import datetime, timedelta
-import random
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
-import config as configuration
+from datetime import datetime, timedelta
+from typing import List, Dict, Any
+import random
 
-# Database configuration
-DATABASE_CHOICE = configuration.DATABASE_CHOICE
-USE_REMOTE = DATABASE_CHOICE == "remote"
+# -------------------- External Libraries --------------------
+from dotenv import load_dotenv, find_dotenv
+from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+import uvicorn
+import aiosqlite
+import pymssql
+from pydantic import BaseModel
 
-print(f"Database choice: {DATABASE_CHOICE}")
-print(f"Using remote database: {USE_REMOTE}")
+# -------------------- Load environment variables --------------------
+load_dotenv(find_dotenv())
 
 
+# Load configuration first
 def load_config():
     """Load configuration from config.json if it exists"""
     config_path = "config.json"
 
     default_config = {
-        "database_path": "sqlite_invoices_full.db",
-        "docker_database_path": "/app/database_data/sqlite_invoices_full.db",
-        "connection_pool_size": 10
+        "mcp": {
+            "database_choice": "local",
+            "database_path": "sqlite_invoices_full.db",
+            "docker_database_path": "/app/database_data/sqlite_invoices_full.db",
+            "connection_pool_size": 10
+        }
     }
 
     if os.path.exists(config_path):
         try:
             with open(config_path, 'r') as f:
                 config = json.load(f)
+                print(f'Returned config: {config}')
                 return config
         except Exception as e:
+            print(f'Error loading config: {e}')
             return default_config
 
+    print('Configuration file not found')
     return default_config
+
+
+# Load config at module level
+CONFIG = load_config()
+MCP_CONFIG = CONFIG.get('mcp', {})
+
+# Database configuration
+DATABASE_CHOICE = MCP_CONFIG.get('database_choice', 'local')
+USE_REMOTE = DATABASE_CHOICE == "remote"
+
+SQL_SERVER_HOST = os.getenv("SQL_SERVER_HOST", "localhost\\SQLEXPRESS")
+SQL_SERVER_DATABASE = os.getenv("SQL_SERVER_DATABASE", "InvoiceDB")
+SQL_SERVER_DRIVER = os.getenv("SQL_SERVER_DRIVER", "ODBC Driver 17 for SQL Server")
+SQL_SERVER_USE_WINDOWS_AUTH = os.getenv("SQL_SERVER_USE_WINDOWS_AUTH", "true").lower() == "true"
+
+SQL_SERVER_USERNAME = os.getenv("SQL_SERVER_USERNAME", None)
+SQL_SERVER_PASSWORD = os.getenv("SQL_SERVER_PASSWORD", None)
+
+print(f"Database choice: {DATABASE_CHOICE}")
+print(f"Using remote database: {USE_REMOTE}")
+
+
+def get_nested(d: Dict[str, Any], keys: List[str], default: Any = None) -> Any:
+    """
+    Safely traverse a nested dict using a list of keys.
+    Returns default if any key is missing.
+    """
+    cur = d
+    for k in keys:
+        if not isinstance(cur, dict) or k not in cur:
+            return default
+        cur = cur[k]
+    return cur
 
 
 def get_database_path():
     """Determine the correct database path based on environment"""
-    config = load_config()
-
     # Check if we're running in Docker by looking for docker-specific paths
     if os.path.exists("/app/database_data"):
-        return config.get("docker_database_path", "/app/database_data/sqlite_invoices_full.db")
+        return MCP_CONFIG.get("docker_database_path", "/app/database_data/sqlite_invoices_full.db")
     else:
-        return config.get("database_path", "sqlite_invoices_full.db")
-
-
-def get_mssql_connection_string():
-    """Build MSSQL connection string based on auth type"""
-    if configuration.SQL_SERVER_USE_WINDOWS_AUTH:
-        return (
-            f"DRIVER={{{configuration.SQL_SERVER_DRIVER}}};"
-            f"SERVER={configuration.SQL_SERVER_HOST};"
-            f"DATABASE={configuration.SQL_SERVER_DATABASE};"
-            f"Trusted_Connection=yes;"
-        )
-    else:
-        return (
-            f"DRIVER={{{configuration.SQL_SERVER_DRIVER}}};"
-            f"SERVER={configuration.SQL_SERVER_HOST};"
-            f"DATABASE={configuration.SQL_SERVER_DATABASE};"
-            f"UID={configuration.SQL_SERVER_USERNAME};"
-            f"PWD={configuration.SQL_SERVER_PASSWORD};"
-        )
+        return MCP_CONFIG.get("database_path", "sqlite_invoices_full.db")
 
 
 class AsyncDatabaseServer:
     def __init__(self, db_path: str = None, pool_size: int = None):
-        config = load_config()
         self.use_remote = USE_REMOTE
 
         if self.use_remote:
             # MSSQL configuration
-            self.connection_string = get_mssql_connection_string()
-            self.pool_size = pool_size or config.get("connection_pool_size", 10)
-            print(f"Using MSSQL Server: {configuration.SQL_SERVER_HOST}")
-            print(f"Database: {configuration.SQL_SERVER_DATABASE}")
-            print(f"Auth: {'Windows' if configuration.SQL_SERVER_USE_WINDOWS_AUTH else 'SQL Server'}")
+            self.server = SQL_SERVER_HOST
+            self.database = SQL_SERVER_DATABASE
+            self.pool_size = pool_size or MCP_CONFIG.get("connection_pool_size", 10)
+
+            # Create thread pool for blocking pymssql operations
+            self.executor = ThreadPoolExecutor(max_workers=self.pool_size)
+
+            # Handle authentication
+            if SQL_SERVER_USE_WINDOWS_AUTH:
+                self.username = None
+                self.password = None
+                print(f"Using MSSQL Server: {self.server}")
+                print(f"Database: {self.database}")
+                print(f"Auth: Windows Authentication")
+            else:
+                self.username = SQL_SERVER_USERNAME
+                self.password = SQL_SERVER_PASSWORD
+                print(f"Using MSSQL Server: {self.server}")
+                print(f"Database: {self.database}")
+                print(f"Auth: SQL Server Authentication")
         else:
             # SQLite configuration
             self.db_path = db_path or get_database_path()
-            self.pool_size = pool_size or config.get("connection_pool_size", 10)
+            self.pool_size = pool_size or MCP_CONFIG.get("connection_pool_size", 10)
+            self.executor = None
             print(f"Using SQLite")
             print(f"Database path: {self.db_path}")
             print(f"Database file exists: {os.path.exists(self.db_path)}")
@@ -115,11 +145,34 @@ class AsyncDatabaseServer:
         with open(flag_file, 'w') as f:
             f.write(str(datetime.now()))
 
+    def _create_connection_sync(self):
+        """Synchronous connection creation for pymssql"""
+        if SQL_SERVER_USE_WINDOWS_AUTH:
+            # Windows Authentication
+            return pymssql.connect(
+                server=self.server,
+                database=self.database,
+                as_dict=True
+            )
+        else:
+            # SQL Server Authentication
+            return pymssql.connect(
+                server=self.server,
+                user=self.username,
+                password=self.password,
+                database=self.database,
+                as_dict=True
+            )
+
     async def _create_connection(self):
         """Create a new database connection with optimal settings"""
         if self.use_remote:
-            # Create MSSQL connection
-            conn = await aioodbc.connect(dsn=self.connection_string)
+            # Create pymssql connection in executor
+            loop = asyncio.get_running_loop()
+            conn = await loop.run_in_executor(
+                self.executor,
+                self._create_connection_sync
+            )
             return conn
         else:
             # Create SQLite connection
@@ -151,7 +204,7 @@ class AsyncDatabaseServer:
 
         self.pool_initialized = True
         elapsed = asyncio.get_event_loop().time() - start_time
-        print(f"✅ Connection pool initialized in {elapsed * 1000:.2f}ms!")
+        print(f"Connection pool initialized in {elapsed * 1000:.2f}ms!")
         print(f"   ({self.pool_size} connections ready)")
 
     @asynccontextmanager
@@ -166,6 +219,10 @@ class AsyncDatabaseServer:
         finally:
             await self.pool.put(conn)
 
+    def _close_connection_sync(self, conn):
+        """Synchronous connection close for pymssql"""
+        conn.close()
+
     async def close_pool(self):
         """Close all connections in the pool - also in parallel!"""
         if not self.pool_initialized:
@@ -179,10 +236,19 @@ class AsyncDatabaseServer:
             connections.append(await self.pool.get())
 
         # Close all connections in parallel
-        await asyncio.gather(*[conn.close() for conn in connections])
+        if self.use_remote:
+            loop = asyncio.get_running_loop()
+            await asyncio.gather(*[
+                loop.run_in_executor(self.executor, self._close_connection_sync, conn)
+                for conn in connections
+            ])
+            # Shutdown the executor
+            self.executor.shutdown(wait=True)
+        else:
+            await asyncio.gather(*[conn.close() for conn in connections])
 
         self.pool_initialized = False
-        print(f"✅ Closed {len(connections)} connections")
+        print(f"Closed {len(connections)} connections")
 
     async def initialize_database(self):
         """Initialize database with invoice tables and sample data"""
@@ -194,7 +260,7 @@ class AsyncDatabaseServer:
 
         # Fast flag-based check
         if self.is_database_initialized():
-            print("✅ Database already initialized. Ready to use!")
+            print("Database already initialized. Ready to use!")
             return
 
         print("Initializing new database...")
@@ -376,11 +442,10 @@ class AsyncDatabaseServer:
 
             # Mark as initialized
             self.mark_database_initialized()
-            print("✅ Database initialization complete!")
+            print("Database initialization complete!")
 
     async def insert_sample_data(self, db):
         """Insert comprehensive invoice sample data"""
-        # ... (keep all the existing sample data code - it's only used for SQLite initialization)
         # Generate realistic Swedish companies and data
         suppliers = [
             ('5592985237', 'JA Hotel Karlskrona', 'Borgmästaregatan 13', '37115', 'Karlskrona', 'info@jahotel.se',
@@ -618,56 +683,64 @@ class AsyncDatabaseServer:
         line_insert_sql = f"INSERT INTO Invoice_Line ({', '.join(invoice_line_columns)}) VALUES ({line_placeholders})"
         await db.executemany(line_insert_sql, invoice_line_data)
 
+    def _execute_query_sync(self, conn, query: str):
+        """Synchronous query execution for pymssql"""
+        cursor = conn.cursor()
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        cursor.close()
+        return rows
+
     async def execute_query(self, query: str) -> List[Dict[str, Any]]:
         """Execute any SQL query and return results"""
-        async with self.get_connection() as db:
+        async with self.get_connection() as conn:
             if self.use_remote:
-                # MSSQL query execution
-                async with db.cursor() as cursor:
-                    await cursor.execute(query)
-                    rows = await cursor.fetchall()
-                    # Get column names from cursor description
-                    columns = [column[0] for column in cursor.description]
-                    return [dict(zip(columns, row)) for row in rows]
+                # MSSQL query execution in thread pool
+                loop = asyncio.get_running_loop()
+                rows = await loop.run_in_executor(
+                    self.executor,
+                    self._execute_query_sync,
+                    conn,
+                    query
+                )
+                # pymssql with as_dict=True returns dictionaries already
+                return rows
             else:
                 # SQLite query execution
-                async with db.execute(query) as cursor:
+                async with conn.execute(query) as cursor:
                     rows = await cursor.fetchall()
                     return [dict(row) for row in rows]
 
     async def execute_query_stream(self, query: str):
         """Execute SQL query and yield results one row at a time"""
-        async with self.get_connection() as db:
+        async with self.get_connection() as conn:
             if self.use_remote:
-                # MSSQL streaming
-                async with db.cursor() as cursor:
-                    await cursor.execute(query)
-                    columns = [column[0] for column in cursor.description]
-                    async for row in cursor:
-                        yield dict(zip(columns, row))
+                # MSSQL streaming - fetch all then yield
+                # (true streaming would require cursor iteration in executor)
+                loop = asyncio.get_running_loop()
+                rows = await loop.run_in_executor(
+                    self.executor,
+                    self._execute_query_sync,
+                    conn,
+                    query
+                )
+                for row in rows:
+                    yield row
             else:
                 # SQLite streaming
-                async with db.execute(query) as cursor:
+                async with conn.execute(query) as cursor:
                     async for row in cursor:
                         yield dict(row)
 
 
-# FastAPI setup
-app = FastAPI(title="Invoice Database API", description="Database Server for Invoice Management")
-
 # Initialize database server
-config = load_config()
 db_server = AsyncDatabaseServer(
-    pool_size=config.get("connection_pool_size", 10)
+    pool_size=MCP_CONFIG.get("connection_pool_size", 10)
 )
 
-
-class QueryRequest(BaseModel):
-    query: str
-
-
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
     print("🚀 Starting invoice database initialization...")
     start_time = asyncio.get_event_loop().time()
 
@@ -693,13 +766,22 @@ async def startup_event():
     except Exception as e:
         print(f"❌ Error checking database: {e}")
 
+    yield  # App runs here
 
-@app.on_event("shutdown")
-async def shutdown_event():
+    # Shutdown
     print("🛑 Shutting down database connections...")
     await db_server.close_pool()
     print("✅ All connections closed gracefully!")
 
+# FastAPI setup with lifespan
+app = FastAPI(
+    title="Invoice Database API",
+    description="Database Server for Invoice Management",
+    lifespan=lifespan
+)
+
+class QueryRequest(BaseModel):
+    query: str
 
 @app.post("/query")
 async def execute_query(request: QueryRequest):
@@ -709,7 +791,6 @@ async def execute_query(request: QueryRequest):
         return {"success": True, "data": results}
     except Exception as e:
         return {"success": False, "error": str(e)}
-
 
 @app.post("/query_stream")
 async def execute_query_stream(request: QueryRequest):
@@ -739,7 +820,6 @@ async def execute_query_stream(request: QueryRequest):
         media_type="application/x-ndjson"
     )
 
-
 @app.get("/health")
 async def health_check():
     try:
@@ -754,7 +834,7 @@ async def health_check():
         return {
             "status": "healthy",
             "database_type": "MSSQL" if USE_REMOTE else "SQLite",
-            "database_location": configuration.SQL_SERVER_HOST if USE_REMOTE else db_server.db_path,
+            "database_location": SQL_SERVER_HOST if USE_REMOTE else db_server.db_path,
             "pool_size": db_server.pool_size,
             "pool_available": db_server.pool.qsize(),
             "tables_initialized": bool(invoice_exists and line_exists)
@@ -766,7 +846,6 @@ async def health_check():
             "pool_size": db_server.pool_size,
             "error": str(e)
         }
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8762)

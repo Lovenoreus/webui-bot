@@ -6,3 +6,4 @@ langchain-mistralai
 pyodbc
 python-dotenv>=1.0.0
 aioodbc
+pymssql

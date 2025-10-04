@@ -57,6 +57,7 @@
   },
   "mcp":{
     "database_choice": "local",
+    "connection_pool_size": 10,
     "database_path": "sqlite_invoices_full.db",
     "docker_database_path": "/app/database_data/sqlite_invoices_full.db",
     "database_server_url": "http://localhost:8762",

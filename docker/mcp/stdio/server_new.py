@@ -428,7 +428,7 @@ async def mcp_streamable_http_endpoint(request: Request):
             response = {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "result": {"tools": [tool.dict() for tool in tools_response.tools]}
+                "result": {"tools": [tool.model_dump() for tool in tools_response.tools]}
             }
             if DEBUG:
                 print(f"[STREAMABLE HTTP] Tools list response: {response}")
@@ -441,7 +441,7 @@ async def mcp_streamable_http_endpoint(request: Request):
             response = {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "result": result.dict()
+                "result": result.model_dump()
             }
             if DEBUG:
                 print(f"[STREAMABLE HTTP] Tools call response: {response}")
