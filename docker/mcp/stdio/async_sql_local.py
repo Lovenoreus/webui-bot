@@ -67,6 +67,7 @@ SQL_SERVER_PASSWORD = os.getenv("SQL_SERVER_PASSWORD", None)
 
 print(f"Database choice: {DATABASE_CHOICE}")
 print(f"Using remote database: {USE_REMOTE}")
+print(f"SQL_SERVER_HOST: {SQL_SERVER_HOST}")
 
 
 def get_nested(d: Dict[str, Any], keys: List[str], default: Any = None) -> Any:

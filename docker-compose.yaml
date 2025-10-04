@@ -33,6 +33,13 @@ services:
       - "8762:8762"
     volumes:
       - ./docker/mcp/stdio/database_data:/app/database_data
+    environment:
+      - SQL_SERVER_HOST=${SQL_SERVER_HOST}
+      - SQL_SERVER_DATABASE=${SQL_SERVER_DATABASE}
+      - SQL_SERVER_DRIVER=${SQL_SERVER_DRIVER}
+      - SQL_SERVER_USE_WINDOWS_AUTH=${SQL_SERVER_USE_WINDOWS_AUTH}
+      - SQL_SERVER_USERNAME=${SQL_SERVER_USERNAME}
+      - SQL_SERVER_PASSWORD=${SQL_SERVER_PASSWORD}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8762/health"]

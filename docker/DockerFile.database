@@ -54,7 +54,6 @@ RUN pip install --no-cache-dir --default-timeout=300 --retries=20 -r requirement
 # Copy app files
 COPY /mcp/stdio/async_sql_local.py .
 COPY /mcp/stdio/config.json .
-COPY .env .
 
 # Create data dir
 RUN mkdir -p /app/database_data
