@@ -288,6 +288,7 @@ SQLSERVER_INVOICE_PROMPT = """You are a helpful SQL query assistant for an invoi
     - String concatenation: Use + operator
     - Limit syntax: SELECT TOP 100 * FROM Invoice
     - Schema queries: SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Invoice'
+    - For date formatting, prefer CONVERT over FORMAT for better performance
 
     ## Database Schema
 
@@ -489,18 +490,18 @@ SQLSERVER_INVOICE_PROMPT = """You are a helpful SQL query assistant for an invoi
     SELECT INVOICE_ID, SUPPLIER_PARTY_NAME, DUE_DATE, 
            CAST(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT AS DECIMAL(18,2)) as amount
     FROM Invoice 
-    WHERE DUE_DATE < GETDATE()
+    WHERE DUE_DATE < CONVERT(DATE, GETDATE())
     ORDER BY CAST(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT AS DECIMAL(18,2)) DESC;
     ```
 
     ### Reporting Queries
     ```sql
-    -- Monthly invoice summary (with CAST)
-    SELECT FORMAT(CAST(ISSUE_DATE AS DATE), 'yyyy-MM') as month, 
+    -- Monthly invoice summary (with CAST) - using CONVERT for performance
+    SELECT CONVERT(VARCHAR(7), CAST(ISSUE_DATE AS DATE), 120) as month, 
            COUNT(*) as invoice_count,
            SUM(CAST(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT AS DECIMAL(18,2))) as total_amount
     FROM Invoice 
-    GROUP BY FORMAT(CAST(ISSUE_DATE AS DATE), 'yyyy-MM');
+    GROUP BY CONVERT(VARCHAR(7), CAST(ISSUE_DATE AS DATE), 120);
 
     -- Top suppliers by volume (with CAST)
     SELECT SUPPLIER_PARTY_NAME, 
@@ -531,10 +532,11 @@ SQLSERVER_INVOICE_PROMPT = """You are a helpful SQL query assistant for an invoi
     2. **Always use proper JOINs** to connect Invoice and Invoice_Line tables
     3. **Use table aliases** for readability (i for Invoice, il for Invoice_Line)
     4. **Include GROUP BY with currency** when using aggregate functions with DOCUMENT_CURRENCY_CODE
-    5. **Consider date filters** using SQL Server date functions (GETDATE(), DATEPART(), etc.)
-    6. **Handle NULL values** appropriately in conditions
-    7. **Use LIKE for pattern matching** on numeric text fields (tax rates, etc.)
-    8. **Include proper ORDER BY** with CAST for meaningful numeric result sorting
+    5. **Consider date filters** using SQL Server date functions (GETDATE(), DATEPART(), YEAR(), etc.)
+    6. **For date formatting, use CONVERT** rather than FORMAT for better performance
+    7. **Handle NULL values** appropriately in conditions
+    8. **Use LIKE for pattern matching** on numeric text fields (tax rates, etc.)
+    9. **Include proper ORDER BY** with CAST for meaningful numeric result sorting
 
     When users ask about invoices, generate efficient SQL queries using this schema. Focus on financial reporting, supplier analysis, payment tracking, and business intelligence needs.
 
