@@ -26,7 +26,17 @@
   **If above command gives issue, do: docker compose up**
 - After build, run command: docker compose up
 - After webui login, navigate to system prompt and inject this: 
-  "Always call a tool first. Tools have enough information to answer any user question. If tool cannot answer before you do. If any tool response returns an sql_query or code, display it in a properly formatted manner."
+  **"
+  Always prioritize tool usage when responding.
+
+  1. FIRST, examine the available tools.
+  2. IF a relevant tool exists:
+     - Call the tool immediately.
+     - DO NOT answer directly.
+     - Assume the tool has all required context and data.
+  3. ONLY respond directly if NO suitable tool is available.
+  4. Format all SQL, code, or structured output inside proper code blocks (```).
+  "**
 - Configure model to: gpt-4o-mini
 - Set Tool:
 - Go ahead an test.

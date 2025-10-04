@@ -21,7 +21,8 @@ SCOPE = ["https://graph.microsoft.com/.default"]
 
 
 class PasswordProfile(BaseModel):
-    password: Optional[str] = Field(None, description="A strong initial password for the user. Will be auto-generated if not provided.")
+    password: Optional[str] = Field(None,
+                                    description="A strong initial password for the user. Will be auto-generated if not provided.")
     forceChangePasswordNextSignIn: bool = Field(True, description="Require user to change password on next sign-in.")
 
 
@@ -246,6 +247,13 @@ class FastActiveDirectory:
         """Original: Get roles for a user"""
         token = await self.get_access_token()
         return await self.graph_api_request("GET", f"users/{user_id}/memberOf", token)
+
+    async def get_role_members(self, role_id: str) -> List[dict]:
+        """Get members of a directory role"""
+        token = await self.get_access_token()
+        endpoint = f"directoryRoles/{role_id}/members"
+        params = {"$select": "id,displayName,userPrincipalName"}
+        return await self._paged_get(endpoint, token, params=params)
 
     async def add_user_to_role(self, user_id: str, role_id: str) -> dict:
         """Original: Add user to a role"""
@@ -816,12 +824,34 @@ class FastActiveDirectory:
         user_id = await self.resolve_user(user_identifier)
         return await self.get_user_groups(user_id, transitive=transitive)
 
-    async def get_user_roles_smart(self, user_identifier: str) -> dict:
+    async def get_user_roles_smart(
+            self,
+            user_identifier: str,
+            role_identifier: Optional[str] = None
+    ) -> Union[dict, bool]:
         """
-        Get user roles with smart resolution (accepts ID, email, or name)
+        Get user roles with smart resolution (accepts ID, email, or name).
+
+        Args:
+            user_identifier: User ID, email, or display name
+            role_identifier: Optional. If provided, checks if user has this specific role.
+                            Returns bool. If not provided, returns all roles (dict).
+
+        Returns:
+            If role_identifier provided: bool (True if user has role, False otherwise)
+            If role_identifier not provided: dict (all user's roles)
         """
         user_id = await self.resolve_user(user_identifier)
-        return await self.get_user_roles(user_id)
+
+        if role_identifier:
+            # Check if user has specific role
+            role_id = await self.resolve_role(role_identifier)
+            user_roles_data = await self.get_user_roles(user_id)
+            user_role_ids = {role["id"] for role in user_roles_data.get("value", [])}
+            return role_id in user_role_ids
+        else:
+            # Return all roles
+            return await self.get_user_roles(user_id)
 
     async def update_user_smart(self, user_identifier: str, updates: dict) -> dict:
         """
@@ -838,6 +868,14 @@ class FastActiveDirectory:
         return await self.delete_user(user_id)
 
     # ==================== SMART WRAPPER METHODS (ROLES) ====================
+
+    async def get_role_members_smart(self, role_identifier: str) -> List[dict]:
+        """
+        Get all users who have a specific role with smart resolution.
+        Accepts role ID or role name (e.g., 'Global Administrator').
+        """
+        role_id = await self.resolve_role(role_identifier)
+        return await self.get_role_members(role_id)
 
     async def add_user_to_role_smart(
             self,

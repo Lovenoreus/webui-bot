@@ -842,16 +842,21 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_get_user_roles",
-            description="TRIGGER: AD user roles, Azure AD user permissions, directory user roles, what AD roles does user have, check AD access | ACTION: Get Azure AD user's assigned directory roles | INSTRUCTION: Accepts flexible user identification - use name, email, or GUID. System auto-resolves | RETURNS: List of AD roles assigned to specific user from Azure tenant",
+            description="TRIGGER: AD user roles, Azure AD user permissions, directory user roles, what AD roles does user have, check AD access, who has role, Global Administrator members, list admins, user's Azure AD permissions | ACTION: Get Azure AD user's assigned directory roles OR get users assigned to a specific role | INSTRUCTION: Accepts flexible identification - use name, email, or GUID for users. Use role name for roles. Provide either user_identifier OR role_identifier | RETURNS: List of AD roles assigned to specific user, OR list of users assigned to specific role from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "user_identifier": {
                         "type": "string",
                         "description": "Flexible user identifier - accepts Azure AD GUID, email address, or display name. Smart resolution automatically finds the correct user."
+                    },
+                    "role_identifier": {
+                        "type": "string",
+                        "description": "Azure AD role name or GUID - accepts common role names like 'Global Administrator', 'User Administrator'. Case-insensitive with fuzzy matching.",
+                        "default": ""
                     }
                 },
-                "required": ["user_identifier"]
+                "required": ["user_identifier", "role_identifier"]
             }
         ),
 
@@ -1589,37 +1594,64 @@ async def mcp_tools_call(request: MCPToolCallRequest):
 
         elif tool_name == "ad_get_user_roles":
             user_identifier = arguments["user_identifier"]
+            role_identifier = arguments.get("role_identifier", "")
 
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 try:
-                    user_id = await ad.resolve_user(user_identifier)
-                    data = await ad.get_user_roles(user_id)
-                    result = {
-                        "success": True,
-                        "action": "get_user_roles",
-                        "message": f"✅ Found {len(data)} roles for user '{user_identifier}'",
-                        "user_identifier": user_identifier,
-                        "user_id": user_id,
-                        "data": data,
-                        "count": len(data)
-                    }
+                    # If role_identifier is provided and not empty, get users with that role
+                    if role_identifier and role_identifier.strip():
+                        role_id = await ad.resolve_role(role_identifier)
+                        data = await ad.get_role_members_smart(role_identifier)
+
+                        result = {
+                            "success": True,
+                            "action": "get_role_members",
+                            "message": f"✅ Found {len(data)} users with role '{role_identifier}'",
+                            "role_identifier": role_identifier,
+                            "role_id": role_id,
+                            "data": data,
+                            "count": len(data)
+                        }
+                    else:
+                        # Original behavior - get roles for a user
+                        user_id = await ad.resolve_user(user_identifier)
+                        data = await ad.get_user_roles_smart(user_identifier)
+
+                        result = {
+                            "success": True,
+                            "action": "get_user_roles",
+                            "message": f"✅ Found {len(data.get('value', []))} roles for user '{user_identifier}'",
+                            "user_identifier": user_identifier,
+                            "user_id": user_id,
+                            "data": data,
+                            "count": len(data.get('value', []))
+                        }
 
                 except Exception as e:
-                    if "No user found" in str(e):
+                    error_msg = str(e)
+
+                    if "No user found" in error_msg:
                         result = {
                             "success": False,
                             "action": "get_user_roles",
                             "message": f"Please check the username '{user_identifier}' - I couldn't find anyone with that name. You might want to try their full name or email address.",
                             "user_identifier": user_identifier
                         }
-
+                    elif "No role found" in error_msg:
+                        result = {
+                            "success": False,
+                            "action": "get_role_members",
+                            "message": f"Please check the role name '{role_identifier}' - I couldn't find a role with that name. Common roles include 'Global Administrator', 'User Administrator', etc.",
+                            "role_identifier": role_identifier
+                        }
                     else:
                         result = {
                             "success": False,
                             "action": "get_user_roles",
-                            "message": f"There was an issue retrieving roles for '{user_identifier}'. Please try again.",
+                            "message": f"There was an issue retrieving information. Please try again.",
                             "user_identifier": user_identifier,
-                            "error": str(e)
+                            "role_identifier": role_identifier,
+                            "error": error_msg
                         }
 
             return format_mcp_response(result, tool_name)
