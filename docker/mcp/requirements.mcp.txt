@@ -8,9 +8,6 @@ langchain-community>=0.0.20
 langchain-openai>=0.0.5
 langchain>=0.1.0
 langchain-mistralai
-pyodbc
 qdrant-client==1.15.1
 msal
 mcp
-sqlalchemy
-aioodbc

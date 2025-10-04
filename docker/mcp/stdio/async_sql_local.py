@@ -739,6 +739,7 @@ db_server = AsyncDatabaseServer(
     pool_size=MCP_CONFIG.get("connection_pool_size", 10)
 )
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
@@ -751,16 +752,67 @@ async def lifespan(app: FastAPI):
     elapsed = asyncio.get_event_loop().time() - start_time
     print(f"✅ System ready in {elapsed * 1000:.2f}ms!")
 
+    # Schema inspection for remote database
+    if USE_REMOTE:
+        try:
+            print("\n" + "=" * 60)
+            print("DATABASE SCHEMA INSPECTION")
+            print("=" * 60)
+
+            # Get all tables
+            tables_query = """
+            SELECT TABLE_SCHEMA, TABLE_NAME
+            FROM INFORMATION_SCHEMA.TABLES
+            WHERE TABLE_TYPE = 'BASE TABLE'
+            ORDER BY TABLE_SCHEMA, TABLE_NAME
+            """
+            tables = await db_server.execute_query(tables_query)
+
+            print(f"\nFound {len(tables)} tables in database '{SQL_SERVER_DATABASE}':\n")
+
+            for table in tables:
+                table_schema = table['TABLE_SCHEMA']
+                table_name = table['TABLE_NAME']
+                print(f"\nTable: [{table_schema}].[{table_name}]")
+
+                # Get columns for this table
+                columns_query = f"""
+                SELECT 
+                    COLUMN_NAME,
+                    DATA_TYPE,
+                    CHARACTER_MAXIMUM_LENGTH,
+                    IS_NULLABLE
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = '{table_schema}'
+                  AND TABLE_NAME = '{table_name}'
+                ORDER BY ORDINAL_POSITION
+                """
+                columns = await db_server.execute_query(columns_query)
+
+                for col in columns:
+                    nullable = "NULL" if col['IS_NULLABLE'] == 'YES' else "NOT NULL"
+                    max_len = f"({col['CHARACTER_MAXIMUM_LENGTH']})" if col['CHARACTER_MAXIMUM_LENGTH'] else ""
+                    print(f"   - {col['COLUMN_NAME']}: {col['DATA_TYPE']}{max_len} {nullable}")
+
+            print("\n" + "=" * 60)
+            print("Schema inspection complete!")
+            print("=" * 60 + "\n")
+
+        except Exception as e:
+            print(f"\nSchema inspection failed: {e}\n")
+
     # Verify database is accessible
     try:
         if USE_REMOTE:
-            test_result = await db_server.execute_query("SELECT TOP 1 1 FROM Invoice")
-            lines_result = await db_server.execute_query("SELECT TOP 1 1 FROM Invoice_Line")
+            test_result = await db_server.execute_query("SELECT TOP 1 * FROM [Nodinite].[ods].[Invoice]")
+            lines_result = await db_server.execute_query("SELECT TOP 1 * FROM [Nodinite].[ods].[Invoice_Line]")
         else:
             test_result = await db_server.execute_query("SELECT 1 FROM Invoice LIMIT 1")
             lines_result = await db_server.execute_query("SELECT 1 FROM Invoice_Line LIMIT 1")
 
         if test_result and lines_result:
+            print(f"Invoice Test: {test_result}")
+            print(f"Invoice_Line Test: {lines_result}")
             print(f"✅ Database validated - tables ready!")
         else:
             print(f"⚠️ Database may be empty")
@@ -773,6 +825,7 @@ async def lifespan(app: FastAPI):
     print("🛑 Shutting down database connections...")
     await db_server.close_pool()
     print("✅ All connections closed gracefully!")
+
 
 # FastAPI setup with lifespan
 app = FastAPI(

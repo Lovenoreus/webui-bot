@@ -148,7 +148,7 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
     try:
         if DEBUG:
             print(f"[MCP DEBUG] Query: {request.query}")
-            print(f"[MCP DEBUG] Keywords: {request.keywords}")
+            # print(f"[MCP DEBUG] Keywords: {request.keywords}")
 
         # TODO: QUERY HARDCODED TO [].
         #  BECAUSE KEYWORD HITTING FAILS FOR LARGE DBs
@@ -157,7 +157,7 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
         provider = "ollama" if config.MCP_PROVIDER_OLLAMA else "openai" if config.MCP_PROVIDER_OPENAI else "mistral"
 
         # sql_query = await query_engine.generate_sql(request.query, request.keywords, provider)
-        sql_query = await query_engine.generate_sql(request.query, keywords, provider)
+        sql_query = await query_engine.generate_sql(request.query, provider)
 
         if not sql_query:
             return {"success": False, "error": "Failed to generate SQL", "original_query": request.query}
@@ -185,7 +185,7 @@ async def query_sql_database_stream_endpoint(request: QueryDatabaseRequest):
             provider = "ollama" if config.MCP_PROVIDER_OLLAMA else "openai" if config.MCP_PROVIDER_OPENAI else "mistral"
 
             sql_query = ""
-            async for sql_update in query_engine.generate_sql_stream(request.query, request.keywords, provider):
+            async for sql_update in query_engine.generate_sql_stream(request.query, provider):
                 yield json.dumps(sql_update) + "\n"
                 if sql_update.get("status") == "sql_complete":
                     sql_query = sql_update.get("sql_query", "")
