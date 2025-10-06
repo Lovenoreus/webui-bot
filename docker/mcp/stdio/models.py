@@ -98,3 +98,96 @@ class MCPServerInfo(BaseModel):
 class GreetRequest(BaseModel):
     name: Optional[str]
 
+
+
+# ==================== TICKET CREATION MODELS ====================
+
+class TicketStatus:
+    DRAFT = "draft"
+    PENDING = "pending"
+    SUBMITTED = "submitted"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+
+class TicketPriority:
+    # CRITICAL = "Critical"
+    HIGH = "High"
+    MEDIUM = "Medium"
+    LOW = "Low"
+
+
+class TicketCategory:
+    HARDWARE = "Hardware"
+    SOFTWARE = "Software"
+    FACILITY = "Facility"
+    NETWORK = "Network"
+    MEDICAL_EQUIPMENT = "Medical Equipment"
+    OTHER = "Other"
+
+
+class CreateTicketRequest(BaseModel):
+    query: str = Field(..., description="Initial problem description")
+    conversation_id: str = Field(..., description="Conversation thread ID")
+    reporter_name: Optional[str] = Field(None, description="Name of person reporting")
+    reporter_email: Optional[str] = Field(None, description="Email of reporter")
+
+
+class UpdateTicketRequest(BaseModel):
+    fields: Dict[str, Any] = Field(..., description="Fields to update")
+
+
+class SubmitTicketRequest(BaseModel):
+    conversation_topic: str = Field(..., description="Brief summary/title")
+    description: str = Field(..., description="Detailed description")
+    location: str = Field(..., description="Location where issue occurs")
+    queue: str = Field(..., description="Support queue/department")
+    priority: str = Field(..., description="Priority level")
+    department: str = Field(..., description="Department affected")
+    name: str = Field(..., description="Reporter name")
+    category: str = Field(..., description="Issue category")
+
+
+class TicketResponse(BaseModel):
+    ticket_id: str
+    conversation_id: str
+    status: str
+    created_at: str
+    updated_at: str
+    jira_key: Optional[str] = None
+    fields: Dict[str, Any]
+    is_complete: bool
+    missing_fields: List[str]
+    history: List[Dict[str, Any]] = []
+
+
+class InitializeTicketRequest(BaseModel):
+    """Request model for ticket initialization with knowledge base search"""
+    query: str = Field(
+        ...,
+        description="Description of the problem or issue to create ticket for",
+        min_length=3,
+        max_length=2000
+    )
+    conversation_id: str = Field(
+        ...,
+        description="Conversation thread ID for tracking this ticket session"
+    )
+    reporter_name: Optional[str] = Field(
+        None,
+        description="Name of person reporting the issue"
+    )
+    reporter_email: Optional[str] = Field(
+        None,
+        description="Email address of person reporting the issue"
+    )
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "query": "Printer in room 305 is not responding",
+                "conversation_id": "conv_12345",
+                "reporter_name": "John Doe",
+                "reporter_email": "john.doe@hospital.com"
+            }
+        }

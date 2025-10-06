@@ -1,0 +1,31 @@
+{
+  "tickets": {
+    "TKT-42C25233": {
+      "ticket_id": "TKT-42C25233",
+      "conversation_id": "00001",
+      "status": "draft",
+      "created_at": "2025-10-06T15:23:34.526897",
+      "updated_at": "2025-10-06T15:23:34.526897",
+      "reporter_name": "",
+      "reporter_email": "",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "create a ticket about a missing computer mouse",
+      "location": null,
+      "queue": null,
+      "priority": null,
+      "department": null,
+      "category": null,
+      "knowledge_base_result": "{\"success\": true, \"analysis\": {\"source\": \"protocol\", \"protocol_id\": null, \"confidence_score\": 0.682, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The user is reporting a missing computer mouse, which falls under hardware issues related to IT equipment.\"}, \"guidance\": {\"message\": \"We have identified your issue as related to IT equipment. Since a computer mouse is missing, we need to gather more information to assist you effectively.\", \"next_step\": \"collect_info\", \"reasoning\": \"Collecting additional information will help us understand the context and urgency of the missing mouse.\"}, \"diagnostic_questions\": [\"Do you know the specific location where the mouse was last seen?\", \"Is this mouse part of a specific workstation or device?\", \"How is the absence of the mouse affecting your work or patient care?\"], \"troubleshooting_steps\": null, \"suggestions\": {\"category\": \"Hardware\", \"queue\": \"IT Department\", \"priority\": \"High\", \"reasoning\": \"The missing mouse is a hardware issue that needs to be addressed by the IT Department with high urgency.\"}, \"metadata\": {\"estimated_resolution_time\": null, \"similar_issues_found\": 0, \"escalation_recommended\": false}}",
+      "history": []
+    }
+  },
+  "thread_index": {
+    "00001": [
+      "TKT-42C25233"
+    ]
+  },
+  "metadata": {
+    "created_at": "2025-10-06T15:23:34.526825"
+  }
+}

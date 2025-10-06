@@ -1,17 +1,28 @@
 # -------------------- Built-in Libraries --------------------
 import json
+import uuid
+import asyncio
+from pathlib import Path
 from datetime import datetime
-from typing import Dict, Optional, List, Any, Literal
+from typing import Dict, Optional, List, Any
+import os
 
 # -------------------- External Libraries --------------------
 import aiohttp
 import uvicorn
 from dotenv import load_dotenv, find_dotenv
-from fastapi import FastAPI, HTTPException, Depends, Header, Body, Request, Response
+from fastapi import (
+    FastAPI,
+    HTTPException,
+    Depends,
+    Header,
+    Body,
+    Request,
+    Response
+)
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, ValidationError
-
 from langchain_community.chat_models import ChatOllama
 from langchain_openai import ChatOpenAI
 from langchain_mistralai import ChatMistralAI
@@ -35,15 +46,40 @@ from models import (
     MCPContent,
     MCPToolCallResponse,
     GreetRequest,
+    # Ticket-related models
+    TicketStatus,
+    TicketPriority,
+    TicketCategory,
+    CreateTicketRequest,
+    UpdateTicketRequest,
+    SubmitTicketRequest,
+    TicketResponse,
+    InitializeTicketRequest,
     # MCPServerInfo
 )
-
+from vector_mistral_tool import hospital_support_questions_tool
+from create_jira_ticket import create_jira_ticket
+import config
 
 
 load_dotenv(find_dotenv())
 
+
 # Debug flag
 DEBUG = True
+
+
+app = FastAPI(title="MCP Server API", description="Standalone MCP Tools Server with LLM SQL Generation")
+
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 
 def format_mcp_response(result: dict, tool_name: str) -> MCPToolCallResponse:
@@ -89,18 +125,6 @@ def format_mcp_response(result: dict, tool_name: str) -> MCPToolCallResponse:
             content=[MCPContent(type="text", text=content_text)],
             isError=False
         )
-
-
-app = FastAPI(title="MCP Server API", description="Standalone MCP Tools Server with LLM SQL Generation")
-
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
-)
 
 
 # Dependency to get FastActiveDirectory instance
@@ -734,22 +758,1430 @@ async def delete_group_endpoint(group_id: str, ad: FastActiveDirectory = Depends
 # ++++++++++++++++++++++++++++++
 
 
-@app.get("/health")
-async def health_check():
-    """Health check endpoint"""
-    try:
+# ==================== JSON STORAGE ====================
+# ==================== JSON STORAGE ====================
+
+TICKETS_FILE = "tickets_data.json"
+
+
+class JSONStorage:
+    """Thread-safe JSON file storage"""
+
+    def __init__(self, filepath: str):
+        self.filepath = Path(filepath)
+        self._lock = asyncio.Lock()
+        self._ensure_file_exists()
+
+    def _ensure_file_exists(self):
+        """Create empty JSON file if it doesn't exist"""
+        if not self.filepath.exists():
+            self.filepath.write_text(json.dumps({
+                "tickets": {},
+                "thread_index": {},
+                "metadata": {
+                    "created_at": datetime.now().isoformat(),
+                    "version": "1.0"
+                }
+            }, indent=2))
+            if DEBUG:
+                print(f"[STORAGE] Created new storage file: {self.filepath}")
+
+    async def load(self) -> Dict[str, Any]:
+        """Load data from JSON file"""
+        async with self._lock:
+            try:
+                data = json.loads(self.filepath.read_text())
+                return data
+            except json.JSONDecodeError as e:
+                if DEBUG:
+                    print(f"[STORAGE] Error loading JSON: {e}")
+                return {
+                    "tickets": {},
+                    "thread_index": {},
+                    "metadata": {"created_at": datetime.now().isoformat()}
+                }
+
+    async def save(self, data: Dict[str, Any]):
+        """Save data to JSON file"""
+        async with self._lock:
+            try:
+                temp_file = self.filepath.with_suffix('.tmp')
+                temp_file.write_text(json.dumps(data, indent=2))
+                temp_file.replace(self.filepath)
+
+                if DEBUG:
+                    print(f"[STORAGE] Saved data to {self.filepath}")
+            except Exception as e:
+                if DEBUG:
+                    print(f"[STORAGE] Error saving JSON: {e}")
+                raise
+
+    async def backup(self):
+        """Create a backup of the current data"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_file = self.filepath.with_name(f"{self.filepath.stem}_backup_{timestamp}.json")
+
+        async with self._lock:
+            if self.filepath.exists():
+                backup_file.write_text(self.filepath.read_text())
+                if DEBUG:
+                    print(f"[STORAGE] Created backup: {backup_file}")
+
+
+# Global storage instance
+storage = JSONStorage(TICKETS_FILE)
+
+
+# ==================== TICKET MANAGER ====================
+
+class TicketManager:
+    """
+    JSON-based ticket manager with file persistence
+    """
+
+    REQUIRED_FIELDS = ["description", "category", "priority"]
+    ALLOWED_FIELDS = {
+        "conversation_topic", "description", "location", "queue",
+        "priority", "department", "category", "reporter_name"
+    }
+
+    VALID_PRIORITIES = [
+        # TicketPriority.CRITICAL,
+        TicketPriority.HIGH,
+        TicketPriority.MEDIUM,
+        TicketPriority.LOW
+    ]
+
+    VALID_CATEGORIES = [
+        TicketCategory.HARDWARE,
+        TicketCategory.SOFTWARE,
+        TicketCategory.FACILITY,
+        TicketCategory.NETWORK,
+        TicketCategory.MEDICAL_EQUIPMENT,
+        TicketCategory.OTHER
+    ]
+
+    def __init__(self, storage: JSONStorage):
+        self.storage = storage
+
+    async def create_ticket(
+            self,
+            query: str,
+            conversation_id: str,
+            reporter_name: Optional[str] = None,
+            reporter_email: Optional[str] = None,
+            knowledge_base_result: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Create a new ticket"""
+        data = await self.storage.load()
+
+        ticket_id = f"TKT-{uuid.uuid4().hex[:8].upper()}"
+        now = datetime.now().isoformat()
+
+        ticket = {
+            "ticket_id": ticket_id,
+            "conversation_id": conversation_id,
+            "status": TicketStatus.DRAFT,
+            "created_at": now,
+            "updated_at": now,
+            "reporter_name": reporter_name,
+            "reporter_email": reporter_email,
+            "jira_key": None,
+
+            # Ticket fields
+            "conversation_topic": None,
+            "description": query,
+            "location": None,
+            "queue": None,
+            "priority": None,
+            "department": None,
+            "category": None,
+
+            # Metadata
+            "knowledge_base_result": knowledge_base_result,
+            "history": []
+        }
+
+        # Store ticket
+        data["tickets"][ticket_id] = ticket
+
+        # Update thread index
+        if conversation_id not in data["thread_index"]:
+            data["thread_index"][conversation_id] = []
+        data["thread_index"][conversation_id].append(ticket_id)
+
+        await self.storage.save(data)
+
+        if DEBUG:
+            print(f"[TICKET] Created ticket {ticket_id} for thread {conversation_id}")
+
+        return self._enrich_ticket(ticket)
+
+    async def get_ticket(self, ticket_id: str) -> Optional[Dict[str, Any]]:
+        """Get ticket by ID"""
+        data = await self.storage.load()
+        ticket = data["tickets"].get(ticket_id)
+
+        if not ticket:
+            return None
+
+        return self._enrich_ticket(ticket)
+
+    async def get_active_ticket_for_thread(self, conversation_id: str) -> Optional[Dict[str, Any]]:
+        """Get active (non-completed) ticket for thread"""
+        data = await self.storage.load()
+        
+        ticket_ids = data["thread_index"].get(conversation_id, [])
+
+        for ticket_id in reversed(ticket_ids):
+            ticket = data["tickets"].get(ticket_id)
+            if ticket and ticket["status"] not in [TicketStatus.COMPLETED, TicketStatus.CANCELLED]:
+                return self._enrich_ticket(ticket)
+
+        return None
+
+    async def list_tickets_for_thread(self, conversation_id: str) -> List[Dict[str, Any]]:
+        """List all tickets for a thread"""
+        data = await self.storage.load()
+        ticket_ids = data["thread_index"].get(conversation_id, [])
+
+        tickets = []
+        for ticket_id in reversed(ticket_ids):
+            ticket = data["tickets"].get(ticket_id)
+            if ticket:
+                tickets.append(self._enrich_ticket(ticket))
+
+        return tickets
+
+    async def update_field(
+            self,
+            ticket_id: str,
+            field_name: str,
+            field_value: Any
+    ) -> Dict[str, Any]:
+        """Update a single field"""
+        if field_name not in self.ALLOWED_FIELDS:
+            raise ValueError(f"Field '{field_name}' not allowed. Allowed: {self.ALLOWED_FIELDS}")
+
+        # Validate priority
+        if field_name == "priority" and field_value not in self.VALID_PRIORITIES:
+            raise ValueError(f"Invalid priority. Must be one of: {self.VALID_PRIORITIES}")
+
+        # Validate category
+        if field_name == "category" and field_value not in self.VALID_CATEGORIES:
+            raise ValueError(f"Invalid category. Must be one of: {self.VALID_CATEGORIES}")
+
+        data = await self.storage.load()
+        ticket = data["tickets"].get(ticket_id)
+
+        if not ticket:
+            raise ValueError(f"Ticket {ticket_id} not found")
+
+        old_value = ticket.get(field_name)
+        now = datetime.now().isoformat()
+
+        # Update field
+        ticket[field_name] = field_value
+        ticket["updated_at"] = now
+
+        # Auto-route queue based on category
+        if field_name == "category" and field_value:
+            ticket["queue"] = self._route_by_category(field_value)
+            ticket["history"].append({
+                "timestamp": now,
+                "field_name": "queue",
+                "old_value": None,
+                "new_value": ticket["queue"],
+                "action": "auto_route"
+            })
+
+        # Log history
+        ticket["history"].append({
+            "timestamp": now,
+            "field_name": field_name,
+            "old_value": old_value,
+            "new_value": field_value,
+            "action": "update"
+        })
+
+        await self.storage.save(data)
+
+        if DEBUG:
+            print(f"[TICKET] Updated {field_name} for {ticket_id}: '{old_value}' -> '{field_value}'")
+
+        return self._enrich_ticket(ticket)
+
+    async def update_fields(
+            self,
+            ticket_id: str,
+            fields: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Update multiple fields at once"""
+        invalid_fields = [f for f in fields.keys() if f not in self.ALLOWED_FIELDS]
+        if invalid_fields:
+            raise ValueError(f"Invalid fields: {invalid_fields}. Allowed: {self.ALLOWED_FIELDS}")
+
+        # Validate priority
+        if "priority" in fields and fields["priority"] not in self.VALID_PRIORITIES:
+            raise ValueError(f"Invalid priority. Must be one of: {self.VALID_PRIORITIES}")
+
+        # Validate category
+        if "category" in fields and fields["category"] not in self.VALID_CATEGORIES:
+            raise ValueError(f"Invalid category. Must be one of: {self.VALID_CATEGORIES}")
+
+        data = await self.storage.load()
+        ticket = data["tickets"].get(ticket_id)
+
+        if not ticket:
+            raise ValueError(f"Ticket {ticket_id} not found")
+
+        now = datetime.now().isoformat()
+
+        # Update all fields
+        for field_name, field_value in fields.items():
+            old_value = ticket.get(field_name)
+            ticket[field_name] = field_value
+
+            # Auto-route queue based on category
+            if field_name == "category" and field_value:
+                ticket["queue"] = self._route_by_category(field_value)
+                ticket["history"].append({
+                    "timestamp": now,
+                    "field_name": "queue",
+                    "old_value": None,
+                    "new_value": ticket["queue"],
+                    "action": "auto_route"
+                })
+
+            # Log history
+            ticket["history"].append({
+                "timestamp": now,
+                "field_name": field_name,
+                "old_value": old_value,
+                "new_value": field_value,
+                "action": "update"
+            })
+
+        ticket["updated_at"] = now
+
+        await self.storage.save(data)
+
+        if DEBUG:
+            print(f"[TICKET] Updated {len(fields)} fields for {ticket_id}")
+
+        return self._enrich_ticket(ticket)
+
+    async def update_status(
+            self,
+            ticket_id: str,
+            new_status: str,
+            jira_key: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Update ticket status"""
+        data = await self.storage.load()
+        ticket = data["tickets"].get(ticket_id)
+
+        if not ticket:
+            raise ValueError(f"Ticket {ticket_id} not found")
+
+        old_status = ticket["status"]
+        now = datetime.now().isoformat()
+
+        # Update status
+        ticket["status"] = new_status
+        ticket["updated_at"] = now
+
+        if jira_key:
+            ticket["jira_key"] = jira_key
+
+        # Log history
+        ticket["history"].append({
+            "timestamp": now,
+            "field_name": "status",
+            "old_value": old_status,
+            "new_value": new_status,
+            "action": "status_change"
+        })
+
+        await self.storage.save(data)
+
+        if DEBUG:
+            print(f"[TICKET] Status changed for {ticket_id}: {old_status} -> {new_status}")
+
+        return self._enrich_ticket(ticket)
+
+    async def search_tickets(
+            self,
+            status: Optional[str] = None,
+            priority: Optional[str] = None,
+            category: Optional[str] = None,
+            jira_key: Optional[str] = None,
+            limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """Search tickets with filters"""
+        data = await self.storage.load()
+        tickets = []
+
+        for ticket in data["tickets"].values():
+            if status and ticket["status"] != status:
+                continue
+            if priority and ticket["priority"] != priority:
+                continue
+            if category and ticket["category"] != category:
+                continue
+            if jira_key and ticket["jira_key"] != jira_key:
+                continue
+
+            tickets.append(self._enrich_ticket(ticket))
+
+        # Sort by priority first, then created_at
+        priority_order = {
+            # TicketPriority.CRITICAL: 0,
+            TicketPriority.HIGH: 1,
+            TicketPriority.MEDIUM: 2,
+            TicketPriority.LOW: 3,
+            None: 4
+        }
+
+        tickets.sort(key=lambda t: (
+            priority_order.get(t.get("priority"), 4),
+            t["created_at"]
+        ), reverse=True)
+
+        return tickets[:limit]
+
+    def _route_by_category(self, category: str) -> str:
+        """Auto-route ticket to appropriate queue based on category"""
+        routing_map = {
+            TicketCategory.HARDWARE: "Hardware Support",
+            TicketCategory.SOFTWARE: "IT Support",
+            TicketCategory.FACILITY: "Facilities Management",
+            TicketCategory.NETWORK: "Network Operations",
+            TicketCategory.MEDICAL_EQUIPMENT: "Biomedical Engineering",
+            TicketCategory.OTHER: "General Support"
+        }
+        return routing_map.get(category, "General Support")
+
+    def _calculate_sla_deadline(self, ticket: Dict[str, Any]) -> Optional[str]:
+        """Calculate SLA deadline based on priority"""
+        from datetime import timedelta
+
+        sla_hours = {
+            # TicketPriority.CRITICAL: 2,
+            TicketPriority.HIGH: 8,
+            TicketPriority.MEDIUM: 24,
+            TicketPriority.LOW: 72
+        }
+
+        priority = ticket.get("priority")
+        if not priority or priority not in sla_hours:
+            return None
+
+        created = datetime.fromisoformat(ticket["created_at"])
+        deadline = created + timedelta(hours=sla_hours[priority])
+
+        return deadline.isoformat()
+
+    def _enrich_ticket(self, ticket: Dict[str, Any]) -> Dict[str, Any]:
+        """Add computed fields to ticket"""
+        is_complete, missing = self._check_completeness(ticket)
+
         return {
-            "status": "healthy",
-            "service": "MCP Server",
-            "timestamp": datetime.now().isoformat(),
-            "endpoints": {
-                "health": "/health"
+            **ticket,
+            "is_complete": is_complete,
+            "missing_fields": missing,
+            "sla_deadline": self._calculate_sla_deadline(ticket),
+            "fields": {
+                "conversation_topic": ticket.get("conversation_topic"),
+                "description": ticket.get("description"),
+                "location": ticket.get("location"),
+                "queue": ticket.get("queue"),
+                "priority": ticket.get("priority"),
+                "department": ticket.get("department"),
+                "category": ticket.get("category"),
+                "reporter_name": ticket.get("reporter_name")
             }
         }
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
+    def _check_completeness(self, ticket: Dict[str, Any]) -> tuple[bool, List[str]]:
+        """Check if ticket has all required fields"""
+        missing = []
+        for field in self.REQUIRED_FIELDS:
+            value = ticket.get(field)
+            if not value or (isinstance(value, str) and not value.strip()):
+                missing.append(field)
 
+        return len(missing) == 0, missing
+
+
+# Global ticket manager
+ticket_manager = TicketManager(storage)
+
+
+# ==================== API ENDPOINTS ====================
+
+@app.post("/tickets/create", response_model=TicketResponse)
+async def create_ticket_endpoint(request: CreateTicketRequest):
+    """Create a new ticket with hospital support knowledge base lookup"""
+    try:
+        # Check for existing active ticket
+        active_ticket = await ticket_manager.get_active_ticket_for_thread(request.conversation_id)
+
+        if active_ticket:
+            print(f'There is already an active ticket: {active_ticket}')
+
+            return TicketResponse(**active_ticket)
+
+        # Query knowledge base
+        if DEBUG:
+            print(f"[API] Querying knowledge base for: {request.query}")
+
+        kb_result = await hospital_support_questions_tool(request.query)
+
+        # Create ticket
+        ticket = await ticket_manager.create_ticket(
+            query=request.query,
+            conversation_id=request.conversation_id,
+            reporter_name=request.reporter_name,
+            reporter_email=request.reporter_email,
+            knowledge_base_result=json.dumps(kb_result) if kb_result else None
+        )
+
+        return TicketResponse(**ticket)
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[API] Error creating ticket: {e}")
+
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/tickets/initialize")
+async def initialize_ticket_endpoint(request: InitializeTicketRequest):
+    """
+    Initialize ticket with knowledge base search, LLM analysis, and intelligent routing.
+    Returns comprehensive contextual information for natural conversation flow.
+    """
+    try:
+        conversation_id = request.conversation_id
+
+        if DEBUG:
+            print(f"[INITIALIZE_TICKET] Processing query for thread: {conversation_id}")
+
+        # Step 1: Check for existing active ticket in this thread
+        active_ticket = await ticket_manager.get_active_ticket_for_thread(conversation_id)
+
+        if active_ticket:
+            if DEBUG:
+                print(f"[INITIALIZE_TICKET] Found existing ticket: {active_ticket['ticket_id']}")
+
+            return {
+                "success": True,
+                "has_existing_ticket": True,
+                "ticket_id": active_ticket["ticket_id"],
+                "conversation_id": conversation_id,
+                "is_new_ticket": False,
+
+                # Clear message about existing ticket
+                "message": f"You already have an active ticket ({active_ticket['ticket_id']}) in this conversation. Let's continue with that one.",
+                "next_step": "continue_existing",
+
+                # Guidance on what to do
+                "suggested_actions": [
+                    {
+                        "action": "update_ticket",
+                        "description": "Add more information to the existing ticket",
+                        "priority": 1
+                    },
+                    {
+                        "action": "review_ticket",
+                        "description": "Review what's been collected so far",
+                        "priority": 2
+                    },
+                    {
+                        "action": "cancel_and_create_new",
+                        "description": "Cancel this ticket and start a new one",
+                        "priority": 3
+                    }
+                ],
+
+                "diagnostic_questions": [
+                    "Would you like to add more details to your existing ticket?",
+                    "Is this a different issue that needs a separate ticket?",
+                    "Would you like to review what information we've collected so far?"
+                ],
+
+                # Current ticket state
+                "ticket_status": {
+                    "ticket_id": active_ticket["ticket_id"],
+                    "status": active_ticket["status"],
+                    "progress_percent": active_ticket.get("progress", {}).get("percent", 0),
+                    "is_complete": active_ticket.get("is_complete", False),
+                    "missing_fields": active_ticket.get("missing_fields", []),
+                    "fields_filled": active_ticket.get("fields", {})
+                },
+
+                "knowledge_base": None
+            }
+
+        # Step 2: Query knowledge base for similar issues and solutions
+        if DEBUG:
+            print(f"[INITIALIZE_TICKET] Querying knowledge base for: {request.query}")
+
+        kb_result = await hospital_support_questions_tool(request.query)
+
+        if DEBUG:
+            print(f"[INITIALIZE_TICKET] Knowledge base returned {len(kb_result) if kb_result else 0} results")
+
+        # Step 3: Select and configure LLM provider
+        if config.MCP_PROVIDER_OLLAMA:
+            provider = "ollama"
+            llm = ChatOllama(
+                model=config.MCP_AGENT_MODEL_NAME,
+                temperature=0,
+                base_url=config.OLLAMA_BASE_URL
+            )
+        elif config.MCP_PROVIDER_OPENAI:
+            provider = "openai"
+            api_key = os.environ.get("OPENAI_API_KEY")
+            if not api_key:
+                raise ValueError("OPENAI_API_KEY environment variable is required")
+            llm = ChatOpenAI(
+                model=config.MCP_AGENT_MODEL_NAME,
+                temperature=0,
+                api_key=api_key
+            )
+        elif config.MCP_PROVIDER_MISTRAL:
+            provider = "mistral"
+            api_key = os.environ.get("MISTRAL_API_KEY")
+            llm = ChatMistralAI(
+                model=config.MCP_AGENT_MODEL_NAME,
+                temperature=0,
+                mistral_api_key=api_key,
+                endpoint=config.MISTRAL_BASE_URL
+            )
+        else:
+            raise ValueError("No valid LLM provider configured")
+
+        if DEBUG:
+            print(f"[INITIALIZE_TICKET] Using LLM provider: {provider}")
+
+        # Available queues for routing
+        QUEUE_CHOICES = [
+            'Technical Support', 'Servicedesk', '2nd line', 'Cambio JIRA', 'Cosmic',
+            'Billing Payments', 'Account Management', 'Product Inquiries', 'Feature Requests',
+            'Bug Reports', 'Security Department', 'Compliance Legal', 'Service Outages',
+            'Onboarding Setup', 'API Integration', 'Data Migration', 'Accessibility',
+            'Training Education', 'General Inquiries', 'Permissions Access',
+            'Management Department', 'Maintenance Department', 'Logistics Department', 'IT Department'
+        ]
+
+        # Step 4: Prepare enhanced LLM prompt for intelligent analysis
+        system_prompt = """
+You are an expert hospital support system analyzer. Analyze user queries and provide intelligent ticket initialization with actionable guidance.
+
+INPUT:
+- User Query: {user_query}
+- Knowledge Base Results: {qdrant_response}
+- Available Queues: {queue_choices}
+
+ANALYSIS TASK:
+1. Evaluate knowledge base protocols for relevance to user query
+2. Determine if there's a known solution available
+3. Generate specific diagnostic questions to gather needed information
+4. Suggest appropriate routing (category, queue, priority)
+5. Provide clear guidance on next steps
+
+EVALUATION CRITERIA:
+- Match query keywords with protocol keywords and descriptions
+- Consider protocol confidence/match scores
+- Assess clinical domain and issue category alignment
+- Evaluate if troubleshooting steps are available
+
+RESPONSE STRUCTURE:
+{{
+  "success": true,
+  "analysis": {{
+    "source": "protocol" | "generated",
+    "protocol_id": "ID from knowledge base or null",
+    "confidence_score": 0.0 to 1.0,
+    "has_known_solution": boolean,
+    "solution_available": boolean,
+    "issue_interpretation": "your understanding of the user's issue"
+  }},
+  "guidance": {{
+    "message": "clear, helpful message to user about what was found",
+    "next_step": "try_solution" | "follow_troubleshooting" | "collect_info" | "immediate_escalation",
+    "reasoning": "brief explanation of why this next step"
+  }},
+  "diagnostic_questions": [
+    "specific, actionable question 1",
+    "specific, actionable question 2", 
+    "specific, actionable question 3"
+  ],
+  "troubleshooting_steps": [
+    "step 1",
+    "step 2"
+  ] or null,
+  "suggestions": {{
+    "category": "Hardware" | "Software" | "Network" | "Facility" | "Medical Equipment" | "Other",
+    "queue": "queue name from available list",
+    "priority": "Critical" | "High" | "Normal" | "Low",
+    "reasoning": "why these suggestions"
+  }},
+  "metadata": {{
+    "estimated_resolution_time": "time estimate or null",
+    "similar_issues_found": number,
+    "escalation_recommended": boolean
+  }}
+}}
+
+PRIORITY GUIDELINES:
+- Critical: System down, patient care directly impacted, safety issue
+- High: Major functionality broken, significant operational impact
+- Normal: Standard issues, workarounds available
+- Low: Minor inconveniences, feature requests
+
+CATEGORY GUIDELINES:
+- Hardware: Physical equipment, devices, peripherals
+- Software: Applications, systems, programs
+- Network: Connectivity, internet, infrastructure
+- Medical Equipment: Clinical devices, diagnostic tools
+- Facility: Building, rooms, physical environment
+- Other: Doesn't fit above categories
+
+CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no explanations outside the JSON structure.
+"""
+
+        messages = [
+            SystemMessage(content=system_prompt.format(
+                user_query=request.query,
+                qdrant_response=json.dumps(kb_result) if kb_result else "No results found",
+                queue_choices=", ".join(QUEUE_CHOICES)
+            ))
+        ]
+
+        # Step 5: Call LLM for intelligent analysis
+        if DEBUG:
+            print(f"[INITIALIZE_TICKET] Calling LLM to analyze query and knowledge base")
+
+        llm_response = llm.invoke(messages)
+        response_content = llm_response.content.strip()
+
+        if DEBUG:
+            print(f"[INITIALIZE_TICKET] Raw LLM response length: {len(response_content)} chars")
+
+        # Step 6: Parse and validate LLM response
+        llm_analysis = None
+        try:
+            # Clean markdown formatting if present
+            if response_content.startswith("```json"):
+                response_content = response_content.replace("```json", "").replace("```", "").strip()
+
+            elif response_content.startswith("```"):
+                response_content = response_content.replace("```", "").strip()
+
+            # Parse JSON
+            llm_analysis = json.loads(response_content)
+
+            if DEBUG:
+                print(f"[INITIALIZE_TICKET] Successfully parsed LLM analysis")
+
+        except json.JSONDecodeError as json_err:
+            if DEBUG:
+                print(f"[INITIALIZE_TICKET] JSON parse failed, attempting extraction: {json_err}")
+
+            # Try to extract JSON pattern
+            import re
+            json_pattern = r'\{.*\}'
+            match = re.search(json_pattern, response_content, re.DOTALL)
+
+            if match:
+                try:
+                    llm_analysis = json.loads(match.group(0))
+                    if DEBUG:
+                        print(f"[INITIALIZE_TICKET] Extracted JSON successfully")
+                except json.JSONDecodeError:
+                    if DEBUG:
+                        print(f"[INITIALIZE_TICKET] Extraction failed, using fallback")
+
+        # Step 7: Create ticket with analysis results
+        ticket_id = f"TKT-{uuid.uuid4().hex[:8].upper()}"
+
+        ticket = await ticket_manager.create_ticket(
+            query=request.query,
+            conversation_id=conversation_id,
+            reporter_name=request.reporter_name,
+            reporter_email=request.reporter_email,
+            knowledge_base_result=json.dumps(llm_analysis) if llm_analysis else json.dumps(kb_result)
+        )
+
+        if DEBUG:
+            print(f"[INITIALIZE_TICKET] Created ticket: {ticket_id}")
+
+        # Step 8: Build comprehensive response
+        if llm_analysis and llm_analysis.get("success"):
+            # Use LLM analysis for rich response
+            analysis = llm_analysis.get("analysis", {})
+            guidance = llm_analysis.get("guidance", {})
+            suggestions = llm_analysis.get("suggestions", {})
+            metadata = llm_analysis.get("metadata", {})
+
+            response = {
+                "success": True,
+                "ticket_id": ticket_id,
+                "conversation_id": conversation_id,
+                "is_new_ticket": True,
+
+                # Knowledge base analysis
+                "knowledge_base": {
+                    "source": analysis.get("source", "unknown"),
+                    "protocol_id": analysis.get("protocol_id"),
+                    "confidence_score": analysis.get("confidence_score", 0),
+                    "has_known_solution": analysis.get("has_known_solution", False),
+                    "solution_available": analysis.get("solution_available", False),
+                    "issue_interpretation": analysis.get("issue_interpretation", request.query),
+                    "troubleshooting_steps": llm_analysis.get("troubleshooting_steps"),
+                    "similar_issues_count": metadata.get("similar_issues_found", 0)
+                },
+
+                # Conversation guidance
+                "message": guidance.get("message",
+                                        f"Ticket {ticket_id} created. Let me help you gather the necessary information."),
+                "next_step": guidance.get("next_step", "collect_info"),
+                "reasoning": guidance.get("reasoning", "Need more information to proceed"),
+
+                # Diagnostic questions for information gathering
+                "diagnostic_questions": llm_analysis.get("diagnostic_questions", [
+                    "Can you provide more details about what's happening?",
+                    "When did this issue start?",
+                    "Has anything changed recently that might be related?"
+                ]),
+
+                # Intelligent suggestions for pre-filling
+                "suggestions": {
+                    "category": suggestions.get("category"),
+                    "queue": suggestions.get("queue"),
+                    "priority": suggestions.get("priority"),
+                    "reasoning": suggestions.get("reasoning", "Based on initial analysis")
+                },
+
+                # Ticket status
+                "ticket_status": {
+                    "status": "draft",
+                    "is_complete": False,
+                    "missing_fields": ticket.get("missing_fields", ["category", "priority"]),
+                    "progress_percent": ticket.get("progress", {}).get("percent", 33)
+                },
+
+                # Recommended actions
+                "suggested_actions": [],
+
+                # Metadata
+                "metadata": {
+                    "estimated_resolution_time": metadata.get("estimated_resolution_time"),
+                    "escalation_recommended": metadata.get("escalation_recommended", False)
+                }
+            }
+
+            # Build action recommendations based on analysis
+            if analysis.get("has_known_solution") and guidance.get("next_step") == "try_solution":
+                response["suggested_actions"].append({
+                    "action": "try_solution",
+                    "description": "Try the suggested solution before creating a ticket",
+                    "priority": 1,
+                    "can_resolve_without_ticket": True
+                })
+
+            if llm_analysis.get("troubleshooting_steps"):
+                response["suggested_actions"].append({
+                    "action": "follow_troubleshooting",
+                    "description": "Follow diagnostic steps to identify the issue",
+                    "priority": 2,
+                    "can_resolve_without_ticket": True
+                })
+
+            if guidance.get("next_step") == "immediate_escalation":
+                response["suggested_actions"].append({
+                    "action": "immediate_escalation",
+                    "description": "This requires immediate attention from support team",
+                    "priority": 1,
+                    "can_resolve_without_ticket": False
+                })
+
+            response["suggested_actions"].append({
+                "action": "answer_diagnostic_questions",
+                "description": "Provide additional information to complete the ticket",
+                "priority": 3,
+                "can_resolve_without_ticket": False
+            })
+
+        else:
+            # Fallback response when LLM analysis fails
+            if DEBUG:
+                print(f"[INITIALIZE_TICKET] Using fallback response structure")
+
+            response = {
+                "success": True,
+                "ticket_id": ticket_id,
+                "conversation_id": conversation_id,
+                "is_new_ticket": True,
+
+                # Minimal knowledge base info
+                "knowledge_base": {
+                    "source": "fallback",
+                    "has_known_solution": False,
+                    "issue_interpretation": request.query,
+                    "error": "Could not complete full analysis"
+                },
+
+                # Basic guidance
+                "message": f"Ticket {ticket_id} created. I'll help you provide the information needed to resolve this issue.",
+                "next_step": "collect_info",
+                "reasoning": "Gathering information to understand the issue",
+
+                # Generic diagnostic questions
+                "diagnostic_questions": [
+                    "What type of issue are you experiencing? (Hardware, Software, Network, Facility, Medical Equipment)",
+                    "How urgent is this issue? (Critical, High, Medium, Low)",
+                    "Can you describe what's happening in more detail?"
+                ],
+
+                # Default suggestions
+                "suggestions": {
+                    "category": None,
+                    "queue": "General Inquiries",
+                    "priority": "Medium",
+                    "reasoning": "Default routing until more information is provided"
+                },
+
+                # Ticket status
+                "ticket_status": {
+                    "status": "draft",
+                    "is_complete": False,
+                    "missing_fields": ["category", "priority", "description"],
+                    "progress_percent": 0
+                },
+
+                # Basic actions
+                "suggested_actions": [
+                    {
+                        "action": "answer_diagnostic_questions",
+                        "description": "Provide information to route your ticket properly",
+                        "priority": 1,
+                        "can_resolve_without_ticket": False
+                    }
+                ],
+
+                "metadata": {
+                    "estimated_resolution_time": None,
+                    "escalation_recommended": False
+                }
+            }
+
+        return response
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[INITIALIZE_TICKET] Error: {e}")
+            import traceback
+            traceback.print_exc()
+
+        # Return error response
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Failed to initialize ticket. Please try again or contact support.",
+            "trigger_fallback": True
+        }
+
+
+@app.get("/tickets/{ticket_id}", response_model=TicketResponse)
+async def get_ticket_endpoint(ticket_id: str):
+    """Get ticket by ID"""
+    try:
+        ticket = await ticket_manager.get_ticket(ticket_id)
+        if not ticket:
+            raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found")
+
+        return TicketResponse(**ticket)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        if DEBUG:
+            print(f"[API] Error getting ticket: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/threads/{conversation_id}/tickets")
+async def list_thread_tickets_endpoint(conversation_id: str):
+    """List all tickets for a thread"""
+    try:
+        tickets = await ticket_manager.list_tickets_for_thread(conversation_id)
+        return {
+            "conversation_id": conversation_id,
+            "count": len(tickets),
+            "tickets": tickets
+        }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[API] Error listing tickets: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/threads/{conversation_id}/active-ticket")
+async def get_active_ticket_endpoint(conversation_id: str):
+    """Get active ticket for thread"""
+    try:
+        ticket = await ticket_manager.get_active_ticket_for_thread(conversation_id)
+
+        if not ticket:
+            return {
+                "has_active_ticket": False,
+                "message": "No active ticket found for this thread"
+            }
+
+        return {
+            "has_active_ticket": True,
+            "ticket": TicketResponse(**ticket)
+        }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[API] Error getting active ticket: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.patch("/tickets/{ticket_id}")
+async def update_ticket_endpoint(ticket_id: str, conversation_id: str, request: UpdateTicketRequest):
+    """
+    Update ticket fields with intelligent validation and rich contextual feedback.
+    """
+    try:
+        if DEBUG:
+            print(f"[TICKET_UPDATE] Updating ticket {ticket_id} with fields: {list(request.fields.keys())}")
+
+        # Get current ticket state
+        ticket = await ticket_manager.get_ticket(ticket_id)
+        if not ticket:
+            raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found")
+
+        if DEBUG:
+            print(f"[TICKET_UPDATE] Thread ID: {conversation_id}")
+
+        # Check if ticket is already submitted/completed
+        if ticket['status'] in [TicketStatus.SUBMITTED, TicketStatus.COMPLETED]:
+            return {
+                "success": False,
+                "error": f"Cannot update ticket in {ticket['status']} status",
+                "ticket_id": ticket_id,
+                "conversation_id": conversation_id,  # ADDED
+                "message": f"Ticket {ticket_id} has already been {ticket['status']}. Create a new ticket for additional issues.",
+                "next_step": "create_new_ticket",
+                "suggested_actions": [
+                    {
+                        "action": "view_ticket",
+                        "description": "View the submitted ticket details",
+                        "priority": 1
+                    },
+                    {
+                        "action": "create_new_ticket",
+                        "description": "Create a new ticket for a different issue",
+                        "priority": 2
+                    }
+                ],
+                "ticket_status": {
+                    "ticket_id": ticket_id,
+                    "conversation_id": conversation_id,  # ADDED
+                    "status": ticket['status'],
+                    "jira_key": ticket.get('jira_key')
+                }
+            }
+
+        # Store pre-update state
+        pre_update_fields = {k: ticket.get(k) for k in request.fields.keys()}
+        pre_update_missing = ticket.get("missing_fields", [])
+        pre_update_complete = ticket.get("is_complete", False)
+
+        # Perform update
+        updated_ticket = await ticket_manager.update_fields(ticket_id, request.fields)
+
+        # Analyze what changed
+        fields_updated = []
+        fields_unchanged = []
+        validation_errors = []
+        auto_actions = []
+
+        for field_name, new_value in request.fields.items():
+            old_value = pre_update_fields.get(field_name)
+            if old_value != new_value:
+                fields_updated.append(field_name)
+
+                if field_name == "category" and updated_ticket.get("queue"):
+                    auto_actions.append({
+                        "action": "auto_routed",
+                        "field": "queue",
+                        "value": updated_ticket.get("queue"),
+                        "reason": f"Based on category: {new_value}"
+                    })
+            else:
+                fields_unchanged.append(field_name)
+
+        # Validation status
+        priority_valid = (
+            updated_ticket.get("priority") in TicketManager.VALID_PRIORITIES
+            if updated_ticket.get("priority") else None
+        )
+        category_valid = (
+            updated_ticket.get("category") in TicketManager.VALID_CATEGORIES
+            if updated_ticket.get("category") else None
+        )
+
+        # Calculate progress
+        post_update_missing = updated_ticket.get("missing_fields", [])
+        post_update_complete = updated_ticket.get("is_complete", False)
+        progress_made = len(pre_update_missing) - len(post_update_missing)
+
+        # Generate contextual message
+        if post_update_complete and not pre_update_complete:
+            message = f"Excellent! All required information has been collected for ticket {ticket_id}. The ticket is ready to submit."
+            next_step = "ready_to_submit"
+        elif progress_made > 0:
+            if len(post_update_missing) == 0:
+                message = f"Updated {', '.join(fields_updated)}. Ticket {ticket_id} is now complete!"
+                next_step = "ready_to_submit"
+            elif len(post_update_missing) == 1:
+                message = f"Updated {', '.join(fields_updated)}. Just need {post_update_missing[0]} and we're done!"
+                next_step = "collect_final_field"
+            else:
+                message = f"Updated {', '.join(fields_updated)}. Still need: {', '.join(post_update_missing)}."
+                next_step = "collect_remaining_fields"
+        elif len(fields_updated) > 0:
+            message = f"Updated {', '.join(fields_updated)} for ticket {ticket_id}."
+            next_step = "continue_collection"
+        else:
+            message = f"No changes made to ticket {ticket_id}. The provided values were the same as existing ones."
+            next_step = "no_changes"
+
+        # Generate diagnostic questions
+        diagnostic_questions = []
+        if post_update_missing:
+            for missing_field in post_update_missing[:3]:
+                if missing_field == "priority":
+                    diagnostic_questions.append(
+                        "How urgent is this issue? (Critical: immediate patient care impact, High: major disruption, Normal: standard issue, Low: minor inconvenience)"
+                    )
+                elif missing_field == "category":
+                    diagnostic_questions.append(
+                        "What type of issue is this? (Hardware, Software, Network, Facility, Medical Equipment, or Other)"
+                    )
+                elif missing_field == "location":
+                    diagnostic_questions.append(
+                        "Where is this issue occurring? (Building, floor, room number, or department)"
+                    )
+                elif missing_field == "description":
+                    diagnostic_questions.append(
+                        "Can you provide more details about what's happening?"
+                    )
+                else:
+                    diagnostic_questions.append(f"Can you provide the {missing_field}?")
+
+        # Build suggested actions
+        suggested_actions = []
+
+        if post_update_complete:
+            suggested_actions.append({
+                "action": "submit_ticket",
+                "description": "Submit the completed ticket to JIRA",
+                "priority": 1,
+                "can_proceed": True
+            })
+            suggested_actions.append({
+                "action": "review_before_submit",
+                "description": "Review all ticket details before submission",
+                "priority": 2,
+                "can_proceed": True
+            })
+        elif len(post_update_missing) > 0:
+            suggested_actions.append({
+                "action": "answer_remaining_questions",
+                "description": f"Provide {len(post_update_missing)} more field(s): {', '.join(post_update_missing)}",
+                "priority": 1,
+                "can_proceed": False
+            })
+
+        # Get recent changes
+        recent_changes = updated_ticket.get("history", [])[-5:] if updated_ticket.get("history") else []
+
+        # Build comprehensive response
+        response = {
+            "success": True,
+            "ticket_id": ticket_id,
+            "conversation_id": conversation_id,  # CRITICAL: Always include
+
+            # Conversation context
+            "conversation": {
+                "conversation_id": conversation_id,  # ADDED for emphasis
+                "active_ticket": ticket_id,
+                "can_create_new": False  # False because this ticket is still active
+            },
+
+            # What changed
+            "changes": {
+                "fields_updated": fields_updated,
+                "fields_unchanged": fields_unchanged,
+                "auto_actions": auto_actions,
+                "progress_made": progress_made > 0
+            },
+
+            # Conversation guidance
+            "message": message,
+            "next_step": next_step,
+            "diagnostic_questions": diagnostic_questions,
+
+            # Progress tracking
+            "progress": {
+                "before": {
+                    "complete": pre_update_complete,
+                    "missing_count": len(pre_update_missing),
+                    "missing_fields": pre_update_missing
+                },
+                "after": {
+                    "complete": post_update_complete,
+                    "missing_count": len(post_update_missing),
+                    "missing_fields": post_update_missing
+                },
+                "improvement": progress_made,
+                "percent": updated_ticket.get("progress", {}).get("percent", 0)
+            },
+
+            # Validation status
+            "validation": {
+                "all_valid": priority_valid != False and category_valid != False,
+                "priority_valid": priority_valid,
+                "category_valid": category_valid,
+                "can_submit": post_update_complete,
+                "issues": validation_errors
+            },
+
+            # Current ticket state
+            "ticket_status": {
+                "ticket_id": ticket_id,
+                "conversation_id": conversation_id,  # ADDED
+                "status": updated_ticket.get("status"),
+                "is_complete": post_update_complete,
+                "missing_fields": post_update_missing,
+                "fields": updated_ticket.get("fields", {})
+            },
+
+            # Recommended actions
+            "suggested_actions": suggested_actions,
+
+            # Recent activity
+            "recent_changes": [
+                {
+                    "field": change.get("field_name"),
+                    "from": change.get("old_value"),
+                    "to": change.get("new_value"),
+                    "when": change.get("timestamp"),
+                    "action": change.get("action")
+                }
+                for change in recent_changes
+            ],
+
+            # Metadata
+            "metadata": {
+                "sla_deadline": updated_ticket.get("sla_deadline"),
+                "auto_routed_queue": updated_ticket.get("queue") if "category" in fields_updated else None,
+                "estimated_resolution": ticket_manager._estimate_resolution_time(
+                    updated_ticket) if post_update_complete else None
+            }
+        }
+
+        # Add field suggestions if still incomplete
+        if not post_update_complete and len(post_update_missing) > 0:
+            response["suggestions"] = ticket_manager._generate_field_suggestions(updated_ticket, post_update_missing)
+
+        return response
+
+    except ValueError as e:
+        if DEBUG:
+            print(f"[TICKET_UPDATE] Validation error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[TICKET_UPDATE] Error: {e}")
+            import traceback
+            traceback.print_exc()
+            
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/tickets/{ticket_id}/submit")
+async def submit_ticket_endpoint(ticket_id: str, request: SubmitTicketRequest):
+    """Submit ticket to JIRA"""
+    try:
+        # Get current ticket
+        ticket = await ticket_manager.get_ticket(ticket_id)
+        if not ticket:
+            raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found")
+
+        # Check if already submitted
+        if ticket['status'] in [TicketStatus.SUBMITTED, TicketStatus.COMPLETED]:
+            return {
+                "success": False,
+                "error": f"Ticket already {ticket['status']}",
+                "ticket": TicketResponse(**ticket)
+            }
+
+        # Update all fields from request
+        await ticket_manager.update_fields(ticket_id, request.model_dump())
+
+        # Verify completeness
+        ticket = await ticket_manager.get_ticket(ticket_id)
+        if not ticket['is_complete']:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Ticket incomplete. Missing: {ticket['missing_fields']}"
+            )
+
+        # Create JIRA ticket
+        jira_payload = {
+            "conversation_id": ticket['conversation_id'],
+            "conversation_topic": request.conversation_topic,
+            "description": request.description,
+            "location": request.location,
+            "queue": request.queue,
+            "priority": request.priority,
+            "department": request.department,
+            "name": request.name,
+            "category": request.category
+        }
+
+        jira_result = await asyncio.to_thread(create_jira_ticket, **jira_payload)
+
+        # Extract JIRA key
+        jira_key = None
+        if isinstance(jira_result, dict):
+            jira_key = jira_result.get('key') or jira_result.get('jira_key')
+
+        # Update status to submitted
+        ticket = await ticket_manager.update_status(
+            ticket_id,
+            TicketStatus.SUBMITTED,
+            jira_key=jira_key
+        )
+
+        return {
+            "success": True,
+            "ticket": TicketResponse(**ticket),
+            "jira_result": jira_result
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        if DEBUG:
+            print(f"[API] Error submitting ticket: {e}")
+            import traceback
+            traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/tickets/{ticket_id}/cancel")
+async def cancel_ticket_endpoint(ticket_id: str):
+    """Cancel a ticket"""
+    try:
+        ticket = await ticket_manager.update_status(ticket_id, TicketStatus.CANCELLED)
+        return TicketResponse(**ticket)
+
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        if DEBUG:
+            print(f"[API] Error cancelling ticket: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/tickets/search")
+async def search_tickets_endpoint(
+        status: Optional[str] = None,
+        priority: Optional[str] = None,
+        category: Optional[str] = None,
+        jira_key: Optional[str] = None,
+        limit: int = 50
+):
+    """Search tickets"""
+    try:
+        tickets = await ticket_manager.search_tickets(
+            status=status,
+            priority=priority,
+            category=category,
+            jira_key=jira_key,
+            limit=limit
+        )
+
+        return {
+            "count": len(tickets),
+            "tickets": tickets
+        }
+
+    except Exception as e:
+        if DEBUG:
+            print(f"[API] Error searching tickets: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/tickets/stats")
+async def get_ticket_stats():
+    """Get ticket statistics by priority and category"""
+    data = await storage.load()
+
+    stats = {
+        "by_priority": {},
+        "by_category": {},
+        "by_status": {},
+        "total_tickets": len(data["tickets"])
+    }
+
+    for ticket in data["tickets"].values():
+        # Count by priority
+        priority = ticket.get("priority", "Unknown")
+        stats["by_priority"][priority] = stats["by_priority"].get(priority, 0) + 1
+
+        # Count by category
+        category = ticket.get("category", "Unknown")
+        stats["by_category"][category] = stats["by_category"].get(category, 0) + 1
+
+        # Count by status
+        status = ticket.get("status", "Unknown")
+        stats["by_status"][status] = stats["by_status"].get(status, 0) + 1
+
+    return stats
+
+
+@app.post("/storage/backup")
+async def backup_storage_endpoint():
+    """Create a backup of the storage file"""
+    try:
+        await storage.backup()
+        return {
+            "success": True,
+            "message": "Backup created successfully"
+        }
+    except Exception as e:
+        if DEBUG:
+            print(f"[API] Error creating backup: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== MCP TOOLS ====================
 
 @app.post("/mcp/tools/list", response_model=MCPToolsListResponse)
 async def mcp_tools_list():
@@ -781,26 +2213,28 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_create_user",
-            description="TRIGGER: create AD user, add Azure AD user, new AD account, register AD user, add employee to directory | ACTION: Create new Azure Active Directory user account with automatic password generation | RETURNS: Created AD user details with temporary password and login instructions",
+            description="TRIGGER: create AD user, add Azure AD user, new AD account, register AD user, add employee to directory | ACTION: Create new Azure Active Directory user account | RETURNS: Created AD user details with generated ID and tenant information",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "user": {
                         "type": "object",
-                        "description": "Azure AD user payload - only displayName is required, other fields are auto-generated",
+                        "description": "Azure AD user payload with user properties",
                         "properties": {
-                            "displayName": {"type": "string", "description": "User's full display name (REQUIRED)"},
-                            "mailNickname": {"type": "string", "description": "Mail nickname (auto-generated from displayName if not provided)"},
-                            "userPrincipalName": {"type": "string", "description": "User login email (auto-generated as displayname@domain if not provided)"},
+                            "displayName": {"type": "string", "description": "User's display name in AD"},
+                            "mailNickname": {"type": "string",
+                                             "description": "Mail nickname (auto-generated if not provided)"},
+                            "userPrincipalName": {"type": "string",
+                                                  "description": "User principal name (auto-generated if not provided)"},
                             "passwordProfile": {
                                 "type": "object",
-                                "description": "Password settings (secure password auto-generated if not provided)",
                                 "properties": {
-                                    "password": {"type": ["string", "null"], "description": "Custom password (secure password auto-generated if null or not specified)"},
-                                    "forceChangePasswordNextSignIn": {"type": "boolean", "description": "Force password change on first login", "default": True}
+                                    "password": {"type": "string", "description": "Temporary password"},
+                                    "forceChangePasswordNextSignIn": {"type": "boolean",
+                                                                      "description": "Force password change on next sign-in"}
                                 }
                             },
-                            "accountEnabled": {"type": "boolean", "description": "Whether account is enabled (defaults to true)"}
+                            "accountEnabled": {"type": "boolean", "description": "Whether AD account is enabled"}
                         },
                         "required": ["displayName"]
                     }
@@ -842,21 +2276,16 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ad_get_user_roles",
-            description="TRIGGER: AD user roles, Azure AD user permissions, directory user roles, what AD roles does user have, check AD access, who has role, Global Administrator members, list admins, user's Azure AD permissions | ACTION: Get Azure AD user's assigned directory roles OR get users assigned to a specific role | INSTRUCTION: Accepts flexible identification - use name, email, or GUID for users. Use role name for roles. Provide either user_identifier OR role_identifier | RETURNS: List of AD roles assigned to specific user, OR list of users assigned to specific role from Azure tenant",
+            description="TRIGGER: AD user roles, Azure AD user permissions, directory user roles, what AD roles does user have, check AD access | ACTION: Get Azure AD user's assigned directory roles | INSTRUCTION: Accepts flexible user identification - use name, email, or GUID. System auto-resolves | RETURNS: List of AD roles assigned to specific user from Azure tenant",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "user_identifier": {
                         "type": "string",
                         "description": "Flexible user identifier - accepts Azure AD GUID, email address, or display name. Smart resolution automatically finds the correct user."
-                    },
-                    "role_identifier": {
-                        "type": "string",
-                        "description": "Azure AD role name or GUID - accepts common role names like 'Global Administrator', 'User Administrator'. Case-insensitive with fuzzy matching.",
-                        "default": ""
                     }
                 },
-                "required": ["user_identifier", "role_identifier"]
+                "required": ["user_identifier"]
             }
         ),
 
@@ -870,7 +2299,8 @@ async def mcp_tools_list():
                         "type": "string",
                         "description": "Flexible user identifier - accepts Azure AD GUID, email address, or display name. Smart resolution automatically finds the correct user."
                     },
-                    "transitive": {"type": "boolean", "description": "Include transitive AD group memberships", "default": False}
+                    "transitive": {"type": "boolean", "description": "Include transitive AD group memberships",
+                                   "default": False}
                 },
                 "required": ["user_identifier", "transitive"]
             }
@@ -1002,9 +2432,11 @@ async def mcp_tools_list():
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "security_only": {"type": "boolean", "description": "List only AD security groups", "default": False},
+                    "security_only": {"type": "boolean", "description": "List only AD security groups",
+                                      "default": False},
                     "unified_only": {"type": "boolean", "description": "List only AD unified groups", "default": False},
-                    "select": {"type": "string", "description": "AD fields to select", "default": "id,displayName,mailNickname,mail,securityEnabled,groupTypes"}
+                    "select": {"type": "string", "description": "AD fields to select",
+                               "default": "id,displayName,mailNickname,mail,securityEnabled,groupTypes"}
                 },
                 "required": ["select", "security_only", "unified_only"]
             }
@@ -1018,12 +2450,17 @@ async def mcp_tools_list():
                 "properties": {
                     "display_name": {"type": "string", "description": "AD group display name"},
                     "mail_nickname": {"type": "string", "description": "AD group mail nickname"},
-                    "description": {"type": ["string", "null"], "description": "AD group description (optional)"},
-                    "group_type": {"type": "string", "enum": ["security", "m365", "dynamic-security", "dynamic-m365"], "description": "Azure AD group type", "default": "security"},
-                    "visibility": {"type": ["string", "null"], "enum": ["Private", "Public"], "description": "AD group visibility (for M365 groups, optional)"},
-                    "membership_rule": {"type": ["string", "null"], "description": "Dynamic membership rule (for dynamic groups, optional)"},
-                    "owners": {"type": ["array", "null"], "items": {"type": "string"}, "description": "List of owner identifiers (names, emails, or GUIDs, optional)"},
-                    "members": {"type": ["array", "null"], "items": {"type": "string"}, "description": "List of member identifiers (names, emails, or GUIDs, optional)"}
+                    "description": {"type": "string", "description": "AD group description"},
+                    "group_type": {"type": "string", "enum": ["security", "m365", "dynamic-security", "dynamic-m365"],
+                                   "description": "Azure AD group type", "default": "security"},
+                    "visibility": {"type": "string", "enum": ["Private", "Public"],
+                                   "description": "AD group visibility (for M365 groups)"},
+                    "membership_rule": {"type": "string",
+                                        "description": "Dynamic membership rule (for dynamic groups)"},
+                    "owners": {"type": "array", "items": {"type": "string"},
+                               "description": "List of owner identifiers (names, emails, or GUIDs)"},
+                    "members": {"type": "array", "items": {"type": "string"},
+                                "description": "List of member identifiers (names, emails, or GUIDs)"}
                 },
                 "required": ["display_name", "mail_nickname"]
             }
@@ -1317,11 +2754,296 @@ async def mcp_tools_list():
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "include_transitive": {"type": "boolean", "description": "Include transitive group memberships", "default": False},
-                    "include_owned": {"type": "boolean", "description": "Include groups owned by user", "default": True},
-                    "select": {"type": "string", "description": "User fields to select", "default": "id,displayName,userPrincipalName"}
+                    "include_transitive": {"type": "boolean", "description": "Include transitive group memberships",
+                                           "default": False},
+                    "include_owned": {"type": "boolean", "description": "Include groups owned by user",
+                                      "default": True},
+                    "select": {"type": "string", "description": "User fields to select",
+                               "default": "id,displayName,userPrincipalName"}
                 },
                 "required": ["include_transitive", "include_owned", "select"]
+            }
+        ),
+
+        # ==================== TICKET SYSTEM TOOLS ====================
+        # MCPTool(
+        #     name="ticket_create",
+        #     description="TRIGGER: report issue, create ticket, problem with, need help, technical issue, equipment failure, software bug, having trouble | ACTION: Create a new support ticket with hospital knowledge base lookup | RETURNS: Ticket ID (TKT-XXXXXXXX), status, knowledge base results with support protocols",
+        #     inputSchema={
+        #         "type": "object",
+        #         "properties": {
+        #             "query": {
+        #                 "type": "string",
+        #                 "description": "Description of the problem or issue to create ticket for"
+        #             },
+        #             "conversation_id": {
+        #                 "type": "string",
+        #                 "description": "Conversation thread ID for tracking this ticket session"
+        #             },
+        #             "reporter_name": {
+        #                 "type": "string",
+        #                 "description": "Name of person reporting the issue (optional)"
+        #             },
+        #             "reporter_email": {
+        #                 "type": "string",
+        #                 "description": "Email of person reporting the issue (optional)"
+        #             }
+        #         },
+        #         "required": ["query", "conversation_id"]
+        #     }
+        # ),
+        MCPTool(
+            name="ticket_initialize",
+            description="TRIGGER: starting a BRAND NEW issue/problem that has NOT been discussed yet | NEW issue, NEW problem, report NEW issue, I have a problem, something is broken, need help with NEW issue, etc... | ACTION: Initialize new support ticket with knowledge base search | CRITICAL: Do NOT use if already discussing an existing ticket - use ticket_update instead | RETURNS: New ticket ID, analysis, and guidance",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Description of the problem, issue, or request. Be as specific as possible - include what's not working, error messages, location, equipment names, etc.",
+                        "minLength": 3,
+                        "maxLength": 2000
+                    },
+                    "conversation_id": {
+                        "type": "string",
+                        "description": "Generated conversation thread ID (e.g. 00001) to track this ticket within the current conversation session. Used to prevent duplicate tickets and maintain conversation context."
+                    },
+                    "reporter_name": {
+                        "type": "string",
+                        "description": "Name of the person reporting the issue (optional but recommended for follow-up)"
+                    },
+                    "reporter_email": {
+                        "type": "string",
+                        "description": "Email address of the person reporting the issue (optional but recommended for follow-up communication)"
+                    }
+                },
+                "required": ["query", "conversation_id"]
+            }
+        ),
+
+        MCPTool(
+            name="ticket_get",
+            description="TRIGGER: check ticket, ticket status, view ticket, show ticket details, ticket information | ACTION: Get complete ticket information by ticket ID | RETURNS: Full ticket details including all fields, history log, status, completeness check, missing fields, and SLA deadline",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "ticket_id": {
+                        "type": "string",
+                        "description": "Ticket ID in format TKT-XXXXXXXX"
+                    }
+                },
+                "required": ["ticket_id"]
+            }
+        ),
+
+        MCPTool(
+            name="ticket_get_active",
+            description="TRIGGER: active ticket, current ticket, ongoing ticket, ticket in progress, my ticket | ACTION: Get the active (non-completed) ticket for current conversation thread | RETURNS: Active ticket details if exists, or message indicating no active ticket",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "conversation_id": {
+                        "type": "string",
+                        "description": "Conversation thread ID to check for active tickets"
+                    }
+                },
+                "required": ["conversation_id"]
+            }
+        ),
+
+        MCPTool(
+            name="ticket_list_thread",
+            description="TRIGGER: list tickets, show all tickets, ticket history, previous tickets | ACTION: List all tickets (active and completed) for a conversation thread | RETURNS: List of all tickets with their current status",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "conversation_id": {
+                        "type": "string",
+                        "description": "Conversation thread ID to list tickets for"
+                    }
+                },
+                "required": ["conversation_id"]
+            }
+        ),
+
+        MCPTool(
+            name="ticket_update",
+            description="TRIGGER: Adding information to EXISTING ticket, answering questions about current ticket, providing details | priority is X, location is Y, category is Z, it's in room ABC, started yesterday | ACTION: Update existing ticket fields with new information and get comprehensive progress feedback | INSTRUCTION: Use when user provides additional details, answers diagnostic questions, or clarifies information for an existing ticket. Can update multiple fields at once. System validates inputs and auto-routes based on category | RETURNS: Updated ticket with before/after comparison, progress tracking, validation status, what changed, what's still missing, next steps, and whether ticket is ready to submit",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "ticket_id": {
+                        "type": "string",
+                        "description": "Ticket ID to update (format: TKT-XXXXXXXX)"
+                    },
+                    "conversation_id": {
+                        "type": "string",
+                        "description": "Generated conversation thread ID (e.g. 00001) to track this ticket within the current conversation session. Used to prevent duplicate tickets and maintain conversation context."
+                    },
+                    "fields": {
+                        "type": "object",
+                        "description": "Dictionary of field names and values to update. Can update multiple fields at once.",
+                        "properties": {
+                            "conversation_topic": {
+                                "type": "string",
+                                "description": "Brief summary or title of the issue (Generated from issue description)"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Detailed description of the problem (can be updated/appended)"
+                            },
+                            "location": {
+                                "type": "string",
+                                "description": "Physical location where issue occurs (building, room, floor, department)"
+                            },
+                            "priority": {
+                                "type": "string",
+                                "enum": ["High", "Medium", "Low"],
+                                "description": "Priority level (Generated from issue description) - High: 8hr SLA, Medium: 24hr SLA, Low: 72hr SLA",
+                                "default": "Medium"
+                            },
+                            "category": {
+                                "type": "string",
+                                "enum": ["Hardware", "Software", "Facility", "Network", "Medical Equipment", "Other"],
+                                "description": "Issue category (Generated from issue description) - automatically routes to appropriate support queue"
+                            },
+                            "department": {
+                                "type": "string",
+                                "description": "Department affected by or responsible for the issue"
+                            },
+                            "reporter_name": {
+                                "type": "string",
+                                "description": "Name of person reporting the issue"
+                            }
+                        }
+                    }
+                },
+                "required": ["ticket_id", "conversation_id", "fields"]
+            }
+        ),
+
+        MCPTool(
+            name="ticket_submit",
+            description="TRIGGER: submit ticket, create JIRA ticket, finalize ticket, send to support, ready to submit | ACTION: Submit completed ticket to JIRA ticketing system | INSTRUCTION: Validates all required fields (description, category, priority) are filled before submission. Cannot submit tickets that are already submitted or completed | RETURNS: JIRA ticket key (for tracking in JIRA), submission confirmation, and final ticket status",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "ticket_id": {
+                        "type": "string",
+                        "description": "Ticket ID to submit to JIRA"
+                    },
+                    "conversation_topic": {
+                        "type": "string",
+                        "description": "Brief title/summary for JIRA ticket"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Complete detailed description for JIRA"
+                    },
+                    "location": {
+                        "type": "string",
+                        "description": "Location for JIRA ticket"
+                    },
+                    "queue": {
+                        "type": "string",
+                        "description": "Support queue for JIRA routing"
+                    },
+                    "priority": {
+                        "type": "string",
+                        "enum": ["Critical", "High", "Normal", "Low"],
+                        "description": "Priority level for JIRA"
+                    },
+                    "department": {
+                        "type": "string",
+                        "description": "Department for JIRA ticket"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Reporter name for JIRA"
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": ["Hardware", "Software", "Facility", "Network", "Medical Equipment", "Other"],
+                        "description": "Category for JIRA ticket"
+                    }
+                },
+                "required": ["ticket_id", "conversation_topic", "description", "location", "queue", "priority",
+                             "department", "name", "category"]
+            }
+        ),
+
+        MCPTool(
+            name="ticket_cancel",
+            description="TRIGGER: cancel ticket, close ticket, abort ticket, discard ticket, delete ticket | ACTION: Cancel an existing ticket (changes status to cancelled) | RETURNS: Cancelled ticket confirmation with updated status",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "ticket_id": {
+                        "type": "string",
+                        "description": "Ticket ID to cancel (format: TKT-XXXXXXXX)"
+                    }
+                },
+                "required": ["ticket_id"]
+            }
+        ),
+
+        MCPTool(
+            name="ticket_search",
+            description="TRIGGER: search tickets, find tickets, filter tickets, tickets by priority, tickets by category | ACTION: Search and filter tickets by status, priority, category, or JIRA key | RETURNS: List of matching tickets sorted by priority and creation date",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": ["draft", "pending", "submitted", "completed", "cancelled"],
+                        "description": "Filter by ticket status (optional)"
+                    },
+                    "priority": {
+                        "type": "string",
+                        "enum": ["Critical", "High", "Normal", "Low"],
+                        "description": "Filter by priority level (optional)"
+                    },
+                    "category": {
+                        "type": "string",
+                        "enum": ["Hardware", "Software", "Facility", "Network", "Medical Equipment", "Other"],
+                        "description": "Filter by category (optional)"
+                    },
+                    "jira_key": {
+                        "type": "string",
+                        "description": "Filter by JIRA ticket key (optional)"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Maximum number of results to return",
+                        "default": 50
+                    }
+                },
+                "required": []
+            }
+        ),
+
+        MCPTool(
+            name="ticket_stats",
+            description="TRIGGER: ticket statistics, ticket stats, dashboard, ticket overview, ticket summary | ACTION: Get aggregated statistics about all tickets | RETURNS: Counts by priority, category, status, and total ticket count",
+            inputSchema={
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        ),
+
+        MCPTool(
+            name="hospital_support_search",
+            description="TRIGGER: hospital support, knowledge base, support protocols, diagnostic questions, technical documentation | ACTION: Search hospital support knowledge base for protocols and solutions | RETURNS: Relevant support protocols, diagnostic questions, and troubleshooting steps from Qdrant vector database",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Support question or problem description to search knowledge base"
+                    }
+                },
+                "required": ["query"]
             }
         )
     ]
@@ -1339,1185 +3061,256 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         if DEBUG:
             print(f"[MCP] Calling tool: {tool_name} with args: {arguments}")
 
-        if "thread_id" not in arguments:
-            arguments["thread_id"] = "default"
-
         # ==================== CONVERSATIONAL ====================
         if tool_name == "greet":
             raw_name = arguments.get("name") if arguments else None
             clean_name = raw_name if raw_name and raw_name.strip() else None
             greet_request = GreetRequest(name=clean_name)
             result = await greet_endpoint(greet_request)
-
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
+        # ==================== AD TOOLS ====================
         # ==================== USER MANAGEMENT ====================
         elif tool_name == "ad_list_users":
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                data = await ad.list_users()
-                result = {
-                    "success": True,
-                    "action": "list_users",
-                    "message": f"✅ Found {len(data)} users in the directory",
-                    "data": data,
-                    "count": len(data)
-                }
-
-            return format_mcp_response(result, tool_name)
+                result = await list_users_endpoint(ad)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_create_user":
-            import secrets
-            import string
-            
-            user_data = arguments["user"].copy()
-            
-            # Ensure required fields are present
-            if "displayName" not in user_data:
-                result = {
-                    "success": False,
-                    "action": "create_user",
-                    "message": "❌ Display name is required to create a user",
-                    "error": "Missing required field: displayName"
-                }
-                return format_mcp_response(result, tool_name)
-            
-            # Auto-generate userPrincipalName if not provided OR correct domain if wrong domain used
-            if "userPrincipalName" not in user_data:
-                clean_name = user_data["displayName"].replace(" ", "").lower()
-                user_data["userPrincipalName"] = f"{clean_name}@lovenoreusgmail.onmicrosoft.com"
-
-            else:
-                # Ensure correct domain is used - override if different domain provided
-                current_upn = user_data["userPrincipalName"]
-
-                if "@" in current_upn and not current_upn.endswith("@lovenoreusgmail.onmicrosoft.com"):
-                    username_part = current_upn.split("@")[0]
-                    user_data["userPrincipalName"] = f"{username_part}@lovenoreusgmail.onmicrosoft.com"
-                    # Add a note about domain correction
-                    user_data["_domain_corrected"] = True
-            
-            # Auto-generate mailNickname if not provided
-            if "mailNickname" not in user_data:
-                clean_name = user_data["displayName"].replace(" ", "").lower()
-                user_data["mailNickname"] = clean_name
-            
-            # Set accountEnabled to True by default if not specified
-            if "accountEnabled" not in user_data:
-                user_data["accountEnabled"] = True
-            
-            # Generate secure password if not provided or if password is null/empty
-            password_profile = user_data.get("passwordProfile", {})
-            password = password_profile.get("password") if password_profile else None
-            
-            if not password or password is None or str(password).strip() == "" or str(password).lower() == "null":
-                # Generate a secure 12-character password
-                alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
-                secure_password = ''.join(secrets.choice(alphabet) for i in range(12))
-                
-                user_data["passwordProfile"] = {
-                    "password": secure_password,
-                    "forceChangePasswordNextSignIn": True
-                }
-            
-            try:
-                create_request = CreateUserRequest(action="create_user", user=user_data)
-
-                async with FastActiveDirectory(max_concurrent=20) as ad:
-                    raw_result = await create_user_endpoint(create_request, ad)
-                
-                # Check if the operation was successful
-                if raw_result.get("success"):
-                    # Success - enhance the response with helpful information
-                    message = f"✅ Successfully created user '{user_data['displayName']}'"
-                    if user_data.get("_domain_corrected"):
-                        message += " (domain corrected to organization domain)"
-                    
-                    result = {
-                        "success": True,
-                        "action": "create_user",
-                        "message": message,
-                        "user_data": {
-                            "displayName": user_data["displayName"],
-                            "userPrincipalName": user_data["userPrincipalName"],
-                            "mailNickname": user_data["mailNickname"],
-                            "accountEnabled": user_data["accountEnabled"],
-                            "temporaryPassword": user_data["passwordProfile"]["password"] if user_data["passwordProfile"]["forceChangePasswordNextSignIn"] else "*** (password set by user)"
-                        },
-                        "data": raw_result.get("data"),
-                        "next_steps": [
-                            "The user should sign in and change their password on first login",
-                            f"User can sign in at: https://login.microsoftonline.com with email: {user_data['userPrincipalName']}"
-                        ]
-                    }
-
-                else:
-                    # Handle errors from the endpoint
-                    error_message = raw_result.get("error", "Unknown error")
-                    
-                    # Check for specific error conditions
-                    if "already exists" in error_message.lower() or "same value for property userPrincipalName already exists" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "create_user",
-                            "message": f"❌ A user with email '{user_data.get('userPrincipalName', 'unknown')}' already exists",
-                            "suggestion": f"Try creating the user with a different email address, or check if user '{user_data['displayName']}' is already in the system",
-                            "user_data": {
-                                "attempted_displayName": user_data["displayName"],
-                                "attempted_userPrincipalName": user_data["userPrincipalName"]
-                            },
-                            "error": "User already exists"
-                        }
-
-                    elif "password must be specified" in error_message.lower():
-                        result = {
-                            "success": False,
-                            "action": "create_user", 
-                            "message": f"❌ Password is required to create user '{user_data['displayName']}'",
-                            "suggestion": "The system should have auto-generated a password. Please try again.",
-                            "error": "Missing password"
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "create_user",
-                            "message": f"❌ Failed to create user '{user_data['displayName']}'",
-                            "suggestion": "Please check the user details and try again with different values",
-                            "user_data": {
-                                "attempted_displayName": user_data["displayName"],
-                                "attempted_userPrincipalName": user_data["userPrincipalName"]
-                            },
-                            "error": error_message
-                        }
-
-            except Exception as e:
-                error_message = str(e)
-
-                if "already exists" in error_message.lower():
-                    result = {
-                        "success": False,
-                        "action": "create_user",
-                        "message": f"❌ A user with email '{user_data.get('userPrincipalName', 'unknown')}' already exists",
-                        "error": "User already exists"
-                    }
-
-                else:
-                    result = {
-                        "success": False,
-                        "action": "create_user", 
-                        "message": f"❌ Failed to create user '{user_data['displayName']}'. {error_message}",
-                        "error": error_message
-                    }
-            
-            return format_mcp_response(result, tool_name)
+            create_request = CreateUserRequest(action="create_user", user=arguments["user"])
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await create_user_endpoint(create_request, ad)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_update_user":
             user_identifier = arguments["user_identifier"]
             user_updates = UserUpdates(updates=arguments["updates"])
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    # Resolve user first to get actual details
-                    user_id = await ad.resolve_user(user_identifier)
-                    
-                    # Perform the update
-                    await ad.update_user_smart(user_identifier, user_updates.updates)
-                    
-                    # Success - Graph API returns empty response for successful updates
-                    result = {
-                        "success": True,
-                        "action": "update_user",
-                        "message": f"✅ Successfully updated user '{user_identifier}'",
-                        "user_identifier": user_identifier,
-                        "user_id": user_id,
-                        "updated_fields": list(user_updates.updates.keys())
-                    }
-                except Exception as e:
-                    error_message = str(e)
-                    if "No user found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "update_user",
-                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
-                            "user_identifier": user_identifier
-                        }
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "update_user",
-                            "message": f"❌ Failed to update user '{user_identifier}'. {error_message}",
-                            "user_identifier": user_identifier,
-                            "error": error_message
-                        }
-            return format_mcp_response(result, tool_name)
+                result = await ad.update_user_smart(user_identifier, user_updates.updates)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_delete_user":
             user_identifier = arguments["user_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    # Resolve user first to get actual details
-                    user_id = await ad.resolve_user(user_identifier)
-                    
-                    # Perform the delete
-                    await ad.delete_user_smart(user_identifier)
-                    
-                    # Success - Graph API returns empty response for successful deletes
-                    result = {
-                        "success": True,
-                        "action": "delete_user",
-                        "message": f"✅ Successfully deleted user '{user_identifier}'",
-                        "user_identifier": user_identifier,
-                        "user_id": user_id,
-                        "warning": "This action cannot be undone. The user account has been permanently removed."
-                    }
-                except Exception as e:
-                    error_message = str(e)
-                    if "No user found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "delete_user",
-                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
-                            "user_identifier": user_identifier
-                        }
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "delete_user",
-                            "message": f"❌ Failed to delete user '{user_identifier}'. {error_message}",
-                            "user_identifier": user_identifier,
-                            "error": error_message
-                        }
-            return format_mcp_response(result, tool_name)
+                result = await ad.delete_user_smart(user_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_get_user_roles":
             user_identifier = arguments["user_identifier"]
-            role_identifier = arguments.get("role_identifier", "")
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    # If role_identifier is provided and not empty, get users with that role
-                    if role_identifier and role_identifier.strip():
-                        role_id = await ad.resolve_role(role_identifier)
-                        data = await ad.get_role_members_smart(role_identifier)
-
-                        result = {
-                            "success": True,
-                            "action": "get_role_members",
-                            "message": f"✅ Found {len(data)} users with role '{role_identifier}'",
-                            "role_identifier": role_identifier,
-                            "role_id": role_id,
-                            "data": data,
-                            "count": len(data)
-                        }
-                    else:
-                        # Original behavior - get roles for a user
-                        user_id = await ad.resolve_user(user_identifier)
-                        data = await ad.get_user_roles_smart(user_identifier)
-
-                        result = {
-                            "success": True,
-                            "action": "get_user_roles",
-                            "message": f"✅ Found {len(data.get('value', []))} roles for user '{user_identifier}'",
-                            "user_identifier": user_identifier,
-                            "user_id": user_id,
-                            "data": data,
-                            "count": len(data.get('value', []))
-                        }
-
-                except Exception as e:
-                    error_msg = str(e)
-
-                    if "No user found" in error_msg:
-                        result = {
-                            "success": False,
-                            "action": "get_user_roles",
-                            "message": f"Please check the username '{user_identifier}' - I couldn't find anyone with that name. You might want to try their full name or email address.",
-                            "user_identifier": user_identifier
-                        }
-                    elif "No role found" in error_msg:
-                        result = {
-                            "success": False,
-                            "action": "get_role_members",
-                            "message": f"Please check the role name '{role_identifier}' - I couldn't find a role with that name. Common roles include 'Global Administrator', 'User Administrator', etc.",
-                            "role_identifier": role_identifier
-                        }
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "get_user_roles",
-                            "message": f"There was an issue retrieving information. Please try again.",
-                            "user_identifier": user_identifier,
-                            "role_identifier": role_identifier,
-                            "error": error_msg
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.get_user_roles_smart(user_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_get_user_groups":
             user_identifier = arguments["user_identifier"]
             transitive = arguments.get("transitive", False)
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    user_id = await ad.resolve_user(user_identifier)
-                    data = await ad.get_user_groups(user_id, transitive=transitive)
-
-                    result = {
-                        "success": True,
-                        "action": "get_user_groups",
-                        "message": f"✅ Found {len(data)} groups for user '{user_identifier}'",
-                        "user_identifier": user_identifier,
-                        "user_id": user_id,
-                        "transitive": transitive,
-                        "data": data,
-                        "count": len(data)
-                    }
-
-                except Exception as e:
-                    if "No user found" in str(e):
-                        result = {
-                            "success": False,
-                            "action": "get_user_groups",
-                            "message": f"Please check the username '{user_identifier}' - I couldn't find anyone with that name. You might want to try their full name or email address.",
-                            "user_identifier": user_identifier
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "get_user_groups",
-                            "message": f"There was an issue retrieving groups for '{user_identifier}'. Please try again.",
-                            "user_identifier": user_identifier,
-                            "error": str(e)
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.get_user_groups_smart(user_identifier, transitive=transitive)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_get_user_full_profile":
             user_identifier = arguments["user_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    user_id = await ad.resolve_user(user_identifier)
-                    data = await ad.get_user_full_profile(user_id)
-                    result = {
-                        "success": True,
-                        "action": "get_user_full_profile",
-                        "message": f"✅ Retrieved full profile for user '{user_identifier}'",
-                        "user_identifier": user_identifier,
-                        "user_id": user_id,
-                        "data": data
-                    }
-
-                except Exception as e:
-                    if "No user found" in str(e):
-                        result = {
-                            "success": False,
-                            "action": "get_user_full_profile",
-                            "message": f"Please check the username '{user_identifier}' - I couldn't find anyone with that name. You might want to try their full name or email address.",
-                            "user_identifier": user_identifier
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "get_user_full_profile",
-                            "message": f"There was an issue retrieving profile for '{user_identifier}'. Please try again.",
-                            "user_identifier": user_identifier,
-                            "error": str(e)
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.get_user_full_profile(user_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_search_users":
             query = arguments["query"]
             limit = arguments.get("limit", 10)
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                data = await ad.search_users_fuzzy(query, limit=limit)
-
-                result = {
-                    "success": True,
-                    "action": "search_users",
-                    "message": f"✅ Found {len(data)} users matching '{query}'",
-                    "query": query,
-                    "limit": limit,
-                    "data": data,
-                    "count": len(data)
-                }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.search_users_fuzzy(query, limit=limit)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         # ==================== ROLE MANAGEMENT ====================
         elif tool_name == "ad_list_roles":
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                data = await ad.list_roles()
-
-                result = {
-                    "success": True,
-                    "action": "list_roles",
-                    "message": f"✅ Found {len(data)} roles in the directory",
-                    "data": data,
-                    "count": len(data)
-                }
-
-            return format_mcp_response(result, tool_name)
+                result = await list_roles_endpoint(ad)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_add_user_to_role":
             user_identifier = arguments["user_identifier"]
             role_identifier = arguments["role_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    # Resolve identifiers first to get actual names/IDs
-                    user_id = await ad.resolve_user(user_identifier)
-                    role_id = await ad.resolve_role(role_identifier)
-                    
-                    # Perform the add operation
-                    await ad.add_user_to_role_smart(user_identifier, role_identifier)
-                    
-                    # Success - Graph API returns empty response for successful adds
-                    result = {
-                        "success": True,
-                        "action": "add_user_to_role",
-                        "message": f"✅ Successfully added '{user_identifier}' to role '{role_identifier}'",
-                        "user_identifier": user_identifier,
-                        "role_identifier": role_identifier,
-                        "user_id": user_id,
-                        "role_id": role_id
-                    }
-
-                except Exception as e:
-                    error_message = str(e)
-
-                    if "No user found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "add_user_to_role",
-                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
-                            "user_identifier": user_identifier,
-                            "role_identifier": role_identifier
-                        }
-
-                    elif "No role found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "add_user_to_role",
-                            "message": f"❌ Could not find role '{role_identifier}'. Please check the role name.",
-                            "user_identifier": user_identifier,
-                            "role_identifier": role_identifier
-                        }
-
-                    elif "already exists" in error_message.lower() or "already assigned" in error_message.lower():
-                        result = {
-                            "success": False,
-                            "action": "add_user_to_role",
-                            "message": f"ℹ️ User '{user_identifier}' already has role '{role_identifier}'",
-                            "user_identifier": user_identifier,
-                            "role_identifier": role_identifier
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "add_user_to_role",
-                            "message": f"❌ Failed to add '{user_identifier}' to role '{role_identifier}'. {error_message}",
-                            "user_identifier": user_identifier,
-                            "role_identifier": role_identifier,
-                            "error": error_message
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.add_user_to_role_smart(user_identifier, role_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_remove_user_from_role":
             user_identifier = arguments["user_identifier"]
             role_identifier = arguments["role_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    # Resolve identifiers first to get actual names/IDs
-                    user_id = await ad.resolve_user(user_identifier)
-                    role_id = await ad.resolve_role(role_identifier)
-                    
-                    # Perform the remove operation
-                    await ad.remove_user_from_role_smart(user_identifier, role_identifier)
-                    
-                    # Success - Graph API returns empty response for successful removes
-                    result = {
-                        "success": True,
-                        "action": "remove_user_from_role",
-                        "message": f"✅ Successfully removed '{user_identifier}' from role '{role_identifier}'",
-                        "user_identifier": user_identifier,
-                        "role_identifier": role_identifier,
-                        "user_id": user_id,
-                        "role_id": role_id
-                    }
-
-                except Exception as e:
-                    error_message = str(e)
-
-                    if "No user found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "remove_user_from_role",
-                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
-                            "user_identifier": user_identifier,
-                            "role_identifier": role_identifier
-                        }
-
-                    elif "No role found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "remove_user_from_role",
-                            "message": f"❌ Could not find role '{role_identifier}'. Please check the role name.",
-                            "user_identifier": user_identifier,
-                            "role_identifier": role_identifier
-                        }
-
-                    elif "does not exist" in error_message.lower() or "not assigned" in error_message.lower():
-                        result = {
-                            "success": False,
-                            "action": "remove_user_from_role",
-                            "message": f"ℹ️ User '{user_identifier}' does not have role '{role_identifier}'",
-                            "user_identifier": user_identifier,
-                            "role_identifier": role_identifier
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "remove_user_from_role",
-                            "message": f"❌ Failed to remove '{user_identifier}' from role '{role_identifier}'. {error_message}",
-                            "user_identifier": user_identifier,
-                            "role_identifier": role_identifier,
-                            "error": error_message
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.remove_user_from_role_smart(user_identifier, role_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_batch_add_users_to_role":
             user_identifiers = arguments["user_identifiers"]
             role_identifier = arguments["role_identifier"]
             ignore_errors = arguments.get("ignore_errors", True)
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await ad.batch_add_users_to_role(
                     user_identifiers,
                     role_identifier,
                     ignore_errors=ignore_errors
                 )
-
             # Format results with success/failure counts
             success_count = len([r for r in result if not isinstance(r, Exception)])
             error_count = len([r for r in result if isinstance(r, Exception)])
-
             formatted_result = {
-                "success": error_count == 0,
-                "action": "batch_add_users_to_role",
-                "message": f"✅ Batch operation completed: {success_count} successful, {error_count} failed" if error_count == 0 else f"⚠️ Batch operation completed with issues: {success_count} successful, {error_count} failed",
                 "success_count": success_count,
                 "error_count": error_count,
-                "total_users": len(user_identifiers),
-                "role_identifier": role_identifier,
-                "results": [str(r) if isinstance(r, Exception) else "✅ Added successfully" for r in result]
+                "results": [str(r) if isinstance(r, Exception) else "Success" for r in result]
             }
-
-            return format_mcp_response(formatted_result, tool_name)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(formatted_result, indent=2))]
+            )
 
         elif tool_name == "ad_batch_remove_users_from_role":
             user_identifiers = arguments["user_identifiers"]
             role_identifier = arguments["role_identifier"]
             ignore_errors = arguments.get("ignore_errors", True)
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await ad.batch_remove_users_from_role(
                     user_identifiers,
                     role_identifier,
                     ignore_errors=ignore_errors
                 )
-
             # Format results
             success_count = len([r for r in result if not isinstance(r, Exception)])
             error_count = len([r for r in result if isinstance(r, Exception)])
-
             formatted_result = {
-                "success": error_count == 0,
-                "action": "batch_remove_users_from_role",
-                "message": f"✅ Batch operation completed: {success_count} successful, {error_count} failed" if error_count == 0 else f"⚠️ Batch operation completed with issues: {success_count} successful, {error_count} failed",
                 "success_count": success_count,
                 "error_count": error_count,
-                "total_users": len(user_identifiers),
-                "role_identifier": role_identifier,
-                "results": [str(r) if isinstance(r, Exception) else "✅ Removed successfully" for r in result]
+                "results": [str(r) if isinstance(r, Exception) else "Success" for r in result]
             }
-
-            return format_mcp_response(formatted_result, tool_name)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(formatted_result, indent=2))]
+            )
 
         # ==================== GROUP MANAGEMENT ====================
         elif tool_name == "ad_list_groups":
             security_only = arguments.get("security_only", False)
             unified_only = arguments.get("unified_only", False)
-            limit = arguments.get("limit", 50)
-
+            select = arguments.get("select", "id,displayName,mailNickname,mail,securityEnabled,groupTypes")
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                data = await ad.list_groups(security_only=security_only, unified_only=unified_only)
-
-                # Apply limit if specified
-                if limit and len(data) > limit:
-                    data = data[:limit]
-
-                result = {
-                    "success": True,
-                    "action": "list_groups",
-                    "message": f"✅ Found {len(data)} groups in the directory",
-                    "security_only": security_only,
-                    "unified_only": unified_only,
-                    "data": data,
-                    "count": len(data)
-                }
-
-            return format_mcp_response(result, tool_name)
+                result = await list_groups_endpoint(security_only, unified_only, select, ad)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_create_group":
-            try:
-                # Handle null values by converting them to None or appropriate defaults
-                description = arguments.get("description")
-                if description is None or str(description).lower() == "null":
-                    description = None
-                    
-                visibility = arguments.get("visibility")
-                if visibility is None or str(visibility).lower() == "null":
-                    visibility = None
-                    
-                membership_rule = arguments.get("membership_rule")
-                if membership_rule is None or str(membership_rule).lower() == "null":
-                    membership_rule = None
-                    
-                owners = arguments.get("owners")
-                if owners is None or str(owners).lower() == "null":
-                    owners = None
-                elif isinstance(owners, list) and len(owners) == 0:
-                    owners = None
-                    
-                members = arguments.get("members")
-                if members is None or str(members).lower() == "null":
-                    members = None
-                elif isinstance(members, list) and len(members) == 0:
-                    members = None
-                
-                create_group_request = CreateGroupRequest(
-                    action="create_group",
-                    display_name=arguments["display_name"],
-                    mail_nickname=arguments["mail_nickname"],
-                    description=description,
-                    group_type=arguments.get("group_type", "security"),
-                    visibility=visibility,
-                    membership_rule=membership_rule,
-                    owners=owners,
-                    members=members
-                )
-
-                async with FastActiveDirectory(max_concurrent=20) as ad:
-                    raw_result = await create_group_endpoint(create_group_request, ad)
-                
-                # Enhance the response with helpful information
-                if raw_result.get("success"):
-                    group_data = raw_result.get("data", {})
-
-                    if isinstance(group_data, dict) and "group" in group_data:
-                        group_info = group_data["group"]
-                        result = {
-                            "success": True,
-                            "action": "create_group",
-                            "message": f"✅ Successfully created group '{arguments['display_name']}'",
-                            "group_data": {
-                                "displayName": arguments["display_name"],
-                                "mailNickname": arguments["mail_nickname"],
-                                "groupType": arguments.get("group_type", "security"),
-                                "description": arguments.get("description", "No description provided"),
-                                "id": group_info.get("id"),
-                                "mail": group_info.get("mail")
-                            },
-                            "data": raw_result.get("data"),
-                            "next_steps": [
-                                "You can now add members and owners to this group",
-                                "Use ad_add_group_member to add users to the group",
-                                "Use ad_add_group_owner to add group administrators"
-                            ]
-                        }
-
-                    else:
-                        result = raw_result
-
-                else:
-                    result = raw_result
-
-            except ValidationError as ve:
-                result = {
-                    "success": False,
-                    "action": "create_group",
-                    "message": f"❌ Invalid group parameters provided for '{arguments.get('display_name', 'unknown')}'",
-                    "suggestion": "Please check that required fields (display_name, mail_nickname) are provided and optional fields have valid values",
-                    "error": f"Validation error: {str(ve)}"
-                }
-
-            except Exception as e:
-                error_message = str(e)
-
-                if "already exists" in error_message.lower():
-                    result = {
-                        "success": False,
-                        "action": "create_group",
-                        "message": f"❌ A group with name '{arguments.get('display_name', 'unknown')}' or mail nickname '{arguments.get('mail_nickname', 'unknown')}' already exists",
-                        "suggestion": "Try using a different display name or mail nickname",
-                        "error": "Group already exists"
-                    }
-
-                else:
-                    result = {
-                        "success": False,
-                        "action": "create_group",
-                        "message": f"❌ Failed to create group '{arguments.get('display_name', 'unknown')}'. {error_message}",
-                        "error": error_message
-                    }
-
-            return format_mcp_response(result, tool_name)
+            create_group_request = CreateGroupRequest(
+                action="create_group",
+                display_name=arguments["display_name"],
+                mail_nickname=arguments["mail_nickname"],
+                description=arguments.get("description"),
+                group_type=arguments.get("group_type", "security"),
+                visibility=arguments.get("visibility"),
+                membership_rule=arguments.get("membership_rule"),
+                owners=arguments.get("owners"),
+                members=arguments.get("members")
+            )
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await create_group_endpoint(create_group_request, ad)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_add_group_member":
             user_identifier = arguments["user_identifier"]
             group_identifier = arguments["group_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    # Resolve identifiers first to get actual names/IDs
-                    user_id = await ad.resolve_user(user_identifier)
-                    group_id = await ad.resolve_group(group_identifier)
-                    
-                    # Perform the add operation
-                    await ad.add_user_to_group_smart(user_identifier, group_identifier)
-                    
-                    # Success - Graph API returns empty response for successful adds
-                    result = {
-                        "success": True,
-                        "action": "add_group_member",
-                        "message": f"✅ Successfully added '{user_identifier}' to group '{group_identifier}'",
-                        "user_identifier": user_identifier,
-                        "group_identifier": group_identifier,
-                        "user_id": user_id,
-                        "group_id": group_id
-                    }
-
-                except Exception as e:
-                    error_message = str(e)
-
-                    if "No user found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "add_group_member",
-                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier
-                        }
-
-                    elif "No group found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "add_group_member",
-                            "message": f"❌ Could not find group '{group_identifier}'. Please check the group name or mail nickname.",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier
-                        }
-
-                    elif "already exists" in error_message.lower() or "already a member" in error_message.lower():
-                        result = {
-                            "success": False,
-                            "action": "add_group_member",
-                            "message": f"ℹ️ User '{user_identifier}' is already a member of group '{group_identifier}'",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "add_group_member",
-                            "message": f"❌ Failed to add '{user_identifier}' to group '{group_identifier}'. {error_message}",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier,
-                            "error": error_message
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.add_user_to_group_smart(user_identifier, group_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_remove_group_member":
             user_identifier = arguments["user_identifier"]
             group_identifier = arguments["group_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    # Resolve identifiers first to get actual names/IDs
-                    user_id = await ad.resolve_user(user_identifier)
-                    group_id = await ad.resolve_group(group_identifier)
-                    
-                    # Perform the remove operation
-                    await ad.remove_user_from_group_smart(user_identifier, group_identifier)
-                    
-                    # Success - Graph API returns empty response for successful removes
-                    result = {
-                        "success": True,
-                        "action": "remove_group_member",
-                        "message": f"✅ Successfully removed '{user_identifier}' from group '{group_identifier}'",
-                        "user_identifier": user_identifier,
-                        "group_identifier": group_identifier,
-                        "user_id": user_id,
-                        "group_id": group_id
-                    }
-
-                except Exception as e:
-                    error_message = str(e)
-                    if "No user found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "remove_group_member",
-                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier
-                        }
-
-                    elif "No group found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "remove_group_member",
-                            "message": f"❌ Could not find group '{group_identifier}'. Please check the group name or mail nickname.",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier
-                        }
-
-                    elif "does not exist" in error_message.lower() or "not a member" in error_message.lower():
-                        result = {
-                            "success": False,
-                            "action": "remove_group_member",
-                            "message": f"ℹ️ User '{user_identifier}' is not a member of group '{group_identifier}'",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "remove_group_member",
-                            "message": f"❌ Failed to remove '{user_identifier}' from group '{group_identifier}'. {error_message}",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier,
-                            "error": error_message
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.remove_user_from_group_smart(user_identifier, group_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_get_group_members":
             group_identifier = arguments["group_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    group_id = await ad.resolve_group(group_identifier)
-                    data = await ad.get_group_members(group_id)
-
-                    result = {
-                        "success": True,
-                        "action": "get_group_members",
-                        "message": f"✅ Found {len(data)} members in group '{group_identifier}'",
-                        "group_identifier": group_identifier,
-                        "group_id": group_id,
-                        "data": data,
-                        "count": len(data)
-                    }
-
-                except Exception as e:
-                    if "No group found" in str(e):
-                        result = {
-                            "success": False,
-                            "action": "get_group_members",
-                            "message": f"Please check the group name '{group_identifier}' - I couldn't find a group with that name. You might want to try the full group name or mail nickname.",
-                            "group_identifier": group_identifier
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "get_group_members",
-                            "message": f"There was an issue retrieving members for group '{group_identifier}'. Please try again.",
-                            "group_identifier": group_identifier,
-                            "error": str(e)
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.get_group_members_smart(group_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_get_group_owners":
             group_identifier = arguments["group_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    group_id = await ad.resolve_group(group_identifier)
-                    data = await ad.get_group_owners(group_id)
-
-                    result = {
-                        "success": True,
-                        "action": "get_group_owners",
-                        "message": f"✅ Found {len(data)} owners for group '{group_identifier}'",
-                        "group_identifier": group_identifier,
-                        "group_id": group_id,
-                        "data": data,
-                        "count": len(data)
-                    }
-
-                except Exception as e:
-                    if "No group found" in str(e):
-                        result = {
-                            "success": False,
-                            "action": "get_group_owners",
-                            "message": f"Please check the group name '{group_identifier}' - I couldn't find a group with that name. You might want to try the full group name or mail nickname.",
-                            "group_identifier": group_identifier
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "get_group_owners",
-                            "message": f"There was an issue retrieving owners for group '{group_identifier}'. Please try again.",
-                            "group_identifier": group_identifier,
-                            "error": str(e)
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.get_group_owners_smart(group_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_add_group_owner":
             user_identifier = arguments["user_identifier"]
             group_identifier = arguments["group_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    # Resolve identifiers first to get actual names/IDs
-                    user_id = await ad.resolve_user(user_identifier)
-                    group_id = await ad.resolve_group(group_identifier)
-                    
-                    # Perform the add owner operation
-                    await ad.add_owner_to_group_smart(user_identifier, group_identifier)
-                    
-                    # Success - Graph API returns empty response for successful adds
-                    result = {
-                        "success": True,
-                        "action": "add_group_owner",
-                        "message": f"✅ Successfully added '{user_identifier}' as owner of group '{group_identifier}'",
-                        "user_identifier": user_identifier,
-                        "group_identifier": group_identifier,
-                        "user_id": user_id,
-                        "group_id": group_id
-                    }
-
-                except Exception as e:
-                    error_message = str(e)
-
-                    if "No user found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "add_group_owner",
-                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier
-                        }
-
-                    elif "No group found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "add_group_owner",
-                            "message": f"❌ Could not find group '{group_identifier}'. Please check the group name or mail nickname.",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier
-                        }
-
-                    elif "already exists" in error_message.lower() or "already an owner" in error_message.lower():
-                        result = {
-                            "success": False,
-                            "action": "add_group_owner",
-                            "message": f"ℹ️ User '{user_identifier}' is already an owner of group '{group_identifier}'",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "add_group_owner",
-                            "message": f"❌ Failed to add '{user_identifier}' as owner of group '{group_identifier}'. {error_message}",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier,
-                            "error": error_message
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.add_owner_to_group_smart(user_identifier, group_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_remove_group_owner":
             user_identifier = arguments["user_identifier"]
             group_identifier = arguments["group_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    # Resolve identifiers first to get actual names/IDs
-                    user_id = await ad.resolve_user(user_identifier)
-                    group_id = await ad.resolve_group(group_identifier)
-                    
-                    # Perform the remove owner operation
-                    await ad.remove_owner_from_group_smart(user_identifier, group_identifier)
-                    
-                    # Success - Graph API returns empty response for successful removes
-                    result = {
-                        "success": True,
-                        "action": "remove_group_owner",
-                        "message": f"✅ Successfully removed '{user_identifier}' as owner from group '{group_identifier}'",
-                        "user_identifier": user_identifier,
-                        "group_identifier": group_identifier,
-                        "user_id": user_id,
-                        "group_id": group_id
-                    }
-
-                except Exception as e:
-                    error_message = str(e)
-
-                    if "No user found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "remove_group_owner",
-                            "message": f"❌ Could not find user '{user_identifier}'. Please check the username, email, or display name.",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier
-                        }
-
-                    elif "No group found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "remove_group_owner",
-                            "message": f"❌ Could not find group '{group_identifier}'. Please check the group name or mail nickname.",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier
-                        }
-
-                    elif "does not exist" in error_message.lower() or "not an owner" in error_message.lower():
-                        result = {
-                            "success": False,
-                            "action": "remove_group_owner",
-                            "message": f"ℹ️ User '{user_identifier}' is not an owner of group '{group_identifier}'",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "remove_group_owner",
-                            "message": f"❌ Failed to remove '{user_identifier}' as owner from group '{group_identifier}'. {error_message}",
-                            "user_identifier": user_identifier,
-                            "group_identifier": group_identifier,
-                            "error": error_message
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.remove_owner_from_group_smart(user_identifier, group_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_update_group":
             group_identifier = arguments["group_identifier"]
             updates = arguments["updates"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    # Resolve group first to get actual details
-                    group_id = await ad.resolve_group(group_identifier)
-                    
-                    # Perform the update
-                    await ad.update_group_smart(group_identifier, updates)
-                    
-                    # Success - Graph API returns empty response for successful updates
-                    result = {
-                        "success": True,
-                        "action": "update_group",
-                        "message": f"✅ Successfully updated group '{group_identifier}'",
-                        "group_identifier": group_identifier,
-                        "group_id": group_id,
-                        "updated_fields": list(updates.keys())
-                    }
-
-                except Exception as e:
-                    error_message = str(e)
-
-                    if "No group found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "update_group",
-                            "message": f"❌ Could not find group '{group_identifier}'. Please check the group name or mail nickname.",
-                            "group_identifier": group_identifier
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "update_group",
-                            "message": f"❌ Failed to update group '{group_identifier}'. {error_message}",
-                            "group_identifier": group_identifier,
-                            "error": error_message
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.update_group_smart(group_identifier, updates)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_delete_group":
             group_identifier = arguments["group_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
-                try:
-                    # Resolve group first to get actual details
-                    group_id = await ad.resolve_group(group_identifier)
-                    
-                    # Perform the delete
-                    await ad.delete_group_smart(group_identifier)
-                    
-                    # Success - Graph API returns empty response for successful deletes
-                    result = {
-                        "success": True,
-                        "action": "delete_group",
-                        "message": f"✅ Successfully deleted group '{group_identifier}'",
-                        "group_identifier": group_identifier,
-                        "group_id": group_id,
-                        "warning": "This action cannot be undone. The group and all its settings have been permanently removed."
-                    }
-
-                except Exception as e:
-                    error_message = str(e)
-
-                    if "No group found" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "delete_group",
-                            "message": f"❌ Could not find group '{group_identifier}'. Please check the group name or mail nickname.",
-                            "group_identifier": group_identifier
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "delete_group",
-                            "message": f"❌ Failed to delete group '{group_identifier}'. {error_message}",
-                            "group_identifier": group_identifier,
-                            "error": error_message
-                        }
-
-            return format_mcp_response(result, tool_name)
+                result = await ad.delete_group_smart(group_identifier)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
 
         elif tool_name == "ad_get_group_full_details":
             group_identifier = arguments["group_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await ad.get_group_full_details(group_identifier)
-
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
@@ -2525,10 +3318,8 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         elif tool_name == "ad_search_groups":
             query = arguments["query"]
             limit = arguments.get("limit", 10)
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await ad.search_groups_fuzzy(query, limit=limit)
-
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
@@ -2537,24 +3328,20 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             user_identifiers = arguments["user_identifiers"]
             group_identifier = arguments["group_identifier"]
             ignore_errors = arguments.get("ignore_errors", True)
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await ad.batch_add_users_to_group(
                     user_identifiers,
                     group_identifier,
                     ignore_errors=ignore_errors
                 )
-
             # Format results
             success_count = len([r for r in result if not isinstance(r, Exception)])
             error_count = len([r for r in result if isinstance(r, Exception)])
-
             formatted_result = {
                 "success_count": success_count,
                 "error_count": error_count,
                 "results": [str(r) if isinstance(r, Exception) else "Success" for r in result]
             }
-
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(formatted_result, indent=2))]
             )
@@ -2563,24 +3350,20 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             user_identifiers = arguments["user_identifiers"]
             group_identifier = arguments["group_identifier"]
             ignore_errors = arguments.get("ignore_errors", True)
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await ad.batch_remove_users_from_group(
                     user_identifiers,
                     group_identifier,
                     ignore_errors=ignore_errors
                 )
-
             # Format results
             success_count = len([r for r in result if not isinstance(r, Exception)])
             error_count = len([r for r in result if isinstance(r, Exception)])
-
             formatted_result = {
                 "success_count": success_count,
                 "error_count": error_count,
                 "results": [str(r) if isinstance(r, Exception) else "Success" for r in result]
             }
-
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(formatted_result, indent=2))]
             )
@@ -2597,10 +3380,8 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         elif tool_name == "ad_check_user_ownership":
             user_identifier = arguments["user_identifier"]
             group_identifier = arguments["group_identifier"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await ad.check_user_ownership(user_identifier, group_identifier)
-
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps({"is_owner": result}, indent=2))]
             )
@@ -2608,10 +3389,8 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         elif tool_name == "ad_sync_group_members":
             group_identifier = arguments["group_identifier"]
             desired_user_identifiers = arguments["desired_user_identifiers"]
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await ad.sync_group_members(group_identifier, desired_user_identifiers)
-
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
@@ -2619,10 +3398,8 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         elif tool_name == "ad_batch_get_user_groups":
             user_identifiers = arguments["user_identifiers"]
             transitive = arguments.get("transitive", False)
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await ad.batch_get_user_groups(user_identifiers, transitive=transitive)
-
             # Format results
             formatted_result = []
             for i, groups in enumerate(result):
@@ -2631,7 +3408,6 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                     "groups": groups if not isinstance(groups, Exception) else str(groups),
                     "success": not isinstance(groups, Exception)
                 })
-
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(formatted_result, indent=2))]
             )
@@ -2640,16 +3416,306 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             include_transitive = arguments.get("include_transitive", False)
             include_owned = arguments.get("include_owned", True)
             select = arguments.get("select", "id,displayName,userPrincipalName")
-
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 result = await ad.list_users_with_groups(
                     include_transitive=include_transitive,
                     include_owned=include_owned,
                     select=select
                 )
-
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
+
+
+        # ==================== TICKET SYSTEM TOOLS ====================
+
+        # elif tool_name == "ticket_create":
+        #     create_request = CreateTicketRequest(**arguments)
+        #     result = await create_ticket_endpoint(create_request)
+        #     return MCPToolCallResponse(
+        #         content=[MCPContent(type="text", text=json.dumps(result.model_dump(), indent=2))]
+        #     )
+
+        elif tool_name == "ticket_initialize":
+            try:
+                # Parse and validate request
+                init_request = InitializeTicketRequest(**arguments)
+
+                if DEBUG:
+                    print(f"[MCP] Initializing ticket with query: {init_request.query[:50]}...")
+
+                # Call the endpoint
+                result = await initialize_ticket_endpoint(init_request)
+
+                if DEBUG:
+                    print(
+                        f"[MCP] Ticket initialization result: success={result.get('success')}, ticket_id={result.get('ticket_id')}")
+
+                result.update({"should_use_ticket_update": True})
+
+                # Return formatted response
+                return MCPToolCallResponse(
+                    content=[MCPContent(
+                        type="text",
+                        text=json.dumps(result, indent=2, ensure_ascii=False)
+                    )],
+                    isError=not result.get("success", False)
+                )
+
+            except ValidationError as ve:
+                if DEBUG:
+                    print(f"[MCP] Validation error for ticket_initialize: {ve}")
+
+                return MCPToolCallResponse(
+                    content=[MCPContent(
+                        type="text",
+                        text=json.dumps({
+                            "success": False,
+                            "error": "Validation failed",
+                            "details": str(ve),
+                            "message": "Please provide valid query and conversation_id parameters"
+                        }, indent=2)
+                    )],
+                    isError=True
+                )
+
+            except Exception as e:
+                if DEBUG:
+                    print(f"[MCP] Error in ticket_initialize: {e}")
+                    import traceback
+                    traceback.print_exc()
+
+                return MCPToolCallResponse(
+                    content=[MCPContent(
+                        type="text",
+                        text=json.dumps({
+                            "success": False,
+                            "error": str(e),
+                            "message": "Failed to initialize ticket. Please try again."
+                        }, indent=2)
+                    )],
+                    isError=True
+                )
+
+        elif tool_name == "ticket_get":
+            ticket_id = arguments["ticket_id"]
+            result = await get_ticket_endpoint(ticket_id)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result.model_dump(), indent=2))]
+            )
+
+        elif tool_name == "ticket_get_active":
+            conversation_id = arguments["conversation_id"]
+            result = await get_active_ticket_endpoint(conversation_id)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
+
+        elif tool_name == "ticket_list_thread":
+            conversation_id = arguments["conversation_id"]
+            result = await list_thread_tickets_endpoint(conversation_id)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
+
+
+        elif tool_name == "ticket_update":
+            try:
+                ticket_id = arguments.get("ticket_id")
+                conversation_id = arguments.get("conversation_id")
+                fields = arguments.get("fields", {})
+
+                # Validation
+                if not ticket_id:
+                    return MCPToolCallResponse(
+                        content=[MCPContent(
+                            type="text",
+                            text=json.dumps({
+                                "success": False,
+                                "error": "ticket_id is required",
+                                "message": "Please provide the ticket ID to update. If you don't know it, use ticket_get_active to find the active ticket for this thread.",
+                                "hint": "Call ticket_get_active with conversation_id to get the active ticket",
+                                "required_fields": ["ticket_id", "fields"]
+                            }, indent=2)
+                        )],
+                        isError=True
+                    )
+
+                if not fields or len(fields) == 0:
+                    return MCPToolCallResponse(
+                        content=[MCPContent(
+                            type="text",
+                            text=json.dumps({
+                                "success": False,
+                                "error": "fields dictionary is required and cannot be empty",
+                                "message": "Please provide at least one field to update",
+                                "allowed_fields": list(TicketManager.ALLOWED_FIELDS),
+                                "example": {
+                                    "priority": "High",
+                                    "category": "Hardware",
+                                    "location": "Room 305"
+                                }
+                            }, indent=2)
+                        )],
+                        isError=True
+                    )
+
+                if DEBUG:
+                    print(f"[MCP] Updating ticket {ticket_id} with fields: {list(fields.keys())}")
+
+                # Create request and call endpoint
+                update_request = UpdateTicketRequest(fields=fields)
+                result = await update_ticket_endpoint(ticket_id, conversation_id, update_request)
+
+                if DEBUG:
+                    success = result.get('success', False)
+                    fields_updated = result.get('changes', {}).get('fields_updated', [])
+                    conversation_id = result.get('conversation_id', 'unknown')
+                    print(
+                        f"[MCP] Update result: success={success}, conversation_id={conversation_id}, fields_updated={fields_updated}")
+
+                # Return rich response
+                return MCPToolCallResponse(
+                    content=[MCPContent(
+                        type="text",
+                        text=json.dumps(result, indent=2, ensure_ascii=False)
+                    )],
+                    isError=not result.get("success", False)
+                )
+
+            except ValidationError as ve:
+                if DEBUG:
+                    print(f"[MCP] Validation error for ticket_update: {ve}")
+
+                return MCPToolCallResponse(
+                    content=[MCPContent(
+                        type="text",
+                        text=json.dumps({
+                            "success": False,
+                            "error": "Validation failed",
+                            "details": str(ve),
+                            "message": "Invalid field values provided. Check priority and category values.",
+                            "valid_priorities": TicketManager.VALID_PRIORITIES,
+                            "valid_categories": TicketManager.VALID_CATEGORIES
+                        }, indent=2)
+                    )],
+                    isError=True
+                )
+
+            except HTTPException as he:
+                if DEBUG:
+                    print(f"[MCP] HTTP error in ticket_update: {he.detail}")
+
+                # Handle 404 - ticket not found
+                if he.status_code == 404:
+                    return MCPToolCallResponse(
+                        content=[MCPContent(
+                            type="text",
+                            text=json.dumps({
+                                "success": False,
+                                "error": "Ticket not found",
+                                "ticket_id": ticket_id,
+                                "message": f"Ticket {ticket_id} does not exist. Please verify the ticket ID or create a new ticket.",
+                                "hint": "Use ticket_get_active to find the correct ticket ID for this thread"
+                            }, indent=2)
+                        )],
+                        isError=True
+                    )
+
+                # Handle 400 - validation error
+                elif he.status_code == 400:
+                    return MCPToolCallResponse(
+                        content=[MCPContent(
+                            type="text",
+                            text=json.dumps({
+                                "success": False,
+                                "error": "Invalid field values",
+                                "message": str(he.detail),
+                                "valid_priorities": TicketManager.VALID_PRIORITIES,
+                                "valid_categories": TicketManager.VALID_CATEGORIES
+                            }, indent=2)
+                        )],
+                        isError=True
+                    )
+
+                # Other HTTP errors
+                else:
+                    return MCPToolCallResponse(
+                        content=[MCPContent(
+                            type="text",
+                            text=json.dumps({
+                                "success": False,
+                                "error": str(he.detail),
+                                "status_code": he.status_code,
+                                "message": "Failed to update ticket"
+                            }, indent=2)
+                        )],
+                        isError=True
+                    )
+
+            except Exception as e:
+                if DEBUG:
+                    print(f"[MCP] Unexpected error in ticket_update: {e}")
+                    import traceback
+                    traceback.print_exc()
+
+                return MCPToolCallResponse(
+                    content=[MCPContent(
+                        type="text",
+                        text=json.dumps({
+                            "success": False,
+                            "error": str(e),
+                            "message": "An unexpected error occurred while updating the ticket. Please try again.",
+                            "ticket_id": arguments.get("ticket_id"),
+                            "attempted_fields": list(arguments.get("fields", {}).keys())
+                        }, indent=2)
+                    )],
+                    isError=True
+                )
+
+        elif tool_name == "ticket_submit":
+            ticket_id = arguments["ticket_id"]
+            submit_data = {k: v for k, v in arguments.items() if k != "ticket_id"}
+            submit_request = SubmitTicketRequest(**submit_data)
+            result = await submit_ticket_endpoint(ticket_id, submit_request)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
+
+        elif tool_name == "ticket_cancel":
+            ticket_id = arguments["ticket_id"]
+            result = await cancel_ticket_endpoint(ticket_id)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result.model_dump(), indent=2))]
+            )
+
+        elif tool_name == "ticket_search":
+            result = await search_tickets_endpoint(
+                status=arguments.get("status"),
+                priority=arguments.get("priority"),
+                category=arguments.get("category"),
+                jira_key=arguments.get("jira_key"),
+                limit=arguments.get("limit", 50)
+            )
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
+
+        elif tool_name == "ticket_stats":
+            result = await get_ticket_stats()
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+            )
+
+        elif tool_name == "hospital_support_search":
+            query = arguments["query"]
+            kb_result = await hospital_support_questions_tool(query)
+            return MCPToolCallResponse(
+                content=[MCPContent(type="text", text=json.dumps({
+                    "success": True,
+                    "query": query,
+                    "result": kb_result
+                }, indent=2))]
             )
 
         else:
@@ -2663,7 +3729,6 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             print(f"[MCP] Error calling tool {request.name}: {e}")
             import traceback
             traceback.print_exc()
-
         return MCPToolCallResponse(
             content=[MCPContent(type="text", text=f"Error calling tool {request.name}: {str(e)}")],
             isError=True
@@ -2694,51 +3759,42 @@ async def mcp_streamable_http_endpoint(request: Request):
                         }
                     },
                     "serverInfo": {
-                        "name": "MCP Server with LLM SQL Generation",
+                        "name": "Hospital MCP Server with Ticketing System",
                         "version": "1.0.0"
                     }
                 }
             }
-
             if DEBUG:
                 print(f"[STREAMABLE HTTP] Initialize response: {response}")
-
             return response
 
         elif method == "notifications/initialized":
             if DEBUG:
                 print(f"[STREAMABLE HTTP] Received initialized notification - connection established")
-
             return Response(status_code=204)
 
         elif method == "tools/list":
             tools_response = await mcp_tools_list()
-
             response = {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "result": {"tools": [tool.dict() for tool in tools_response.tools]}
+                "result": {"tools": [tool.model_dump() for tool in tools_response.tools]}
             }
-
             if DEBUG:
-                print(f"[STREAMABLE HTTP] Tools list response: {response}")
-
+                print(f"[STREAMABLE HTTP] Tools list response with {len(tools_response.tools)} tools")
             return response
 
         elif method == "tools/call":
             params = body.get("params", {})
             call_request = MCPToolCallRequest(**params)
             result = await mcp_tools_call(call_request)
-
             response = {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "result": result.dict()
+                "result": result.model_dump()
             }
-
             if DEBUG:
-                print(f"[STREAMABLE HTTP] Tools call response: {response}")
-
+                print(f"[STREAMABLE HTTP] Tools call response for {call_request.name}")
             return response
 
         elif method == "ping":
@@ -2751,7 +3807,6 @@ async def mcp_streamable_http_endpoint(request: Request):
         else:
             if DEBUG:
                 print(f"[STREAMABLE HTTP] Unknown method: {method}")
-
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
@@ -2764,7 +3819,8 @@ async def mcp_streamable_http_endpoint(request: Request):
     except Exception as e:
         if DEBUG:
             print(f"[STREAMABLE HTTP] Error: {e}")
-
+            import traceback
+            traceback.print_exc()
         return {
             "jsonrpc": "2.0",
             "id": request_id if 'request_id' in locals() else None,
@@ -2775,69 +3831,187 @@ async def mcp_streamable_http_endpoint(request: Request):
         }
 
 
-@app.post("/debug")
-async def debug_endpoint(request: Request):
-    """Debug endpoint to see raw requests"""
-    body = await request.json()
-
-    print(f"[DEBUG] Raw request: {body}")
-
-    return {"received": body}
-
-
 @app.get("/info")
 async def server_info():
     """Server information endpoint"""
+    data = await storage.load()
+
     return {
-        "service": "MCP Server with LLM SQL Generation",
+        "service": "Hospital MCP Server with Ticket System",
         "version": "1.0.0",
-        "description": "Standalone MCP Tools Server using LLM for natural language to SQL conversion",
-        "protocols": ["REST API", "MCP (Model Context Protocol)"],
+        "description": "Standalone MCP Tools Server with Azure AD management and hospital ticketing system integrated with JIRA",
+        "protocols": ["REST API", "MCP (Model Context Protocol)", "Streamable HTTP"],
+
         "mcp_endpoints": {
             "tools_list": "/mcp/tools/list",
             "tools_call": "/mcp/tools/call",
-            "server_info": "/mcp/server/info"
+            "streamable_http": "/"
         },
-        "rest_endpoints": [
-            "/greet",
-            "/ad/users",
-            "/ad/roles",
-            "/ad/groups",
-            "/health"
-        ],
+
+        "rest_endpoints": {
+            "general": [
+                "/health",
+                "/info",
+                "/docs"
+            ],
+            "greet": [
+                "/greet"
+            ],
+            "active_directory": [
+                "/ad/users",
+                "/ad/users/{user_id}",
+                "/ad/users/{user_id}/roles",
+                "/ad/users/{user_id}/groups",
+                "/ad/users/{user_id}/owned-groups",
+                "/ad/users-with-groups",
+                "/ad/users/batch/groups",
+                "/ad/roles",
+                "/ad/roles/{role_id}/members",
+                "/ad/roles/{role_id}/members/{user_id}",
+                "/ad/roles/instantiate",
+                "/ad/groups",
+                "/ad/groups/{group_id}",
+                "/ad/groups/{group_id}/members",
+                "/ad/groups/{group_id}/owners"
+            ],
+            "tickets": [
+                "/tickets/create",
+                "/tickets/{ticket_id}",
+                "/tickets/{ticket_id}/submit",
+                "/tickets/{ticket_id}/cancel",
+                "/tickets/search",
+                "/tickets/stats",
+                "/threads/{conversation_id}/tickets",
+                "/threads/{conversation_id}/active-ticket",
+                "/storage/backup"
+            ]
+        },
+
         "features": [
-            "Streaming Support",
-            "Active Directory Operations",
             "MCP Protocol Support",
-            "Vector Database Integration"
+            "Streamable HTTP Transport",
+            "Azure Active Directory Management",
+            "Hospital Ticket System with JIRA Integration",
+            "Qdrant Vector Database Knowledge Base",
+            "Priority-based SLA Tracking",
+            "Auto-routing by Category",
+            "JSON Persistent Storage",
+            "Complete Audit History",
+            "Batch Operations Support",
+            "Smart User/Group/Role Resolution"
         ],
-        "tools": [
-            "greet",
-            "ad_list_users",
-            "ad_create_user",
-            "ad_update_user",
-            "ad_delete_user",
-            "ad_get_user_roles",
-            "ad_get_user_groups",
-            "ad_list_roles",
-            "ad_add_user_to_role",
-            "ad_remove_user_from_role",
-            "ad_list_groups",
-            "ad_create_group",
-            "ad_add_group_member",
-            "ad_remove_group_member",
-            "ad_get_group_members",
-            "search_cosmic_database"
-        ],
+
+        "tools": {
+            "conversational": [
+                "greet"
+            ],
+            "active_directory_users": [
+                "ad_list_users",
+                "ad_create_user",
+                "ad_update_user",
+                "ad_delete_user",
+                "ad_get_user_roles",
+                "ad_get_user_groups",
+                "ad_get_user_full_profile",
+                "ad_search_users"
+            ],
+            "active_directory_roles": [
+                "ad_list_roles",
+                "ad_add_user_to_role",
+                "ad_remove_user_from_role",
+                "ad_batch_add_users_to_role",
+                "ad_batch_remove_users_from_role"
+            ],
+            "active_directory_groups": [
+                "ad_list_groups",
+                "ad_create_group",
+                "ad_add_group_member",
+                "ad_remove_group_member",
+                "ad_get_group_members",
+                "ad_get_group_owners"
+            ],
+            "ticket_system": [
+                # "ticket_create",
+                "ticket_initialize",
+                "ticket_get",
+                "ticket_get_active",
+                "ticket_list_thread",
+                "ticket_update",
+                "ticket_submit",
+                "ticket_cancel",
+                "ticket_search",
+                "ticket_stats",
+                "hospital_support_search"
+            ]
+        },
+
+        "ticket_system": {
+            "storage": {
+                "type": "JSON",
+                "file": str(storage.filepath),
+                "total_tickets": len(data.get("tickets", {})),
+                "total_threads": len(data.get("thread_index", {}))
+            },
+            "validation": {
+                "required_fields": TicketManager.REQUIRED_FIELDS,
+                "allowed_fields": list(TicketManager.ALLOWED_FIELDS)
+            },
+            "priorities": {
+                "values": TicketManager.VALID_PRIORITIES,
+                "sla": {
+                    "Critical": "2 hours",
+                    "High": "8 hours",
+                    "Normal": "24 hours",
+                    "Low": "72 hours"
+                }
+            },
+            "categories": {
+                "values": TicketManager.VALID_CATEGORIES,
+                "routing": {
+                    "Hardware": "Hardware Support",
+                    "Software": "IT Support",
+                    "Facility": "Facilities Management",
+                    "Network": "Network Operations",
+                    "Medical Equipment": "Biomedical Engineering",
+                    "Other": "General Support"
+                }
+            },
+            "statuses": [
+                "draft",
+                "pending",
+                "submitted",
+                "completed",
+                "cancelled"
+            ],
+            "integrations": [
+                "JIRA Ticketing System",
+                "Qdrant Knowledge Base"
+            ]
+        },
+
+        "active_directory": {
+            "tenant": "lovenoreusgmail.onmicrosoft.com",
+            "features": [
+                "User Management",
+                "Role Assignment",
+                "Group Management",
+                "Batch Operations",
+                "Smart Resolution (Name/Email/GUID)"
+            ]
+        },
+
         "docs": "/docs",
-        "mcp_compatible": True
+        "mcp_compatible": True,
+        "debug_mode": DEBUG
     }
 
-
 if __name__ == "__main__":
-    print("Starting MCP Server on port 8009...")
-
-    if DEBUG:
-        print("[MCP DEBUG] Debug mode enabled - detailed logging active")
+    print("=" * 60)
+    print("Starting Hospital MCP Server with Ticket System")
+    print("=" * 60)
+    print(f"Port: 8009")
+    print(f"Debug Mode: {DEBUG}")
+    print(f"Ticket Storage: {TICKETS_FILE}")
+    print("=" * 60)
 
     uvicorn.run(app, host="0.0.0.0", port=8009)
