@@ -852,14 +852,14 @@ class TicketManager:
         TicketPriority.LOW
     ]
 
-    VALID_CATEGORIES = [
-        TicketCategory.HARDWARE,
-        TicketCategory.SOFTWARE,
-        TicketCategory.FACILITY,
-        TicketCategory.NETWORK,
-        TicketCategory.MEDICAL_EQUIPMENT,
-        TicketCategory.OTHER
-    ]
+    # VALID_CATEGORIES = [
+    #     TicketCategory.HARDWARE,
+    #     TicketCategory.SOFTWARE,
+    #     TicketCategory.FACILITY,
+    #     TicketCategory.NETWORK,
+    #     TicketCategory.MEDICAL_EQUIPMENT,
+    #     TicketCategory.OTHER
+    # ]
 
     def __init__(self, storage: JSONStorage):
         self.storage = storage
@@ -868,6 +868,7 @@ class TicketManager:
             self,
             query: str,
             conversation_id: str,
+            ticket_id: str,
             reporter_name: Optional[str] = None,
             reporter_email: Optional[str] = None,
             knowledge_base_result: Optional[str] = None
@@ -875,7 +876,8 @@ class TicketManager:
         """Create a new ticket"""
         data = await self.storage.load()
 
-        ticket_id = f"TKT-{uuid.uuid4().hex[:8].upper()}"
+        # ticket_id = f"TKT-{uuid.uuid4().hex[:8].upper()}"
+
         now = datetime.now().isoformat()
 
         ticket = {
@@ -930,7 +932,7 @@ class TicketManager:
     async def get_active_ticket_for_thread(self, conversation_id: str) -> Optional[Dict[str, Any]]:
         """Get active (non-completed) ticket for thread"""
         data = await self.storage.load()
-        
+
         ticket_ids = data["thread_index"].get(conversation_id, [])
 
         for ticket_id in reversed(ticket_ids):
@@ -968,8 +970,8 @@ class TicketManager:
             raise ValueError(f"Invalid priority. Must be one of: {self.VALID_PRIORITIES}")
 
         # Validate category
-        if field_name == "category" and field_value not in self.VALID_CATEGORIES:
-            raise ValueError(f"Invalid category. Must be one of: {self.VALID_CATEGORIES}")
+        # if field_name == "category" and field_value not in self.VALID_CATEGORIES:
+        #     raise ValueError(f"Invalid category. Must be one of: {self.VALID_CATEGORIES}")
 
         data = await self.storage.load()
         ticket = data["tickets"].get(ticket_id)
@@ -1026,8 +1028,8 @@ class TicketManager:
             raise ValueError(f"Invalid priority. Must be one of: {self.VALID_PRIORITIES}")
 
         # Validate category
-        if "category" in fields and fields["category"] not in self.VALID_CATEGORIES:
-            raise ValueError(f"Invalid category. Must be one of: {self.VALID_CATEGORIES}")
+        # if "category" in fields and fields["category"] not in self.VALID_CATEGORIES:
+        #     raise ValueError(f"Invalid category. Must be one of: {self.VALID_CATEGORIES}")
 
         data = await self.storage.load()
         ticket = data["tickets"].get(ticket_id)
@@ -1220,40 +1222,40 @@ ticket_manager = TicketManager(storage)
 
 # ==================== API ENDPOINTS ====================
 
-@app.post("/tickets/create", response_model=TicketResponse)
-async def create_ticket_endpoint(request: CreateTicketRequest):
-    """Create a new ticket with hospital support knowledge base lookup"""
-    try:
-        # Check for existing active ticket
-        active_ticket = await ticket_manager.get_active_ticket_for_thread(request.conversation_id)
-
-        if active_ticket:
-            print(f'There is already an active ticket: {active_ticket}')
-
-            return TicketResponse(**active_ticket)
-
-        # Query knowledge base
-        if DEBUG:
-            print(f"[API] Querying knowledge base for: {request.query}")
-
-        kb_result = await hospital_support_questions_tool(request.query)
-
-        # Create ticket
-        ticket = await ticket_manager.create_ticket(
-            query=request.query,
-            conversation_id=request.conversation_id,
-            reporter_name=request.reporter_name,
-            reporter_email=request.reporter_email,
-            knowledge_base_result=json.dumps(kb_result) if kb_result else None
-        )
-
-        return TicketResponse(**ticket)
-
-    except Exception as e:
-        if DEBUG:
-            print(f"[API] Error creating ticket: {e}")
-
-        raise HTTPException(status_code=500, detail=str(e))
+# @app.post("/tickets/create", response_model=TicketResponse)
+# async def create_ticket_endpoint(request: CreateTicketRequest):
+#     """Create a new ticket with hospital support knowledge base lookup"""
+#     try:
+#         # Check for existing active ticket
+#         active_ticket = await ticket_manager.get_active_ticket_for_thread(request.conversation_id)
+#
+#         if active_ticket:
+#             print(f'There is already an active ticket: {active_ticket}')
+#
+#             return TicketResponse(**active_ticket)
+#
+#         # Query knowledge base
+#         if DEBUG:
+#             print(f"[API] Querying knowledge base for: {request.query}")
+#
+#         kb_result = await hospital_support_questions_tool(request.query)
+#
+#         # Create ticket
+#         ticket = await ticket_manager.create_ticket(
+#             query=request.query,
+#             conversation_id=request.conversation_id,
+#             reporter_name=request.reporter_name,
+#             reporter_email=request.reporter_email,
+#             knowledge_base_result=json.dumps(kb_result) if kb_result else None
+#         )
+#
+#         return TicketResponse(**ticket)
+#
+#     except Exception as e:
+#         if DEBUG:
+#             print(f"[API] Error creating ticket: {e}")
+#
+#         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/tickets/initialize")
@@ -1511,6 +1513,7 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
         ticket = await ticket_manager.create_ticket(
             query=request.query,
             conversation_id=conversation_id,
+            ticket_id=ticket_id,
             reporter_name=request.reporter_name,
             reporter_email=request.reporter_email,
             knowledge_base_result=json.dumps(llm_analysis) if llm_analysis else json.dumps(kb_result)
@@ -1533,6 +1536,19 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 "conversation_id": conversation_id,
                 "is_new_ticket": True,
 
+                # Make next action crystal clear
+                "next_action": {
+                    "operation": "update",
+                    "endpoint": "ticket_operate",
+                    "required_params": {
+                        "action": "update",
+                        "conversation_id": conversation_id,
+                        "ticket_id": ticket_id,
+                        "fields": {}  # To be filled based on user responses
+                    },
+                    "instruction": "Use ticket_operate with action='update' to add information to this ticket"
+                },
+
                 # Knowledge base analysis
                 "knowledge_base": {
                     "source": analysis.get("source", "unknown"),
@@ -1548,7 +1564,6 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 # Conversation guidance
                 "message": guidance.get("message",
                                         f"Ticket {ticket_id} created. Let me help you gather the necessary information."),
-                "next_step": guidance.get("next_step", "collect_info"),
                 "reasoning": guidance.get("reasoning", "Need more information to proceed"),
 
                 # Diagnostic questions for information gathering
@@ -1696,6 +1711,79 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
         }
 
 
+# ==================== UNIFIED TICKET OPERATION ====================
+
+@app.post("/tickets/operate")
+async def ticket_operate_endpoint(request: Request):
+    """
+    Unified ticket operation endpoint - handles both initialization and updates
+    """
+    try:
+        body = await request.json()
+        action = body.get("action", "")
+        conversation_id = body.get("conversation_id", "")
+
+        if not action:
+            raise HTTPException(
+                status_code=400,
+                detail="action field is required (must be 'initialize' or 'update')"
+            )
+
+        if not conversation_id:
+            raise HTTPException(
+                status_code=400,
+                detail="conversation_id is required"
+            )
+
+        if action == "initialize":
+            # Handle initialization
+            query = body.get("query", "")
+            if not query:
+                raise HTTPException(status_code=400, detail="query is required for initialization")
+
+            init_request = InitializeTicketRequest(
+                query=query,
+                conversation_id=conversation_id,
+                reporter_name=body.get("reporter_name", ""),
+                reporter_email=body.get("reporter_email", "")
+            )
+            result = await initialize_ticket_endpoint(init_request)
+            result.update({"should_use_ticket_update": True})
+            return result
+
+        elif action == "update":
+            # Handle update
+            ticket_id = body.get("ticket_id", "")
+            if not ticket_id:
+                raise HTTPException(status_code=400, detail="ticket_id is required for updates")
+
+            fields = body.get("fields", {})
+            if not fields:
+                raise HTTPException(status_code=400, detail="fields dictionary is required for updates")
+
+            update_request = UpdateTicketRequest(fields=fields)
+            result = await update_ticket_endpoint(ticket_id, conversation_id, update_request)
+            return result
+
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid action '{action}'. Must be 'initialize' or 'update'"
+            )
+
+    except HTTPException:
+        raise
+    except ValidationError as ve:
+        if DEBUG:
+            print(f"[TICKET_OPERATE] Validation error: {ve}")
+        raise HTTPException(status_code=400, detail=f"Validation failed: {str(ve)}")
+    except Exception as e:
+        if DEBUG:
+            print(f"[TICKET_OPERATE] Error: {e}")
+            import traceback
+            traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/tickets/{ticket_id}", response_model=TicketResponse)
 async def get_ticket_endpoint(ticket_id: str):
     """Get ticket by ID"""
@@ -1835,8 +1923,7 @@ async def update_ticket_endpoint(ticket_id: str, conversation_id: str, request: 
             if updated_ticket.get("priority") else None
         )
         category_valid = (
-            updated_ticket.get("category") in TicketManager.VALID_CATEGORIES
-            if updated_ticket.get("category") else None
+            updated_ticket.get("category")
         )
 
         # Calculate progress
@@ -1995,14 +2082,14 @@ async def update_ticket_endpoint(ticket_id: str, conversation_id: str, request: 
             "metadata": {
                 "sla_deadline": updated_ticket.get("sla_deadline"),
                 "auto_routed_queue": updated_ticket.get("queue") if "category" in fields_updated else None,
-                "estimated_resolution": ticket_manager._estimate_resolution_time(
-                    updated_ticket) if post_update_complete else None
+                # "estimated_resolution": ticket_manager._estimate_resolution_time(
+                #     updated_ticket) if post_update_complete else None
             }
         }
 
         # Add field suggestions if still incomplete
-        if not post_update_complete and len(post_update_missing) > 0:
-            response["suggestions"] = ticket_manager._generate_field_suggestions(updated_ticket, post_update_missing)
+        # if not post_update_complete and len(post_update_missing) > 0:
+        #     response["suggestions"] = ticket_manager._generate_field_suggestions(updated_ticket, post_update_missing)
 
         return response
 
@@ -2792,32 +2879,113 @@ async def mcp_tools_list():
         #         "required": ["query", "conversation_id"]
         #     }
         # ),
+        # MCPTool(
+        #     name="ticket_initialize",
+        #     description="TRIGGER: starting a BRAND NEW issue/problem that has NOT been discussed yet | NEW issue, NEW problem, report NEW issue, I have a problem, something is broken, need help with NEW issue, etc... | ACTION: Initialize new support ticket with knowledge base search | CRITICAL: Do NOT use if already discussing an existing ticket - use ticket_update instead | RETURNS: New ticket ID, analysis, and guidance",
+        #     inputSchema={
+        #         "type": "object",
+        #         "properties": {
+        #             "query": {
+        #                 "type": "string",
+        #                 "description": "Description of the problem, issue, or request. Be as specific as possible - include what's not working, error messages, location, equipment names, etc.",
+        #                 "minLength": 3,
+        #                 "maxLength": 2000
+        #             },
+        #             "conversation_id": {
+        #                 "type": "string",
+        #                 "description": "Generated conversation thread ID (e.g. 00001) to track this ticket within the current conversation session. Used to prevent duplicate tickets and maintain conversation context."
+        #             },
+        #             "reporter_name": {
+        #                 "type": "string",
+        #                 "description": "Name of the person reporting the issue (optional but recommended for follow-up)"
+        #             },
+        #             "reporter_email": {
+        #                 "type": "string",
+        #                 "description": "Email address of the person reporting the issue (optional but recommended for follow-up communication)"
+        #             }
+        #         },
+        #         "required": ["query", "conversation_id"]
+        #     }
+        # ),
         MCPTool(
-            name="ticket_initialize",
-            description="TRIGGER: starting a BRAND NEW issue/problem that has NOT been discussed yet | NEW issue, NEW problem, report NEW issue, I have a problem, something is broken, need help with NEW issue, etc... | ACTION: Initialize new support ticket with knowledge base search | CRITICAL: Do NOT use if already discussing an existing ticket - use ticket_update instead | RETURNS: New ticket ID, analysis, and guidance",
+            name="ticket_operate",
+            description="UNIFIED TICKET OPERATION | TRIGGER: For NEW issues use action='initialize' | For EXISTING ticket updates use action='update' | ACTION: Single endpoint for all ticket operations - intelligently routes to initialization or update based on action parameter | INSTRUCTION: Use 'initialize' when starting a brand new issue that hasn't been discussed yet. Use 'update' when adding information to an existing ticket or answering diagnostic questions | RETURNS: Comprehensive ticket information with guidance, progress tracking, and next steps",
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "query": {
+                    "action": {
                         "type": "string",
-                        "description": "Description of the problem, issue, or request. Be as specific as possible - include what's not working, error messages, location, equipment names, etc.",
-                        "minLength": 3,
-                        "maxLength": 2000
+                        "enum": ["initialize", "update"],
+                        "description": "Operation type: 'initialize' for new tickets, 'update' for existing tickets",
+                        "default": "update"
                     },
                     "conversation_id": {
                         "type": "string",
-                        "description": "Generated conversation thread ID (e.g. 00001) to track this ticket within the current conversation session. Used to prevent duplicate tickets and maintain conversation context."
+                        "description": "Conversation thread ID (e.g. 00001) for tracking tickets within the session"
+                    },
+
+                    # INITIALIZATION-SPECIFIC FIELDS
+                    "query": {
+                        "type": "string",
+                        "description": "Description of the problem/issue (REQUIRED for 'initialize', ignored for 'update')",
+                        "default": ""
                     },
                     "reporter_name": {
                         "type": "string",
-                        "description": "Name of the person reporting the issue (optional but recommended for follow-up)"
+                        "description": "Name of person reporting issue (optional, for 'initialize' only)",
+                        "default": ""
                     },
                     "reporter_email": {
                         "type": "string",
-                        "description": "Email address of the person reporting the issue (optional but recommended for follow-up communication)"
+                        "description": "Email of person reporting issue (optional, for 'initialize' only)",
+                        "default": ""
+                    },
+
+                    # UPDATE-SPECIFIC FIELDS
+                    "ticket_id": {
+                        "type": "string",
+                        "description": "Ticket ID to update in format TKT-XXXXXXXX (REQUIRED for 'update', ignored for 'initialize')",
+                        "default": ""
+                    },
+                    "fields": {
+                        "type": "object",
+                        "description": "Dictionary of fields to update (REQUIRED for 'update', ignored for 'initialize')",
+                        "properties": {
+                            "conversation_topic": {
+                                "type": "string",
+                                "description": "Brief summary/title of the issue"
+                            },
+                            "description": {
+                                "type": "string",
+                                "description": "Detailed problem description"
+                            },
+                            "location": {
+                                "type": "string",
+                                "description": "Physical location (building, room, floor, department)"
+                            },
+                            "priority": {
+                                "type": "string",
+                                "enum": ["High", "Medium", "Low"],
+                                "description": "Priority level - High: 8hr SLA, Medium: 24hr SLA, Low: 72hr SLA"
+                            },
+                            "category": {
+                                "type": "string",
+                                "enum": ["Hardware", "Software", "Facility", "Network", "Medical Equipment", "Other"],
+                                "description": "Issue category (auto-routes to appropriate queue)"
+                            },
+                            "department": {
+                                "type": "string",
+                                "description": "Department affected or responsible"
+                            },
+                            "reporter_name": {
+                                "type": "string",
+                                "description": "Reporter's name"
+                            }
+                        },
+                        "default": {}
                     }
                 },
-                "required": ["query", "conversation_id"]
+                "required": ["action", "conversation_id", "ticket_id"]
             }
         ),
 
@@ -2866,61 +3034,61 @@ async def mcp_tools_list():
             }
         ),
 
-        MCPTool(
-            name="ticket_update",
-            description="TRIGGER: Adding information to EXISTING ticket, answering questions about current ticket, providing details | priority is X, location is Y, category is Z, it's in room ABC, started yesterday | ACTION: Update existing ticket fields with new information and get comprehensive progress feedback | INSTRUCTION: Use when user provides additional details, answers diagnostic questions, or clarifies information for an existing ticket. Can update multiple fields at once. System validates inputs and auto-routes based on category | RETURNS: Updated ticket with before/after comparison, progress tracking, validation status, what changed, what's still missing, next steps, and whether ticket is ready to submit",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "ticket_id": {
-                        "type": "string",
-                        "description": "Ticket ID to update (format: TKT-XXXXXXXX)"
-                    },
-                    "conversation_id": {
-                        "type": "string",
-                        "description": "Generated conversation thread ID (e.g. 00001) to track this ticket within the current conversation session. Used to prevent duplicate tickets and maintain conversation context."
-                    },
-                    "fields": {
-                        "type": "object",
-                        "description": "Dictionary of field names and values to update. Can update multiple fields at once.",
-                        "properties": {
-                            "conversation_topic": {
-                                "type": "string",
-                                "description": "Brief summary or title of the issue (Generated from issue description)"
-                            },
-                            "description": {
-                                "type": "string",
-                                "description": "Detailed description of the problem (can be updated/appended)"
-                            },
-                            "location": {
-                                "type": "string",
-                                "description": "Physical location where issue occurs (building, room, floor, department)"
-                            },
-                            "priority": {
-                                "type": "string",
-                                "enum": ["High", "Medium", "Low"],
-                                "description": "Priority level (Generated from issue description) - High: 8hr SLA, Medium: 24hr SLA, Low: 72hr SLA",
-                                "default": "Medium"
-                            },
-                            "category": {
-                                "type": "string",
-                                "enum": ["Hardware", "Software", "Facility", "Network", "Medical Equipment", "Other"],
-                                "description": "Issue category (Generated from issue description) - automatically routes to appropriate support queue"
-                            },
-                            "department": {
-                                "type": "string",
-                                "description": "Department affected by or responsible for the issue"
-                            },
-                            "reporter_name": {
-                                "type": "string",
-                                "description": "Name of person reporting the issue"
-                            }
-                        }
-                    }
-                },
-                "required": ["ticket_id", "conversation_id", "fields"]
-            }
-        ),
+        # MCPTool(
+        #     name="ticket_update",
+        #     description="TRIGGER: Adding information to EXISTING ticket, answering questions about current ticket, providing details | priority is X, location is Y, category is Z, it's in room ABC, started yesterday | ACTION: Update existing ticket fields with new information and get comprehensive progress feedback | INSTRUCTION: Use when user provides additional details, answers diagnostic questions, or clarifies information for an existing ticket. Can update multiple fields at once. System validates inputs and auto-routes based on category | RETURNS: Updated ticket with before/after comparison, progress tracking, validation status, what changed, what's still missing, next steps, and whether ticket is ready to submit",
+        #     inputSchema={
+        #         "type": "object",
+        #         "properties": {
+        #             "ticket_id": {
+        #                 "type": "string",
+        #                 "description": "Ticket ID to update (format: TKT-XXXXXXXX)"
+        #             },
+        #             "conversation_id": {
+        #                 "type": "string",
+        #                 "description": "Generated conversation thread ID (e.g. 00001) to track this ticket within the current conversation session. Used to prevent duplicate tickets and maintain conversation context."
+        #             },
+        #             "fields": {
+        #                 "type": "object",
+        #                 "description": "Dictionary of field names and values to update. Can update multiple fields at once.",
+        #                 "properties": {
+        #                     "conversation_topic": {
+        #                         "type": "string",
+        #                         "description": "Brief summary or title of the issue (Generated from issue description)"
+        #                     },
+        #                     "description": {
+        #                         "type": "string",
+        #                         "description": "Detailed description of the problem (can be updated/appended)"
+        #                     },
+        #                     "location": {
+        #                         "type": "string",
+        #                         "description": "Physical location where issue occurs (building, room, floor, department)"
+        #                     },
+        #                     "priority": {
+        #                         "type": "string",
+        #                         "enum": ["High", "Medium", "Low"],
+        #                         "description": "Priority level (Generated from issue description) - High: 8hr SLA, Medium: 24hr SLA, Low: 72hr SLA",
+        #                         "default": "Medium"
+        #                     },
+        #                     "category": {
+        #                         "type": "string",
+        #                         "enum": ["Hardware", "Software", "Facility", "Network", "Medical Equipment", "Other"],
+        #                         "description": "Issue category (Generated from issue description) - automatically routes to appropriate support queue"
+        #                     },
+        #                     "department": {
+        #                         "type": "string",
+        #                         "description": "Department affected by or responsible for the issue"
+        #                     },
+        #                     "reporter_name": {
+        #                         "type": "string",
+        #                         "description": "Name of person reporting the issue"
+        #                     }
+        #                 }
+        #             }
+        #         },
+        #         "required": ["ticket_id", "conversation_id", "fields"]
+        #     }
+        # ),
 
         MCPTool(
             name="ticket_submit",
@@ -3518,6 +3686,184 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
+        elif tool_name == "ticket_operate":
+            try:
+                action = arguments.get("action", "")
+                conversation_id = arguments.get("conversation_id", "")
+
+                if not action:
+                    return MCPToolCallResponse(
+                        content=[MCPContent(
+                            type="text",
+                            text=json.dumps({
+                                "success": False,
+                                "error": "action is required",
+                                "message": "Please specify action: 'initialize' for new tickets or 'update' for existing tickets",
+                                "required_fields": ["action", "conversation_id"]
+                            }, indent=2)
+                        )],
+                        isError=True
+                    )
+
+                if not conversation_id:
+                    return MCPToolCallResponse(
+                        content=[MCPContent(
+                            type="text",
+                            text=json.dumps({
+                                "success": False,
+                                "error": "conversation_id is required",
+                                "message": "Please provide the conversation_id to track this ticket",
+                                "required_fields": ["action", "conversation_id"]
+                            }, indent=2)
+                        )],
+                        isError=True
+                    )
+
+                if action == "initialize":
+                    query = arguments.get("query", "")
+                    if not query:
+                        return MCPToolCallResponse(
+                            content=[MCPContent(
+                                type="text",
+                                text=json.dumps({
+                                    "success": False,
+                                    "error": "query is required for initialization",
+                                    "message": "Please provide a description of the issue to initialize a ticket",
+                                    "example": {
+                                        "action": "initialize",
+                                        "conversation_id": "00001",
+                                        "query": "Printer in room 305 is not working"
+                                    }
+                                }, indent=2)
+                            )],
+                            isError=True
+                        )
+
+                    if DEBUG:
+                        print(f"[MCP] ticket_operate: Initializing ticket with query: {query[:50]}...")
+
+                    init_request = InitializeTicketRequest(
+                        query=query,
+                        conversation_id=conversation_id,
+                        reporter_name=arguments.get("reporter_name", ""),
+                        reporter_email=arguments.get("reporter_email", "")
+                    )
+                    result = await initialize_ticket_endpoint(init_request)
+                    result.update({"should_use_ticket_update": True})
+
+                    return MCPToolCallResponse(
+                        content=[MCPContent(
+                            type="text",
+                            text=json.dumps(result, indent=2, ensure_ascii=False)
+                        )],
+                        isError=not result.get("success", False)
+                    )
+
+                elif action == "update":
+                    ticket_id = arguments.get("ticket_id", "")
+                    if not ticket_id:
+                        return MCPToolCallResponse(
+                            content=[MCPContent(
+                                type="text",
+                                text=json.dumps({
+                                    "success": False,
+                                    "error": "ticket_id is required for updates",
+                                    "message": "Please provide the ticket ID to update. Use ticket_get_active to find the active ticket.",
+                                    "hint": "Call ticket_get_active with conversation_id first",
+                                    "example": {
+                                        "action": "update",
+                                        "conversation_id": "00001",
+                                        "ticket_id": "TKT-12345678",
+                                        "fields": {
+                                            "priority": "High",
+                                            "location": "Room 305"
+                                        }
+                                    }
+                                }, indent=2)
+                            )],
+                            isError=True
+                        )
+
+                    fields = arguments.get("fields", {})
+                    if not fields or len(fields) == 0:
+                        return MCPToolCallResponse(
+                            content=[MCPContent(
+                                type="text",
+                                text=json.dumps({
+                                    "success": False,
+                                    "error": "fields dictionary is required and cannot be empty",
+                                    "message": "Please provide at least one field to update",
+                                    "allowed_fields": list(TicketManager.ALLOWED_FIELDS),
+                                    "example": {
+                                        "priority": "High",
+                                        "category": "Hardware",
+                                        "location": "Room 305"
+                                    }
+                                }, indent=2)
+                            )],
+                            isError=True
+                        )
+
+                    if DEBUG:
+                        print(f"[MCP] ticket_operate: Updating ticket {ticket_id} with fields: {list(fields.keys())}")
+
+                    update_request = UpdateTicketRequest(fields=fields)
+                    result = await update_ticket_endpoint(ticket_id, conversation_id, update_request)
+
+                    return MCPToolCallResponse(
+                        content=[MCPContent(
+                            type="text",
+                            text=json.dumps(result, indent=2, ensure_ascii=False)
+                        )],
+                        isError=not result.get("success", False)
+                    )
+
+                else:
+                    return MCPToolCallResponse(
+                        content=[MCPContent(
+                            type="text",
+                            text=json.dumps({
+                                "success": False,
+                                "error": f"Invalid action '{action}'",
+                                "message": "Action must be 'initialize' or 'update'",
+                                "valid_actions": ["initialize", "update"]
+                            }, indent=2)
+                        )],
+                        isError=True
+                    )
+
+            except ValidationError as ve:
+                if DEBUG:
+                    print(f"[MCP] Validation error for ticket_operate: {ve}")
+                return MCPToolCallResponse(
+                    content=[MCPContent(
+                        type="text",
+                        text=json.dumps({
+                            "success": False,
+                            "error": "Validation failed",
+                            "details": str(ve),
+                            "message": "Invalid field values provided"
+                        }, indent=2)
+                    )],
+                    isError=True
+                )
+
+            except Exception as e:
+                if DEBUG:
+                    print(f"[MCP] Error in ticket_operate: {e}")
+                    import traceback
+                    traceback.print_exc()
+                return MCPToolCallResponse(
+                    content=[MCPContent(
+                        type="text",
+                        text=json.dumps({
+                            "success": False,
+                            "error": str(e),
+                            "message": "An unexpected error occurred"
+                        }, indent=2)
+                    )],
+                    isError=True
+                )
 
         elif tool_name == "ticket_update":
             try:
@@ -3596,7 +3942,7 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                             "details": str(ve),
                             "message": "Invalid field values provided. Check priority and category values.",
                             "valid_priorities": TicketManager.VALID_PRIORITIES,
-                            "valid_categories": TicketManager.VALID_CATEGORIES
+                            # "valid_categories": TicketManager.VALID_CATEGORIES
                         }, indent=2)
                     )],
                     isError=True
@@ -3632,7 +3978,7 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                                 "error": "Invalid field values",
                                 "message": str(he.detail),
                                 "valid_priorities": TicketManager.VALID_PRIORITIES,
-                                "valid_categories": TicketManager.VALID_CATEGORIES
+                                # "valid_categories": TicketManager.VALID_CATEGORIES
                             }, indent=2)
                         )],
                         isError=True
@@ -3966,7 +4312,7 @@ async def server_info():
                 }
             },
             "categories": {
-                "values": TicketManager.VALID_CATEGORIES,
+                # "values": TicketManager.VALID_CATEGORIES,
                 "routing": {
                     "Hardware": "Hardware Support",
                     "Software": "IT Support",
