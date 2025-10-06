@@ -11,7 +11,7 @@ from fastapi import FastAPI, HTTPException, Depends, Header, Body, Request, Resp
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, ValidationError
-
+import logging
 from langchain_community.chat_models import ChatOllama
 from langchain_openai import ChatOpenAI
 from langchain_mistralai import ChatMistralAI
@@ -44,7 +44,10 @@ load_dotenv(find_dotenv())
 
 # Debug flag
 DEBUG = True
-
+TENANT_DOMAIN ="lovenoreusgmail.onmicrosoft.com"
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def format_mcp_response(result: dict, tool_name: str) -> MCPToolCallResponse:
     """
@@ -180,38 +183,97 @@ async def list_users_endpoint(ad: FastActiveDirectory = Depends(get_ad)):
         return {"success": False, "action": "list_users", "error": str(e)}
 
 
+# @app.post("/ad/users")
+# async def create_user_endpoint(request: CreateUserRequest, ad: FastActiveDirectory = Depends(get_ad)):
+#     """Create a new user in the directory"""
+#     try:
+#         if DEBUG:
+#             print(f"[AD_USERS] Creating user")
+
+#         user_payload = request.user
+
+#         if "displayName" in user_payload:
+#             clean_name = user_payload["displayName"].replace(" ", "").lower()
+
+#             user_payload["userPrincipalName"] = f"{clean_name}@lovenoreusgmail.onmicrosoft.com"
+
+#             if "mailNickname" not in user_payload:
+#                 user_payload["mailNickname"] = clean_name
+
+#         data = await ad.create_user(user_payload)
+
+#         return {"success": True, "action": "create_user", "data": data}
+
+#     except ValidationError as ve:
+#         if DEBUG:
+#             print(f"[AD_USERS] Validation Error: {ve}")
+
+#         return {"success": False, "action": "create_user", "error": f"Input validation failed: {str(ve)}"}
+
+#     except Exception as e:
+#         if DEBUG:
+#             print(f"[AD_USERS] Error: {e}")
+
+#         return {"success": False, "action": "create_user", "error": str(e)}
+
+
+
 @app.post("/ad/users")
-async def create_user_endpoint(request: CreateUserRequest, ad: FastActiveDirectory = Depends(get_ad)):
-    """Create a new user in the directory"""
+async def create_user(request: CreateUserRequest, ad: FastActiveDirectory = Depends(get_ad)):
+    logger.info(f"Received create user request: {request.dict()}")
     try:
-        if DEBUG:
-            print(f"[AD_USERS] Creating user")
+        user_data = request.user
+        personal_email = user_data.get("personal_email")
 
-        user_payload = request.user
+        # Fallback: Ensure userPrincipalName is correct
+        if not user_data["userPrincipalName"].endswith(f"@{TENANT_DOMAIN}"):
+            logger.warning(f"Invalid domain in userPrincipalName: {user_data['userPrincipalName']}. Correcting to {user_data['mailNickname']}@{TENANT_DOMAIN}")
+            user_data["userPrincipalName"] = f"{user_data['mailNickname']}@{TENANT_DOMAIN}"
 
-        if "displayName" in user_payload:
-            clean_name = user_payload["displayName"].replace(" ", "").lower()
+        # Remove personal_email from Graph API payload
+        if "personal_email" in user_data:
+            del user_data["personal_email"]
 
-            user_payload["userPrincipalName"] = f"{clean_name}@lovenoreusgmail.onmicrosoft.com"
+        # Create the user
+        result = await ad.create_user(user_data)
+        logger.info(f"User created successfully: {result}")
 
-            if "mailNickname" not in user_payload:
-                user_payload["mailNickname"] = clean_name
+        # Optionally store personal_email (e.g., in a database)
+        if personal_email:
+            logger.info(f"Storing personal email {personal_email} for user {result.get('id')}")
+            # Add logic to store personal_email if needed
 
-        data = await ad.create_user(user_payload)
-
-        return {"success": True, "action": "create_user", "data": data}
-
-    except ValidationError as ve:
-        if DEBUG:
-            print(f"[AD_USERS] Validation Error: {ve}")
-
-        return {"success": False, "action": "create_user", "error": f"Input validation failed: {str(ve)}"}
-
+        return {
+            "success": True,
+            "action": "create_user",
+            "data": {
+                "displayName": result.get("displayName"),
+                "userPrincipalName": result.get("userPrincipalName"),
+                "mailNickname": result.get("mailNickname"),
+                "accountEnabled": result.get("accountEnabled"),
+                "temporaryPassword": result.get("passwordProfile", {}).get("password"),
+                "personalEmail": personal_email
+            }
+        }
+    except ValidationError as e:
+        logger.error(f"Validation error: {str(e)}")
+        raise HTTPException(status_code=422, detail={
+            "success": False,
+            "action": "create_user",
+            "error": str(e),
+            "suggestion": "Ensure userPrincipalName uses @lovenoreusgmail.onmicrosoft.com and matches mailNickname."
+        })
     except Exception as e:
-        if DEBUG:
-            print(f"[AD_USERS] Error: {e}")
-
-        return {"success": False, "action": "create_user", "error": str(e)}
+        logger.error(f"Failed to create user: {str(e)}")
+        raise HTTPException(status_code=500, detail={
+            "success": False,
+            "action": "create_user",
+            "error": str(e),
+            "suggestion": (
+                "Check Azure AD tenant settings, credentials, and domain verification. "
+                f"Ensure userPrincipalName uses @{TENANT_DOMAIN}."
+            )
+        })
 
 
 @app.patch("/ad/users/{user_id}")
@@ -1383,25 +1445,47 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                 }
                 return format_mcp_response(result, tool_name)
             
-            # Auto-generate userPrincipalName if not provided OR correct domain if wrong domain used
-            if "userPrincipalName" not in user_data:
-                clean_name = user_data["displayName"].replace(" ", "").lower()
-                user_data["userPrincipalName"] = f"{clean_name}@lovenoreusgmail.onmicrosoft.com"
-
-            else:
-                # Ensure correct domain is used - override if different domain provided
-                current_upn = user_data["userPrincipalName"]
-
-                if "@" in current_upn and not current_upn.endswith("@lovenoreusgmail.onmicrosoft.com"):
-                    username_part = current_upn.split("@")[0]
-                    user_data["userPrincipalName"] = f"{username_part}@lovenoreusgmail.onmicrosoft.com"
-                    # Add a note about domain correction
-                    user_data["_domain_corrected"] = True
+            # Handle email and userPrincipalName logic
+            original_upn = user_data.get("userPrincipalName")
+            personal_email = None
             
-            # Auto-generate mailNickname if not provided
-            if "mailNickname" not in user_data:
-                clean_name = user_data["displayName"].replace(" ", "").lower()
+            if "userPrincipalName" not in user_data:
+                # No email provided - generate from display name
+                clean_name = user_data["displayName"].replace(" ", "").replace("'", "").replace(".", "").lower()
+                user_data["userPrincipalName"] = f"{clean_name}@lovenoreusgmail.onmicrosoft.com"
                 user_data["mailNickname"] = clean_name
+            else:
+                # Email provided - check if it's organizational or personal
+                current_upn = user_data["userPrincipalName"]
+                
+                if "@" in current_upn:
+                    username_part = current_upn.split("@")[0].lower().strip()
+                    domain_part = current_upn.split("@")[1].lower().strip()
+                    
+                    # Clean username part for email compatibility
+                    clean_username = username_part.replace(" ", "").replace("'", "").replace(".", "")
+                    
+                    if not current_upn.endswith("@lovenoreusgmail.onmicrosoft.com"):
+                        # It's a personal email - save it and generate organizational UPN
+                        personal_email = current_upn
+                        user_data["userPrincipalName"] = f"{clean_username}@lovenoreusgmail.onmicrosoft.com"
+                        user_data["mailNickname"] = clean_username
+                        user_data["_personal_email"] = personal_email
+                        user_data["_domain_corrected"] = True
+                        user_data["_original_upn"] = original_upn
+                    else:
+                        # It's already organizational domain
+                        user_data["userPrincipalName"] = f"{clean_username}@lovenoreusgmail.onmicrosoft.com"
+                        user_data["mailNickname"] = clean_username
+                else:
+                    # Invalid email format - generate from display name
+                    clean_name = user_data["displayName"].replace(" ", "").replace("'", "").replace(".", "").lower()
+                    user_data["userPrincipalName"] = f"{clean_name}@lovenoreusgmail.onmicrosoft.com"
+                    user_data["mailNickname"] = clean_name
+            
+            # Set personal email in the mail field if provided
+            if personal_email:
+                user_data["mail"] = personal_email
             
             # Set accountEnabled to True by default if not specified
             if "accountEnabled" not in user_data:
@@ -1422,92 +1506,84 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                 }
             
             try:
-                create_request = CreateUserRequest(action="create_user", user=user_data)
-
-                async with FastActiveDirectory(max_concurrent=20) as ad:
-                    raw_result = await create_user_endpoint(create_request, ad)
+                # Clean user_data by removing temporary fields that shouldn't be sent to Microsoft Graph API
+                clean_user_data = {k: v for k, v in user_data.items() if not k.startswith('_')}
                 
-                # Check if the operation was successful
-                if raw_result.get("success"):
+                async with FastActiveDirectory(max_concurrent=20) as ad:
+                    raw_result = await ad.create_user(clean_user_data)
+                
+                # Check if the operation was successful (AD method returns user object directly)
+                if raw_result and "id" in raw_result:
                     # Success - enhance the response with helpful information
                     message = f"✅ Successfully created user '{user_data['displayName']}'"
-                    if user_data.get("_domain_corrected"):
-                        message += " (domain corrected to organization domain)"
+                    
+                    # Add information about email handling
+                    if user_data.get("_personal_email"):
+                        message += f" (personal email '{user_data['_personal_email']}' saved, organizational login: '{user_data['userPrincipalName']}')"
+                    elif user_data.get("_domain_corrected"):
+                        original_domain = user_data.get("_original_upn", "").split("@")[-1] if user_data.get("_original_upn") else "unknown"
+                        message += f" (domain corrected from @{original_domain} to organization domain)"
+                    
+                    # Build user data response
+                    user_response_data = {
+                        "displayName": user_data["displayName"],
+                        "userPrincipalName": user_data["userPrincipalName"],
+                        "mailNickname": user_data["mailNickname"],
+                        "accountEnabled": user_data["accountEnabled"],
+                        "temporaryPassword": user_data["passwordProfile"]["password"] if user_data["passwordProfile"]["forceChangePasswordNextSignIn"] else "*** (password set by user)"
+                    }
+                    
+                    # Add personal email if provided
+                    if user_data.get("_personal_email"):
+                        user_response_data["personalEmail"] = user_data["_personal_email"]
+                        user_response_data["organizationalLogin"] = user_data["userPrincipalName"]
                     
                     result = {
                         "success": True,
                         "action": "create_user",
                         "message": message,
-                        "user_data": {
-                            "displayName": user_data["displayName"],
-                            "userPrincipalName": user_data["userPrincipalName"],
-                            "mailNickname": user_data["mailNickname"],
-                            "accountEnabled": user_data["accountEnabled"],
-                            "temporaryPassword": user_data["passwordProfile"]["password"] if user_data["passwordProfile"]["forceChangePasswordNextSignIn"] else "*** (password set by user)"
-                        },
-                        "data": raw_result.get("data"),
+                        "user_data": user_response_data,
+                        "data": raw_result,
                         "next_steps": [
                             "The user should sign in and change their password on first login",
-                            f"User can sign in at: https://login.microsoftonline.com with email: {user_data['userPrincipalName']}"
-                        ]
+                            f"User must sign in at: https://login.microsoftonline.com with organizational email: {user_data['userPrincipalName']}"
+                        ] + ([f"Personal email '{user_data['_personal_email']}' has been saved as secondary contact information"] if user_data.get("_personal_email") else [])
                     }
-
-                else:
-                    # Handle errors from the endpoint
-                    error_message = raw_result.get("error", "Unknown error")
-                    
-                    # Check for specific error conditions
-                    if "already exists" in error_message.lower() or "same value for property userPrincipalName already exists" in error_message:
-                        result = {
-                            "success": False,
-                            "action": "create_user",
-                            "message": f"❌ A user with email '{user_data.get('userPrincipalName', 'unknown')}' already exists",
-                            "suggestion": f"Try creating the user with a different email address, or check if user '{user_data['displayName']}' is already in the system",
-                            "user_data": {
-                                "attempted_displayName": user_data["displayName"],
-                                "attempted_userPrincipalName": user_data["userPrincipalName"]
-                            },
-                            "error": "User already exists"
-                        }
-
-                    elif "password must be specified" in error_message.lower():
-                        result = {
-                            "success": False,
-                            "action": "create_user", 
-                            "message": f"❌ Password is required to create user '{user_data['displayName']}'",
-                            "suggestion": "The system should have auto-generated a password. Please try again.",
-                            "error": "Missing password"
-                        }
-
-                    else:
-                        result = {
-                            "success": False,
-                            "action": "create_user",
-                            "message": f"❌ Failed to create user '{user_data['displayName']}'",
-                            "suggestion": "Please check the user details and try again with different values",
-                            "user_data": {
-                                "attempted_displayName": user_data["displayName"],
-                                "attempted_userPrincipalName": user_data["userPrincipalName"]
-                            },
-                            "error": error_message
-                        }
 
             except Exception as e:
                 error_message = str(e)
 
-                if "already exists" in error_message.lower():
+                # Handle different types of Microsoft Graph API errors
+                if "already exists" in error_message.lower() or "userPrincipalName already exists" in error_message:
                     result = {
                         "success": False,
                         "action": "create_user",
                         "message": f"❌ A user with email '{user_data.get('userPrincipalName', 'unknown')}' already exists",
+                        "suggestion": f"Try creating the user with a different email address, or check if user '{user_data['displayName']}' is already in the system",
                         "error": "User already exists"
                     }
-
+                elif "Request_ResourceNotFound" in error_message or "404" in error_message:
+                    result = {
+                        "success": False,
+                        "action": "create_user",
+                        "message": f"❌ Authentication or tenant configuration issue while creating user '{user_data['displayName']}'",
+                        "suggestion": "Check Azure AD tenant settings, credentials, and domain verification. Ensure userPrincipalName uses @lovenoreusgmail.onmicrosoft.com.",
+                        "technical_details": {
+                            "error_type": "404 Not Found / Resource Not Found",
+                            "likely_causes": [
+                                "Azure AD tenant credentials are incorrect or expired",
+                                "Service principal lacks user creation permissions", 
+                                "Domain is not properly verified in Azure AD tenant"
+                            ]
+                        },
+                        "error": error_message
+                    }
                 else:
                     result = {
                         "success": False,
                         "action": "create_user", 
                         "message": f"❌ Failed to create user '{user_data['displayName']}'. {error_message}",
+                        "suggestion": "Check Azure AD tenant settings, credentials, and domain verification. Ensure userPrincipalName uses @lovenoreusgmail.onmicrosoft.com.",
                         "error": error_message
                     }
             

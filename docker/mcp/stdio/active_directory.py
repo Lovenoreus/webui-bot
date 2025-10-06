@@ -29,7 +29,8 @@ class PasswordProfile(BaseModel):
 class CreateUserPayload(BaseModel):
     accountEnabled: bool = Field(..., description="Whether the account is enabled.")
     displayName: str = Field(..., description="Full name of the user.")
-    mailNickname: str = Field(..., description="Alias used to generate the email address.")
+    mailNickname: str = Field(..., description="Alias used to generate the email address."),
+    usermail: Optional[str] = Field(None, description="The user's email address (optional).")
     userPrincipalName: str = Field(..., description="The user's email/login in format 'user@domain.com'.")
     passwordProfile: PasswordProfile = Field(..., description="Initial password configuration.")
 
