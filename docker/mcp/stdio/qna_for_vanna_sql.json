@@ -1,0 +1,86 @@
+{
+  "databases": [
+    {
+      "database_name": "compacted.db",
+      "database_location": "local",
+      "database_type": "sqlite",
+      "questions": [
+        {
+          "question": "Hur många fakturor har finns det vars säljare inte befinner sig på Hemvärnsgatan 9",
+          "answer": "3"
+        },
+        {
+          "question": "Hur mycket pengar lade vi på hotell I karlskrona under 2023?",
+          "answer": "5940"
+        },
+        {
+          "question": "Hur många fakturor har vi som betalades med kronor istället för någon annan valuta?",
+          "answer": "50"
+        },
+        {
+          "question": "Vilken address befinner sig Abbott Scandinavia på?",
+          "answer": "Hemvärnsgatan 9"
+        },
+        {
+          "question": "Vem är kontaktpersonen för hotellet som är i karlskrona?",
+          "answer": "Null"
+        },
+        {
+          "question": "Give me the first 5 invoice ids",
+          "answer": "[00000363,00002506,00004076,0000470081,0000470109]"
+        },
+        {
+          "question": "How many unique supplier party street names are there in the invoice table?",
+          "answer": "[Borgmästaregatan 13, Styrmansgatan 2,Hemvärnsgatan 9]"
+        },
+        {
+          "question": "How many invoices were issues before September 2023 and has an invoiced quantity higher than 50",
+          "answer": "1"
+        },
+        {
+          "question": "How many invoices were issues before September 2023",
+          "answer": "47"
+        },
+        {
+          "question": "How many invoices were issues before May 2023",
+          "answer": "0"
+        },
+        {
+          "question": "give me a list of invoice ids that has a invoiced quantity lower than 10",
+          "answer": "[00000363,00002506,00004076,0000470081,0000470109,0000470121,0000470142,0000470157,0000470163,0000470165,0000470166,0000470172,0000470181,0000470195,0000470210,0000470214]"
+        },
+        {
+          "question": "what is the due date for the invoice with the id 00000363?",
+          "answer": "2023-11-05"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "description": "Test questions and answers for Vanna SQL MCP tool",
+    "version": "1.0.0",
+    "created_date": "2024-12-19",
+    "extensible": true,
+    "notes": [
+      "Each database entry can have multiple questions",
+      "Answers can be strings, numbers, or arrays",
+      "Questions can be in different languages",
+      "Add new databases by adding entries to the 'databases' array"
+    ]
+  },
+  "example_new_database": {
+    "database_name": "example.db",
+    "database_location": "remote",
+    "database_type": "postgresql",
+    "questions": [
+      {
+        "question": "How many users are in the database?",
+        "answer": "150"
+      },
+      {
+        "question": "What is the most common user role?",
+        "answer": "admin"
+      }
+    ]
+  }
+}
