@@ -14,18 +14,6 @@ load_dotenv()
 # Suppress tokenizer warnings
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-# Configure SSL verification based on config
-# This affects all HTTP requests including OpenAI API calls
-if hasattr(config, 'VANNA_OPENAI_SSL_VERIFY') and not config.VANNA_OPENAI_SSL_VERIFY:
-    import ssl
-    import urllib3
-    # Disable SSL warnings
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    # Set environment variable to disable SSL verification
-    os.environ["PYTHONHTTPSVERIFY"] = "0"
-    os.environ["CURL_CA_BUNDLE"] = ""
-    os.environ["REQUESTS_CA_BUNDLE"] = ""
-
 # Suppress all warnings
 warnings.filterwarnings('ignore')
 
@@ -141,6 +129,37 @@ class VannaModelManager:
             return int(db_port)
         return config.VANNA_DEFAULT_PORTS.get(database_type, 5432)
     
+    def _handle_ssl_connection_error(self, error_msg: str, database_type: str) -> bool:
+        """
+        Check if error is SSL certificate related and should be handled with fallback
+        
+        Args:
+            error_msg: Error message from database connection
+            database_type: Type of database (postgresql, mysql, mssql)
+            
+        Returns:
+            bool: True if this is a certificate error that should be retried with SSL fallback
+        """
+        ssl_error_indicators = [
+            "certificate verify failed",
+            "SSL",
+            "certificate",
+            "self-signed certificate",
+            "certificate chain",
+            "TLS",
+            "ssl",
+            "CERTIFICATE_VERIFY_FAILED"
+        ]
+        
+        error_lower = error_msg.lower()
+        is_ssl_error = any(indicator.lower() in error_lower for indicator in ssl_error_indicators)
+        
+        if is_ssl_error:
+            print(f"[VANNA DEBUG] Detected SSL certificate error for {database_type}: {error_msg}")
+            return True
+        
+        return False
+    
     def connect_to_database(self, database_type: Optional[str] = None):
         """Connect to the specified database or use the active one from config"""
         target_database = database_type or self.current_database
@@ -178,14 +197,36 @@ class VannaModelManager:
             raise ImportError("psycopg2 package is required for PostgreSQL connection. Install with: pip install psycopg2-binary")
         
         port = self.get_db_port('postgresql')
-        connection_string = f"postgresql://{config.VANNA_DB_USERNAME}:{config.VANNA_DB_PASSWORD}@{config.VANNA_DB_HOST}:{port}/{config.VANNA_DB_DATABASE}?sslmode={config.VANNA_POSTGRESQL_SSL_MODE}"
-        self.vanna_client.connect_to_postgres(
-            host=config.VANNA_DB_HOST,
-            dbname=config.VANNA_DB_DATABASE,
-            user=config.VANNA_DB_USERNAME,
-            password=config.VANNA_DB_PASSWORD,
-            port=port
-        )
+        
+        # Handle SSL configuration with fallback for certificate issues
+        ssl_mode = config.VANNA_POSTGRESQL_SSL_MODE
+        connection_string = f"postgresql://{config.VANNA_DB_USERNAME}:{config.VANNA_DB_PASSWORD}@{config.VANNA_DB_HOST}:{port}/{config.VANNA_DB_DATABASE}?sslmode={ssl_mode}"
+        
+        try:
+            self.vanna_client.connect_to_postgres(
+                host=config.VANNA_DB_HOST,
+                dbname=config.VANNA_DB_DATABASE,
+                user=config.VANNA_DB_USERNAME,
+                password=config.VANNA_DB_PASSWORD,
+                port=port,
+                sslmode=ssl_mode
+            )
+        except Exception as e:
+            if self._handle_ssl_connection_error(str(e), "postgresql"):
+                # Retry with fallback SSL mode (typically 'require' which bypasses certificate verification)
+                fallback_ssl_mode = config.VANNA_POSTGRESQL_SSL_FALLBACK_MODE
+                connection_string = f"postgresql://{config.VANNA_DB_USERNAME}:{config.VANNA_DB_PASSWORD}@{config.VANNA_DB_HOST}:{port}/{config.VANNA_DB_DATABASE}?sslmode={fallback_ssl_mode}"
+                self.vanna_client.connect_to_postgres(
+                    host=config.VANNA_DB_HOST,
+                    dbname=config.VANNA_DB_DATABASE,
+                    user=config.VANNA_DB_USERNAME,
+                    password=config.VANNA_DB_PASSWORD,
+                    port=port,
+                    sslmode=fallback_ssl_mode
+                )
+            else:
+                raise
+        
         self.database_connection = connection_string
     
     def _connect_to_mysql(self):
@@ -199,13 +240,39 @@ class VannaModelManager:
             raise ImportError("mysql-connector-python package is required for MySQL connection. Install with: pip install mysql-connector-python")
         
         port = self.get_db_port('mysql')
-        self.vanna_client.connect_to_mysql(
-            host=config.VANNA_DB_HOST,
-            database=config.VANNA_DB_DATABASE,
-            user=config.VANNA_DB_USERNAME,
-            password=config.VANNA_DB_PASSWORD,
-            port=port
-        )
+        
+        # MySQL SSL configuration - use config values or fallback for certificate issues
+        ssl_verify_cert = config.VANNA_MYSQL_SSL_VERIFY_CERT
+        ssl_verify_identity = config.VANNA_MYSQL_SSL_VERIFY_IDENTITY
+        ssl_disabled = config.VANNA_MYSQL_SSL_DISABLED
+        
+        try:
+            self.vanna_client.connect_to_mysql(
+                host=config.VANNA_DB_HOST,
+                database=config.VANNA_DB_DATABASE,
+                user=config.VANNA_DB_USERNAME,
+                password=config.VANNA_DB_PASSWORD,
+                port=port,
+                ssl_verify_cert=ssl_verify_cert,
+                ssl_verify_identity=ssl_verify_identity,
+                ssl_disabled=ssl_disabled
+            )
+        except Exception as e:
+            if self._handle_ssl_connection_error(str(e), "mysql"):
+                # Retry with SSL but without certificate verification
+                self.vanna_client.connect_to_mysql(
+                    host=config.VANNA_DB_HOST,
+                    database=config.VANNA_DB_DATABASE,
+                    user=config.VANNA_DB_USERNAME,
+                    password=config.VANNA_DB_PASSWORD,
+                    port=port,
+                    ssl_verify_cert=False,
+                    ssl_verify_identity=False,
+                    ssl_disabled=False  # Still use SSL but without verification
+                )
+            else:
+                raise
+        
         self.database_connection = f"mysql://{config.VANNA_DB_USERNAME}:***@{config.VANNA_DB_HOST}:{port}/{config.VANNA_DB_DATABASE}"
     
     def _connect_to_mssql(self):
@@ -220,12 +287,34 @@ class VannaModelManager:
         
         # Build connection string for SQL Server
         port = self.get_db_port('mssql')
-        if config.VANNA_MSSQL_TRUSTED_CONNECTION:
-            connection_string = f"Driver={{{config.VANNA_MSSQL_DRIVER}}};Server={config.VANNA_DB_HOST},{port};Database={config.VANNA_DB_DATABASE};Trusted_Connection=yes;"
-        else:
-            connection_string = f"Driver={{{config.VANNA_MSSQL_DRIVER}}};Server={config.VANNA_DB_HOST},{port};Database={config.VANNA_DB_DATABASE};UID={config.VANNA_DB_USERNAME};PWD={config.VANNA_DB_PASSWORD};"
         
-        self.vanna_client.connect_to_mssql(odbc_conn_str=connection_string)
+        # Build connection string with SSL configuration from config
+        ssl_options = ""
+        if config.VANNA_MSSQL_TRUST_SERVER_CERTIFICATE:
+            ssl_options += "TrustServerCertificate=yes;"
+        if config.VANNA_MSSQL_ENCRYPT:
+            ssl_options += "Encrypt=yes;"
+        
+        if config.VANNA_MSSQL_TRUSTED_CONNECTION:
+            connection_string = f"Driver={{{config.VANNA_MSSQL_DRIVER}}};Server={config.VANNA_DB_HOST},{port};Database={config.VANNA_DB_DATABASE};Trusted_Connection=yes;{ssl_options}"
+        else:
+            connection_string = f"Driver={{{config.VANNA_MSSQL_DRIVER}}};Server={config.VANNA_DB_HOST},{port};Database={config.VANNA_DB_DATABASE};UID={config.VANNA_DB_USERNAME};PWD={config.VANNA_DB_PASSWORD};{ssl_options}"
+        
+        try:
+            self.vanna_client.connect_to_mssql(odbc_conn_str=connection_string)
+        except Exception as e:
+            if self._handle_ssl_connection_error(str(e), "mssql"):
+                # Retry with TrustServerCertificate=yes to bypass certificate verification
+                if config.VANNA_MSSQL_TRUSTED_CONNECTION:
+                    connection_string_ssl_bypass = f"Driver={{{config.VANNA_MSSQL_DRIVER}}};Server={config.VANNA_DB_HOST},{port};Database={config.VANNA_DB_DATABASE};Trusted_Connection=yes;TrustServerCertificate=yes;Encrypt=yes;"
+                else:
+                    connection_string_ssl_bypass = f"Driver={{{config.VANNA_MSSQL_DRIVER}}};Server={config.VANNA_DB_HOST},{port};Database={config.VANNA_DB_DATABASE};UID={config.VANNA_DB_USERNAME};PWD={config.VANNA_DB_PASSWORD};TrustServerCertificate=yes;Encrypt=yes;"
+                
+                self.vanna_client.connect_to_mssql(odbc_conn_str=connection_string_ssl_bypass)
+                connection_string = connection_string_ssl_bypass
+            else:
+                raise
+        
         self.database_connection = f"mssql://{config.VANNA_DB_HOST}:{port}/{config.VANNA_DB_DATABASE}"
     
     def _connect_to_sqlite(self):
@@ -272,6 +361,84 @@ class VannaModelManager:
     def get_current_provider(self) -> str:
         """Get current active provider"""
         return self.current_provider
+    
+    def test_database_connection(self, database_type: Optional[str] = None) -> dict:
+        """
+        Test database connectivity and return detailed results
+        
+        Args:
+            database_type: Database type to test, or None for current active database
+            
+        Returns:
+            dict: Connection test results with status, message, and SSL info
+        """
+        target_database = database_type or self.current_database
+        result = {
+            "database_type": target_database,
+            "success": False,
+            "message": "",
+            "ssl_used": False,
+            "ssl_fallback_used": False,
+            "connection_string": ""
+        }
+        
+        try:
+            # Temporarily store current database
+            original_database = self.current_database
+            
+            # Test connection
+            self.connect_to_database(target_database)
+            
+            result["success"] = True
+            result["message"] = f"Successfully connected to {target_database}"
+            result["connection_string"] = self.database_connection
+            
+            # Check if SSL is being used based on connection string
+            if target_database == "postgresql":
+                result["ssl_used"] = "sslmode=disable" not in self.database_connection
+                result["ssl_fallback_used"] = "sslmode=require" in self.database_connection
+            elif target_database == "mysql":
+                result["ssl_used"] = "ssl_disabled=true" not in str(self.database_connection)
+            elif target_database == "mssql":
+                result["ssl_used"] = "Encrypt=yes" in self.database_connection
+                result["ssl_fallback_used"] = "TrustServerCertificate=yes" in self.database_connection
+            
+            # Restore original database
+            if original_database != target_database:
+                self.connect_to_database(original_database)
+                
+        except Exception as e:
+            result["success"] = False
+            result["message"] = f"Failed to connect to {target_database}: {str(e)}"
+            
+            # Check if it's an SSL-related error
+            if self._handle_ssl_connection_error(str(e), target_database):
+                result["message"] += " (SSL certificate error detected)"
+        
+        return result
+    
+    def get_ssl_configuration_summary(self) -> dict:
+        """Get summary of SSL configuration for all database types"""
+        return {
+            "postgresql": {
+                "ssl_mode": config.VANNA_POSTGRESQL_SSL_MODE,
+                "ssl_fallback_mode": config.VANNA_POSTGRESQL_SSL_FALLBACK_MODE,
+                "ssl_verify_cert": config.VANNA_POSTGRESQL_SSL_VERIFY_CERT
+            },
+            "mysql": {
+                "ssl_verify_cert": config.VANNA_MYSQL_SSL_VERIFY_CERT,
+                "ssl_verify_identity": config.VANNA_MYSQL_SSL_VERIFY_IDENTITY,
+                "ssl_disabled": config.VANNA_MYSQL_SSL_DISABLED
+            },
+            "mssql": {
+                "trust_server_certificate": config.VANNA_MSSQL_TRUST_SERVER_CERTIFICATE,
+                "encrypt": config.VANNA_MSSQL_ENCRYPT,
+                "driver": config.VANNA_MSSQL_DRIVER
+            },
+            "sqlite": {
+                "note": "SQLite uses local files and does not require SSL configuration"
+            }
+        }
 
 # Convenience functions for easy usage
 def vanna_train(
@@ -323,8 +490,48 @@ def get_vanna_info() -> dict:
         "database": vanna_manager.current_database,
         "database_connection": vanna_manager.database_connection,
         "initialized": vanna_manager.vanna_client is not None,
-        "available_databases": vanna_manager.get_database_info()["available_databases"]
+        "available_databases": vanna_manager.get_database_info()["available_databases"],
+        "ssl_configuration": vanna_manager.get_ssl_configuration_summary()
     }
+
+def test_all_database_connections() -> dict:
+    """Test connectivity to all enabled databases"""
+    available_databases = vanna_manager.get_database_info()["available_databases"]
+    enabled_databases = [db for db, enabled in available_databases.items() if enabled]
+    
+    results = {}
+    for db_type in enabled_databases:
+        results[db_type] = vanna_manager.test_database_connection(db_type)
+    
+    return results
+
+def diagnose_ssl_issues() -> dict:
+    """Diagnose SSL configuration and potential issues"""
+    diagnosis = {
+        "ssl_configuration": vanna_manager.get_ssl_configuration_summary(),
+        "connection_tests": test_all_database_connections(),
+        "recommendations": []
+    }
+    
+    # Analyze results and provide recommendations
+    for db_type, test_result in diagnosis["connection_tests"].items():
+        if not test_result["success"]:
+            if "certificate" in test_result["message"].lower() or "ssl" in test_result["message"].lower():
+                diagnosis["recommendations"].append(
+                    f"{db_type.upper()}: SSL certificate issue detected. "
+                    f"Consider updating SSL configuration or using SSL bypass options."
+                )
+            else:
+                diagnosis["recommendations"].append(
+                    f"{db_type.upper()}: Connection failed. Check database credentials and network connectivity."
+                )
+        elif test_result["ssl_fallback_used"]:
+            diagnosis["recommendations"].append(
+                f"{db_type.upper()}: Using SSL fallback mode. "
+                f"Consider installing proper SSL certificates for better security."
+            )
+    
+    return diagnosis
 
 def switch_database_interactive():
     """Interactive database switching"""
@@ -466,12 +673,21 @@ builtins.print = _original_print
 print(f"\n🤖 Vanna SQL Assistant initialized with {vanna_manager.current_provider} provider")
 print(f"📊 Current model: {get_vanna_info()['model']}")
 print(f"🗄️  Current database: {vanna_manager.current_database.upper()}")
+
+# Show SSL configuration summary
+ssl_config = vanna_manager.get_ssl_configuration_summary()
+current_db_ssl = ssl_config.get(vanna_manager.current_database, {})
+if current_db_ssl and vanna_manager.current_database != "sqlite":
+    print(f"🔒 SSL Configuration: {current_db_ssl}")
+
 print("\n💡 Available commands:")
 print("  • Ask any SQL question")
 print("  • Type 'info' to see current configuration")
 print("  • Type 'train' to manually train with sample data")
 print("  • Type 'switch' to switch between databases")
 print("  • Type 'databases' to see available databases")
+print("  • Type 'ssl' to diagnose SSL configuration")
+print("  • Type 'test' to test database connections")
 print("  • Type 'exit' to quit")
 print("  • To switch providers, edit config.json and restart\n")
 

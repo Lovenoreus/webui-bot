@@ -6,26 +6,6 @@ from langchain.chat_models.base import init_chat_model
 from langchain_community.chat_models import ChatOllama
 from langchain_openai import ChatOpenAI
 
-# Configure SSL verification globally before any HTTP requests
-def setup_ssl_environment(config_data):
-    """Setup SSL environment variables based on configuration"""
-    ssl_verify = get_nested(config_data, ["vanna", "openai", "ssl_verify"], True) if config_data else True
-    if not ssl_verify:
-        # Disable SSL verification globally
-        os.environ["PYTHONHTTPSVERIFY"] = "0"
-        os.environ["CURL_CA_BUNDLE"] = ""
-        os.environ["REQUESTS_CA_BUNDLE"] = ""
-        
-        # Suppress SSL warnings
-        import warnings
-        warnings.filterwarnings('ignore', message='Unverified HTTPS request')
-        
-        try:
-            import urllib3
-            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        except ImportError:
-            pass
-
 global_config_path = '/.omnigate/config.json'
 script_dir = os.path.dirname(os.path.abspath(__file__))
 local_config_path = os.path.join(script_dir, 'config.json')
@@ -89,9 +69,6 @@ elif os.path.exists(local_config_path):
 
 else:
     assert False, f"No config file found at {global_config_path} or {local_config_path}"
-
-# Setup SSL environment immediately after loading config
-setup_ssl_environment(config)
 
 # Access the app version
 APP_VERSION = config["app"]["version"]
@@ -214,12 +191,6 @@ VANNA_OLLAMA_BASE_URL = os.getenv("VANNA_OLLAMA_BASE_URL") or get_nested(config,
 
 VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA = to_bool(get_nested(config, ["vanna", "openai", "allow_llm_to_see_data"], True), default=True)
 VANNA_OPENAI_VERBOSE = to_bool(get_nested(config, ["vanna", "openai", "verbose"], False), default=False)
-
-# SSL Configuration for Vanna OpenAI
-VANNA_OPENAI_SSL_VERIFY = to_bool(get_nested(config, ["vanna", "openai", "ssl_verify"], True), default=True)
-VANNA_OPENAI_SSL_CA_BUNDLE = get_nested(config, ["vanna", "openai", "ssl_ca_bundle"], None)
-VANNA_OPENAI_SSL_CERT_FILE = get_nested(config, ["vanna", "openai", "ssl_cert_file"], None)
-VANNA_OPENAI_SSL_KEY_FILE = get_nested(config, ["vanna", "openai", "ssl_key_file"], None)
 VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA = to_bool(get_nested(config, ["vanna", "ollama", "allow_llm_to_see_data"], True), default=True)
 VANNA_OLLAMA_VERBOSE = to_bool(get_nested(config, ["vanna", "ollama", "verbose"], False), default=False)
 VANNA_AUTO_TRAIN = to_bool(get_nested(config, ["vanna", "database", "auto_train"], True), default=True)
@@ -255,10 +226,19 @@ VANNA_DB_USERNAME = os.getenv("DB_USERNAME") or get_nested(config, ["vanna_datab
 VANNA_DB_PASSWORD = os.getenv("DB_PASSWORD") or get_nested(config, ["vanna_databases", "connection", "password"], "your_password")
 
 # Database-specific configurations (only for special settings)
-VANNA_POSTGRESQL_SSL_MODE = get_nested(config, ["vanna_databases", "postgresql", "ssl_mode"], "prefer")
+VANNA_POSTGRESQL_SSL_MODE = get_nested(config, ["vanna_databases", "postgresql", "ssl_mode"], "require")
+VANNA_POSTGRESQL_SSL_FALLBACK_MODE = get_nested(config, ["vanna_databases", "postgresql", "ssl_fallback_mode"], "require")
+VANNA_POSTGRESQL_SSL_VERIFY_CERT = to_bool(get_nested(config, ["vanna_databases", "postgresql", "ssl_verify_cert"], False), default=False)
+
 VANNA_MYSQL_CHARSET = get_nested(config, ["vanna_databases", "mysql", "charset"], "utf8mb4")
+VANNA_MYSQL_SSL_VERIFY_CERT = to_bool(get_nested(config, ["vanna_databases", "mysql", "ssl_verify_cert"], False), default=False)
+VANNA_MYSQL_SSL_VERIFY_IDENTITY = to_bool(get_nested(config, ["vanna_databases", "mysql", "ssl_verify_identity"], False), default=False)
+VANNA_MYSQL_SSL_DISABLED = to_bool(get_nested(config, ["vanna_databases", "mysql", "ssl_disabled"], False), default=False)
+
 VANNA_MSSQL_DRIVER = get_nested(config, ["vanna_databases", "mssql", "driver"], "ODBC Driver 17 for SQL Server")
 VANNA_MSSQL_TRUSTED_CONNECTION = to_bool(get_nested(config, ["vanna_databases", "mssql", "trusted_connection"], False), default=False)
+VANNA_MSSQL_TRUST_SERVER_CERTIFICATE = to_bool(get_nested(config, ["vanna_databases", "mssql", "trust_server_certificate"], True), default=True)
+VANNA_MSSQL_ENCRYPT = to_bool(get_nested(config, ["vanna_databases", "mssql", "encrypt"], True), default=True)
 
 # Default ports for different databases
 VANNA_DEFAULT_PORTS = {

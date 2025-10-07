@@ -59,11 +59,7 @@
       "enabled": true,
       "model": "gpt-4o-mini",
       "allow_llm_to_see_data": true,
-      "verbose": false,
-      "ssl_verify": false,
-      "ssl_ca_bundle": null,
-      "ssl_cert_file": null,
-      "ssl_key_file": null
+      "verbose": false
     },
     "ollama": {
       "enabled": false,
@@ -105,20 +101,33 @@
   "vanna_databases": {
     "postgresql": {
       "enabled": false,
-      "ssl_mode": "prefer"
+      "ssl_mode": "require",
+      "ssl_fallback_mode": "require",
+      "ssl_verify_cert": false
     },
     "mysql": {
       "enabled": false,
-      "charset": "utf8mb4"
+      "charset": "utf8mb4",
+      "ssl_verify_cert": false,
+      "ssl_verify_identity": false,
+      "ssl_disabled": false
     },
     "mssql": {
       "enabled": false,
       "driver": "ODBC Driver 17 for SQL Server",
-      "trusted_connection": false
+      "trusted_connection": false,
+      "trust_server_certificate": true,
+      "encrypt": true
     },
     "sqlite": {
       "enabled": true,
       "database_path": "compacted.db"
+    },
+    "connection": {
+      "host": "localhost",
+      "database": "your_database",
+      "username": "your_username",
+      "password": "your_password"
     }
   }
 }
