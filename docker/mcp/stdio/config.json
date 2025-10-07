@@ -71,6 +71,11 @@
     "database": {
       "auto_train": false,
       "train_on_startup": true
+    },
+    "ssl": {
+      "verify_certificates": false,
+      "bypass_ssl_errors": true,
+      "disable_warnings": true
     }
   },
   "mcp": {

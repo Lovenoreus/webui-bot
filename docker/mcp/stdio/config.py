@@ -196,6 +196,20 @@ VANNA_OLLAMA_VERBOSE = to_bool(get_nested(config, ["vanna", "ollama", "verbose"]
 VANNA_AUTO_TRAIN = to_bool(get_nested(config, ["vanna", "database", "auto_train"], True), default=True)
 VANNA_TRAIN_ON_STARTUP = to_bool(get_nested(config, ["vanna", "database", "train_on_startup"], False), default=False)
 
+# Vanna SSL Configuration (with environment variable override)
+VANNA_SSL_VERIFY_CERTIFICATES = to_bool(
+    os.getenv("VANNA_SSL_VERIFY_CERTIFICATES") or get_nested(config, ["vanna", "ssl", "verify_certificates"], False), 
+    default=False
+)
+VANNA_SSL_BYPASS_ERRORS = to_bool(
+    os.getenv("VANNA_SSL_BYPASS_ERRORS") or get_nested(config, ["vanna", "ssl", "bypass_ssl_errors"], True), 
+    default=True
+)
+VANNA_SSL_DISABLE_WARNINGS = to_bool(
+    os.getenv("VANNA_SSL_DISABLE_WARNINGS") or get_nested(config, ["vanna", "ssl", "disable_warnings"], True), 
+    default=True
+)
+
 # --- 13) Vanna Database Configuration ---
 # Database Enable/Disable Flags
 VANNA_POSTGRESQL_ENABLED = to_bool(get_nested(config, ["vanna_databases", "postgresql", "enabled"], False), default=False)

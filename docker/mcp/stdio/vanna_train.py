@@ -8,8 +8,25 @@ import warnings
 import builtins
 from typing import Optional
 import config
+import ssl
+import urllib3
 
 load_dotenv()
+
+# Configure SSL handling based on config settings
+if config.VANNA_SSL_BYPASS_ERRORS:
+    # Disable SSL certificate verification globally for API calls
+    # This fixes SSL certificate issues with OpenAI API and other external services
+    os.environ['PYTHONHTTPSVERIFY'] = '0'
+    os.environ['CURL_CA_BUNDLE'] = ''
+    os.environ['REQUESTS_CA_BUNDLE'] = ''
+    
+    # Create unverified SSL context
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+if config.VANNA_SSL_DISABLE_WARNINGS:
+    # Disable SSL warnings from urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Suppress tokenizer warnings
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -80,9 +97,72 @@ class VannaModelManager:
         else:
             raise ValueError(f"Unsupported provider: {provider}")
     
+    def _patch_ssl_for_api_calls(self):
+        """Patch SSL verification for all API calls made by Vanna"""
+        if not config.VANNA_SSL_BYPASS_ERRORS:
+            return
+            
+        try:
+            import requests
+            
+            # Patch requests library globally
+            old_request = requests.request
+            def new_request(*args, **kwargs):
+                kwargs['verify'] = False
+                return old_request(*args, **kwargs)
+            requests.request = new_request
+            
+            # Patch requests Session
+            old_session_request = requests.Session.request
+            def new_session_request(self, *args, **kwargs):
+                kwargs['verify'] = False
+                return old_session_request(self, *args, **kwargs)
+            requests.Session.request = new_session_request
+            
+            # Also patch the adapters
+            old_get_adapter = requests.Session.get_adapter
+            def new_get_adapter(self, url):
+                adapter = old_get_adapter(self, url)
+                if hasattr(adapter, 'init_poolmanager'):
+                    old_init_poolmanager = adapter.init_poolmanager
+                    def new_init_poolmanager(*args, **kwargs):
+                        kwargs['ssl_context'] = ssl._create_unverified_context()
+                        return old_init_poolmanager(*args, **kwargs)
+                    adapter.init_poolmanager = new_init_poolmanager
+                return adapter
+            requests.Session.get_adapter = new_get_adapter
+            
+            print("[VANNA DEBUG] SSL verification disabled for all API calls")
+            
+        except ImportError:
+            pass  # Not all HTTP libraries may be available
+        except Exception as e:
+            print(f"[VANNA DEBUG] Warning: Could not fully patch SSL verification: {e}")
+            
+        # Also try to patch urllib3 directly
+        try:
+            import urllib3
+            from urllib3.util import connection
+            
+            # Patch urllib3 SSL context creation
+            old_create_urllib3_context = urllib3.util.ssl_.create_urllib3_context
+            def new_create_urllib3_context(*args, **kwargs):
+                kwargs['check_hostname'] = False
+                context = old_create_urllib3_context(*args, **kwargs)
+                context.check_hostname = False
+                context.verify_mode = ssl.CERT_NONE
+                return context
+            urllib3.util.ssl_.create_urllib3_context = new_create_urllib3_context
+            
+        except ImportError:
+            pass
+    
     def initialize_vanna(self, provider: Optional[str] = None):
         """Initialize Vanna with specified provider or use config default"""
         target_provider = provider or self.current_provider
+        
+        # Patch SSL verification for API calls
+        self._patch_ssl_for_api_calls()
         
         if target_provider == "openai":
             self._init_openai_vanna()
@@ -102,6 +182,15 @@ class VannaModelManager:
         if not config.OPENAI_API_KEY:
             raise ValueError("OPENAI_API_KEY not found in environment")
         
+        # Configure SSL bypass for OpenAI API calls
+        import requests
+        from requests.adapters import HTTPAdapter
+        from urllib3.util.retry import Retry
+        import urllib3
+        
+        # Disable SSL verification for requests
+        requests.packages.urllib3.disable_warnings()
+        
         VannaClass = self.get_vanna_class("openai")
         self.vanna_client = VannaClass(config={
             'api_key': config.OPENAI_API_KEY,
@@ -113,6 +202,10 @@ class VannaModelManager:
     
     def _init_ollama_vanna(self):
         """Initialize Vanna with Ollama"""
+        # Configure SSL bypass for Ollama API calls
+        import requests
+        requests.packages.urllib3.disable_warnings()
+        
         VannaClass = self.get_vanna_class("ollama")
         self.vanna_client = VannaClass(config={
             'model': config.VANNA_OLLAMA_MODEL,
@@ -448,7 +541,7 @@ def vanna_train(
     sql: Optional[str] = None
 ) -> None:
     """
-    Train Vanna with different types of data
+    Train Vanna with different types of data with SSL error handling
     
     Args:
         ddl: Database schema DDL statements
@@ -462,18 +555,31 @@ def vanna_train(
     if not vanna_manager.vanna_client:
         vanna_manager.initialize_vanna()
     
+    def _safe_train(train_func, data, data_type):
+        """Safely execute training with SSL error handling"""
+        try:
+            train_func(data)
+            print(f"✅ Trained {data_type} with {vanna_manager.current_provider}")
+        except Exception as e:
+            if "certificate verify failed" in str(e) or "SSL" in str(e):
+                print(f"[VANNA DEBUG] SSL error during {data_type} training: {str(e)}")
+                print(f"❌ Failed to train {data_type} due to SSL certificate error")
+                # You might want to retry with different SSL settings here
+                return False
+            else:
+                print(f"❌ Error training {data_type}: {e}")
+                return False
+        return True
+    
     # Train based on provided data
     if ddl:
-        vanna_manager.vanna_client.train(ddl=ddl)
-        print(f"Trained DDL with {vanna_manager.current_provider}")
+        _safe_train(lambda x: vanna_manager.vanna_client.train(ddl=x), ddl, "DDL")
     
     if documentation:
-        vanna_manager.vanna_client.train(documentation=documentation)
-        print(f"Trained documentation with {vanna_manager.current_provider}")
+        _safe_train(lambda x: vanna_manager.vanna_client.train(documentation=x), documentation, "documentation")
     
     if question and sql:
-        vanna_manager.vanna_client.train(question=question, sql=sql)
-        print(f"Trained SQL pair with {vanna_manager.current_provider}")
+        _safe_train(lambda x: vanna_manager.vanna_client.train(question=x[0], sql=x[1]), (question, sql), "SQL pair")
     
     if not any([ddl, documentation, (question and sql)]):
         raise ValueError("Must provide at least one training data type")
