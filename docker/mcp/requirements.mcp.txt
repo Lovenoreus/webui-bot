@@ -1,17 +1,33 @@
+# Core FastAPI and web server dependencies
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
-pydantic>=2.0.0
+pydantic>=2.0.0docker
+
+# HTTP client libraries
 requests>=2.31.0
 aiohttp>=3.9.0
+
+# Environment and configuration
 python-dotenv>=1.0.0
+
+# LangChain dependencies for LLM integration
+langchain>=0.1.0
 langchain-community>=0.0.20
 langchain-openai>=0.0.5
-langchain>=0.1.0
 langchain-mistralai
-pyodbc
-qdrant-client==1.15.1
-msal
-mcp
+
+# Database connectivity
 sqlalchemy
 aioodbc
-vanna[qdrant,openai]
+pyodbc
+
+# Vector database and search
+qdrant-client==1.15.1
+chromadb
+
+# Vanna AI for intelligent SQL generation
+vanna[openai,chromadb]>=0.0.1
+
+# Authentication and MCP protocol
+msal
+mcp
