@@ -10,23 +10,89 @@ from typing import Optional
 import config
 import ssl
 import urllib3
+import time
 
 load_dotenv()
 
 # Configure SSL handling based on config settings
-if config.VANNA_SSL_BYPASS_ERRORS:
-    # Disable SSL certificate verification globally for API calls
-    # This fixes SSL certificate issues with OpenAI API and other external services
+def apply_comprehensive_ssl_bypass():
+    """Apply SSL bypass at all levels to prevent certificate verification errors"""
+    
+    if not config.VANNA_SSL_BYPASS_ERRORS:
+        return
+        
+    print("[VANNA DEBUG] Applying comprehensive SSL bypass for all API calls...")
+    
+    # 1. Global SSL context bypass
+    ssl._create_default_https_context = ssl._create_unverified_context
+    
+    # 2. Environment variables for SSL bypass
     os.environ['PYTHONHTTPSVERIFY'] = '0'
     os.environ['CURL_CA_BUNDLE'] = ''
     os.environ['REQUESTS_CA_BUNDLE'] = ''
+    os.environ['SSL_CERT_FILE'] = ''
+    os.environ['SSL_CERT_DIR'] = ''
     
-    # Create unverified SSL context
-    ssl._create_default_https_context = ssl._create_unverified_context
+    # 3. Disable urllib3 warnings
+    if config.VANNA_SSL_DISABLE_WARNINGS:
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        warnings.filterwarnings('ignore', message='Unverified HTTPS request')
+        warnings.filterwarnings('ignore', category=urllib3.exceptions.InsecureRequestWarning)
+    
+    # 4. Patch requests at multiple levels
+    try:
+        import requests
+        from requests.adapters import HTTPAdapter
+        from urllib3.util.ssl_ import create_urllib3_context
+        
+        # Patch the requests module directly
+        original_request = requests.request
+        def patched_request(*args, **kwargs):
+            kwargs.setdefault('verify', False)
+            kwargs.setdefault('timeout', 30)  # Add timeout to prevent hanging
+            return original_request(*args, **kwargs)
+        requests.request = patched_request
+        
+        # Patch session requests
+        original_session_request = requests.Session.request
+        def patched_session_request(self, *args, **kwargs):
+            kwargs.setdefault('verify', False)
+            kwargs.setdefault('timeout', 30)
+            return original_session_request(self, *args, **kwargs)
+        requests.Session.request = patched_session_request
+        
+        # Create custom SSL adapter
+        class SSLBypassAdapter(HTTPAdapter):
+            def init_poolmanager(self, *args, **kwargs):
+                context = create_urllib3_context()
+                context.check_hostname = False
+                context.verify_mode = ssl.CERT_NONE
+                kwargs['ssl_context'] = context
+                return super().init_poolmanager(*args, **kwargs)
+        
+        # Patch default session creation
+        original_session_init = requests.Session.__init__
+        def patched_session_init(self, *args, **kwargs):
+            original_session_init(self, *args, **kwargs)
+            self.mount('https://', SSLBypassAdapter())
+            self.mount('http://', HTTPAdapter())
+            self.verify = False
+        requests.Session.__init__ = patched_session_init
+        
+    except ImportError:
+        pass
+    
+    # 5. Try to patch httpx if available (used by some newer libraries)
+    try:
+        import httpx
+        httpx._config.DEFAULT_CIPHERS = httpx._config.DEFAULT_CIPHERS
+    except ImportError:
+        pass
+    
+    print("[VANNA DEBUG] ✅ Comprehensive SSL bypass applied successfully")
 
-if config.VANNA_SSL_DISABLE_WARNINGS:
-    # Disable SSL warnings from urllib3
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+# Apply SSL bypass immediately
+apply_comprehensive_ssl_bypass()
 
 # Suppress tokenizer warnings
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -98,64 +164,8 @@ class VannaModelManager:
             raise ValueError(f"Unsupported provider: {provider}")
     
     def _patch_ssl_for_api_calls(self):
-        """Patch SSL verification for all API calls made by Vanna"""
-        if not config.VANNA_SSL_BYPASS_ERRORS:
-            return
-            
-        try:
-            import requests
-            
-            # Patch requests library globally
-            old_request = requests.request
-            def new_request(*args, **kwargs):
-                kwargs['verify'] = False
-                return old_request(*args, **kwargs)
-            requests.request = new_request
-            
-            # Patch requests Session
-            old_session_request = requests.Session.request
-            def new_session_request(self, *args, **kwargs):
-                kwargs['verify'] = False
-                return old_session_request(self, *args, **kwargs)
-            requests.Session.request = new_session_request
-            
-            # Also patch the adapters
-            old_get_adapter = requests.Session.get_adapter
-            def new_get_adapter(self, url):
-                adapter = old_get_adapter(self, url)
-                if hasattr(adapter, 'init_poolmanager'):
-                    old_init_poolmanager = adapter.init_poolmanager
-                    def new_init_poolmanager(*args, **kwargs):
-                        kwargs['ssl_context'] = ssl._create_unverified_context()
-                        return old_init_poolmanager(*args, **kwargs)
-                    adapter.init_poolmanager = new_init_poolmanager
-                return adapter
-            requests.Session.get_adapter = new_get_adapter
-            
-            print("[VANNA DEBUG] SSL verification disabled for all API calls")
-            
-        except ImportError:
-            pass  # Not all HTTP libraries may be available
-        except Exception as e:
-            print(f"[VANNA DEBUG] Warning: Could not fully patch SSL verification: {e}")
-            
-        # Also try to patch urllib3 directly
-        try:
-            import urllib3
-            from urllib3.util import connection
-            
-            # Patch urllib3 SSL context creation
-            old_create_urllib3_context = urllib3.util.ssl_.create_urllib3_context
-            def new_create_urllib3_context(*args, **kwargs):
-                kwargs['check_hostname'] = False
-                context = old_create_urllib3_context(*args, **kwargs)
-                context.check_hostname = False
-                context.verify_mode = ssl.CERT_NONE
-                return context
-            urllib3.util.ssl_.create_urllib3_context = new_create_urllib3_context
-            
-        except ImportError:
-            pass
+        """Re-apply SSL patches before training (some libraries reset them)"""
+        apply_comprehensive_ssl_bypass()
     
     def initialize_vanna(self, provider: Optional[str] = None):
         """Initialize Vanna with specified provider or use config default"""
@@ -182,14 +192,8 @@ class VannaModelManager:
         if not config.OPENAI_API_KEY:
             raise ValueError("OPENAI_API_KEY not found in environment")
         
-        # Configure SSL bypass for OpenAI API calls
-        import requests
-        from requests.adapters import HTTPAdapter
-        from urllib3.util.retry import Retry
-        import urllib3
-        
-        # Disable SSL verification for requests
-        requests.packages.urllib3.disable_warnings()
+        # Apply comprehensive SSL bypass before initializing OpenAI client
+        apply_comprehensive_ssl_bypass()
         
         VannaClass = self.get_vanna_class("openai")
         self.vanna_client = VannaClass(config={
@@ -202,9 +206,8 @@ class VannaModelManager:
     
     def _init_ollama_vanna(self):
         """Initialize Vanna with Ollama"""
-        # Configure SSL bypass for Ollama API calls
-        import requests
-        requests.packages.urllib3.disable_warnings()
+        # Apply comprehensive SSL bypass before initializing Ollama client
+        apply_comprehensive_ssl_bypass()
         
         VannaClass = self.get_vanna_class("ollama")
         self.vanna_client = VannaClass(config={
@@ -539,7 +542,7 @@ def vanna_train(
     documentation: Optional[str] = None,
     question: Optional[str] = None,
     sql: Optional[str] = None
-) -> None:
+) -> bool:
     """
     Train Vanna with different types of data with SSL error handling
     
@@ -548,6 +551,9 @@ def vanna_train(
         documentation: Documentation text
         question: Natural language question
         sql: Corresponding SQL query for the question
+        
+    Returns:
+        bool: True if training was successful, False otherwise
     """
     global vanna_manager
     
@@ -556,33 +562,57 @@ def vanna_train(
         vanna_manager.initialize_vanna()
     
     def _safe_train(train_func, data, data_type):
-        """Safely execute training with SSL error handling"""
-        try:
-            train_func(data)
-            print(f"✅ Trained {data_type} with {vanna_manager.current_provider}")
-        except Exception as e:
-            if "certificate verify failed" in str(e) or "SSL" in str(e):
-                print(f"[VANNA DEBUG] SSL error during {data_type} training: {str(e)}")
-                print(f"❌ Failed to train {data_type} due to SSL certificate error")
-                # You might want to retry with different SSL settings here
-                return False
-            else:
-                print(f"❌ Error training {data_type}: {e}")
-                return False
-        return True
+        """Safely execute training with SSL error handling and retry logic"""
+        max_retries = 3
+        
+        for attempt in range(max_retries):
+            try:
+                # Re-apply SSL bypass before each attempt
+                if attempt > 0:
+                    print(f"[VANNA DEBUG] Retry attempt {attempt + 1} for {data_type} training")
+                    apply_comprehensive_ssl_bypass()
+                    time.sleep(1)  # Brief delay between retries
+                
+                train_func(data)
+                print(f"✅ Trained {data_type} with {vanna_manager.current_provider}")
+                return True
+                
+            except Exception as e:
+                error_msg = str(e).lower()
+                if any(term in error_msg for term in ["certificate verify failed", "ssl", "certificate", "handshake"]):
+                    print(f"[VANNA DEBUG] SSL error during {data_type} training (attempt {attempt + 1}): {str(e)}")
+                    
+                    if attempt == max_retries - 1:
+                        print(f"❌ Failed to train {data_type} due to SSL certificate error after {max_retries} attempts")
+                        return False
+                    else:
+                        print(f"🔄 Retrying {data_type} training...")
+                        continue
+                else:
+                    print(f"❌ Error training {data_type}: {e}")
+                    return False
+        
+        return False
+    
+    success = True
     
     # Train based on provided data
     if ddl:
-        _safe_train(lambda x: vanna_manager.vanna_client.train(ddl=x), ddl, "DDL")
+        if not _safe_train(lambda x: vanna_manager.vanna_client.train(ddl=x), ddl, "DDL"):
+            success = False
     
     if documentation:
-        _safe_train(lambda x: vanna_manager.vanna_client.train(documentation=x), documentation, "documentation")
+        if not _safe_train(lambda x: vanna_manager.vanna_client.train(documentation=x), documentation, "documentation"):
+            success = False
     
     if question and sql:
-        _safe_train(lambda x: vanna_manager.vanna_client.train(question=x[0], sql=x[1]), (question, sql), "SQL pair")
+        if not _safe_train(lambda x: vanna_manager.vanna_client.train(question=x[0], sql=x[1]), (question, sql), "SQL pair"):
+            success = False
     
     if not any([ddl, documentation, (question and sql)]):
         raise ValueError("Must provide at least one training data type")
+    
+    return success
 
 
 
@@ -745,10 +775,19 @@ if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
         if existing_training_data.empty or config.VANNA_TRAIN_ON_STARTUP:
             print(f"Training Vanna with {vanna_manager.current_provider} provider on {vanna_manager.current_database} database...")
             
+            # Re-apply SSL bypass before training starts
+            apply_comprehensive_ssl_bypass()
+            
+            successful_trainings = 0
+            total_trainings = 0
+            
             # Train on DDL statements
             for ddl in df_ddl['sql'].to_list():
+                total_trainings += 1
                 try:
-                    vanna_train(ddl=ddl)
+                    print(f"Adding ddl: {ddl[:100]}...")
+                    if vanna_train(ddl=ddl):
+                        successful_trainings += 1
                 except Exception as e:
                     print(f"Error training DDL: {e}")
             
@@ -757,15 +796,18 @@ if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
             if tables_df is not None and not tables_df.empty:
                 # For each table, get distinct examples
                 for table_name in tables_df['name']:
+                    total_trainings += 1
                     sample_query = f"SELECT * FROM {table_name} LIMIT 5"
                     try:
                         sample_df = vn.run_sql(sample_query)
                         training_text = f"Table '{table_name}' contains records like:\n{sample_df.to_string()}"
-                        vanna_train(documentation=training_text)
+                        print("Adding documentation....")
+                        if vanna_train(documentation=training_text):
+                            successful_trainings += 1
                     except Exception as e:
                         print(f"Error training table data for {table_name}: {e}")
             
-            print("Training completed!")
+            print(f"Training completed! Successfully trained {successful_trainings}/{total_trainings} items.")
         else:
             print(f"Training data already exists for {vanna_manager.current_provider}. Skipping training.")
     else:
