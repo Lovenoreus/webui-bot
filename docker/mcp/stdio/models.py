@@ -144,7 +144,7 @@ class SubmitTicketRequest(BaseModel):
     queue: str = Field(..., description="Support queue/department")
     priority: str = Field(..., description="Priority level")
     department: str = Field(..., description="Department affected")
-    name: str = Field(..., description="Reporter name")
+    reporter_name: str = Field(..., description="Reporter name")
     category: str = Field(..., description="Issue category")
 
 

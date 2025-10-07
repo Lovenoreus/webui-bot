@@ -61,16 +61,12 @@ from vector_mistral_tool import hospital_support_questions_tool
 from create_jira_ticket import create_jira_ticket
 import config
 
-
 load_dotenv(find_dotenv())
-
 
 # Debug flag
 DEBUG = True
 
-
 app = FastAPI(title="MCP Server API", description="Standalone MCP Tools Server with LLM SQL Generation")
-
 
 # Add CORS middleware
 app.add_middleware(
@@ -116,7 +112,7 @@ def format_mcp_response(result: dict, tool_name: str) -> MCPToolCallResponse:
                     content=[MCPContent(type="text", text=content_text)],
                     isError=True
                 )
-    
+
     # Legacy format (no success field) - assume success if no exception
     else:
         content_text = json.dumps(result, indent=2)
@@ -759,7 +755,6 @@ async def delete_group_endpoint(group_id: str, ad: FastActiveDirectory = Depends
 
 
 # ==================== JSON STORAGE ====================
-# ==================== JSON STORAGE ====================
 
 TICKETS_FILE = "tickets_data.json"
 
@@ -869,8 +864,8 @@ class TicketManager:
             query: str,
             conversation_id: str,
             ticket_id: str,
-            reporter_name: Optional[str] = None,
-            reporter_email: Optional[str] = None,
+            reporter_name: Optional[str] = "Mathew Pattel",
+            reporter_email: Optional[str] = "mathewp@gmail.com",
             knowledge_base_result: Optional[str] = None
     ) -> Dict[str, Any]:
         """Create a new ticket"""
@@ -894,7 +889,7 @@ class TicketManager:
             "conversation_topic": None,
             "description": query,
             "location": None,
-            "queue": None,
+            "queue": "queue",
             "priority": None,
             "department": None,
             "category": None,
@@ -910,6 +905,7 @@ class TicketManager:
         # Update thread index
         if conversation_id not in data["thread_index"]:
             data["thread_index"][conversation_id] = []
+
         data["thread_index"][conversation_id].append(ticket_id)
 
         await self.storage.save(data)
@@ -1003,7 +999,7 @@ class TicketManager:
             "field_name": field_name,
             "old_value": old_value,
             "new_value": field_value,
-            "action": "update"
+            "action": "continue"
         })
 
         await self.storage.save(data)
@@ -1061,7 +1057,7 @@ class TicketManager:
                 "field_name": field_name,
                 "old_value": old_value,
                 "new_value": field_value,
-                "action": "update"
+                "action": "continue"
             })
 
         ticket["updated_at"] = now
@@ -1221,47 +1217,10 @@ ticket_manager = TicketManager(storage)
 
 
 # ==================== API ENDPOINTS ====================
-
-# @app.post("/tickets/create", response_model=TicketResponse)
-# async def create_ticket_endpoint(request: CreateTicketRequest):
-#     """Create a new ticket with hospital support knowledge base lookup"""
-#     try:
-#         # Check for existing active ticket
-#         active_ticket = await ticket_manager.get_active_ticket_for_thread(request.conversation_id)
-#
-#         if active_ticket:
-#             print(f'There is already an active ticket: {active_ticket}')
-#
-#             return TicketResponse(**active_ticket)
-#
-#         # Query knowledge base
-#         if DEBUG:
-#             print(f"[API] Querying knowledge base for: {request.query}")
-#
-#         kb_result = await hospital_support_questions_tool(request.query)
-#
-#         # Create ticket
-#         ticket = await ticket_manager.create_ticket(
-#             query=request.query,
-#             conversation_id=request.conversation_id,
-#             reporter_name=request.reporter_name,
-#             reporter_email=request.reporter_email,
-#             knowledge_base_result=json.dumps(kb_result) if kb_result else None
-#         )
-#
-#         return TicketResponse(**ticket)
-#
-#     except Exception as e:
-#         if DEBUG:
-#             print(f"[API] Error creating ticket: {e}")
-#
-#         raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.post("/tickets/initialize")
 async def initialize_ticket_endpoint(request: InitializeTicketRequest):
     """
-    Initialize ticket with knowledge base search, LLM analysis, and intelligent routing.
+    Open a ticket with knowledge base search, LLM analysis, and intelligent routing.
     Returns comprehensive contextual information for natural conversation flow.
     """
     try:
@@ -1288,26 +1247,7 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
                 "message": f"You already have an active ticket ({active_ticket['ticket_id']}) in this conversation. Let's continue with that one.",
                 "next_step": "continue_existing",
 
-                # Guidance on what to do
-                "suggested_actions": [
-                    {
-                        "action": "update_ticket",
-                        "description": "Add more information to the existing ticket",
-                        "priority": 1
-                    },
-                    {
-                        "action": "review_ticket",
-                        "description": "Review what's been collected so far",
-                        "priority": 2
-                    },
-                    {
-                        "action": "cancel_and_create_new",
-                        "description": "Cancel this ticket and start a new one",
-                        "priority": 3
-                    }
-                ],
-
-                "diagnostic_questions": [
+                "must_ask_diagnostic_questions": [
                     "Would you like to add more details to your existing ticket?",
                     "Is this a different issue that needs a separate ticket?",
                     "Would you like to review what information we've collected so far?"
@@ -1322,7 +1262,6 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
                     "missing_fields": active_ticket.get("missing_fields", []),
                     "fields_filled": active_ticket.get("fields", {})
                 },
-
                 "knowledge_base": None
             }
 
@@ -1389,10 +1328,11 @@ INPUT:
 
 ANALYSIS TASK:
 1. Evaluate knowledge base protocols for relevance to user query
-2. Determine if there's a known solution available
-3. Generate specific diagnostic questions to gather needed information
-4. Suggest appropriate routing (category, queue, priority)
-5. Provide clear guidance on next steps
+2. Determine if there's a known issue available
+   - If there is, get all the information about the know issue
+   - If there isn't, generate yours
+3. Suggest appropriate routing (category, queue, priority)
+4. Provide clear guidance on next steps
 
 EVALUATION CRITERIA:
 - Match query keywords with protocol keywords and descriptions
@@ -1416,10 +1356,11 @@ RESPONSE STRUCTURE:
     "next_step": "try_solution" | "follow_troubleshooting" | "collect_info" | "immediate_escalation",
     "reasoning": "brief explanation of why this next step"
   }},
-  "diagnostic_questions": [
+  "must_ask_diagnostic_questions": [
     "specific, actionable question 1",
     "specific, actionable question 2", 
-    "specific, actionable question 3"
+    "specific, actionable question 3",
+    ...
   ],
   "troubleshooting_steps": [
     "step 1",
@@ -1439,9 +1380,8 @@ RESPONSE STRUCTURE:
 }}
 
 PRIORITY GUIDELINES:
-- Critical: System down, patient care directly impacted, safety issue
-- High: Major functionality broken, significant operational impact
-- Normal: Standard issues, workarounds available
+- High: Major functionality broken, significant operational impact, System down, patient care directly impacted, safety issue
+- Medium: Standard issues, workarounds available
 - Low: Minor inconveniences, feature requests
 
 CATEGORY GUIDELINES:
@@ -1519,11 +1459,15 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
             knowledge_base_result=json.dumps(llm_analysis) if llm_analysis else json.dumps(kb_result)
         )
 
+        print(f'This is the knowledge_base_result: {json.dumps(llm_analysis) if llm_analysis else json.dumps(kb_result)}')
+
         if DEBUG:
             print(f"[INITIALIZE_TICKET] Created ticket: {ticket_id}")
 
         # Step 8: Build comprehensive response
         if llm_analysis and llm_analysis.get("success"):
+            print(f'[Success Analysis]: LLM Response: {llm_analysis}')
+
             # Use LLM analysis for rich response
             analysis = llm_analysis.get("analysis", {})
             guidance = llm_analysis.get("guidance", {})
@@ -1534,20 +1478,8 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 "success": True,
                 "ticket_id": ticket_id,
                 "conversation_id": conversation_id,
-                "is_new_ticket": True,
-
-                # Make next action crystal clear
-                "next_action": {
-                    "operation": "update",
-                    "endpoint": "ticket_operate",
-                    "required_params": {
-                        "action": "update",
-                        "conversation_id": conversation_id,
-                        "ticket_id": ticket_id,
-                        "fields": {}  # To be filled based on user responses
-                    },
-                    "instruction": "Use ticket_operate with action='update' to add information to this ticket"
-                },
+                # "is_new_ticket": True,
+                "data_collection_started": True,
 
                 # Knowledge base analysis
                 "knowledge_base": {
@@ -1562,16 +1494,14 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 },
 
                 # Conversation guidance
-                "message": guidance.get("message",
-                                        f"Ticket {ticket_id} created. Let me help you gather the necessary information."),
+                "message": f"""Your ticket with ID: {ticket_id} is now OPEN with status 'active'. 
+                Save the ticket id because it is very important. You will need it when submitting the ticket. 
+                Now, move immediately to collecting 
+                information. Make sure to complete active ticket""",
                 "reasoning": guidance.get("reasoning", "Need more information to proceed"),
 
                 # Diagnostic questions for information gathering
-                "diagnostic_questions": llm_analysis.get("diagnostic_questions", [
-                    "Can you provide more details about what's happening?",
-                    "When did this issue start?",
-                    "Has anything changed recently that might be related?"
-                ]),
+                "must_ask_diagnostic_questions": llm_analysis.get("must_ask_diagnostic_questions"),
 
                 # Intelligent suggestions for pre-filling
                 "suggestions": {
@@ -1583,53 +1513,14 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
 
                 # Ticket status
                 "ticket_status": {
-                    "status": "draft",
+                    "status": "active",
                     "is_complete": False,
                     "missing_fields": ticket.get("missing_fields", ["category", "priority"]),
-                    "progress_percent": ticket.get("progress", {}).get("percent", 33)
+                    # "progress_percent": ticket.get("progress", {}).get("percent", 33)
                 },
-
-                # Recommended actions
-                "suggested_actions": [],
-
-                # Metadata
-                "metadata": {
-                    "estimated_resolution_time": metadata.get("estimated_resolution_time"),
-                    "escalation_recommended": metadata.get("escalation_recommended", False)
-                }
             }
 
-            # Build action recommendations based on analysis
-            if analysis.get("has_known_solution") and guidance.get("next_step") == "try_solution":
-                response["suggested_actions"].append({
-                    "action": "try_solution",
-                    "description": "Try the suggested solution before creating a ticket",
-                    "priority": 1,
-                    "can_resolve_without_ticket": True
-                })
-
-            if llm_analysis.get("troubleshooting_steps"):
-                response["suggested_actions"].append({
-                    "action": "follow_troubleshooting",
-                    "description": "Follow diagnostic steps to identify the issue",
-                    "priority": 2,
-                    "can_resolve_without_ticket": True
-                })
-
-            if guidance.get("next_step") == "immediate_escalation":
-                response["suggested_actions"].append({
-                    "action": "immediate_escalation",
-                    "description": "This requires immediate attention from support team",
-                    "priority": 1,
-                    "can_resolve_without_ticket": False
-                })
-
-            response["suggested_actions"].append({
-                "action": "answer_diagnostic_questions",
-                "description": "Provide additional information to complete the ticket",
-                "priority": 3,
-                "can_resolve_without_ticket": False
-            })
+            print(f"This is the original response: {response}")
 
         else:
             # Fallback response when LLM analysis fails
@@ -1640,7 +1531,7 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 "success": True,
                 "ticket_id": ticket_id,
                 "conversation_id": conversation_id,
-                "is_new_ticket": True,
+                # "is_new_ticket": True,
 
                 # Minimal knowledge base info
                 "knowledge_base": {
@@ -1651,12 +1542,12 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 },
 
                 # Basic guidance
-                "message": f"Ticket {ticket_id} created. I'll help you provide the information needed to resolve this issue.",
-                "next_step": "collect_info",
+                "message": f"Support Ticket {ticket_id} initialized. I'll help you provide the information needed to resolve this issue.",
+                "next_step": "collect all necessary information from user based on questions to ask",
                 "reasoning": "Gathering information to understand the issue",
 
                 # Generic diagnostic questions
-                "diagnostic_questions": [
+                "must_ask_diagnostic_questions": [
                     "What type of issue are you experiencing? (Hardware, Software, Network, Facility, Medical Equipment)",
                     "How urgent is this issue? (Critical, High, Medium, Low)",
                     "Can you describe what's happening in more detail?"
@@ -1672,7 +1563,7 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
 
                 # Ticket status
                 "ticket_status": {
-                    "status": "draft",
+                    "status": "active",
                     "is_complete": False,
                     "missing_fields": ["category", "priority", "description"],
                     "progress_percent": 0
@@ -1681,7 +1572,7 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 # Basic actions
                 "suggested_actions": [
                     {
-                        "action": "answer_diagnostic_questions",
+                        "action": "answer_must_ask_diagnostic_questions",
                         "description": "Provide information to route your ticket properly",
                         "priority": 1,
                         "can_resolve_without_ticket": False
@@ -1693,6 +1584,8 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                     "escalation_recommended": False
                 }
             }
+
+            print(f"This is the fallback response: {response}")
 
         return response
 
@@ -1711,78 +1604,7 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
         }
 
 
-# ==================== UNIFIED TICKET OPERATION ====================
-
-@app.post("/tickets/operate")
-async def ticket_operate_endpoint(request: Request):
-    """
-    Unified ticket operation endpoint - handles both initialization and updates
-    """
-    try:
-        body = await request.json()
-        action = body.get("action", "")
-        conversation_id = body.get("conversation_id", "")
-
-        if not action:
-            raise HTTPException(
-                status_code=400,
-                detail="action field is required (must be 'initialize' or 'update')"
-            )
-
-        if not conversation_id:
-            raise HTTPException(
-                status_code=400,
-                detail="conversation_id is required"
-            )
-
-        if action == "initialize":
-            # Handle initialization
-            query = body.get("query", "")
-            if not query:
-                raise HTTPException(status_code=400, detail="query is required for initialization")
-
-            init_request = InitializeTicketRequest(
-                query=query,
-                conversation_id=conversation_id,
-                reporter_name=body.get("reporter_name", ""),
-                reporter_email=body.get("reporter_email", "")
-            )
-            result = await initialize_ticket_endpoint(init_request)
-            result.update({"should_use_ticket_update": True})
-            return result
-
-        elif action == "update":
-            # Handle update
-            ticket_id = body.get("ticket_id", "")
-            if not ticket_id:
-                raise HTTPException(status_code=400, detail="ticket_id is required for updates")
-
-            fields = body.get("fields", {})
-            if not fields:
-                raise HTTPException(status_code=400, detail="fields dictionary is required for updates")
-
-            update_request = UpdateTicketRequest(fields=fields)
-            result = await update_ticket_endpoint(ticket_id, conversation_id, update_request)
-            return result
-
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid action '{action}'. Must be 'initialize' or 'update'"
-            )
-
-    except HTTPException:
-        raise
-    except ValidationError as ve:
-        if DEBUG:
-            print(f"[TICKET_OPERATE] Validation error: {ve}")
-        raise HTTPException(status_code=400, detail=f"Validation failed: {str(ve)}")
-    except Exception as e:
-        if DEBUG:
-            print(f"[TICKET_OPERATE] Error: {e}")
-            import traceback
-            traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+# ==================== TICKET OPERATION ====================
 
 @app.get("/tickets/{ticket_id}", response_model=TicketResponse)
 async def get_ticket_endpoint(ticket_id: str):
@@ -1953,27 +1775,27 @@ async def update_ticket_endpoint(ticket_id: str, conversation_id: str, request: 
             next_step = "no_changes"
 
         # Generate diagnostic questions
-        diagnostic_questions = []
+        must_ask_diagnostic_questions = []
         if post_update_missing:
             for missing_field in post_update_missing[:3]:
                 if missing_field == "priority":
-                    diagnostic_questions.append(
+                    must_ask_diagnostic_questions.append(
                         "How urgent is this issue? (Critical: immediate patient care impact, High: major disruption, Normal: standard issue, Low: minor inconvenience)"
                     )
                 elif missing_field == "category":
-                    diagnostic_questions.append(
+                    must_ask_diagnostic_questions.append(
                         "What type of issue is this? (Hardware, Software, Network, Facility, Medical Equipment, or Other)"
                     )
                 elif missing_field == "location":
-                    diagnostic_questions.append(
+                    must_ask_diagnostic_questions.append(
                         "Where is this issue occurring? (Building, floor, room number, or department)"
                     )
                 elif missing_field == "description":
-                    diagnostic_questions.append(
+                    must_ask_diagnostic_questions.append(
                         "Can you provide more details about what's happening?"
                     )
                 else:
-                    diagnostic_questions.append(f"Can you provide the {missing_field}?")
+                    must_ask_diagnostic_questions.append(f"Can you provide the {missing_field}?")
 
         # Build suggested actions
         suggested_actions = []
@@ -2026,7 +1848,7 @@ async def update_ticket_endpoint(ticket_id: str, conversation_id: str, request: 
             # Conversation guidance
             "message": message,
             "next_step": next_step,
-            "diagnostic_questions": diagnostic_questions,
+            "must_ask_diagnostic_questions": must_ask_diagnostic_questions,
 
             # Progress tracking
             "progress": {
@@ -2106,7 +1928,7 @@ async def update_ticket_endpoint(ticket_id: str, conversation_id: str, request: 
             print(f"[TICKET_UPDATE] Error: {e}")
             import traceback
             traceback.print_exc()
-            
+
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -2147,7 +1969,7 @@ async def submit_ticket_endpoint(ticket_id: str, request: SubmitTicketRequest):
             "queue": request.queue,
             "priority": request.priority,
             "department": request.department,
-            "name": request.name,
+            "name": request.reporter_name,
             "category": request.category
         }
 
@@ -2853,242 +2675,39 @@ async def mcp_tools_list():
         ),
 
         # ==================== TICKET SYSTEM TOOLS ====================
-        # MCPTool(
-        #     name="ticket_create",
-        #     description="TRIGGER: report issue, create ticket, problem with, need help, technical issue, equipment failure, software bug, having trouble | ACTION: Create a new support ticket with hospital knowledge base lookup | RETURNS: Ticket ID (TKT-XXXXXXXX), status, knowledge base results with support protocols",
-        #     inputSchema={
-        #         "type": "object",
-        #         "properties": {
-        #             "query": {
-        #                 "type": "string",
-        #                 "description": "Description of the problem or issue to create ticket for"
-        #             },
-        #             "conversation_id": {
-        #                 "type": "string",
-        #                 "description": "Conversation thread ID for tracking this ticket session"
-        #             },
-        #             "reporter_name": {
-        #                 "type": "string",
-        #                 "description": "Name of person reporting the issue (optional)"
-        #             },
-        #             "reporter_email": {
-        #                 "type": "string",
-        #                 "description": "Email of person reporting the issue (optional)"
-        #             }
-        #         },
-        #         "required": ["query", "conversation_id"]
-        #     }
-        # ),
-        # MCPTool(
-        #     name="ticket_initialize",
-        #     description="TRIGGER: starting a BRAND NEW issue/problem that has NOT been discussed yet | NEW issue, NEW problem, report NEW issue, I have a problem, something is broken, need help with NEW issue, etc... | ACTION: Initialize new support ticket with knowledge base search | CRITICAL: Do NOT use if already discussing an existing ticket - use ticket_update instead | RETURNS: New ticket ID, analysis, and guidance",
-        #     inputSchema={
-        #         "type": "object",
-        #         "properties": {
-        #             "query": {
-        #                 "type": "string",
-        #                 "description": "Description of the problem, issue, or request. Be as specific as possible - include what's not working, error messages, location, equipment names, etc.",
-        #                 "minLength": 3,
-        #                 "maxLength": 2000
-        #             },
-        #             "conversation_id": {
-        #                 "type": "string",
-        #                 "description": "Generated conversation thread ID (e.g. 00001) to track this ticket within the current conversation session. Used to prevent duplicate tickets and maintain conversation context."
-        #             },
-        #             "reporter_name": {
-        #                 "type": "string",
-        #                 "description": "Name of the person reporting the issue (optional but recommended for follow-up)"
-        #             },
-        #             "reporter_email": {
-        #                 "type": "string",
-        #                 "description": "Email address of the person reporting the issue (optional but recommended for follow-up communication)"
-        #             }
-        #         },
-        #         "required": ["query", "conversation_id"]
-        #     }
-        # ),
         MCPTool(
-            name="ticket_operate",
-            description="UNIFIED TICKET OPERATION | TRIGGER: For NEW issues use action='initialize' | For EXISTING ticket updates use action='update' | ACTION: Single endpoint for all ticket operations - intelligently routes to initialization or update based on action parameter | INSTRUCTION: Use 'initialize' when starting a brand new issue that hasn't been discussed yet. Use 'update' when adding information to an existing ticket or answering diagnostic questions | RETURNS: Comprehensive ticket information with guidance, progress tracking, and next steps",
+            name="ticket_open",
+            description=(
+                "Initialize a new ticket when an issue is reported for the FIRST time. "
+                "Creates a new ticket record and returns comprehensive ticket information with guidance, "
+                "progress tracking, diagnostic question tracking, and next steps. "
+                "The issue must be completely unique and unrelated to other issues"
+            ),
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "action": {
-                        "type": "string",
-                        "enum": ["initialize", "update"],
-                        "description": "Operation type: 'initialize' for new tickets, 'update' for existing tickets",
-                        "default": "update"
-                    },
                     "conversation_id": {
                         "type": "string",
                         "description": "Conversation thread ID (e.g. 00001) for tracking tickets within the session"
                     },
-
-                    # INITIALIZATION-SPECIFIC FIELDS
                     "query": {
                         "type": "string",
-                        "description": "Description of the problem/issue (REQUIRED for 'initialize', ignored for 'update')",
-                        "default": ""
+                        "description": "Description of the problem/issue (REQUIRED for initialization)"
                     },
                     "reporter_name": {
                         "type": "string",
-                        "description": "Name of person reporting issue (optional, for 'initialize' only)",
+                        "description": "Name of person reporting issue (optional)",
                         "default": ""
                     },
                     "reporter_email": {
                         "type": "string",
-                        "description": "Email of person reporting issue (optional, for 'initialize' only)",
+                        "description": "Email of person reporting issue (optional)",
                         "default": ""
-                    },
-
-                    # UPDATE-SPECIFIC FIELDS
-                    "ticket_id": {
-                        "type": "string",
-                        "description": "Ticket ID to update in format TKT-XXXXXXXX (REQUIRED for 'update', ignored for 'initialize')",
-                        "default": ""
-                    },
-                    "fields": {
-                        "type": "object",
-                        "description": "Dictionary of fields to update (REQUIRED for 'update', ignored for 'initialize')",
-                        "properties": {
-                            "conversation_topic": {
-                                "type": "string",
-                                "description": "Brief summary/title of the issue"
-                            },
-                            "description": {
-                                "type": "string",
-                                "description": "Detailed problem description"
-                            },
-                            "location": {
-                                "type": "string",
-                                "description": "Physical location (building, room, floor, department)"
-                            },
-                            "priority": {
-                                "type": "string",
-                                "enum": ["High", "Medium", "Low"],
-                                "description": "Priority level - High: 8hr SLA, Medium: 24hr SLA, Low: 72hr SLA"
-                            },
-                            "category": {
-                                "type": "string",
-                                "enum": ["Hardware", "Software", "Facility", "Network", "Medical Equipment", "Other"],
-                                "description": "Issue category (auto-routes to appropriate queue)"
-                            },
-                            "department": {
-                                "type": "string",
-                                "description": "Department affected or responsible"
-                            },
-                            "reporter_name": {
-                                "type": "string",
-                                "description": "Reporter's name"
-                            }
-                        },
-                        "default": {}
                     }
                 },
-                "required": ["action", "conversation_id", "ticket_id"]
+                "required": ["conversation_id", "query"]
             }
         ),
-
-        MCPTool(
-            name="ticket_get",
-            description="TRIGGER: check ticket, ticket status, view ticket, show ticket details, ticket information | ACTION: Get complete ticket information by ticket ID | RETURNS: Full ticket details including all fields, history log, status, completeness check, missing fields, and SLA deadline",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "ticket_id": {
-                        "type": "string",
-                        "description": "Ticket ID in format TKT-XXXXXXXX"
-                    }
-                },
-                "required": ["ticket_id"]
-            }
-        ),
-
-        MCPTool(
-            name="ticket_get_active",
-            description="TRIGGER: active ticket, current ticket, ongoing ticket, ticket in progress, my ticket | ACTION: Get the active (non-completed) ticket for current conversation thread | RETURNS: Active ticket details if exists, or message indicating no active ticket",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "conversation_id": {
-                        "type": "string",
-                        "description": "Conversation thread ID to check for active tickets"
-                    }
-                },
-                "required": ["conversation_id"]
-            }
-        ),
-
-        MCPTool(
-            name="ticket_list_thread",
-            description="TRIGGER: list tickets, show all tickets, ticket history, previous tickets | ACTION: List all tickets (active and completed) for a conversation thread | RETURNS: List of all tickets with their current status",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "conversation_id": {
-                        "type": "string",
-                        "description": "Conversation thread ID to list tickets for"
-                    }
-                },
-                "required": ["conversation_id"]
-            }
-        ),
-
-        # MCPTool(
-        #     name="ticket_update",
-        #     description="TRIGGER: Adding information to EXISTING ticket, answering questions about current ticket, providing details | priority is X, location is Y, category is Z, it's in room ABC, started yesterday | ACTION: Update existing ticket fields with new information and get comprehensive progress feedback | INSTRUCTION: Use when user provides additional details, answers diagnostic questions, or clarifies information for an existing ticket. Can update multiple fields at once. System validates inputs and auto-routes based on category | RETURNS: Updated ticket with before/after comparison, progress tracking, validation status, what changed, what's still missing, next steps, and whether ticket is ready to submit",
-        #     inputSchema={
-        #         "type": "object",
-        #         "properties": {
-        #             "ticket_id": {
-        #                 "type": "string",
-        #                 "description": "Ticket ID to update (format: TKT-XXXXXXXX)"
-        #             },
-        #             "conversation_id": {
-        #                 "type": "string",
-        #                 "description": "Generated conversation thread ID (e.g. 00001) to track this ticket within the current conversation session. Used to prevent duplicate tickets and maintain conversation context."
-        #             },
-        #             "fields": {
-        #                 "type": "object",
-        #                 "description": "Dictionary of field names and values to update. Can update multiple fields at once.",
-        #                 "properties": {
-        #                     "conversation_topic": {
-        #                         "type": "string",
-        #                         "description": "Brief summary or title of the issue (Generated from issue description)"
-        #                     },
-        #                     "description": {
-        #                         "type": "string",
-        #                         "description": "Detailed description of the problem (can be updated/appended)"
-        #                     },
-        #                     "location": {
-        #                         "type": "string",
-        #                         "description": "Physical location where issue occurs (building, room, floor, department)"
-        #                     },
-        #                     "priority": {
-        #                         "type": "string",
-        #                         "enum": ["High", "Medium", "Low"],
-        #                         "description": "Priority level (Generated from issue description) - High: 8hr SLA, Medium: 24hr SLA, Low: 72hr SLA",
-        #                         "default": "Medium"
-        #                     },
-        #                     "category": {
-        #                         "type": "string",
-        #                         "enum": ["Hardware", "Software", "Facility", "Network", "Medical Equipment", "Other"],
-        #                         "description": "Issue category (Generated from issue description) - automatically routes to appropriate support queue"
-        #                     },
-        #                     "department": {
-        #                         "type": "string",
-        #                         "description": "Department affected by or responsible for the issue"
-        #                     },
-        #                     "reporter_name": {
-        #                         "type": "string",
-        #                         "description": "Name of person reporting the issue"
-        #                     }
-        #                 }
-        #             }
-        #         },
-        #         "required": ["ticket_id", "conversation_id", "fields"]
-        #     }
-        # ),
 
         MCPTool(
             name="ticket_submit",
@@ -3125,9 +2744,10 @@ async def mcp_tools_list():
                         "type": "string",
                         "description": "Department for JIRA ticket"
                     },
-                    "name": {
+                    "reporter_name": {
                         "type": "string",
-                        "description": "Reporter name for JIRA"
+                        "description": "Reporter name for JIRA",
+                        "default": "Blade"
                     },
                     "category": {
                         "type": "string",
@@ -3136,7 +2756,7 @@ async def mcp_tools_list():
                     }
                 },
                 "required": ["ticket_id", "conversation_topic", "description", "location", "queue", "priority",
-                             "department", "name", "category"]
+                             "department", "reporter_name", "category"]
             }
         ),
 
@@ -3163,7 +2783,7 @@ async def mcp_tools_list():
                 "properties": {
                     "status": {
                         "type": "string",
-                        "enum": ["draft", "pending", "submitted", "completed", "cancelled"],
+                        "enum": ["active", "pending", "submitted", "completed", "cancelled"],
                         "description": "Filter by ticket status (optional)"
                     },
                     "priority": {
@@ -3198,25 +2818,32 @@ async def mcp_tools_list():
                 "properties": {},
                 "required": []
             }
-        ),
-
-        MCPTool(
-            name="hospital_support_search",
-            description="TRIGGER: hospital support, knowledge base, support protocols, diagnostic questions, technical documentation | ACTION: Search hospital support knowledge base for protocols and solutions | RETURNS: Relevant support protocols, diagnostic questions, and troubleshooting steps from Qdrant vector database",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "Support question or problem description to search knowledge base"
-                    }
-                },
-                "required": ["query"]
-            }
         )
     ]
 
     return MCPToolsListResponse(tools=tools)
+
+
+def process_questions_generic(answered_questions: dict[str, str], must_ask_questions: list[str]) -> dict:
+    """
+    Filters must-ask questions to identify which ones remain unanswered.
+
+    Args:
+        answered_questions: Dict mapping questions to their answers.
+        must_ask_questions: List of all required diagnostic questions.
+
+    Returns:
+        Diagnostic tracking dictionary including answered and remaining questions.
+    """
+    answered_set = set(answered_questions.keys())
+    remaining_questions = [q for q in must_ask_questions if q not in answered_set]
+
+    return {
+        "questions_asked": list(answered_set),
+        "questions_answered": answered_questions,
+        "questions_remaining": remaining_questions,
+        "auto_extracted_info": {}  # You can expand this later if needed
+    }
 
 
 @app.post("/mcp/tools/call", response_model=MCPToolCallResponse)
@@ -3596,75 +3223,6 @@ async def mcp_tools_call(request: MCPToolCallRequest):
 
 
         # ==================== TICKET SYSTEM TOOLS ====================
-
-        # elif tool_name == "ticket_create":
-        #     create_request = CreateTicketRequest(**arguments)
-        #     result = await create_ticket_endpoint(create_request)
-        #     return MCPToolCallResponse(
-        #         content=[MCPContent(type="text", text=json.dumps(result.model_dump(), indent=2))]
-        #     )
-
-        elif tool_name == "ticket_initialize":
-            try:
-                # Parse and validate request
-                init_request = InitializeTicketRequest(**arguments)
-
-                if DEBUG:
-                    print(f"[MCP] Initializing ticket with query: {init_request.query[:50]}...")
-
-                # Call the endpoint
-                result = await initialize_ticket_endpoint(init_request)
-
-                if DEBUG:
-                    print(
-                        f"[MCP] Ticket initialization result: success={result.get('success')}, ticket_id={result.get('ticket_id')}")
-
-                result.update({"should_use_ticket_update": True})
-
-                # Return formatted response
-                return MCPToolCallResponse(
-                    content=[MCPContent(
-                        type="text",
-                        text=json.dumps(result, indent=2, ensure_ascii=False)
-                    )],
-                    isError=not result.get("success", False)
-                )
-
-            except ValidationError as ve:
-                if DEBUG:
-                    print(f"[MCP] Validation error for ticket_initialize: {ve}")
-
-                return MCPToolCallResponse(
-                    content=[MCPContent(
-                        type="text",
-                        text=json.dumps({
-                            "success": False,
-                            "error": "Validation failed",
-                            "details": str(ve),
-                            "message": "Please provide valid query and conversation_id parameters"
-                        }, indent=2)
-                    )],
-                    isError=True
-                )
-
-            except Exception as e:
-                if DEBUG:
-                    print(f"[MCP] Error in ticket_initialize: {e}")
-                    import traceback
-                    traceback.print_exc()
-
-                return MCPToolCallResponse(
-                    content=[MCPContent(
-                        type="text",
-                        text=json.dumps({
-                            "success": False,
-                            "error": str(e),
-                            "message": "Failed to initialize ticket. Please try again."
-                        }, indent=2)
-                    )],
-                    isError=True
-                )
-
         elif tool_name == "ticket_get":
             ticket_id = arguments["ticket_id"]
             result = await get_ticket_endpoint(ticket_id)
@@ -3686,24 +3244,10 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
 
-        elif tool_name == "ticket_operate":
+        elif tool_name == "ticket_open":
             try:
-                action = arguments.get("action", "")
                 conversation_id = arguments.get("conversation_id", "")
-
-                if not action:
-                    return MCPToolCallResponse(
-                        content=[MCPContent(
-                            type="text",
-                            text=json.dumps({
-                                "success": False,
-                                "error": "action is required",
-                                "message": "Please specify action: 'initialize' for new tickets or 'update' for existing tickets",
-                                "required_fields": ["action", "conversation_id"]
-                            }, indent=2)
-                        )],
-                        isError=True
-                    )
+                query = arguments.get("query", "")
 
                 if not conversation_id:
                     return MCPToolCallResponse(
@@ -3713,128 +3257,72 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                                 "success": False,
                                 "error": "conversation_id is required",
                                 "message": "Please provide the conversation_id to track this ticket",
-                                "required_fields": ["action", "conversation_id"]
+                                "required_fields": ["conversation_id", "query"]
                             }, indent=2)
                         )],
                         isError=True
                     )
 
-                if action == "initialize":
-                    query = arguments.get("query", "")
-                    if not query:
-                        return MCPToolCallResponse(
-                            content=[MCPContent(
-                                type="text",
-                                text=json.dumps({
-                                    "success": False,
-                                    "error": "query is required for initialization",
-                                    "message": "Please provide a description of the issue to initialize a ticket",
-                                    "example": {
-                                        "action": "initialize",
-                                        "conversation_id": "00001",
-                                        "query": "Printer in room 305 is not working"
-                                    }
-                                }, indent=2)
-                            )],
-                            isError=True
-                        )
-
-                    if DEBUG:
-                        print(f"[MCP] ticket_operate: Initializing ticket with query: {query[:50]}...")
-
-                    init_request = InitializeTicketRequest(
-                        query=query,
-                        conversation_id=conversation_id,
-                        reporter_name=arguments.get("reporter_name", ""),
-                        reporter_email=arguments.get("reporter_email", "")
-                    )
-                    result = await initialize_ticket_endpoint(init_request)
-                    result.update({"should_use_ticket_update": True})
-
-                    return MCPToolCallResponse(
-                        content=[MCPContent(
-                            type="text",
-                            text=json.dumps(result, indent=2, ensure_ascii=False)
-                        )],
-                        isError=not result.get("success", False)
-                    )
-
-                elif action == "update":
-                    ticket_id = arguments.get("ticket_id", "")
-                    if not ticket_id:
-                        return MCPToolCallResponse(
-                            content=[MCPContent(
-                                type="text",
-                                text=json.dumps({
-                                    "success": False,
-                                    "error": "ticket_id is required for updates",
-                                    "message": "Please provide the ticket ID to update. Use ticket_get_active to find the active ticket.",
-                                    "hint": "Call ticket_get_active with conversation_id first",
-                                    "example": {
-                                        "action": "update",
-                                        "conversation_id": "00001",
-                                        "ticket_id": "TKT-12345678",
-                                        "fields": {
-                                            "priority": "High",
-                                            "location": "Room 305"
-                                        }
-                                    }
-                                }, indent=2)
-                            )],
-                            isError=True
-                        )
-
-                    fields = arguments.get("fields", {})
-                    if not fields or len(fields) == 0:
-                        return MCPToolCallResponse(
-                            content=[MCPContent(
-                                type="text",
-                                text=json.dumps({
-                                    "success": False,
-                                    "error": "fields dictionary is required and cannot be empty",
-                                    "message": "Please provide at least one field to update",
-                                    "allowed_fields": list(TicketManager.ALLOWED_FIELDS),
-                                    "example": {
-                                        "priority": "High",
-                                        "category": "Hardware",
-                                        "location": "Room 305"
-                                    }
-                                }, indent=2)
-                            )],
-                            isError=True
-                        )
-
-                    if DEBUG:
-                        print(f"[MCP] ticket_operate: Updating ticket {ticket_id} with fields: {list(fields.keys())}")
-
-                    update_request = UpdateTicketRequest(fields=fields)
-                    result = await update_ticket_endpoint(ticket_id, conversation_id, update_request)
-
-                    return MCPToolCallResponse(
-                        content=[MCPContent(
-                            type="text",
-                            text=json.dumps(result, indent=2, ensure_ascii=False)
-                        )],
-                        isError=not result.get("success", False)
-                    )
-
-                else:
+                if not query:
                     return MCPToolCallResponse(
                         content=[MCPContent(
                             type="text",
                             text=json.dumps({
                                 "success": False,
-                                "error": f"Invalid action '{action}'",
-                                "message": "Action must be 'initialize' or 'update'",
-                                "valid_actions": ["initialize", "update"]
+                                "error": "query is required for initialization",
+                                "message": "Please provide a description of the issue to initialize a ticket",
+                                "example": {
+                                    "conversation_id": "00001",
+                                    "query": "Printer in room 305 is not working"
+                                }
                             }, indent=2)
                         )],
                         isError=True
                     )
 
+                if DEBUG:
+                    print(f"[MCP] ticket_open: Initializing ticket with query: {query[:50]}...")
+
+                reporter_name = arguments.get("name", "")
+
+                print(f"Reported with name: {reporter_name}")
+
+                if not reporter_name:
+                    reporter_name =arguments.get("reporter_name", "")
+
+                    print(f"Reported with reporter_name: {reporter_name}")
+
+                init_request = InitializeTicketRequest(
+                    query=query,
+                    conversation_id=conversation_id,
+                    reporter_name=reporter_name,
+                    reporter_email=arguments.get("reporter_email", "")
+                )
+
+                result = await initialize_ticket_endpoint(init_request)
+
+                # Process diagnostic tracking for initialization
+                must_ask_questions = result.get("must_ask_diagnostic_questions", [])
+                answered = {}  # No answers yet for initialization
+                diagnostic_tracking = process_questions_generic(answered, must_ask_questions)
+
+                result.update({
+                    "should_use_ticket_continue": True,
+                    "diagnostic_tracking": diagnostic_tracking,
+                    "must_ask_diagnostic_questions": diagnostic_tracking["questions_remaining"]
+                })
+
+                return MCPToolCallResponse(
+                    content=[MCPContent(
+                        type="text",
+                        text=json.dumps(result, indent=2, ensure_ascii=False)
+                    )],
+                    isError=not result.get("success", False)
+                )
+
             except ValidationError as ve:
                 if DEBUG:
-                    print(f"[MCP] Validation error for ticket_operate: {ve}")
+                    print(f"[MCP] Validation error for ticket_open: {ve}")
                 return MCPToolCallResponse(
                     content=[MCPContent(
                         type="text",
@@ -3850,7 +3338,7 @@ async def mcp_tools_call(request: MCPToolCallRequest):
 
             except Exception as e:
                 if DEBUG:
-                    print(f"[MCP] Error in ticket_operate: {e}")
+                    print(f"[MCP] Error in ticket_open: {e}")
                     import traceback
                     traceback.print_exc()
                 return MCPToolCallResponse(
@@ -3865,159 +3353,321 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                     isError=True
                 )
 
-        elif tool_name == "ticket_update":
-            try:
-                ticket_id = arguments.get("ticket_id")
-                conversation_id = arguments.get("conversation_id")
-                fields = arguments.get("fields", {})
+        # elif tool_name == "ticket_continue":
+        #     try:
+        #         conversation_id = arguments.get("conversation_id", "")
+        #         ticket_id = arguments.get("ticket_id")
+        #         fields = arguments.get("fields", {})
+        #         diagnostic_tracking = arguments.get("diagnostic_tracking", {})
+        #
+        #         if not conversation_id:
+        #             return MCPToolCallResponse(
+        #                 content=[MCPContent(
+        #                     type="text",
+        #                     text=json.dumps({
+        #                         "success": False,
+        #                         "error": "conversation_id is required",
+        #                         "message": "Please provide the conversation_id to track this ticket",
+        #                         "required_fields": ["conversation_id", "ticket_id", "diagnostic_tracking"]
+        #                     }, indent=2)
+        #                 )],
+        #                 isError=True
+        #             )
+        #
+        #         if not ticket_id:
+        #             return MCPToolCallResponse(
+        #                 content=[MCPContent(
+        #                     type="text",
+        #                     text=json.dumps({
+        #                         "success": False,
+        #                         "error": "ticket_id is required",
+        #                         "message": "Please provide the ticket_id for the ticket to continue",
+        #                         "required_fields": ["conversation_id", "ticket_id", "diagnostic_tracking"]
+        #                     }, indent=2)
+        #                 )],
+        #                 isError=True
+        #             )
+        #
+        #         if not diagnostic_tracking:
+        #             return MCPToolCallResponse(
+        #                 content=[MCPContent(
+        #                     type="text",
+        #                     text=json.dumps({
+        #                         "success": False,
+        #                         "error": "diagnostic_tracking is required",
+        #                         "message": "Please provide the diagnostic_tracking to update the ticket",
+        #                         "required_fields": ["conversation_id", "ticket_id", "diagnostic_tracking"]
+        #                     }, indent=2)
+        #                 )],
+        #                 isError=True
+        #             )
+        #
+        #         print(f"Got Field data: {fields}")
+        #
+        #         # Get current ticket to retrieve must_ask questions from knowledge_base_result
+        #         data = await storage.load()
+        #
+        #         ticket_data = data.get("tickets", {}).get(ticket_id)
+        #
+        #         if not ticket_data:
+        #             return MCPToolCallResponse(
+        #                 content=[MCPContent(
+        #                     type="text",
+        #                     text=json.dumps({
+        #                         "success": False,
+        #                         "error": f"Ticket {ticket_id} not found"
+        #                     }, indent=2)
+        #                 )],
+        #                 isError=True
+        #             )
+        #
+        #         print(f"Got Ticket Data: {ticket_data}")
+        #
+        #         # Extract must_ask_diagnostic_questions from knowledge_base_result
+        #         knowledge_base_str = ticket_data.get("knowledge_base_result", "{}")
+        #         knowledge_base = json.loads(knowledge_base_str) if isinstance(knowledge_base_str,
+        #                                                                       str) else knowledge_base_str
+        #
+        #         original_must_ask = knowledge_base.get("must_ask_diagnostic_questions", [])
+        #
+        #         # Get existing diagnostic_tracking from ticket or initialize
+        #         existing_diagnostic = ticket_data.get("diagnostic_tracking", {
+        #             "questions_asked": original_must_ask.copy(),
+        #             "questions_answered": {},
+        #             "questions_remaining": original_must_ask.copy(),
+        #             "auto_extracted_info": {}
+        #         })
+        #
+        #         # Merge incoming diagnostic_tracking with existing
+        #         updated_diagnostic = {
+        #             "questions_asked": diagnostic_tracking.get("questions_asked",
+        #                                                        existing_diagnostic.get("questions_asked", [])),
+        #             "questions_answered": {**existing_diagnostic.get("questions_answered", {}),
+        #                                    **diagnostic_tracking.get("questions_answered", {})},
+        #             "questions_remaining": diagnostic_tracking.get("questions_remaining",
+        #                                                            existing_diagnostic.get("questions_remaining", [])),
+        #             "auto_extracted_info": {**existing_diagnostic.get("auto_extracted_info", {}),
+        #                                     **diagnostic_tracking.get("auto_extracted_info", {})}
+        #         }
+        #
+        #         # Prepare fields to update
+        #         fields_to_update = {**fields}
+        #         fields_to_update["diagnostic_tracking"] = updated_diagnostic
+        #
+        #         # Update the ticket
+        #         print(f"Diagnosed: {updated_diagnostic}")
+        #
+        #         update_request = UpdateTicketRequest(fields=fields_to_update)
+        #         await update_ticket_endpoint(ticket_id, conversation_id, update_request)
+        #
+        #         # Get updated ticket
+        #         updated_data = await storage.load()
+        #
+        #         print(f"Updated Data: {updated_data}")
+        #
+        #         updated_ticket = updated_data.get("tickets", {}).get(ticket_id)
+        #         final_diagnostic = updated_ticket.get("diagnostic_tracking", updated_diagnostic)
+        #
+        #         return MCPToolCallResponse(
+        #             content=[MCPContent(
+        #                 type="text",
+        #                 text=json.dumps({
+        #                     "success": True,
+        #                     "ticket_id": ticket_id,
+        #                     "conversation_id": conversation_id,
+        #                     "message": "Ticket updated successfully",
+        #                     "diagnostic_tracking": final_diagnostic,
+        #                     "must_ask_diagnostic_questions": final_diagnostic.get("questions_remaining", [])
+        #                 }, indent=2)
+        #             )]
+        #         )
+        #
+        #     except ValidationError as ve:
+        #         if DEBUG:
+        #             print(f"[MCP] Validation error for ticket_continue: {ve}")
+        #         return MCPToolCallResponse(
+        #             content=[MCPContent(
+        #                 type="text",
+        #                 text=json.dumps({
+        #                     "success": False,
+        #                     "error": "Validation failed",
+        #                     "details": str(ve),
+        #                     "message": "Invalid field values provided"
+        #                 }, indent=2)
+        #             )],
+        #             isError=True
+        #         )
+        #
+        #     except Exception as e:
+        #         if DEBUG:
+        #             print(f"[MCP] Error in ticket_continue: {e}")
+        #             import traceback
+        #             traceback.print_exc()
+        #         return MCPToolCallResponse(
+        #             content=[MCPContent(
+        #                 type="text",
+        #                 text=json.dumps({
+        #                     "success": False,
+        #                     "error": str(e),
+        #                     "message": "An unexpected error occurred"
+        #                 }, indent=2)
+        #             )],
+        #             isError=True
+        #         )
 
-                # Validation
-                if not ticket_id:
-                    return MCPToolCallResponse(
-                        content=[MCPContent(
-                            type="text",
-                            text=json.dumps({
-                                "success": False,
-                                "error": "ticket_id is required",
-                                "message": "Please provide the ticket ID to update. If you don't know it, use ticket_get_active to find the active ticket for this thread.",
-                                "hint": "Call ticket_get_active with conversation_id to get the active ticket",
-                                "required_fields": ["ticket_id", "fields"]
-                            }, indent=2)
-                        )],
-                        isError=True
-                    )
-
-                if not fields or len(fields) == 0:
-                    return MCPToolCallResponse(
-                        content=[MCPContent(
-                            type="text",
-                            text=json.dumps({
-                                "success": False,
-                                "error": "fields dictionary is required and cannot be empty",
-                                "message": "Please provide at least one field to update",
-                                "allowed_fields": list(TicketManager.ALLOWED_FIELDS),
-                                "example": {
-                                    "priority": "High",
-                                    "category": "Hardware",
-                                    "location": "Room 305"
-                                }
-                            }, indent=2)
-                        )],
-                        isError=True
-                    )
-
-                if DEBUG:
-                    print(f"[MCP] Updating ticket {ticket_id} with fields: {list(fields.keys())}")
-
-                # Create request and call endpoint
-                update_request = UpdateTicketRequest(fields=fields)
-                result = await update_ticket_endpoint(ticket_id, conversation_id, update_request)
-
-                if DEBUG:
-                    success = result.get('success', False)
-                    fields_updated = result.get('changes', {}).get('fields_updated', [])
-                    conversation_id = result.get('conversation_id', 'unknown')
-                    print(
-                        f"[MCP] Update result: success={success}, conversation_id={conversation_id}, fields_updated={fields_updated}")
-
-                # Return rich response
-                return MCPToolCallResponse(
-                    content=[MCPContent(
-                        type="text",
-                        text=json.dumps(result, indent=2, ensure_ascii=False)
-                    )],
-                    isError=not result.get("success", False)
-                )
-
-            except ValidationError as ve:
-                if DEBUG:
-                    print(f"[MCP] Validation error for ticket_update: {ve}")
-
-                return MCPToolCallResponse(
-                    content=[MCPContent(
-                        type="text",
-                        text=json.dumps({
-                            "success": False,
-                            "error": "Validation failed",
-                            "details": str(ve),
-                            "message": "Invalid field values provided. Check priority and category values.",
-                            "valid_priorities": TicketManager.VALID_PRIORITIES,
-                            # "valid_categories": TicketManager.VALID_CATEGORIES
-                        }, indent=2)
-                    )],
-                    isError=True
-                )
-
-            except HTTPException as he:
-                if DEBUG:
-                    print(f"[MCP] HTTP error in ticket_update: {he.detail}")
-
-                # Handle 404 - ticket not found
-                if he.status_code == 404:
-                    return MCPToolCallResponse(
-                        content=[MCPContent(
-                            type="text",
-                            text=json.dumps({
-                                "success": False,
-                                "error": "Ticket not found",
-                                "ticket_id": ticket_id,
-                                "message": f"Ticket {ticket_id} does not exist. Please verify the ticket ID or create a new ticket.",
-                                "hint": "Use ticket_get_active to find the correct ticket ID for this thread"
-                            }, indent=2)
-                        )],
-                        isError=True
-                    )
-
-                # Handle 400 - validation error
-                elif he.status_code == 400:
-                    return MCPToolCallResponse(
-                        content=[MCPContent(
-                            type="text",
-                            text=json.dumps({
-                                "success": False,
-                                "error": "Invalid field values",
-                                "message": str(he.detail),
-                                "valid_priorities": TicketManager.VALID_PRIORITIES,
-                                # "valid_categories": TicketManager.VALID_CATEGORIES
-                            }, indent=2)
-                        )],
-                        isError=True
-                    )
-
-                # Other HTTP errors
-                else:
-                    return MCPToolCallResponse(
-                        content=[MCPContent(
-                            type="text",
-                            text=json.dumps({
-                                "success": False,
-                                "error": str(he.detail),
-                                "status_code": he.status_code,
-                                "message": "Failed to update ticket"
-                            }, indent=2)
-                        )],
-                        isError=True
-                    )
-
-            except Exception as e:
-                if DEBUG:
-                    print(f"[MCP] Unexpected error in ticket_update: {e}")
-                    import traceback
-                    traceback.print_exc()
-
-                return MCPToolCallResponse(
-                    content=[MCPContent(
-                        type="text",
-                        text=json.dumps({
-                            "success": False,
-                            "error": str(e),
-                            "message": "An unexpected error occurred while updating the ticket. Please try again.",
-                            "ticket_id": arguments.get("ticket_id"),
-                            "attempted_fields": list(arguments.get("fields", {}).keys())
-                        }, indent=2)
-                    )],
-                    isError=True
-                )
+        # elif tool_name == "ticket_update":
+        #     try:
+        #         ticket_id = arguments.get("ticket_id")
+        #         conversation_id = arguments.get("conversation_id")
+        #         fields = arguments.get("fields", {})
+        #
+        #         # Validation
+        #         if not ticket_id:
+        #             return MCPToolCallResponse(
+        #                 content=[MCPContent(
+        #                     type="text",
+        #                     text=json.dumps({
+        #                         "success": False,
+        #                         "error": "ticket_id is required",
+        #                         "message": "Please provide the ticket ID to update. If you don't know it, use ticket_get_active to find the active ticket for this thread.",
+        #                         "hint": "Call ticket_get_active with conversation_id to get the active ticket",
+        #                         "required_fields": ["ticket_id", "fields"]
+        #                     }, indent=2)
+        #                 )],
+        #                 isError=True
+        #             )
+        #
+        #         if not fields or len(fields) == 0:
+        #             return MCPToolCallResponse(
+        #                 content=[MCPContent(
+        #                     type="text",
+        #                     text=json.dumps({
+        #                         "success": False,
+        #                         "error": "fields dictionary is required and cannot be empty",
+        #                         "message": "Please provide at least one field to update",
+        #                         "allowed_fields": list(TicketManager.ALLOWED_FIELDS),
+        #                         "example": {
+        #                             "priority": "High",
+        #                             "category": "Hardware",
+        #                             "location": "Room 305"
+        #                         }
+        #                     }, indent=2)
+        #                 )],
+        #                 isError=True
+        #             )
+        #
+        #         if DEBUG:
+        #             print(f"[MCP] Updating ticket {ticket_id} with fields: {list(fields.keys())}")
+        #
+        #         # Create request and call endpoint
+        #         update_request = UpdateTicketRequest(fields=fields)
+        #         result = await update_ticket_endpoint(ticket_id, conversation_id, update_request)
+        #
+        #         if DEBUG:
+        #             success = result.get('success', False)
+        #             fields_updated = result.get('changes', {}).get('fields_updated', [])
+        #             conversation_id = result.get('conversation_id', 'unknown')
+        #             print(
+        #                 f"[MCP] Update result: success={success}, conversation_id={conversation_id}, fields_updated={fields_updated}")
+        #
+        #         # Return rich response
+        #         return MCPToolCallResponse(
+        #             content=[MCPContent(
+        #                 type="text",
+        #                 text=json.dumps(result, indent=2, ensure_ascii=False)
+        #             )],
+        #             isError=not result.get("success", False)
+        #         )
+        #
+        #     except ValidationError as ve:
+        #         if DEBUG:
+        #             print(f"[MCP] Validation error for ticket_update: {ve}")
+        #
+        #         return MCPToolCallResponse(
+        #             content=[MCPContent(
+        #                 type="text",
+        #                 text=json.dumps({
+        #                     "success": False,
+        #                     "error": "Validation failed",
+        #                     "details": str(ve),
+        #                     "message": "Invalid field values provided. Check priority and category values.",
+        #                     "valid_priorities": TicketManager.VALID_PRIORITIES,
+        #                     # "valid_categories": TicketManager.VALID_CATEGORIES
+        #                 }, indent=2)
+        #             )],
+        #             isError=True
+        #         )
+        #
+        #     except HTTPException as he:
+        #         if DEBUG:
+        #             print(f"[MCP] HTTP error in ticket_update: {he.detail}")
+        #
+        #         # Handle 404 - ticket not found
+        #         if he.status_code == 404:
+        #             return MCPToolCallResponse(
+        #                 content=[MCPContent(
+        #                     type="text",
+        #                     text=json.dumps({
+        #                         "success": False,
+        #                         "error": "Ticket not found",
+        #                         "ticket_id": ticket_id,
+        #                         "message": f"Ticket {ticket_id} does not exist. Please verify the ticket ID or create a new ticket.",
+        #                         "hint": "Use ticket_get_active to find the correct ticket ID for this thread"
+        #                     }, indent=2)
+        #                 )],
+        #                 isError=True
+        #             )
+        #
+        #         # Handle 400 - validation error
+        #         elif he.status_code == 400:
+        #             return MCPToolCallResponse(
+        #                 content=[MCPContent(
+        #                     type="text",
+        #                     text=json.dumps({
+        #                         "success": False,
+        #                         "error": "Invalid field values",
+        #                         "message": str(he.detail),
+        #                         "valid_priorities": TicketManager.VALID_PRIORITIES,
+        #                         # "valid_categories": TicketManager.VALID_CATEGORIES
+        #                     }, indent=2)
+        #                 )],
+        #                 isError=True
+        #             )
+        #
+        #         # Other HTTP errors
+        #         else:
+        #             return MCPToolCallResponse(
+        #                 content=[MCPContent(
+        #                     type="text",
+        #                     text=json.dumps({
+        #                         "success": False,
+        #                         "error": str(he.detail),
+        #                         "status_code": he.status_code,
+        #                         "message": "Failed to update ticket"
+        #                     }, indent=2)
+        #                 )],
+        #                 isError=True
+        #             )
+        #
+        #     except Exception as e:
+        #         if DEBUG:
+        #             print(f"[MCP] Unexpected error in ticket_update: {e}")
+        #             import traceback
+        #             traceback.print_exc()
+        #
+        #         return MCPToolCallResponse(
+        #             content=[MCPContent(
+        #                 type="text",
+        #                 text=json.dumps({
+        #                     "success": False,
+        #                     "error": str(e),
+        #                     "message": "An unexpected error occurred while updating the ticket. Please try again.",
+        #                     "ticket_id": arguments.get("ticket_id"),
+        #                     "attempted_fields": list(arguments.get("fields", {}).keys())
+        #                 }, indent=2)
+        #             )],
+        #             isError=True
+        #         )
 
         elif tool_name == "ticket_submit":
             ticket_id = arguments["ticket_id"]
@@ -4051,17 +3701,6 @@ async def mcp_tools_call(request: MCPToolCallRequest):
             result = await get_ticket_stats()
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
-
-        elif tool_name == "hospital_support_search":
-            query = arguments["query"]
-            kb_result = await hospital_support_questions_tool(query)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps({
-                    "success": True,
-                    "query": query,
-                    "result": kb_result
-                }, indent=2))]
             )
 
         else:
@@ -4278,7 +3917,7 @@ async def server_info():
             ],
             "ticket_system": [
                 # "ticket_create",
-                "ticket_initialize",
+                "ticket_operate",
                 "ticket_get",
                 "ticket_get_active",
                 "ticket_list_thread",
@@ -4287,7 +3926,6 @@ async def server_info():
                 "ticket_cancel",
                 "ticket_search",
                 "ticket_stats",
-                "hospital_support_search"
             ]
         },
 
@@ -4323,7 +3961,7 @@ async def server_info():
                 }
             },
             "statuses": [
-                "draft",
+                "active",
                 "pending",
                 "submitted",
                 "completed",
@@ -4350,6 +3988,7 @@ async def server_info():
         "mcp_compatible": True,
         "debug_mode": DEBUG
     }
+
 
 if __name__ == "__main__":
     print("=" * 60)

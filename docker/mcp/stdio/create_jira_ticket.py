@@ -5,7 +5,7 @@ from typing import Tuple
 
 
 def create_jira_ticket(
-        thread_id: str = "",
+        conversation_id: str = "",
         conversation_topic: str = "",
         description: str = "",
         location: str = "",
@@ -20,7 +20,7 @@ def create_jira_ticket(
 
     print(f'📋 Using stored fields: {stored_fields.model_dump()}')
     Args:
-        thread_id (str): Thread identifier to get stored fields
+        conversation_id (str): Thread identifier to get stored fields
         conversation_topic (str): Short summary of the issue.
         description (str): Detailed explanation of the issue (should include "Problem Analysis" section).
         location (str): Where the issue occurred.
