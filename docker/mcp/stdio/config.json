@@ -30,10 +30,9 @@
     "port": 6333,
     "result_limit": 6,
     "chunking_strategy": "by_section_id"
-
   },
   "grafana": {
-    "enabled":false,
+    "enabled": false,
     "level": "error",
     "log_to_file": false
   },
@@ -51,32 +50,50 @@
     "project_key": "HEAL",
     "issue_type": "Task"
   },
-  "cosmic_database":{
-    "collection_name":"cosmic_documents",
-    "document_path":"C:/RemoteRepos/omnigate/cosmic_documents"
+  "cosmic_database": {
+    "collection_name": "cosmic_documents",
+    "document_path": "C:/RemoteRepos/omnigate/cosmic_documents"
   },
-  "mcp":{
+  "vanna": {
+    "openai": {
+      "enabled": false,
+      "model": "gpt-4o-mini",
+      "allow_llm_to_see_data": true,
+      "verbose": false
+    },
+    "ollama": {
+      "enabled": true,
+      "model": "qwen2.5:3b-instruct",
+      "allow_llm_to_see_data": true,
+      "verbose": false
+    },
+    "database": {
+      "auto_train": true,
+      "train_on_startup": false
+    }
+  },
+  "mcp": {
     "database_choice": "local",
     "database_path": "sqlite_invoices_full.db",
     "docker_database_path": "/app/database_data/sqlite_invoices_full.db",
     "database_server_url": "http://localhost:8762",
     "docker_database_server_url": "http://database_server:8762",
     "provider": {
-        "openai": true,
-        "ollama": false,
-        "mistral": false
+      "openai": true,
+      "ollama": false,
+      "mistral": false
     },
-    "mcp_ollama":{
-        "enabled": false,
-        "model_name": "qwen2.5:3b-instruct"
+    "mcp_ollama": {
+      "enabled": false,
+      "model_name": "qwen2.5:3b-instruct"
     },
-    "mcp_openai":{
-        "enabled": true,
-        "model_name": "gpt-4o-mini"
+    "mcp_openai": {
+      "enabled": true,
+      "model_name": "gpt-4o-mini"
     },
-    "mcp_mistral":{
-        "enabled": false,
-        "model_name": "devstral-small-2507"
+    "mcp_mistral": {
+      "enabled": false,
+      "model_name": "devstral-small-2507"
     }
   }
 }

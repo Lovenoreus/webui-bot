@@ -177,7 +177,20 @@ if MCP_PROVIDER_OPENAI:
 if MCP_PROVIDER_MISTRAL:
     MCP_AGENT_MODEL_NAME = get_nested(config, ["mistral", "model_name"], "devstral-medium-2507")
 
-# --- 12) Example usage (remove or adapt in production) ---
+# --- 12) Vanna configuration ---
+USE_VANNA_OPENAI = to_bool(get_nested(config, ["vanna", "openai", "enabled"], True), default=True)
+USE_VANNA_OLLAMA = to_bool(get_nested(config, ["vanna", "ollama", "enabled"], False), default=False)
+
+VANNA_OPENAI_MODEL = get_nested(config, ["vanna", "openai", "model"], "gpt-4o-mini")
+VANNA_OLLAMA_MODEL = get_nested(config, ["vanna", "ollama", "model"], "qwen2.5:3b-instruct")
+VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA = to_bool(get_nested(config, ["vanna", "openai", "allow_llm_to_see_data"], True), default=True)
+VANNA_OPENAI_VERBOSE = to_bool(get_nested(config, ["vanna", "openai", "verbose"], False), default=False)
+VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA = to_bool(get_nested(config, ["vanna", "ollama", "allow_llm_to_see_data"], True), default=True)
+VANNA_OLLAMA_VERBOSE = to_bool(get_nested(config, ["vanna", "ollama", "verbose"], False), default=False)
+VANNA_AUTO_TRAIN = to_bool(get_nested(config, ["vanna", "database", "auto_train"], True), default=True)
+VANNA_TRAIN_ON_STARTUP = to_bool(get_nested(config, ["vanna", "database", "train_on_startup"], False), default=False)
+
+# --- 13) Example usage (remove or adapt in production) ---
 if USE_OLLAMA:
     AGENT_MODEL = init_chat_model(
         AGENT_MODEL_NAME,

@@ -26,105 +26,10 @@ from models import (
     MCPToolCallResponse,
 )
 
-# -------------------- Vanna Integration --------------------
-import logging
-import warnings
-import builtins
-from vanna.openai import OpenAI_Chat
-from vanna.chromadb import ChromaDB_VectorStore
-
 load_dotenv(find_dotenv())
 
 # Debug flag
 DEBUG = True
-
-# -------------------- Vanna Setup --------------------
-# Suppress tokenizer warnings
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
-# Suppress all warnings
-warnings.filterwarnings('ignore')
-
-# Configure logging to only show errors
-logging.basicConfig(level=logging.ERROR)
-
-# Store original print
-_original_print = builtins.print
-
-# List of strings to suppress
-SUPPRESS_PHRASES = [
-    "SQL Prompt:",
-    "Using model",
-    "LLM Response:",
-    "Extracted SQL:",
-    "tokens (approx)"
-]
-
-def filtered_print(*args, **kwargs):
-    """Custom print that filters out Vanna's verbose output"""
-    text = ' '.join(str(arg) for arg in args)
-    # Only suppress if it matches our phrases
-    if any(phrase in text for phrase in SUPPRESS_PHRASES):
-        return
-    _original_print(*args, **kwargs)
-
-# Replace built-in print
-builtins.print = filtered_print
-
-class MyVanna(ChromaDB_VectorStore, OpenAI_Chat):
-    def __init__(self, config=None):
-        ChromaDB_VectorStore.__init__(self, config=config)
-        OpenAI_Chat.__init__(self, config=config)
-
-# Initialize Vanna instance
-vanna_instance = MyVanna(config={
-    'api_key': os.getenv("OPENAI_API_KEY"),
-    'model': "gpt-4o-mini",
-    'allow_llm_to_see_data': True,
-    'verbose': False
-})
-
-# Determine the full path to compacted.db
-db_path = os.path.join(os.path.dirname(__file__), "compacted.db")
-
-# Connect Vanna to SQLite database
-try:
-    vanna_instance.connect_to_sqlite(db_path)
-    
-    # Check if training data already exists and train if needed
-    existing_training_data = vanna_instance.get_training_data()
-    if existing_training_data.empty:
-        if DEBUG:
-            print("[Vanna] No existing training data found. Starting training...")
-        
-        # Train on DDL statements
-        df_ddl = vanna_instance.run_sql("SELECT type, sql FROM sqlite_master WHERE sql is not null")
-        for ddl in df_ddl['sql'].to_list():
-            vanna_instance.train(ddl=ddl)
-        
-        # Get list of all tables and train on sample data
-        tables_query = "SELECT name FROM sqlite_master WHERE type='table'"
-        tables_df = vanna_instance.run_sql(tables_query)
-        
-        for table_name in tables_df['name']:
-            sample_query = f"SELECT DISTINCT * FROM {table_name} LIMIT 5"
-            try:
-                sample_df = vanna_instance.run_sql(sample_query)
-                training_text = f"Table '{table_name}' contains records like:\n{sample_df.to_string()}"
-                vanna_instance.train(documentation=training_text)
-            except Exception:
-                pass
-        
-        if DEBUG:
-            print("[Vanna] Training completed.")
-    else:
-        if DEBUG:
-            print("[Vanna] Training data already exists. Skipping training.")
-            
-except Exception as e:
-    if DEBUG:
-        print(f"[Vanna] Error initializing Vanna: {e}")
-    vanna_instance = None
 
 app = FastAPI(
     title="Invoice SQL MCP Server",
@@ -301,120 +206,6 @@ async def query_sql_database_stream_endpoint(request: QueryDatabaseRequest):
     return StreamingResponse(generate_response(), media_type="application/x-ndjson")
 
 
-@app.post("/query_vanna_database")
-async def query_vanna_database_endpoint(request: QueryDatabaseRequest):
-    """Query invoice database using Vanna AI with natural language"""
-    try:
-        if not vanna_instance:
-            return {"success": False, "error": "Vanna instance not available", "original_query": request.query}
-            
-        if DEBUG:
-            print(f"[Vanna DEBUG] Query: {request.query}")
-
-        # Use filtered print during Vanna operations
-        builtins.print = filtered_print
-        
-        # Use Vanna's ask method which handles SQL generation and execution
-        sql, df, fig = vanna_instance.ask(
-            question=request.query, 
-            print_results=False, 
-            allow_llm_to_see_data=True, 
-            visualize=False
-        )
-        
-        # Restore original print
-        builtins.print = _original_print
-        
-        if sql is None or df is None:
-            return {"success": False, "error": "Failed to generate or execute SQL", "original_query": request.query}
-
-        # Convert DataFrame to list of dictionaries for JSON serialization
-        if hasattr(df, 'to_dict'):
-            results = df.to_dict('records')
-        else:
-            results = df if isinstance(df, list) else []
-
-        return {
-            "success": True,
-            "sql_query": f"```sql {sql} ```",
-            "results": results,
-            "original_query": request.query,
-            "record_count": len(results),
-            "method": "vanna"
-        }
-
-    except Exception as e:
-        # Restore original print in case of error
-        builtins.print = _original_print
-        return {"success": False, "error": str(e), "original_query": request.query}
-
-
-@app.post("/query_vanna_database_stream")
-async def query_vanna_database_stream_endpoint(request: QueryDatabaseRequest):
-    """Stream Vanna query results"""
-    
-    async def generate_response():
-        try:
-            if not vanna_instance:
-                yield json.dumps({"success": False, "error": "Vanna instance not available"}) + "\n"
-                return
-                
-            yield json.dumps({"status": "generating_sql", "message": "Vanna is analyzing your question..."}) + "\n"
-            
-            # Use filtered print during Vanna operations
-            builtins.print = filtered_print
-            
-            # Use Vanna's ask method
-            sql, df, fig = vanna_instance.ask(
-                question=request.query, 
-                print_results=False, 
-                allow_llm_to_see_data=True, 
-                visualize=False
-            )
-            
-            # Restore original print
-            builtins.print = _original_print
-            
-            if sql is None or df is None:
-                yield json.dumps({"success": False, "error": "Failed to generate or execute SQL"}) + "\n"
-                return
-
-            yield json.dumps({"status": "executing_query", "sql_query": f"```sql {sql} ```"}) + "\n"
-
-            # Convert DataFrame to list of dictionaries for JSON serialization
-            if hasattr(df, 'to_dict'):
-                results = df.to_dict('records')
-            else:
-                results = df if isinstance(df, list) else []
-
-            # Stream results row by row
-            for idx, row in enumerate(results, 1):
-                yield json.dumps({
-                    "success": True,
-                    "type": "row",
-                    "data": row,
-                    "index": idx,
-                    "running_total": len(results)
-                }) + "\n"
-
-            # Final completion message
-            yield json.dumps({
-                "success": True,
-                "type": "complete",
-                "results": results,
-                "record_count": len(results),
-                "status": "finished",
-                "method": "vanna"
-            }) + "\n"
-
-        except Exception as e:
-            # Restore original print in case of error
-            builtins.print = _original_print
-            yield json.dumps({"success": False, "error": str(e)}) + "\n"
-
-    return StreamingResponse(generate_response(), media_type="application/x-ndjson")
-
-
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
@@ -449,13 +240,10 @@ async def health_check():
                     "line_count": line_count,
                     "tables_initialized": invoice_count > 0 and line_count > 0,
                     "llm_providers": ["openai", "ollama", "mistral"],
-                    "vanna_status": "available" if vanna_instance else "unavailable",
                     "endpoints": {
                         "greet": "/greet",
                         "query_sql_database": "/query_sql_database",
                         "query_sql_database_stream": "/query_sql_database_stream",
-                        "query_vanna_database": "/query_vanna_database",
-                        "query_vanna_database_stream": "/query_vanna_database_stream",
                         "health": "/health"
                     }
                 }
@@ -491,13 +279,10 @@ async def health_check():
                                 "line_count": health_data.get("line_count", 0),
                                 "tables_initialized": health_data.get("tables_initialized", False),
                                 "llm_providers": ["openai", "ollama", "mistral"],
-                                "vanna_status": "available" if vanna_instance else "unavailable",
                                 "endpoints": {
                                     "greet": "/greet",
                                     "query_sql_database": "/query_sql_database",
                                     "query_sql_database_stream": "/query_sql_database_stream",
-                                    "query_vanna_database": "/query_vanna_database",
-                                    "query_vanna_database_stream": "/query_vanna_database_stream",
                                     "health": "/health"
                                 }
                             }
@@ -553,25 +338,6 @@ async def mcp_tools_list():
                 },
                 "required": ["query", "keywords"]
             }
-        ),
-        MCPTool(
-            name="query_vanna_database",
-            description="TRIGGER: Vanna AI, AI-powered SQL, intelligent database query, smart SQL generation, vector search SQL, trained SQL model, advanced database analysis | ACTION: Query invoice database using Vanna AI with vector search and trained context | RETURNS: Structured invoice data with AI-generated SQL using Vanna's trained knowledge base",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "Natural language question about the invoice database (invoices, suppliers, customers, payments, line items)"
-                    },
-                    "keywords": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "Extract keywords from the query (used for compatibility but Vanna uses vector search)"
-                    }
-                },
-                "required": ["query", "keywords"]
-            }
         )
     ]
     return MCPToolsListResponse(tools=tools)
@@ -599,13 +365,6 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         elif tool_name == "query_sql_database":
             query_request = QueryDatabaseRequest(**arguments)
             result = await query_sql_database_endpoint(query_request)
-            return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
-            )
-
-        elif tool_name == "query_vanna_database":
-            query_request = QueryDatabaseRequest(**arguments)
-            result = await query_vanna_database_endpoint(query_request)
             return MCPToolCallResponse(
                 content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
             )
@@ -749,8 +508,6 @@ async def server_info():
             "/greet",
             "/query_sql_database",
             "/query_sql_database_stream",
-            "/query_vanna_database",
-            "/query_vanna_database_stream",
             "/health",
             "/info",
             "/debug"
@@ -763,8 +520,7 @@ async def server_info():
             "Invoice Domain Optimization",
             "MCP Protocol Support",
             "Async Database Operations",
-            "Local SQLite + Remote SQL Server Support",
-            "Vanna AI Integration with Vector Search"
+            "Local SQLite + Remote SQL Server Support"
         ],
 
         "database": {
@@ -775,18 +531,12 @@ async def server_info():
 
         "tools": [
             "greet",
-            "query_sql_database",
-            "query_vanna_database"
+            "query_sql_database"
         ],
 
         "docs": "/docs",
         "mcp_compatible": True,
-        "debug_mode": DEBUG,
-        "vanna": {
-            "status": "available" if vanna_instance else "unavailable",
-            "database_path": db_path,
-            "training_completed": vanna_instance is not None
-        }
+        "debug_mode": DEBUG
     }
 
 
