@@ -14,6 +14,18 @@ load_dotenv()
 # Suppress tokenizer warnings
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
+# Configure SSL verification based on config
+# This affects all HTTP requests including OpenAI API calls
+if hasattr(config, 'VANNA_OPENAI_SSL_VERIFY') and not config.VANNA_OPENAI_SSL_VERIFY:
+    import ssl
+    import urllib3
+    # Disable SSL warnings
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    # Set environment variable to disable SSL verification
+    os.environ["PYTHONHTTPSVERIFY"] = "0"
+    os.environ["CURL_CA_BUNDLE"] = ""
+    os.environ["REQUESTS_CA_BUNDLE"] = ""
+
 # Suppress all warnings
 warnings.filterwarnings('ignore')
 

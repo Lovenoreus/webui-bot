@@ -59,7 +59,11 @@
       "enabled": true,
       "model": "gpt-4o-mini",
       "allow_llm_to_see_data": true,
-      "verbose": false
+      "verbose": false,
+      "ssl_verify": false,
+      "ssl_ca_bundle": null,
+      "ssl_cert_file": null,
+      "ssl_key_file": null
     },
     "ollama": {
       "enabled": false,
