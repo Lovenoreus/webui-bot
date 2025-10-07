@@ -15,10 +15,12 @@ from fastapi.middleware.cors import CORSMiddleware
 # -------------------- User-defined Modules --------------------
 import config
 from query_engine import QueryEngine
+from vanna_query_engine import VannaQueryEngine
 from instructions import SQLITE_INVOICE_PROMPT, SQLSERVER_INVOICE_PROMPT
 from models import (
     QueryDatabaseRequest,
     GreetRequest,
+    SwitchEngineRequest,
     MCPTool,
     MCPToolsListResponse,
     MCPToolCallRequest,
@@ -91,15 +93,20 @@ if DEBUG:
     print(f"[MCP DEBUG] Using prompt: {'SQL Server' if USE_REMOTE else 'SQLite'}")
     print(f"[MCP DEBUG] Database info: {DATABASE_SERVER_URL}")
 
-# Initialize QueryEngine with invoice configuration
-query_engine = QueryEngine(
-    database_url=DATABASE_SERVER_URL if not USE_REMOTE else None,
-    tables=INVOICE_TABLES,
-    table_variations=INVOICE_TABLE_VARIATIONS,
-    system_prompt=INVOICE_SYSTEM_PROMPT,
-    debug=DEBUG,
-    use_remote=USE_REMOTE
-)
+# Initialize Query Engine (Traditional or Vanna-based)
+if config.MCP_USE_VANNA:
+    print(f"[MCP DEBUG] Using Vanna Query Engine")
+    query_engine = VannaQueryEngine(debug=DEBUG)
+else:
+    print(f"[MCP DEBUG] Using Traditional Query Engine")
+    query_engine = QueryEngine(
+        database_url=DATABASE_SERVER_URL if not USE_REMOTE else None,
+        tables=INVOICE_TABLES,
+        table_variations=INVOICE_TABLE_VARIATIONS,
+        system_prompt=INVOICE_SYSTEM_PROMPT,
+        debug=DEBUG,
+        use_remote=USE_REMOTE
+    )
 
 
 async def greet(name: Optional[str] = None) -> str:
@@ -142,6 +149,67 @@ async def greet_endpoint(request: GreetRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/query_engine_info")
+async def query_engine_info_endpoint():
+    """Get information about the current query engine"""
+    try:
+        engine_type = "vanna" if config.MCP_USE_VANNA else "traditional"
+        
+        info = {
+            "engine_type": engine_type,
+            "use_vanna": config.MCP_USE_VANNA,
+        }
+        
+        # Get engine-specific info
+        if hasattr(query_engine, 'get_database_info'):
+            info.update(query_engine.get_database_info())
+        
+        return info
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/switch_engine")
+async def switch_engine_endpoint(request: SwitchEngineRequest):
+    """Switch between Traditional and Vanna query engines"""
+    try:
+        global query_engine
+        
+        # Update config
+        config.MCP_USE_VANNA = request.use_vanna
+        
+        # Reinitialize query engine
+        if config.MCP_USE_VANNA:
+            print(f"[MCP DEBUG] Switching to Vanna Query Engine")
+            query_engine = VannaQueryEngine(debug=DEBUG)
+            engine_type = "vanna"
+        else:
+            print(f"[MCP DEBUG] Switching to Traditional Query Engine")
+            query_engine = QueryEngine(
+                database_url=DATABASE_SERVER_URL if not USE_REMOTE else None,
+                tables=INVOICE_TABLES,
+                table_variations=INVOICE_TABLE_VARIATIONS,
+                system_prompt=INVOICE_SYSTEM_PROMPT,
+                debug=DEBUG,
+                use_remote=USE_REMOTE
+            )
+            engine_type = "traditional"
+        
+        return {
+            "success": True,
+            "message": f"Switched to {engine_type} query engine",
+            "engine_type": engine_type,
+            "use_vanna": config.MCP_USE_VANNA
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "message": f"Failed to switch engine: {str(e)}"
+        }
+
+
 @app.post("/query_sql_database")
 async def query_sql_database_endpoint(request: QueryDatabaseRequest):
     """Query invoice database with natural language"""
@@ -149,6 +217,7 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
         if DEBUG:
             print(f"[MCP DEBUG] Query: {request.query}")
             print(f"[MCP DEBUG] Keywords: {request.keywords}")
+            print(f"[MCP DEBUG] Engine: {'Vanna' if config.MCP_USE_VANNA else 'Traditional'}")
 
         # TODO: QUERY HARDCODED TO [].
         #  BECAUSE KEYWORD HITTING FAILS FOR LARGE DBs

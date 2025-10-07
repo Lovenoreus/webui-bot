@@ -51,7 +51,7 @@ RUN if [ "$USE_CERTS" = "true" ]; then \
     fi
 
 # Copy pre-downloaded binaries
-COPY local-binaries/ /tmp/onnx-cache/
+# COPY local-binaries/ /tmp/onnx-cache/
 
 COPY package.json package-lock.json ./
 

@@ -16,6 +16,11 @@ class GreetRequest(BaseModel):
     name: Optional[str]
 
 
+# -------------------- Engine Switch MODELS --------------------
+class SwitchEngineRequest(BaseModel):
+    use_vanna: bool
+
+
 # -------------------- MCP PROTOCOL MODELS --------------------
 class MCPTool(BaseModel):
     name: str

@@ -1,0 +1,26 @@
+# Database connectivity packages for Vanna multi-database support
+
+# Core Vanna packages
+vanna[chromadb,openai,ollama]
+
+# PostgreSQL support
+psycopg2-binary>=2.9.0
+
+# MySQL support
+mysql-connector-python>=8.0.0
+
+# Microsoft SQL Server support
+pyodbc>=4.0.0
+
+# SQLite support (built-in with Python, but adding driver for completeness)
+# sqlite3 is built-in
+
+# Additional database utilities
+sqlalchemy>=2.0.0
+pandas>=1.5.0
+
+# Environment management
+python-dotenv>=1.0.0
+
+# Optional: For better SQL parsing and formatting
+sqlparse>=0.4.0
