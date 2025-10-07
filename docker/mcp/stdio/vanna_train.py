@@ -11,6 +11,7 @@ import config
 import ssl
 import urllib3
 import time
+import socket
 
 load_dotenv()
 
@@ -92,7 +93,7 @@ def apply_comprehensive_ssl_bypass():
     except (ImportError, Exception) as e:
         print(f"[VANNA DEBUG] Warning: Could not patch requests library: {e}")
     
-    # 5. Try to patch httpx if available (used by some newer libraries)
+    # 5. Try to patch httpx if available (used by some newer libraries like OpenAI)
     try:
         import httpx
         
@@ -112,15 +113,107 @@ def apply_comprehensive_ssl_bypass():
                 kwargs.setdefault('timeout', 30.0)
                 return original_httpx_async_client_init(self, *args, **kwargs)
             httpx.AsyncClient.__init__ = patched_httpx_async_client_init
+        
+        # Patch httpx request methods
+        original_httpx_request = httpx.request
+        def patched_httpx_request(*args, **kwargs):
+            kwargs.setdefault('verify', False)
+            kwargs.setdefault('timeout', 30.0)
+            return original_httpx_request(*args, **kwargs)
+        httpx.request = patched_httpx_request
+        
+        # Patch httpx stream method
+        if hasattr(httpx, 'stream'):
+            original_httpx_stream = httpx.stream
+            def patched_httpx_stream(*args, **kwargs):
+                kwargs.setdefault('verify', False)
+                kwargs.setdefault('timeout', 30.0)
+                return original_httpx_stream(*args, **kwargs)
+            httpx.stream = patched_httpx_stream
             
     except (ImportError, AttributeError, Exception) as e:
         # httpx might not be available or might have different attributes
         print(f"[VANNA DEBUG] Info: httpx patching skipped: {e}")
     
+    # 6. Patch OpenAI library specifically if available
+    try:
+        import openai
+        
+        # Patch OpenAI client creation to disable SSL verification
+        if hasattr(openai, 'OpenAI'):
+            original_openai_init = openai.OpenAI.__init__
+            def patched_openai_init(self, *args, **kwargs):
+                # Add SSL bypass parameters to OpenAI client
+                if 'http_client' not in kwargs:
+                    try:
+                        import httpx
+                        kwargs['http_client'] = httpx.Client(verify=False, timeout=30.0)
+                    except:
+                        pass
+                return original_openai_init(self, *args, **kwargs)
+            openai.OpenAI.__init__ = patched_openai_init
+        
+        # Also patch AsyncOpenAI if available
+        if hasattr(openai, 'AsyncOpenAI'):
+            original_async_openai_init = openai.AsyncOpenAI.__init__
+            def patched_async_openai_init(self, *args, **kwargs):
+                if 'http_client' not in kwargs:
+                    try:
+                        import httpx
+                        kwargs['http_client'] = httpx.AsyncClient(verify=False, timeout=30.0)
+                    except:
+                        pass
+                return original_async_openai_init(self, *args, **kwargs)
+            openai.AsyncOpenAI.__init__ = patched_async_openai_init
+            
+    except (ImportError, AttributeError, Exception) as e:
+        print(f"[VANNA DEBUG] Info: OpenAI library patching skipped: {e}")
+    
     print("[VANNA DEBUG] ✅ Comprehensive SSL bypass applied successfully")
+
+def force_ssl_bypass_for_openai():
+    """Force SSL bypass specifically for OpenAI API calls"""
+    try:
+        # Monkey patch the entire ssl module for maximum coverage
+        import ssl
+        original_create_default_context = ssl.create_default_context
+        
+        def create_unverified_context(*args, **kwargs):
+            context = original_create_default_context(*args, **kwargs)
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
+            return context
+        
+        ssl.create_default_context = create_unverified_context
+        
+        # Also patch _create_default_https_context
+        ssl._create_default_https_context = ssl._create_unverified_context
+        
+        # Patch socket module's SSL wrapper for ultimate coverage
+        original_ssl_wrap_socket = ssl.wrap_socket
+        def patched_ssl_wrap_socket(*args, **kwargs):
+            kwargs['cert_reqs'] = ssl.CERT_NONE
+            kwargs['check_hostname'] = False
+            return original_ssl_wrap_socket(*args, **kwargs)
+        ssl.wrap_socket = patched_ssl_wrap_socket
+        
+        # Patch SSLContext.wrap_socket method
+        original_context_wrap_socket = ssl.SSLContext.wrap_socket
+        def patched_context_wrap_socket(self, *args, **kwargs):
+            self.check_hostname = False
+            self.verify_mode = ssl.CERT_NONE
+            kwargs.pop('server_hostname', None)  # Remove server hostname to prevent verification
+            return original_context_wrap_socket(self, *args, **kwargs)
+        ssl.SSLContext.wrap_socket = patched_context_wrap_socket
+        
+        print("[VANNA DEBUG] ✅ Forced SSL bypass for all contexts and socket operations")
+        
+    except Exception as e:
+        print(f"[VANNA DEBUG] Warning: Could not force SSL bypass: {e}")
 
 # Apply SSL bypass immediately
 apply_comprehensive_ssl_bypass()
+force_ssl_bypass_for_openai()
 
 # Suppress tokenizer warnings
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -177,8 +270,80 @@ class VannaModelManager:
         if provider == "openai":
             class MyVannaOpenAI(ChromaDB_VectorStore, OpenAI_Chat):
                 def __init__(self, config=None):
+                    # Apply SSL bypass before initializing OpenAI Chat
+                    apply_comprehensive_ssl_bypass()
+                    
+                    # Patch OpenAI client creation for SSL bypass
+                    self._patch_openai_client()
+                    
                     ChromaDB_VectorStore.__init__(self, config=config)
                     OpenAI_Chat.__init__(self, config=config)
+                    
+                    # Re-patch after initialization in case it was reset
+                    self._patch_openai_client()
+                
+                def _patch_openai_client(self):
+                    """Patch OpenAI client to bypass SSL verification"""
+                    try:
+                        import openai
+                        
+                        # Method 1: Patch global OpenAI client if it exists
+                        if hasattr(openai, '_client') and openai._client:
+                            if hasattr(openai._client, '_client'):
+                                client = openai._client._client
+                                if hasattr(client, '_transport') and hasattr(client._transport, '_pool'):
+                                    client._transport._pool._ssl_context.check_hostname = False
+                                    client._transport._pool._ssl_context.verify_mode = ssl.CERT_NONE
+                        
+                        # Method 2: Patch instance client if it exists
+                        if hasattr(self, 'client') and self.client:
+                            try:
+                                # For newer OpenAI library versions
+                                if hasattr(self.client, '_client') and hasattr(self.client._client, '_transport'):
+                                    transport = self.client._client._transport
+                                    if hasattr(transport, '_pool') and hasattr(transport._pool, '_ssl_context'):
+                                        transport._pool._ssl_context.check_hostname = False
+                                        transport._pool._ssl_context.verify_mode = ssl.CERT_NONE
+                                
+                                # Alternative approach for different versions
+                                elif hasattr(self.client, '_base_url') and hasattr(self.client, '_http_client'):
+                                    http_client = self.client._http_client
+                                    if hasattr(http_client, '_transport'):
+                                        transport = http_client._transport
+                                        if hasattr(transport, '_pool'):
+                                            transport._pool._ssl_context = ssl._create_unverified_context()
+                            except Exception as inner_e:
+                                print(f"[VANNA DEBUG] Inner client patch error: {inner_e}")
+                        
+                        # Method 3: Force create new client with SSL bypass
+                        try:
+                            if hasattr(self, 'api_key') and self.api_key:
+                                import httpx
+                                # Create a new HTTP client with SSL bypass
+                                ssl_bypassed_client = httpx.Client(
+                                    verify=False,
+                                    timeout=30.0,
+                                    limits=httpx.Limits(max_keepalive_connections=20, max_connections=100)
+                                )
+                                
+                                # Try to replace the existing client
+                                if hasattr(self, 'client'):
+                                    if hasattr(self.client, '_http_client'):
+                                        self.client._http_client = ssl_bypassed_client
+                                    elif hasattr(self.client, '_client'):
+                                        self.client._client = ssl_bypassed_client
+                        except Exception as create_e:
+                            print(f"[VANNA DEBUG] Could not create SSL bypassed client: {create_e}")
+                                    
+                    except Exception as e:
+                        print(f"[VANNA DEBUG] Warning: Could not patch OpenAI client SSL: {e}")
+                
+                def train(self, **kwargs):
+                    """Override train method to ensure SSL bypass is active"""
+                    apply_comprehensive_ssl_bypass()
+                    self._patch_openai_client()
+                    return super().train(**kwargs)
+                    
             return MyVannaOpenAI
         
         elif provider == "ollama":
@@ -223,13 +388,27 @@ class VannaModelManager:
         # Apply comprehensive SSL bypass before initializing OpenAI client
         apply_comprehensive_ssl_bypass()
         
+        # Additional environment variables specific to OpenAI
+        os.environ['OPENAI_VERIFY_SSL'] = 'false'
+        
         VannaClass = self.get_vanna_class("openai")
-        self.vanna_client = VannaClass(config={
+        
+        # Create client config with SSL bypass
+        client_config = {
             'api_key': config.OPENAI_API_KEY,
             'model': config.VANNA_OPENAI_MODEL,
             'allow_llm_to_see_data': config.VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA,
             'verbose': config.VANNA_OPENAI_VERBOSE
-        })
+        }
+        
+        # Try to add custom HTTP client with SSL bypass
+        try:
+            import httpx
+            client_config['http_client'] = httpx.Client(verify=False, timeout=30.0)
+        except:
+            pass
+        
+        self.vanna_client = VannaClass(config=client_config)
         self.current_provider = "openai"
     
     def _init_ollama_vanna(self):
@@ -599,7 +778,13 @@ def vanna_train(
                 if attempt > 0:
                     print(f"[VANNA DEBUG] Retry attempt {attempt + 1} for {data_type} training")
                     apply_comprehensive_ssl_bypass()
-                    time.sleep(1)  # Brief delay between retries
+                    
+                    # Re-initialize the Vanna client to ensure SSL bypass is applied
+                    if hasattr(vanna_manager, 'vanna_client') and vanna_manager.vanna_client:
+                        if hasattr(vanna_manager.vanna_client, '_patch_openai_client'):
+                            vanna_manager.vanna_client._patch_openai_client()
+                    
+                    time.sleep(2)  # Longer delay between retries for SSL issues
                 
                 train_func(data)
                 print(f"✅ Trained {data_type} with {vanna_manager.current_provider}")
@@ -607,11 +792,23 @@ def vanna_train(
                 
             except Exception as e:
                 error_msg = str(e).lower()
-                if any(term in error_msg for term in ["certificate verify failed", "ssl", "certificate", "handshake"]):
+                is_ssl_error = any(term in error_msg for term in [
+                    "certificate verify failed", 
+                    "ssl", 
+                    "certificate", 
+                    "handshake",
+                    "verify failed",
+                    "self-signed certificate",
+                    "certificate chain",
+                    "ssl_cert_verify_failed"
+                ])
+                
+                if is_ssl_error:
                     print(f"[VANNA DEBUG] SSL error during {data_type} training (attempt {attempt + 1}): {str(e)}")
                     
                     if attempt == max_retries - 1:
                         print(f"❌ Failed to train {data_type} due to SSL certificate error after {max_retries} attempts")
+                        print("[VANNA DEBUG] Consider setting VANNA_SSL_BYPASS_ERRORS=true in your environment")
                         return False
                     else:
                         print(f"🔄 Retrying {data_type} training...")
