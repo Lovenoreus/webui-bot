@@ -23,21 +23,25 @@ def apply_comprehensive_ssl_bypass():
         
     print("[VANNA DEBUG] Applying comprehensive SSL bypass for all API calls...")
     
-    # 1. Global SSL context bypass
-    ssl._create_default_https_context = ssl._create_unverified_context
-    
-    # 2. Environment variables for SSL bypass
-    os.environ['PYTHONHTTPSVERIFY'] = '0'
-    os.environ['CURL_CA_BUNDLE'] = ''
-    os.environ['REQUESTS_CA_BUNDLE'] = ''
-    os.environ['SSL_CERT_FILE'] = ''
-    os.environ['SSL_CERT_DIR'] = ''
-    
-    # 3. Disable urllib3 warnings
-    if config.VANNA_SSL_DISABLE_WARNINGS:
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        warnings.filterwarnings('ignore', message='Unverified HTTPS request')
-        warnings.filterwarnings('ignore', category=urllib3.exceptions.InsecureRequestWarning)
+    try:
+        # 1. Global SSL context bypass
+        ssl._create_default_https_context = ssl._create_unverified_context
+        
+        # 2. Environment variables for SSL bypass
+        os.environ['PYTHONHTTPSVERIFY'] = '0'
+        os.environ['CURL_CA_BUNDLE'] = ''
+        os.environ['REQUESTS_CA_BUNDLE'] = ''
+        os.environ['SSL_CERT_FILE'] = ''
+        os.environ['SSL_CERT_DIR'] = ''
+        
+        # 3. Disable urllib3 warnings
+        if config.VANNA_SSL_DISABLE_WARNINGS:
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            warnings.filterwarnings('ignore', message='Unverified HTTPS request')
+            warnings.filterwarnings('ignore', category=urllib3.exceptions.InsecureRequestWarning)
+        
+    except Exception as e:
+        print(f"[VANNA DEBUG] Warning: Could not apply basic SSL bypass: {e}")
     
     # 4. Patch requests at multiple levels
     try:
@@ -64,30 +68,54 @@ def apply_comprehensive_ssl_bypass():
         # Create custom SSL adapter
         class SSLBypassAdapter(HTTPAdapter):
             def init_poolmanager(self, *args, **kwargs):
-                context = create_urllib3_context()
-                context.check_hostname = False
-                context.verify_mode = ssl.CERT_NONE
-                kwargs['ssl_context'] = context
+                try:
+                    context = create_urllib3_context()
+                    context.check_hostname = False
+                    context.verify_mode = ssl.CERT_NONE
+                    kwargs['ssl_context'] = context
+                except Exception:
+                    pass  # Fallback to default if SSL context creation fails
                 return super().init_poolmanager(*args, **kwargs)
         
         # Patch default session creation
         original_session_init = requests.Session.__init__
         def patched_session_init(self, *args, **kwargs):
             original_session_init(self, *args, **kwargs)
-            self.mount('https://', SSLBypassAdapter())
-            self.mount('http://', HTTPAdapter())
-            self.verify = False
+            try:
+                self.mount('https://', SSLBypassAdapter())
+                self.mount('http://', HTTPAdapter())
+                self.verify = False
+            except Exception:
+                pass  # Fallback to default if mounting fails
         requests.Session.__init__ = patched_session_init
         
-    except ImportError:
-        pass
+    except (ImportError, Exception) as e:
+        print(f"[VANNA DEBUG] Warning: Could not patch requests library: {e}")
     
     # 5. Try to patch httpx if available (used by some newer libraries)
     try:
         import httpx
-        httpx._config.DEFAULT_CIPHERS = httpx._config.DEFAULT_CIPHERS
-    except ImportError:
-        pass
+        
+        # Patch httpx Client to disable SSL verification
+        original_httpx_client_init = httpx.Client.__init__
+        def patched_httpx_client_init(self, *args, **kwargs):
+            kwargs.setdefault('verify', False)
+            kwargs.setdefault('timeout', 30.0)
+            return original_httpx_client_init(self, *args, **kwargs)
+        httpx.Client.__init__ = patched_httpx_client_init
+        
+        # Patch httpx AsyncClient if available
+        if hasattr(httpx, 'AsyncClient'):
+            original_httpx_async_client_init = httpx.AsyncClient.__init__
+            def patched_httpx_async_client_init(self, *args, **kwargs):
+                kwargs.setdefault('verify', False)
+                kwargs.setdefault('timeout', 30.0)
+                return original_httpx_async_client_init(self, *args, **kwargs)
+            httpx.AsyncClient.__init__ = patched_httpx_async_client_init
+            
+    except (ImportError, AttributeError, Exception) as e:
+        # httpx might not be available or might have different attributes
+        print(f"[VANNA DEBUG] Info: httpx patching skipped: {e}")
     
     print("[VANNA DEBUG] ✅ Comprehensive SSL bypass applied successfully")
 
