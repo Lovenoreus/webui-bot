@@ -7,9 +7,35 @@ import logging
 import warnings
 import builtins
 from typing import Optional
+import pymssql
+import pandas as pd
 import config
 
 load_dotenv()
+
+# Disable SSL certificate verification globally
+import ssl
+import urllib3
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+# Disable SSL warnings and verification
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+ssl._create_default_https_context = ssl._create_unverified_context
+
+# Set environment variables to disable SSL verification
+os.environ["CURL_CA_BUNDLE"] = ""
+os.environ["REQUESTS_CA_BUNDLE"] = ""
+os.environ["SSL_VERIFY"] = "false"
+os.environ["PYTHONHTTPSVERIFY"] = "0"
+
+# Monkey patch requests to disable SSL verification
+original_request = requests.Session.request
+def patched_request(self, method, url, **kwargs):
+    kwargs.setdefault('verify', False)
+    return original_request(self, method, url, **kwargs)
+requests.Session.request = patched_request
 
 # Suppress tokenizer warnings
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -101,6 +127,16 @@ class VannaModelManager:
         """Initialize Vanna with OpenAI"""
         if not config.OPENAI_API_KEY:
             raise ValueError("OPENAI_API_KEY not found in environment")
+        
+        # Disable SSL certificate verification for OpenAI requests
+        import ssl
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        
+        # Create unverified SSL context
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
         
         VannaClass = self.get_vanna_class("openai")
         self.vanna_client = VannaClass(config={
@@ -201,21 +237,43 @@ class VannaModelManager:
         if not config.VANNA_MSSQL_ENABLED:
             raise ValueError("Microsoft SQL Server is not enabled in configuration")
         
+        # Connect using pymssql and set up Vanna to use it
         try:
-            import pyodbc
-        except ImportError:
-            raise ImportError("pyodbc package is required for SQL Server connection. Install with: pip install pyodbc")
-        
-        # Build connection string for SQL Server
-        # port = self.get_db_port('mssql')
-        # if config.VANNA_MSSQL_TRUSTED_CONNECTION:
-        #     vn.connect_to_mssql(odbc_conn_str='DRIVER={ODBC Driver 17 for SQL Server};SERVER=myserver;DATABASE=mydatabase;UID=myuser;PWD=mypassword') 
-        #     connection_string = f"Driver={{{config.VANNA_MSSQL_DRIVER}}};Server={config.VANNA_DB_HOST};Database={config.VANNA_DB_DATABASE};Trusted_Connection=yes;"
-        # else:
-        connection_string = f"Driver={{{config.VANNA_MSSQL_DRIVER}}};Server={config.VANNA_DB_HOST};Database={config.VANNA_DB_DATABASE};UID={config.VANNA_DB_USERNAME};PWD={config.VANNA_DB_PASSWORD};"
-        
-        self.vanna_client.connect_to_mssql(odbc_conn_str=connection_string)
-        self.database_connection = f"mssql://{config.VANNA_DB_HOST}/{config.VANNA_DB_DATABASE}"
+            connection = pymssql.connect(
+                server=config.VANNA_DB_HOST,
+                user=config.VANNA_DB_USERNAME,
+                password=config.VANNA_DB_PASSWORD,
+                database=config.VANNA_DB_DATABASE,
+                as_dict=True
+            )
+            
+            # Create a custom run_sql function that uses our pymssql connection
+            def run_sql_pymssql(sql: str):
+                cursor = connection.cursor()
+                cursor.execute(sql)
+                if sql.strip().upper().startswith('SELECT'):
+                    results = cursor.fetchall()
+                    cursor.close()
+                    # Convert to pandas DataFrame if results exist
+                    if results:
+                        import pandas as pd
+                        return pd.DataFrame(results)
+                    else:
+                        import pandas as pd
+                        return pd.DataFrame()
+                else:
+                    connection.commit()
+                    cursor.close()
+                    return None
+            
+            # Set the custom run_sql function on the vanna client
+            self.vanna_client.run_sql = run_sql_pymssql
+            
+            # Store the pymssql connection for later use
+            self.database_connection = f"mssql://{config.VANNA_DB_HOST}/{config.VANNA_DB_DATABASE}"
+            print(f"Connected to MSSQL database using pymssql: {config.VANNA_DB_HOST}/{config.VANNA_DB_DATABASE}")
+        except Exception as e:
+            raise Exception(f"Failed to connect to MSSQL database with pymssql: {str(e)}")
     
     def _connect_to_sqlite(self):
         """Connect to SQLite database"""
@@ -382,14 +440,22 @@ def get_database_schema_info():
                 GROUP BY TABLE_NAME
             """)
         elif vanna_manager.current_database == "mssql":
+            # Use a simpler approach to avoid STRING_AGG limitations and ambiguous column names
             return vn.run_sql("""
                 SELECT 'table' as type,
-                       'CREATE TABLE ' + t.TABLE_NAME + ' (' +
-                       STRING_AGG(c.COLUMN_NAME + ' ' + c.DATA_TYPE, ', ') + ')' as sql
+                       'Table: ' + t.TABLE_NAME + ' - Columns: ' + 
+                       CAST(COUNT(*) AS VARCHAR(10)) + ' columns including: ' +
+                       STUFF((
+                           SELECT TOP 10 ', ' + COLUMN_NAME + ' (' + DATA_TYPE + ')'
+                           FROM INFORMATION_SCHEMA.COLUMNS c2
+                           WHERE c2.TABLE_NAME = t.TABLE_NAME AND c2.TABLE_SCHEMA = t.TABLE_SCHEMA
+                           ORDER BY ORDINAL_POSITION
+                           FOR XML PATH('')
+                       ), 1, 2, '') as sql
                 FROM INFORMATION_SCHEMA.TABLES t
-                JOIN INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_NAME = c.TABLE_NAME
-                WHERE t.TABLE_TYPE = 'BASE TABLE'
-                GROUP BY t.TABLE_NAME
+                JOIN INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_NAME = c.TABLE_NAME AND t.TABLE_SCHEMA = c.TABLE_SCHEMA
+                WHERE t.TABLE_TYPE = 'BASE TABLE' AND t.TABLE_SCHEMA = 'ods'
+                GROUP BY t.TABLE_NAME, t.TABLE_SCHEMA
             """)
     except Exception as e:
         print(f"Error getting schema info: {e}")
@@ -405,7 +471,7 @@ def get_table_names():
         elif vanna_manager.current_database == "mysql":
             return vn.run_sql("SELECT table_name as name FROM information_schema.tables WHERE table_schema = DATABASE()")
         elif vanna_manager.current_database == "mssql":
-            return vn.run_sql("SELECT TABLE_NAME as name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")
+            return vn.run_sql("SELECT TABLE_NAME as name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = 'ods'")
     except Exception as e:
         print(f"Error getting table names: {e}")
         return None
@@ -433,7 +499,12 @@ if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
             if tables_df is not None and not tables_df.empty:
                 # For each table, get distinct examples
                 for table_name in tables_df['name']:
-                    sample_query = f"SELECT * FROM {table_name} LIMIT 5"
+                    # Use appropriate LIMIT syntax based on database type
+                    if vanna_manager.current_database == "mssql":
+                        sample_query = f"SELECT TOP 5 * FROM [Nodinite].[ods].[{table_name}]"
+                    else:
+                        sample_query = f"SELECT * FROM {table_name} LIMIT 5"
+                    
                     try:
                         sample_df = vn.run_sql(sample_query)
                         training_text = f"Table '{table_name}' contains records like:\n{sample_df.to_string()}"
