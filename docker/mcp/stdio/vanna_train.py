@@ -19,6 +19,15 @@ import urllib3
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import http.client
+import certifi
+
+# Monkey patch http.client to disable SSL verification
+original_https_connection_init = http.client.HTTPSConnection.__init__
+def patched_https_connection_init(self, *args, **kwargs):
+    kwargs['context'] = ssl._create_unverified_context()
+    return original_https_connection_init(self, *args, **kwargs)
+http.client.HTTPSConnection.__init__ = patched_https_connection_init
 
 # Disable SSL warnings and verification
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -29,13 +38,31 @@ os.environ["CURL_CA_BUNDLE"] = ""
 os.environ["REQUESTS_CA_BUNDLE"] = ""
 os.environ["SSL_VERIFY"] = "false"
 os.environ["PYTHONHTTPSVERIFY"] = "0"
+os.environ["OPENAI_CA_BUNDLE"] = ""
 
-# Monkey patch requests to disable SSL verification
+# Monkey patch requests to disable SSL verification globally
 original_request = requests.Session.request
 def patched_request(self, method, url, **kwargs):
     kwargs.setdefault('verify', False)
     return original_request(self, method, url, **kwargs)
 requests.Session.request = patched_request
+
+# Also patch requests.request directly
+original_requests_request = requests.request
+def patched_requests_request(method, url, **kwargs):
+    kwargs.setdefault('verify', False)
+    return original_requests_request(method, url, **kwargs)
+requests.request = patched_requests_request
+
+# Patch requests.get, post, etc.
+for method in ['get', 'post', 'put', 'delete', 'head', 'options', 'patch']:
+    original_method = getattr(requests, method)
+    def make_patched_method(orig_method):
+        def patched_method(url, **kwargs):
+            kwargs.setdefault('verify', False)
+            return orig_method(url, **kwargs)
+        return patched_method
+    setattr(requests, method, make_patched_method(original_method))
 
 # Suppress tokenizer warnings
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -128,15 +155,30 @@ class VannaModelManager:
         if not config.OPENAI_API_KEY:
             raise ValueError("OPENAI_API_KEY not found in environment")
         
-        # Disable SSL certificate verification for OpenAI requests
+        # Force SSL bypass for OpenAI
         import ssl
         import urllib3
+        import certifi
+        
+        # Multiple approaches to disable SSL
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         
-        # Create unverified SSL context
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
+        # Override certifi to return empty string
+        original_where = certifi.where
+        certifi.where = lambda: ""
+        
+        # Set OpenAI-specific environment variables
+        os.environ["OPENAI_VERIFY_SSL"] = "false"
+        
+        try:
+            # Try to import and patch OpenAI client directly
+            import openai
+            if hasattr(openai, '_client'):
+                # Patch the OpenAI client's session
+                if hasattr(openai._client, '_session'):
+                    openai._client._session.verify = False
+        except:
+            pass
         
         VannaClass = self.get_vanna_class("openai")
         self.vanna_client = VannaClass(config={
@@ -145,6 +187,14 @@ class VannaModelManager:
             'allow_llm_to_see_data': config.VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA,
             'verbose': config.VANNA_OPENAI_VERBOSE
         })
+        
+        # Additional post-initialization SSL bypass
+        try:
+            if hasattr(self.vanna_client, '_client') and hasattr(self.vanna_client._client, '_session'):
+                self.vanna_client._client._session.verify = False
+        except:
+            pass
+            
         self.current_provider = "openai"
     
     def _init_ollama_vanna(self):
