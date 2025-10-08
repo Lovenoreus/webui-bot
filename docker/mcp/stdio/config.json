@@ -14,12 +14,12 @@
     "port": 11434
   },
   "openai": {
-    "enabled": false,
+    "enabled": true,
     "agent_model_name": "gpt-4o-mini",
     "embeddings_model_name": "text-embedding-3-large"
   },
   "mistral": {
-    "enabled": true,
+    "enabled": false,
     "model_name": "devstral-small-2507",
     "base_url": "https://api.mistral.ai/v1",
     "embeddings_model_name": "text-embedding-3-small",
@@ -63,20 +63,20 @@
     "database_server_url": "http://localhost:8762",
     "docker_database_server_url": "http://database_server:8762",
     "provider": {
-        "openai": false,
+        "openai": true,
         "ollama": false,
-        "mistral": true
+        "mistral": false
     },
     "mcp_ollama":{
         "enabled": false,
         "model_name": "qwen2.5:3b-instruct"
     },
     "mcp_openai":{
-        "enabled": false,
+        "enabled": true,
         "model_name": "gpt-4o-mini"
     },
     "mcp_mistral":{
-        "enabled": true,
+        "enabled": false,
         "model_name": "devstral-small-2507"
     }
   }

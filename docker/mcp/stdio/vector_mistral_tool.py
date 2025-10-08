@@ -1,7 +1,7 @@
 import sys
 import openai
 from qdrant_client import QdrantClient
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import os
 from typing import List
 import requests
@@ -17,12 +17,41 @@ from langchain_community.chat_models import ChatOllama
 from langchain_openai import ChatOpenAI
 from langchain_mistralai import ChatMistralAI
 from langchain_core.messages import SystemMessage, HumanMessage
+from openai import OpenAI
 
-load_dotenv()
+load_dotenv(find_dotenv())
+
+# OpenAI Configuration
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+openai_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 # Mistral Configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 MISTRAL_EMBED_URL = "https://api.mistral.ai/v1/embeddings"
+
+
+async def async_embed_with_openai(query: str, model_name: str = "text-embedding-3-large", timeout: float = 10.0) -> \
+List[float]:
+    """Generate embedding using OpenAI API"""
+    if not OPENAI_API_KEY or not openai_client:
+        print("❌ OPENAI_API_KEY not found in environment")
+        return []
+
+    try:
+        response = openai_client.embeddings.create(
+            model=model_name,
+            input=query,
+            timeout=timeout
+        )
+        embedding = response.data[0].embedding
+
+        if hasattr(config, 'DEBUG') and config.DEBUG:
+            print(f"OpenAI embedding success: {len(embedding)} dimensions")
+        return embedding
+
+    except Exception as e:
+        print(f"❌ OpenAI embedding failed: {e}")
+        return []
 
 
 async def async_embed_with_mistral(query: str, timeout: float = 10.0) -> List[float]:
@@ -60,6 +89,26 @@ async def async_embed_with_mistral(query: str, timeout: float = 10.0) -> List[fl
         print(f"❌ Mistral embedding failed: {e}")
 
     return []
+
+
+async def get_embedding(query: str) -> List[float]:
+    """Get embedding based on configured provider"""
+    if hasattr(config, 'USE_OPENAI') and config.USE_OPENAI:
+        model_name = getattr(config, 'EMBEDDINGS_MODEL_NAME', 'text-embedding-3-large')
+        return await async_embed_with_openai(query, model_name=model_name)
+    
+    elif hasattr(config, 'USE_MISTRAL') and config.USE_MISTRAL:
+        return await async_embed_with_mistral(query)
+    
+    elif hasattr(config, 'USE_OLLAMA') and config.USE_OLLAMA:
+        # Ollama doesn't have a standard async embedding endpoint
+        # You'd need to implement this based on your Ollama setup
+        print("❌ Ollama embeddings not yet implemented")
+        return []
+    
+    else:
+        print("❌ No embedding provider configured")
+        return []
 
 
 def intelligent_metadata_filter(query: str) -> Optional[rest.Filter]:
@@ -304,14 +353,14 @@ async def enhanced_multi_strategy_retrieval(
         min_score: float = 0.6,
         use_llm_filter: bool = True
 ) -> List:
-    """Fully async multi-strategy retrieval using Mistral embeddings with optional LLM filtering"""
+    """Fully async multi-strategy retrieval using configured embedding provider with optional LLM filtering"""
 
     if hasattr(config, 'DEBUG') and config.DEBUG:
         print(f"Starting multi-strategy retrieval for: '{query}'")
 
     try:
-        # Generate embedding with Mistral
-        query_embedding = await async_embed_with_mistral(query)
+        # Generate embedding with configured provider
+        query_embedding = await get_embedding(query)
 
         if not query_embedding or len(query_embedding) == 0:
             if hasattr(config, 'DEBUG') and config.DEBUG:
@@ -319,7 +368,7 @@ async def enhanced_multi_strategy_retrieval(
             return []
 
         if hasattr(config, 'DEBUG') and config.DEBUG:
-            print(f"Using Mistral embedding with {len(query_embedding)} dimensions")
+            print(f"Using embedding with {len(query_embedding)} dimensions")
 
         # Define three async search strategies
         async def high_precision_search():
@@ -327,6 +376,7 @@ async def enhanced_multi_strategy_retrieval(
                 # Use LLM filter or fallback to rule-based
                 if use_llm_filter:
                     metadata_filter = await llm_intelligent_metadata_filter_hospital(query)
+                    
                 else:
                     metadata_filter = intelligent_metadata_filter(query)
 
@@ -442,6 +492,20 @@ async def hospital_support_questions_tool(query: str, use_llm_filter: bool = Tru
         print(f"Searching hospital support questions for: {query}")
         print(f"Using LLM filter: {use_llm_filter}")
 
+    # Determine collection name based on embedding provider
+    if hasattr(config, 'USE_OPENAI') and config.USE_OPENAI:
+        collection_name = "hospital_support_questions_openai_embeddings"
+
+    elif hasattr(config, 'USE_MISTRAL') and config.USE_MISTRAL:
+        collection_name = "hospital_support_questions_mistral_embeddings"
+
+    elif hasattr(config, 'USE_OLLAMA') and config.USE_OLLAMA:
+        collection_name = "hospital_support_questions_ollama_embeddings"
+
+    else:
+        collection_name = "hospital_support_questions_mistral_embeddings"  # default fallback
+
+    print(f'Using Hospital Collection: {collection_name}')
     try:
         qdrant_client = AsyncQdrantClient(
             host=getattr(config, 'QDRANT_HOST', 'localhost'),
@@ -450,7 +514,7 @@ async def hospital_support_questions_tool(query: str, use_llm_filter: bool = Tru
 
         results = await enhanced_multi_strategy_retrieval(
             query=query,
-            collection_name="hospital_support_questions_mistral_embeddings",
+            collection_name=collection_name,
             qdrant_client=qdrant_client,
             k=3,
             min_score=0.5,
@@ -537,14 +601,6 @@ async def cosmic_database_tool(query: str) -> str:
             port=config.QDRANT_PORT
         )
 
-        # Initialize OpenAI embedder if using OpenAI
-        openai_embedder = None
-        if config.USE_OPENAI:
-            openai_embedder = OpenAIEmbeddings(
-                model=config.EMBEDDINGS_MODEL_NAME,
-                openai_api_key=os.environ.get("OPENAI_API_KEY")
-            )
-
         if config.DEBUG:
             print(f"Using collection: {config.COSMIC_DATABASE_COLLECTION_NAME}")
             print(f"Result limit: {config.QDRANT_RESULT_LIMIT}")
@@ -555,9 +611,9 @@ async def cosmic_database_tool(query: str) -> str:
             query=query,
             collection_name=config.COSMIC_DATABASE_COLLECTION_NAME,
             qdrant_client=qdrant_client,
-            openai_embedder=openai_embedder,
             k=config.QDRANT_RESULT_LIMIT,
-            min_score=0.6
+            min_score=0.6,
+            use_llm_filter=False  # Cosmic database doesn't use LLM filters
         )
 
         if config.DEBUG:

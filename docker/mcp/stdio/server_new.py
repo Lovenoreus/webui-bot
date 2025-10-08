@@ -941,7 +941,7 @@ class TicketManager:
             ticket = data["tickets"].get(ticket_id)
 
             # If ticket exists and is not completed or cancelled, return the enriched ticket
-            if ticket and ticket["status"] not in [TicketStatus.COMPLETED, TicketStatus.CANCELLED]:
+            if ticket and ticket["status"] not in [TicketStatus.SUBMITTED, TicketStatus.COMPLETED, TicketStatus.CANCELLED]:
                 return self._enrich_ticket(ticket)
 
         # If no active ticket is found, return None
@@ -1290,6 +1290,7 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
 
         if DEBUG:
             print(f"[INITIALIZE_TICKET] Knowledge base returned {len(kb_result) if kb_result else 0} results")
+            print(f"[INITIALIZE_TICKET] Knowledge base results {kb_result}")
 
         # Step 3: Select and configure LLM provider
         if config.MCP_PROVIDER_OLLAMA:
@@ -1435,6 +1436,7 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
 
         # Step 6: Parse and validate LLM response
         llm_analysis = None
+
         try:
             # Clean markdown formatting if present
             if response_content.startswith("```json"):
@@ -1569,39 +1571,15 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 # Generic diagnostic questions
                 "must_ask_diagnostic_questions": [
                     "What type of issue are you experiencing? (Hardware, Software, Network, Facility, Medical Equipment)",
-                    "How urgent is this issue? (High, Medium, Low)",
+                    "How urgent is this issue?",
                     "Can you describe what's happening in more detail?"
                 ],
-
-                # Default suggestions
-                "suggestions": {
-                    "category": None,
-                    "queue": "General Inquiries",
-                    "priority": "Medium",
-                    "reasoning": "Default routing until more information is provided"
-                },
 
                 # Ticket status
                 "ticket_status": {
                     "status": "active",
                     "is_complete": False,
-                    "missing_fields": ["category", "priority", "description"],
-                    "progress_percent": 0
-                },
-
-                # Basic actions
-                "suggested_actions": [
-                    {
-                        "action": "answer_must_ask_diagnostic_questions",
-                        "description": "Provide information to route your ticket properly",
-                        "priority": 1,
-                        "can_resolve_without_ticket": False
-                    }
-                ],
-
-                "metadata": {
-                    "estimated_resolution_time": None,
-                    "escalation_recommended": False
+                    "missing_fields": ["category", "description"],
                 }
             }
 
@@ -2824,7 +2802,7 @@ async def mcp_tools_list():
                 "properties": {
                     "ticket_id": {
                         "type": "string",
-                        "description": "Ticket ID to cancel (format: TKT-XXXXXXXX)"
+                        "description": "Ticket ID to cancel"
                     }
                 },
                 "required": ["ticket_id"]
