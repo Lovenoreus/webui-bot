@@ -1,59 +1,106 @@
-from vanna.local import LocalContext_OpenAI
+'''
+Authors: Praveen Kehelella | Hammad Faheem
+Description: Vanna integration with the MCP server
+'''
 import os
 import logging
-import vanna
-import dotenv
+import warnings
+import builtins
+from vanna.openai import OpenAI_Chat
+from vanna.chromadb import ChromaDB_VectorStore
+from dotenv import load_dotenv,find_dotenv
+import config
 
-dotenv.load_dotenv(dotenv.find_dotenv())
+def setup_vanna():
+    load_dotenv(find_dotenv())
 
+    DEBUG=config.DEBUG
+    # -------------------- Vanna Setup --------------------
+    # Suppress tokenizer warnings
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-if hasattr(vanna, "telemetry"):
-    vanna.telemetry.capture = lambda *a, **kw: None
-    
-logging.getLogger("vanna.telemetry").setLevel(logging.CRITICAL)
+    # Suppress all warnings
+    warnings.filterwarnings('ignore')
 
+    # Configure logging to only show errors
+    logging.basicConfig(level=logging.ERROR)
 
-vn = LocalContext_OpenAI({"api_key": os.getenv("OPENAI_API_KEY")})
+    # Store original print
+    _original_print = builtins.print
 
-vn.train(sql="""
-SELECT 
-    i.SUPPLIER_PARTY_NAME AS supplier_name,
-    i.SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID AS supplier_id,
-    i.CUSTOMER_PARTY_NAME AS customer_name,
-    SUM(CAST(il.INVOICED_LINE_EXTENSION_AMOUNT AS FLOAT)) AS total_sales,
-    COUNT(il.INVOICE_LINE_ID) AS num_items
-FROM Invoice_Line il
-JOIN Invoice i 
-    ON il.INVOICE_ID = i.INVOICE_ID
-WHERE il.INVOICED_LINE_EXTENSION_AMOUNT IS NOT NULL
-GROUP BY supplier_name, supplier_id, customer_name
-ORDER BY total_sales DESC
-LIMIT 10;
-""")
+    # List of strings to suppress
+    SUPPRESS_PHRASES = [
+        "SQL Prompt:",
+        "Using model",
+        "LLM Response:",
+        "Extracted SQL:",
+        "tokens (approx)"
+    ]
 
-# Teach Vanna your schema and an example query with date filtering
-vn.train(sql="""
-SELECT 
-    i.SUPPLIER_PARTY_NAME AS supplier_name,
-    SUM(CAST(il.INVOICED_LINE_EXTENSION_AMOUNT AS FLOAT)) AS total_sales
-FROM Invoice_Line il
-JOIN Invoice i 
-    ON il.INVOICE_ID = i.INVOICE_ID
-WHERE strftime('%Y', i.ISSUE_DATE) = '2024'
-GROUP BY supplier_name
-ORDER BY total_sales DESC
-LIMIT 10;
-""")
+    def filtered_print(*args, **kwargs):
+        """Custom print that filters out Vanna's verbose output"""
+        text = ' '.join(str(arg) for arg in args)
+        # Only suppress if it matches our phrases
+        if any(phrase in text for phrase in SUPPRESS_PHRASES):
+            return
+        _original_print(*args, **kwargs)
 
-# Determine the full path to compacted.db (same folder as this script)
-db_path = os.path.join(os.path.dirname(__file__), "compacted.db")
+    # Replace built-in print
+    builtins.print = filtered_print
 
-# Connect to your local SQLite database
-vn.connect_to_sqlite(db_path)
+    class MyVanna(ChromaDB_VectorStore, OpenAI_Chat):
+        def __init__(self, config=None):
+            ChromaDB_VectorStore.__init__(self, config=config)
+            OpenAI_Chat.__init__(self, config=config)
 
-# Ask a natural language question
-vn.ask("How many invoices have the contact person ANJO119?")
+    # Initialize Vanna instance
+    vanna_instance = MyVanna(config={
+        'api_key': os.getenv("OPENAI_API_KEY"),
+        'model': "gpt-4o-mini",
+        'allow_llm_to_see_data': True,
+        'verbose': False
+    })
 
+    # Determine the full path to compacted.db
+    db_path = os.path.join(os.path.dirname(__file__), "compacted.db")
 
-
-
+    # Connect Vanna to SQLite database
+    try:
+        vanna_instance.connect_to_sqlite(db_path)
+        
+        # Check if training data already exists and train if needed
+        existing_training_data = vanna_instance.get_training_data()
+        if existing_training_data.empty:
+            if DEBUG:
+                print("[Vanna] No existing training data found. Starting training...")
+            
+            # Train on DDL statements
+            df_ddl = vanna_instance.run_sql("SELECT type, sql FROM sqlite_master WHERE sql is not null")
+            for ddl in df_ddl['sql'].to_list():
+                vanna_instance.train(ddl=ddl)
+            
+            # Get list of all tables and train on sample data
+            tables_query = "SELECT name FROM sqlite_master WHERE type='table'"
+            tables_df = vanna_instance.run_sql(tables_query)
+            
+            for table_name in tables_df['name']:
+                sample_query = f"SELECT DISTINCT * FROM {table_name} LIMIT 5"
+                try:
+                    sample_df = vanna_instance.run_sql(sample_query)
+                    training_text = f"Table '{table_name}' contains records like:\n{sample_df.to_string()}"
+                    vanna_instance.train(documentation=training_text)
+                except Exception:
+                    pass
+            
+            if DEBUG:
+                print("[Vanna] Training completed.")
+        else:
+            if DEBUG:
+                print("[Vanna] Training data already exists. Skipping training.")
+                
+    except Exception as e:
+        if DEBUG:
+            print(f"[Vanna] Error initializing Vanna: {e}")
+        vanna_instance = None
+        
+    return vanna_instance
