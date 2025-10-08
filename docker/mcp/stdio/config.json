@@ -56,7 +56,7 @@
     "document_path":"C:/RemoteRepos/omnigate/cosmic_documents"
   },
   "mcp":{
-    "database_choice": "remote",
+    "database_choice": "local",
     "connection_pool_size": 10,
     "database_path": "sqlite_invoices_full.db",
     "docker_database_path": "/app/database_data/sqlite_invoices_full.db",

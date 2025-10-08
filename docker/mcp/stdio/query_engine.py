@@ -135,6 +135,7 @@ class QueryEngine:
         """Run a query on the database - routes to local or remote"""
         if self.use_remote:
             return await self._execute_query_remote(query)
+
         else:
             return await self._execute_query_local(query)
 

@@ -15,3 +15,8 @@ mcp
 sqlalchemy
 aioodbc
 pymssql
+vanna
+openai
+httpx
+urllib3
+chromadb

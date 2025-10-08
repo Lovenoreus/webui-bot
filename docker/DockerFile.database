@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
 # Build argument to control cert usage - SET THIS MANUALLY
-ARG USE_CERTS=true
+ARG USE_CERTS=false
 
 WORKDIR /app
 
