@@ -746,7 +746,7 @@ async def lifespan(app: FastAPI):
     print("🚀 Starting invoice database initialization...")
     start_time = asyncio.get_event_loop().time()
 
-    await db_server.initialize_database()
+    # await db_server.initialize_database()
     await db_server.initialize_pool()
 
     elapsed = asyncio.get_event_loop().time() - start_time
