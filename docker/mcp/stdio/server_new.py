@@ -834,7 +834,11 @@ class TicketManager:
     JSON-based ticket manager with file persistence
     """
 
+    # List of fields that **must** be present and non-empty in a ticket
     REQUIRED_FIELDS = ["description", "category", "priority"]
+
+    # Set of all fields that are permitted in the ticket data
+    # These are the fields that are recognized and allowed
     ALLOWED_FIELDS = {
         "conversation_topic", "description", "location", "queue",
         "priority", "department", "category", "reporter_name"
@@ -870,9 +874,6 @@ class TicketManager:
     ) -> Dict[str, Any]:
         """Create a new ticket"""
         data = await self.storage.load()
-
-        # ticket_id = f"TKT-{uuid.uuid4().hex[:8].upper()}"
-
         now = datetime.now().isoformat()
 
         ticket = {
@@ -926,16 +927,24 @@ class TicketManager:
         return self._enrich_ticket(ticket)
 
     async def get_active_ticket_for_thread(self, conversation_id: str) -> Optional[Dict[str, Any]]:
-        """Get active (non-completed) ticket for thread"""
+        """Get the most recent active (non-completed, non-cancelled) ticket for a given conversation/thread"""
+
+        # Load all ticket data from storage (likely a file or DB abstraction)
         data = await self.storage.load()
 
+        # Retrieve the list of ticket IDs associated with this conversation
         ticket_ids = data["thread_index"].get(conversation_id, [])
 
+        # Iterate over ticket IDs in reverse (most recent first)
         for ticket_id in reversed(ticket_ids):
+            # Get the actual ticket data for this ticket ID
             ticket = data["tickets"].get(ticket_id)
+
+            # If ticket exists and is not completed or cancelled, return the enriched ticket
             if ticket and ticket["status"] not in [TicketStatus.COMPLETED, TicketStatus.CANCELLED]:
                 return self._enrich_ticket(ticket)
 
+        # If no active ticket is found, return None
         return None
 
     async def list_tickets_for_thread(self, conversation_id: str) -> List[Dict[str, Any]]:
@@ -1203,12 +1212,20 @@ class TicketManager:
 
     def _check_completeness(self, ticket: Dict[str, Any]) -> tuple[bool, List[str]]:
         """Check if ticket has all required fields"""
-        missing = []
+
+        missing = []  # List to keep track of fields that are missing or empty
+
+        # Iterate over all fields that are required for the ticket
         for field in self.REQUIRED_FIELDS:
-            value = ticket.get(field)
+            value = ticket.get(field)  # Get the value for the current field from the ticket
+
+            # Check if the value is missing or empty (including strings with only whitespace)
             if not value or (isinstance(value, str) and not value.strip()):
                 missing.append(field)
 
+        # Return a tuple:
+        # - First element: True if no fields are missing, else False
+        # - Second element: List of missing field names
         return len(missing) == 0, missing
 
 
@@ -1282,6 +1299,7 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
                 temperature=0,
                 base_url=config.OLLAMA_BASE_URL
             )
+
         elif config.MCP_PROVIDER_OPENAI:
             provider = "openai"
             api_key = os.environ.get("OPENAI_API_KEY")
@@ -1292,6 +1310,7 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
                 temperature=0,
                 api_key=api_key
             )
+
         elif config.MCP_PROVIDER_MISTRAL:
             provider = "mistral"
             api_key = os.environ.get("MISTRAL_API_KEY")
@@ -1301,6 +1320,7 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
                 mistral_api_key=api_key,
                 endpoint=config.MISTRAL_BASE_URL
             )
+
         else:
             raise ValueError("No valid LLM provider configured")
 
@@ -1369,7 +1389,7 @@ RESPONSE STRUCTURE:
   "suggestions": {{
     "category": "Hardware" | "Software" | "Network" | "Facility" | "Medical Equipment" | "Other",
     "queue": "queue name from available list",
-    "priority": "Critical" | "High" | "Normal" | "Low",
+    "priority": "High" | "Medium" | "Low",
     "reasoning": "why these suggestions"
   }},
   "metadata": {{
@@ -1428,6 +1448,7 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
 
             if DEBUG:
                 print(f"[INITIALIZE_TICKET] Successfully parsed LLM analysis")
+                print(f"[LLM RESPONSE] {llm_analysis}")
 
         except json.JSONDecodeError as json_err:
             if DEBUG:
@@ -1478,7 +1499,7 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 "success": True,
                 "ticket_id": ticket_id,
                 "conversation_id": conversation_id,
-                # "is_new_ticket": True,
+                "is_new_ticket": True,
                 "data_collection_started": True,
 
                 # Knowledge base analysis
@@ -1516,7 +1537,6 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                     "status": "active",
                     "is_complete": False,
                     "missing_fields": ticket.get("missing_fields", ["category", "priority"]),
-                    # "progress_percent": ticket.get("progress", {}).get("percent", 33)
                 },
             }
 
@@ -1531,7 +1551,7 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 "success": True,
                 "ticket_id": ticket_id,
                 "conversation_id": conversation_id,
-                # "is_new_ticket": True,
+                "is_new_ticket": True,
 
                 # Minimal knowledge base info
                 "knowledge_base": {
@@ -1549,7 +1569,7 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 # Generic diagnostic questions
                 "must_ask_diagnostic_questions": [
                     "What type of issue are you experiencing? (Hardware, Software, Network, Facility, Medical Equipment)",
-                    "How urgent is this issue? (Critical, High, Medium, Low)",
+                    "How urgent is this issue? (High, Medium, Low)",
                     "Can you describe what's happening in more detail?"
                 ],
 
@@ -1780,7 +1800,7 @@ async def update_ticket_endpoint(ticket_id: str, conversation_id: str, request: 
             for missing_field in post_update_missing[:3]:
                 if missing_field == "priority":
                     must_ask_diagnostic_questions.append(
-                        "How urgent is this issue? (Critical: immediate patient care impact, High: major disruption, Normal: standard issue, Low: minor inconvenience)"
+                        "How urgent is this issue? (High: major disruption, Medium: standard issue, Low: minor inconvenience)"
                     )
                 elif missing_field == "category":
                     must_ask_diagnostic_questions.append(
@@ -2770,8 +2790,8 @@ async def mcp_tools_list():
                     },
                     "priority": {
                         "type": "string",
-                        "enum": ["Critical", "High", "Normal", "Low"],
-                        "description": "Priority level for JIRA",
+                        "enum": ["High", "Normal", "Low"],
+                        "description": "Priority level for JIRA (If not provided, generate base on reported issue)",
                         "default": "Medium"
                     },
                     "department": {
@@ -2810,18 +2830,6 @@ async def mcp_tools_list():
                 "required": ["ticket_id"]
             }
         )
-
-
-        #
-        # MCPTool(
-        #     name="ticket_stats",
-        #     description="TRIGGER: ticket statistics, ticket stats, dashboard, ticket overview, ticket summary | ACTION: Get aggregated statistics about all tickets | RETURNS: Counts by priority, category, status, and total ticket count",
-        #     inputSchema={
-        #         "type": "object",
-        #         "properties": {},
-        #         "required": []
-        #     }
-        # )
     ]
 
     return MCPToolsListResponse(tools=tools)
@@ -3584,7 +3592,6 @@ async def server_info():
             "priorities": {
                 "values": TicketManager.VALID_PRIORITIES,
                 "sla": {
-                    "Critical": "2 hours",
                     "High": "8 hours",
                     "Normal": "24 hours",
                     "Low": "72 hours"
