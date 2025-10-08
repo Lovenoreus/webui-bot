@@ -1,10 +1,72 @@
+# ====== SSL CERTIFICATE BYPASS - MUST BE FIRST ======
+import ssl
+import os
+import warnings
+
+# Create unverified SSL context globally
+_original_create_default_context = ssl.create_default_context
+def _create_unverified_context(*args, **kwargs):
+    context = _original_create_default_context(*args, **kwargs)
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    return context
+
+# Override SSL context creation
+ssl.create_default_context = _create_unverified_context
+ssl._create_default_https_context = ssl._create_unverified_context
+
+# Set environment variables FIRST
+os.environ["CURL_CA_BUNDLE"] = ""
+os.environ["REQUESTS_CA_BUNDLE"] = ""
+os.environ["SSL_VERIFY"] = "false"
+os.environ["PYTHONHTTPSVERIFY"] = "0"
+os.environ["OPENAI_VERIFY_SSL"] = "false"
+
+# Import and patch requests before anything else uses it
+import requests
+import urllib3
+import http.client
+
+# Disable SSL warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+warnings.filterwarnings('ignore', message='Unverified HTTPS request')
+
+# Patch http.client for low-level SSL bypass
+original_https_connection_init = http.client.HTTPSConnection.__init__
+def patched_https_connection_init(self, *args, **kwargs):
+    kwargs['context'] = ssl._create_unverified_context()
+    return original_https_connection_init(self, *args, **kwargs)
+http.client.HTTPSConnection.__init__ = patched_https_connection_init
+
+# Patch all requests methods
+_original_request = requests.request
+def _patched_request(method, url, **kwargs):
+    kwargs.setdefault('verify', False)
+    return _original_request(method, url, **kwargs)
+requests.request = _patched_request
+
+# Patch Session.request
+_original_session_request = requests.Session.request
+def _patched_session_request(self, method, url, **kwargs):
+    kwargs.setdefault('verify', False)
+    return _original_session_request(self, method, url, **kwargs)
+requests.Session.request = _patched_session_request
+
+# Final low-level socket SSL bypass
+import socket
+_original_create_connection = socket.create_connection
+def _patched_create_connection(address, *args, **kwargs):
+    # For HTTPS connections, disable SSL verification at socket level
+    return _original_create_connection(address, *args, **kwargs)
+socket.create_connection = _patched_create_connection
+
+# ====== END SSL BYPASS ======
+
 from vanna.openai import OpenAI_Chat
 from vanna.ollama import Ollama
 from vanna.chromadb import ChromaDB_VectorStore
 from dotenv import load_dotenv
-import os
 import logging
-import warnings
 import builtins
 from typing import Optional
 import pymssql
@@ -13,56 +75,13 @@ import config
 
 load_dotenv()
 
-# Disable SSL certificate verification globally
-import ssl
-import urllib3
-import requests
+# Additional imports
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-import http.client
 import certifi
 
-# Monkey patch http.client to disable SSL verification
-original_https_connection_init = http.client.HTTPSConnection.__init__
-def patched_https_connection_init(self, *args, **kwargs):
-    kwargs['context'] = ssl._create_unverified_context()
-    return original_https_connection_init(self, *args, **kwargs)
-http.client.HTTPSConnection.__init__ = patched_https_connection_init
-
-# Disable SSL warnings and verification
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-ssl._create_default_https_context = ssl._create_unverified_context
-
-# Set environment variables to disable SSL verification
-os.environ["CURL_CA_BUNDLE"] = ""
-os.environ["REQUESTS_CA_BUNDLE"] = ""
-os.environ["SSL_VERIFY"] = "false"
-os.environ["PYTHONHTTPSVERIFY"] = "0"
-os.environ["OPENAI_CA_BUNDLE"] = ""
-
-# Monkey patch requests to disable SSL verification globally
-original_request = requests.Session.request
-def patched_request(self, method, url, **kwargs):
-    kwargs.setdefault('verify', False)
-    return original_request(self, method, url, **kwargs)
-requests.Session.request = patched_request
-
-# Also patch requests.request directly
-original_requests_request = requests.request
-def patched_requests_request(method, url, **kwargs):
-    kwargs.setdefault('verify', False)
-    return original_requests_request(method, url, **kwargs)
-requests.request = patched_requests_request
-
-# Patch requests.get, post, etc.
-for method in ['get', 'post', 'put', 'delete', 'head', 'options', 'patch']:
-    original_method = getattr(requests, method)
-    def make_patched_method(orig_method):
-        def patched_method(url, **kwargs):
-            kwargs.setdefault('verify', False)
-            return orig_method(url, **kwargs)
-        return patched_method
-    setattr(requests, method, make_patched_method(original_method))
+# Override certifi to return empty path
+certifi.where = lambda: ""
 
 # Suppress tokenizer warnings
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -155,31 +174,6 @@ class VannaModelManager:
         if not config.OPENAI_API_KEY:
             raise ValueError("OPENAI_API_KEY not found in environment")
         
-        # Force SSL bypass for OpenAI
-        import ssl
-        import urllib3
-        import certifi
-        
-        # Multiple approaches to disable SSL
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        
-        # Override certifi to return empty string
-        original_where = certifi.where
-        certifi.where = lambda: ""
-        
-        # Set OpenAI-specific environment variables
-        os.environ["OPENAI_VERIFY_SSL"] = "false"
-        
-        try:
-            # Try to import and patch OpenAI client directly
-            import openai
-            if hasattr(openai, '_client'):
-                # Patch the OpenAI client's session
-                if hasattr(openai._client, '_session'):
-                    openai._client._session.verify = False
-        except:
-            pass
-        
         VannaClass = self.get_vanna_class("openai")
         self.vanna_client = VannaClass(config={
             'api_key': config.OPENAI_API_KEY,
@@ -188,11 +182,15 @@ class VannaModelManager:
             'verbose': config.VANNA_OPENAI_VERBOSE
         })
         
-        # Additional post-initialization SSL bypass
+        # Post-initialization SSL bypass attempts
         try:
-            if hasattr(self.vanna_client, '_client') and hasattr(self.vanna_client._client, '_session'):
-                self.vanna_client._client._session.verify = False
-        except:
+            # Try to patch any internal session objects
+            if hasattr(self.vanna_client, '_client'):
+                if hasattr(self.vanna_client._client, '_session'):
+                    self.vanna_client._client._session.verify = False
+                if hasattr(self.vanna_client._client, 'session'):
+                    self.vanna_client._client.session.verify = False
+        except Exception:
             pass
             
         self.current_provider = "openai"
@@ -490,20 +488,28 @@ def get_database_schema_info():
                 GROUP BY TABLE_NAME
             """)
         elif vanna_manager.current_database == "mssql":
-            # Use a simpler approach to avoid STRING_AGG limitations and ambiguous column names
+            # Generate proper CREATE TABLE statements with correct schema names
             return vn.run_sql("""
                 SELECT 'table' as type,
-                       'Table: ' + t.TABLE_NAME + ' - Columns: ' + 
-                       CAST(COUNT(*) AS VARCHAR(10)) + ' columns including: ' +
+                       'CREATE TABLE [Nodinite].[ods].[' + t.TABLE_NAME + '] (' +
                        STUFF((
-                           SELECT TOP 10 ', ' + COLUMN_NAME + ' (' + DATA_TYPE + ')'
+                           SELECT ', ' + COLUMN_NAME + ' ' + 
+                                  CASE 
+                                      WHEN DATA_TYPE = 'varchar' THEN 'NVARCHAR(' + CAST(CHARACTER_MAXIMUM_LENGTH AS VARCHAR) + ')'
+                                      WHEN DATA_TYPE = 'nvarchar' THEN 'NVARCHAR(' + CAST(CHARACTER_MAXIMUM_LENGTH AS VARCHAR) + ')'
+                                      WHEN DATA_TYPE = 'decimal' THEN 'DECIMAL(' + CAST(NUMERIC_PRECISION AS VARCHAR) + ',' + CAST(NUMERIC_SCALE AS VARCHAR) + ')'
+                                      WHEN DATA_TYPE = 'int' THEN 'INT'
+                                      WHEN DATA_TYPE = 'date' THEN 'DATE'
+                                      WHEN DATA_TYPE = 'datetime' THEN 'DATETIME'
+                                      ELSE UPPER(DATA_TYPE)
+                                  END +
+                                  CASE WHEN IS_NULLABLE = 'NO' THEN ' NOT NULL' ELSE '' END
                            FROM INFORMATION_SCHEMA.COLUMNS c2
                            WHERE c2.TABLE_NAME = t.TABLE_NAME AND c2.TABLE_SCHEMA = t.TABLE_SCHEMA
                            ORDER BY ORDINAL_POSITION
                            FOR XML PATH('')
-                       ), 1, 2, '') as sql
+                       ), 1, 2, '') + ');' as sql
                 FROM INFORMATION_SCHEMA.TABLES t
-                JOIN INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_NAME = c.TABLE_NAME AND t.TABLE_SCHEMA = c.TABLE_SCHEMA
                 WHERE t.TABLE_TYPE = 'BASE TABLE' AND t.TABLE_SCHEMA = 'ods'
                 GROUP BY t.TABLE_NAME, t.TABLE_SCHEMA
             """)
@@ -537,12 +543,75 @@ if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
         if existing_training_data.empty or config.VANNA_TRAIN_ON_STARTUP:
             print(f"Training Vanna with {vanna_manager.current_provider} provider on {vanna_manager.current_database} database...")
             
+            # First, add database-specific system instructions for MSSQL
+            if vanna_manager.current_database == "mssql":
+                system_instructions = """
+                CRITICAL SQL GENERATION RULES FOR MICROSOFT SQL SERVER:
+                
+                1. ALWAYS use full three-part table names: [Nodinite].[ods].[TableName]
+                2. NEVER use simple table names like 'Invoice' - always use '[Nodinite].[ods].[Invoice]'
+                3. Use T-SQL syntax: SELECT TOP N ... instead of LIMIT N
+                4. For date operations use: CAST(column_name AS DATE)
+                5. Database: Nodinite, Schema: ods
+                
+                CORRECT EXAMPLES:
+                - SELECT TOP 100 * FROM [Nodinite].[ods].[Invoice]
+                - SELECT DUE_DATE FROM [Nodinite].[ods].[Invoice] WHERE INVOICE_ID = '12345'
+                - SELECT i.*, il.* FROM [Nodinite].[ods].[Invoice] i JOIN [Nodinite].[ods].[Invoice_Line] il ON i.INVOICE_ID = il.INVOICE_ID
+                
+                WRONG EXAMPLES:
+                - SELECT * FROM Invoice (NEVER do this)
+                - SELECT * FROM ods.Invoice (incomplete)
+                - SELECT * FROM Invoice LIMIT 10 (wrong syntax)
+                """
+                try:
+                    vanna_train(documentation=system_instructions)
+                    print("Trained system instructions for MSSQL")
+                except Exception as e:
+                    print(f"Error training system instructions: {e}")
+            
             # Train on DDL statements
             for ddl in df_ddl['sql'].to_list():
                 try:
                     vanna_train(ddl=ddl)
                 except Exception as e:
                     print(f"Error training DDL: {e}")
+            
+            # Add specific SQL examples with correct table naming for MSSQL
+            if vanna_manager.current_database == "mssql":
+                example_queries = [
+                    {
+                        "question": "Show me all invoices",
+                        "sql": "SELECT TOP 100 * FROM [Nodinite].[ods].[Invoice]"
+                    },
+                    {
+                        "question": "What is the due date for invoice 00000363?",
+                        "sql": "SELECT DUE_DATE FROM [Nodinite].[ods].[Invoice] WHERE INVOICE_ID = '00000363'"
+                    },
+                    {
+                        "question": "List all supplier names",
+                        "sql": "SELECT DISTINCT SUPPLIER_PARTY_NAME FROM [Nodinite].[ods].[Invoice]"
+                    },
+                    {
+                        "question": "Show invoice line items for a specific invoice",
+                        "sql": "SELECT * FROM [Nodinite].[ods].[Invoice_Line] WHERE INVOICE_ID = '00000363'"
+                    },
+                    {
+                        "question": "Count total number of invoices",
+                        "sql": "SELECT COUNT(*) FROM [Nodinite].[ods].[Invoice]"
+                    },
+                    {
+                        "question": "Get invoice details with line items",
+                        "sql": "SELECT i.INVOICE_ID, i.SUPPLIER_PARTY_NAME, il.ITEM_NAME FROM [Nodinite].[ods].[Invoice] i JOIN [Nodinite].[ods].[Invoice_Line] il ON i.INVOICE_ID = il.INVOICE_ID"
+                    }
+                ]
+                
+                for example in example_queries:
+                    try:
+                        vanna_train(question=example["question"], sql=example["sql"])
+                        print(f"Trained example: {example['question']}")
+                    except Exception as e:
+                        print(f"Error training example query: {e}")
             
             # Get list of all tables
             tables_df = get_table_names()
