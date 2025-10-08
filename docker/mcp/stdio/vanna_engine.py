@@ -183,15 +183,17 @@ async def vanna_train(
         question: Optional[str] = None,
         sql: Optional[str] = None
 ) -> bool:
-    """Train Vanna with different types of data (async)"""
+    """Train Vanna with different types of data (async wrapper)"""
     global vanna_manager
 
     if not vanna_manager.vanna_client:
         await vanna_manager.initialize_vanna()
 
-    async def _safe_train(train_func, data, data_type):
+    async def _safe_train(train_func, data_type):
         try:
-            await train_func(data)
+            loop = asyncio.get_event_loop()
+            # Run the synchronous train_with_retry in executor
+            await loop.run_in_executor(None, train_func)
             print(f"✅ Trained {data_type} with {vanna_manager.current_provider}")
             return True
         except Exception as e:
@@ -201,15 +203,18 @@ async def vanna_train(
     success = True
 
     if ddl:
-        if not await _safe_train(lambda x: vanna_manager.vanna_client.train_async(ddl=x), ddl, "DDL"):
+        train_func = lambda: vanna_manager.vanna_client.train_with_retry(ddl=ddl)
+        if not await _safe_train(train_func, "DDL"):
             success = False
 
     if documentation:
-        if not await _safe_train(lambda x: vanna_manager.vanna_client.train_async(documentation=x), documentation, "documentation"):
+        train_func = lambda: vanna_manager.vanna_client.train_with_retry(documentation=documentation)
+        if not await _safe_train(train_func, "documentation"):
             success = False
 
     if question and sql:
-        if not await _safe_train(lambda x: vanna_manager.vanna_client.train_async(question=x[0], sql=x[1]), (question, sql), "SQL pair"):
+        train_func = lambda: vanna_manager.vanna_client.train_with_retry(question=question, sql=sql)
+        if not await _safe_train(train_func, "SQL pair"):
             success = False
 
     if not any([ddl, documentation, (question and sql)]):
