@@ -122,6 +122,7 @@ class VannaModelManager:
             raise ValueError(f"Unsupported provider: {target_provider}")
 
         print(f"Vanna initialized with provider: {target_provider}")
+        return self.vanna_client
 
     async def _init_openai_vanna(self):
         """Initialize Vanna with OpenAI (async)"""
@@ -224,6 +225,7 @@ async def generate_sql(query: str) -> str:
     """Generate SQL from a natural language query (async)"""
     return await vanna_manager.generate_sql(query)
 
+
 # Integrated test code with schema switching
 async def main():
     # Determine database mode (local or remote) from environment variable or config
@@ -234,11 +236,11 @@ async def main():
     vanna_manager = VannaModelManager()
     print("Initializing Vanna SQL Assistant...")
 
-    await vanna_manager.initialize_vanna()
+    vn = await vanna_manager.initialize_vanna()
     print(f"✅ Vanna initialized with provider: {vanna_manager.current_provider}")
 
     # Define DDLs and documentation based on database mode
-    if DATABASE_MODE == "remote":
+    if config.DATABASE_CHOICE == "remote":
         print(f"Using remote database schema: [Nodinite].[ods]")
         invoice_ddl = """
         CREATE TABLE [Nodinite].[ods].[Invoice] (
@@ -555,7 +557,7 @@ async def main():
     # Generate SQL for the query
     query = "List the first table in the invoice table"
     print(f"\n📝 Generating SQL for query: '{query}'")
-    sql = await vanna_manager.generate_sql(query)
+    sql = await generate_sql(query)
     print("✅ Generated SQL:")
     print(sql)
 
