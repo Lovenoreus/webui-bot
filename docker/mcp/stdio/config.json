@@ -105,7 +105,7 @@
   },
   "vanna_databases": {
     "postgresql": {
-      "enabled": false,
+      "enabled": true,
       "ssl_mode": "require",
       "ssl_fallback_mode": "require",
       "ssl_verify_cert": false
@@ -125,7 +125,7 @@
       "encrypt": true
     },
     "sqlite": {
-      "enabled": true,
+      "enabled": false,
       "database_path": "compacted.db"
     },
     "connection": {

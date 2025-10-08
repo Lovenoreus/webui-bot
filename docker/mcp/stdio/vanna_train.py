@@ -515,8 +515,24 @@ class VannaModelManager:
                 sslmode=ssl_mode
             )
         except Exception as e:
-            if self._handle_ssl_connection_error(str(e), "postgresql"):
-                # Retry with fallback SSL mode (typically 'require' which bypasses certificate verification)
+            error_msg = str(e).lower()
+            
+            # Check for "server does not support SSL" error specifically
+            if "server does not support ssl" in error_msg or "ssl was required" in error_msg:
+                # Server doesn't support SSL at all, use disable mode
+                print(f"[VANNA DEBUG] Server does not support SSL, switching to sslmode=disable")
+                fallback_ssl_mode = "disable"
+                connection_string = f"postgresql://{config.VANNA_DB_USERNAME}:{config.VANNA_DB_PASSWORD}@{config.VANNA_DB_HOST}:{port}/{config.VANNA_DB_DATABASE}?sslmode={fallback_ssl_mode}"
+                self.vanna_client.connect_to_postgres(
+                    host=config.VANNA_DB_HOST,
+                    dbname=config.VANNA_DB_DATABASE,
+                    user=config.VANNA_DB_USERNAME,
+                    password=config.VANNA_DB_PASSWORD,
+                    port=port,
+                    sslmode=fallback_ssl_mode
+                )
+            elif self._handle_ssl_connection_error(str(e), "postgresql"):
+                # Certificate verification issues, use require mode (SSL but no cert verification)
                 fallback_ssl_mode = config.VANNA_POSTGRESQL_SSL_FALLBACK_MODE
                 connection_string = f"postgresql://{config.VANNA_DB_USERNAME}:{config.VANNA_DB_PASSWORD}@{config.VANNA_DB_HOST}:{port}/{config.VANNA_DB_DATABASE}?sslmode={fallback_ssl_mode}"
                 self.vanna_client.connect_to_postgres(
