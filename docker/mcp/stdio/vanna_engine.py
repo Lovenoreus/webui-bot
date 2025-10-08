@@ -402,12 +402,12 @@ if __name__ == "__main__":
     builtins.print = _original_print
 
     print(f"\n🤖 Vanna SQL Assistant initialized with {vanna_manager.current_provider} provider")
-    print(f"📊 Current model: {get_vanna_info()['model']}")
+    print(f"📊 Current model: {get_vanna_info(vanna_manager)['model']}")
 
     # Generate SQL for the query
-    query = "List the first table in the invoice table"
+    query = "List the first two items on the invoice table"
     print(f"\n📝 Generating SQL for query: '{query}'")
-    sql = generate_sql(query)
+    sql = generate_sql(vanna_manager, query)
     print("✅ Generated SQL:")
     print(sql)
 
