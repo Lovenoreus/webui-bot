@@ -15,7 +15,6 @@ load_dotenv(find_dotenv())
 # OpenAI provider settings
 USE_VANNA_OPENAI = True  # Enable OpenAI provider
 USE_VANNA_OLLAMA = False  # Disable Ollama provider
-OPENAI_API_KEY = ""  # Set in environment variable (via .env) or directly here
 VANNA_OPENAI_MODEL = "gpt-4o-mini"  # Default OpenAI model
 VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA = True  # Allow LLM to access training data
 VANNA_OPENAI_VERBOSE = True  # Enable verbose output for debugging
@@ -27,6 +26,8 @@ VANNA_SSL_DISABLE_WARNINGS = True  # Disable SSL warnings
 # Training settings
 VANNA_AUTO_TRAIN = False  # Disable auto-training on startup
 VANNA_TRAIN_ON_STARTUP = False  # Disable training on startup
+
+CHROMA_DB_PATH = "./database_data/vanna"
 
 
 def get_nested(d: Dict[str, Any], keys: List[str], default: Any = None) -> Any:
@@ -172,8 +173,8 @@ print(f"SQL_SERVER_HOST: {SQL_SERVER_HOST}")
 print(f"SQL_SERVER_DATABASE: {SQL_SERVER_DATABASE}")
 print(f"SQL_SERVER_DRIVER: {SQL_SERVER_DRIVER}")
 print(f"SQL_SERVER_USE_WINDOWS_AUTH: {SQL_SERVER_USE_WINDOWS_AUTH}")
-print(f"SQL_SERVER_USERNAME: {SQL_SERVER_USERNAME}")
-print(f"SQL_SERVER_PASSWORD: {'*' * len(SQL_SERVER_PASSWORD) if SQL_SERVER_PASSWORD else None}")
+# print(f"SQL_SERVER_USERNAME: {SQL_SERVER_USERNAME}")
+# print(f"SQL_SERVER_PASSWORD: {'*' * len(SQL_SERVER_PASSWORD) if SQL_SERVER_PASSWORD else None}")
 
 MCP_DATABASE_PATH = get_nested(config, ["mcp", "database_path"], "sqlite_invoices_full.db")
 MCP_DOCKER_DATABASE_PATH = get_nested(config, ["mcp", "docker_database_path"],

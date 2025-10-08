@@ -162,6 +162,7 @@ class QueryEngine:
                         if self.debug:
                             print(f"[QueryEngine] Database error: {result.get('error')}")
                         return []
+
         except Exception as e:
             if self.debug:
                 print(f"[QueryEngine] Database connection error: {e}")
