@@ -152,12 +152,13 @@ SQL_SERVER_USE_WINDOWS_AUTH = os.getenv("SQL_SERVER_USE_WINDOWS_AUTH", "true").l
 SQL_SERVER_USERNAME = os.getenv("SQL_SERVER_USERNAME", None)
 SQL_SERVER_PASSWORD = os.getenv("SQL_SERVER_PASSWORD", None)
 
-print(f"SQL_SERVER_HOST: {SQL_SERVER_HOST}")
-print(f"SQL_SERVER_DATABASE: {SQL_SERVER_DATABASE}")
-print(f"SQL_SERVER_DRIVER: {SQL_SERVER_DRIVER}")
-print(f"SQL_SERVER_USE_WINDOWS_AUTH: {SQL_SERVER_USE_WINDOWS_AUTH}")
-print(f"SQL_SERVER_USERNAME: {SQL_SERVER_USERNAME}")
-print(f"SQL_SERVER_PASSWORD: {'*' * len(SQL_SERVER_PASSWORD) if SQL_SERVER_PASSWORD else None}")
+# SQL Server debug info (commented out to avoid confusion)
+# print(f"SQL_SERVER_HOST: {SQL_SERVER_HOST}")
+# print(f"SQL_SERVER_DATABASE: {SQL_SERVER_DATABASE}")
+# print(f"SQL_SERVER_DRIVER: {SQL_SERVER_DRIVER}")
+# print(f"SQL_SERVER_USE_WINDOWS_AUTH: {SQL_SERVER_USE_WINDOWS_AUTH}")
+# print(f"SQL_SERVER_USERNAME: {SQL_SERVER_USERNAME}")
+# print(f"SQL_SERVER_PASSWORD: {'*' * len(SQL_SERVER_PASSWORD) if SQL_SERVER_PASSWORD else None}")
 
 MCP_DATABASE_PATH = get_nested(config, ["mcp", "database_path"], "sqlite_invoices_full.db")
 MCP_DOCKER_DATABASE_PATH = get_nested(config, ["mcp", "docker_database_path"],
@@ -165,6 +166,7 @@ MCP_DOCKER_DATABASE_PATH = get_nested(config, ["mcp", "docker_database_path"],
 MCP_DATABASE_SERVER_URL = get_nested(config, ["mcp", "database_server_url"], "http://localhost:8762")
 MCP_DOCKER_DATABASE_SERVER_URL = get_nested(config, ["mcp", "docker_database_server_url"],
                                             "http://database_server:8762")
+MCP_USE_VANNA = to_bool(get_nested(config, ["mcp", "use_vanna"], False), default=False)
 MCP_PROVIDER_OPENAI = to_bool(get_nested(config, ["mcp", "provider", "openai"], False), default=False)
 MCP_PROVIDER_OLLAMA = to_bool(get_nested(config, ["mcp", "provider", "ollama"], False), default=False)
 MCP_PROVIDER_MISTRAL = to_bool(get_nested(config, ["mcp", "provider", "mistral"], False), default=False)
@@ -177,7 +179,69 @@ if MCP_PROVIDER_OPENAI:
 if MCP_PROVIDER_MISTRAL:
     MCP_AGENT_MODEL_NAME = get_nested(config, ["mistral", "model_name"], "devstral-medium-2507")
 
-# --- 12) Example usage (remove or adapt in production) ---
+# --- 12) Vanna configuration ---
+USE_VANNA_OPENAI = to_bool(get_nested(config, ["vanna", "openai", "enabled"], True), default=True)
+USE_VANNA_OLLAMA = to_bool(get_nested(config, ["vanna", "ollama", "enabled"], False), default=False)
+
+VANNA_OPENAI_MODEL = get_nested(config, ["vanna", "openai", "model"], "gpt-4o-mini")
+VANNA_OLLAMA_MODEL = get_nested(config, ["vanna", "ollama", "model"], "qwen2.5:3b-instruct")
+
+# Vanna Ollama Base URL - Priority: Env var > Config > General Ollama URL
+VANNA_OLLAMA_BASE_URL = os.getenv("VANNA_OLLAMA_BASE_URL") or get_nested(config, ["vanna", "ollama", "base_url"]) or OLLAMA_BASE_URL
+
+VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA = to_bool(get_nested(config, ["vanna", "openai", "allow_llm_to_see_data"], True), default=True)
+VANNA_OPENAI_VERBOSE = to_bool(get_nested(config, ["vanna", "openai", "verbose"], False), default=False)
+VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA = to_bool(get_nested(config, ["vanna", "ollama", "allow_llm_to_see_data"], True), default=True)
+VANNA_OLLAMA_VERBOSE = to_bool(get_nested(config, ["vanna", "ollama", "verbose"], False), default=False)
+VANNA_AUTO_TRAIN = to_bool(get_nested(config, ["vanna", "database", "auto_train"], True), default=True)
+VANNA_TRAIN_ON_STARTUP = to_bool(get_nested(config, ["vanna", "database", "train_on_startup"], False), default=False)
+
+# --- 13) Vanna Database Configuration ---
+# Database Enable/Disable Flags
+VANNA_POSTGRESQL_ENABLED = to_bool(get_nested(config, ["vanna_databases", "postgresql", "enabled"], False), default=False)
+VANNA_MYSQL_ENABLED = to_bool(get_nested(config, ["vanna_databases", "mysql", "enabled"], False), default=False)
+VANNA_MSSQL_ENABLED = to_bool(get_nested(config, ["vanna_databases", "mssql", "enabled"], False), default=False)
+VANNA_SQLITE_ENABLED = to_bool(get_nested(config, ["vanna_databases", "sqlite", "enabled"], False), default=False)
+
+# Automatically determine active database based on which one is enabled
+def _get_active_database():
+    if VANNA_POSTGRESQL_ENABLED:
+        return "postgresql"
+    elif VANNA_MYSQL_ENABLED:
+        return "mysql"
+    elif VANNA_MSSQL_ENABLED:
+        return "mssql"
+    elif VANNA_SQLITE_ENABLED:
+        return "sqlite"
+    else:
+        # Default to sqlite if none are explicitly enabled
+        return "sqlite"
+
+VANNA_ACTIVE_DATABASE = _get_active_database()
+
+# Generalized Database Configuration (used for all databases except SQLite)
+VANNA_DB_HOST = os.getenv("DB_HOST") or get_nested(config, ["vanna_databases", "connection", "host"], "localhost")
+VANNA_DB_DATABASE = os.getenv("DB_DATABASE") or get_nested(config, ["vanna_databases", "connection", "database"], "your_database")
+VANNA_DB_USERNAME = os.getenv("DB_USERNAME") or get_nested(config, ["vanna_databases", "connection", "username"], "your_username")
+VANNA_DB_PASSWORD = os.getenv("DB_PASSWORD") or get_nested(config, ["vanna_databases", "connection", "password"], "your_password")
+
+# Database-specific configurations (only for special settings)
+VANNA_POSTGRESQL_SSL_MODE = get_nested(config, ["vanna_databases", "postgresql", "ssl_mode"], "prefer")
+VANNA_MYSQL_CHARSET = get_nested(config, ["vanna_databases", "mysql", "charset"], "utf8mb4")
+VANNA_MSSQL_DRIVER = get_nested(config, ["vanna_databases", "mssql", "driver"], "ODBC Driver 17 for SQL Server")
+VANNA_MSSQL_TRUSTED_CONNECTION = to_bool(get_nested(config, ["vanna_databases", "mssql", "trusted_connection"], False), default=False)
+
+# Default ports for different databases
+VANNA_DEFAULT_PORTS = {
+    'postgresql': 5432,
+    'mysql': 3306,
+    'mssql': 1433
+}
+
+# SQLite Configuration (no credentials needed)
+VANNA_SQLITE_DATABASE_PATH = get_nested(config, ["vanna_databases", "sqlite", "database_path"], "compacted.db")
+
+# --- 14) Example usage (remove or adapt in production) ---
 if USE_OLLAMA:
     AGENT_MODEL = init_chat_model(
         AGENT_MODEL_NAME,

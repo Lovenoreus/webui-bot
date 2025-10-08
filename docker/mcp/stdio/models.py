@@ -49,3 +49,7 @@ class MCPServerInfo(BaseModel):
     author: Optional[str] = None
     homepage: Optional[str] = None
     capabilities: Dict[str, bool]
+
+# -------------------- Engine Switch MODELS --------------------
+class SwitchEngineRequest(BaseModel):
+    use_vanna: bool

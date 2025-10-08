@@ -30,10 +30,9 @@
     "port": 6333,
     "result_limit": 6,
     "chunking_strategy": "by_section_id"
-
   },
   "grafana": {
-    "enabled":false,
+    "enabled": false,
     "level": "error",
     "log_to_file": false
   },
@@ -51,33 +50,71 @@
     "project_key": "HEAL",
     "issue_type": "Task"
   },
-  "cosmic_database":{
-    "collection_name":"cosmic_documents",
-    "document_path":"C:/RemoteRepos/omnigate/cosmic_documents"
+  "cosmic_database": {
+    "collection_name": "cosmic_documents",
+    "document_path": "C:/RemoteRepos/omnigate/cosmic_documents"
   },
-  "mcp":{
-    "database_choice": "remote",
-    "connection_pool_size": 10,
+  "vanna": {
+    "openai": {
+      "enabled": true,
+      "model": "gpt-4o-mini",
+      "allow_llm_to_see_data": true,
+      "verbose": false
+    },
+    "ollama": {
+      "enabled": false,
+      "model": "HridaAI/hrida-t2sql:latest",
+      "base_url": "http://localhost:11434",
+      "allow_llm_to_see_data": true,
+      "verbose": false
+    },
+    "database": {
+      "auto_train": false,
+      "train_on_startup": true
+    }
+  },
+  "mcp": {
+    "database_choice": "local",
     "database_path": "sqlite_invoices_full.db",
     "docker_database_path": "/app/database_data/sqlite_invoices_full.db",
     "database_server_url": "http://localhost:8762",
     "docker_database_server_url": "http://database_server:8762",
+    "use_vanna": true,
     "provider": {
-        "openai": true,
-        "ollama": false,
-        "mistral": false
+      "openai": true,
+      "ollama": false,
+      "mistral": false
     },
-    "mcp_ollama":{
-        "enabled": false,
-        "model_name": "qwen2.5:3b-instruct"
+    "mcp_ollama": {
+      "enabled": false,
+      "model_name": "qwen2.5:3b-instruct"
     },
-    "mcp_openai":{
-        "enabled": true,
-        "model_name": "gpt-4o-mini"
+    "mcp_openai": {
+      "enabled": true,
+      "model_name": "gpt-4o-mini"
     },
-    "mcp_mistral":{
-        "enabled": false,
-        "model_name": "devstral-small-2507"
+    "mcp_mistral": {
+      "enabled": false,
+      "model_name": "devstral-small-2507"
+    }
+  },
+  "vanna_databases": {
+    "postgresql": {
+      "enabled": false,
+      "ssl_mode": "prefer"
+    },
+    "mysql": {
+      "enabled": false,
+      "charset": "utf8mb4"
+    },
+    "mssql": {
+      "enabled": false,
+      "driver": "ODBC Driver 17 for SQL Server",
+      "trusted_connection": false
+    },
+    "sqlite": {
+      "enabled": true,
+      "database_path": "compacted.db"
     }
   }
 }
