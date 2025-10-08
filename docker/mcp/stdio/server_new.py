@@ -497,7 +497,7 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
         # sql_query = await query_engine.generate_sql(request.query, request.keywords, provider)
         # sql_query = await query_engine.generate_sql(request.query, keywords, provider)
         # TODO: GENERATE SQL QUERY WITH VANNA
-        sql_query = vanna_manager.generate_sql(vanna_manager, request.query)
+        sql_query = vanna_manager.generate_sql(request.query)
 
         if not sql_query:
             return {"success": False, "error": "Failed to generate SQL", "original_query": request.query}
