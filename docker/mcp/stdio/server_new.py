@@ -257,36 +257,34 @@ INV004,2025-01-04,COMP003,LINE005,Medical Supplies,10.0000,3200.00,32000.00,25.0
 # Train Vanna with DDL and documentation
 print("\n📚 Training Vanna with DDL and documentation...")
 print("Training with Invoice DDL...")
-if vanna_train(ddl=invoice_ddl):
+if vanna_train(vanna_manager, ddl=invoice_ddl):
     print("✅ Successfully trained Invoice DDL")
 else:
     print("❌ Failed to train Invoice DDL")
 
 print("Training with Invoice_Line DDL...")
-if vanna_train(ddl=invoice_line_ddl):
+if vanna_train(vanna_manager, ddl=invoice_line_ddl):
     print("✅ Successfully trained Invoice_Line DDL")
 else:
     print("❌ Failed to train Invoice_Line DDL")
 
 print("Training with Invoice documentation (first 5 rows)...")
-if vanna_train(documentation=invoice_doc):
+if vanna_train(vanna_manager, documentation=invoice_doc):
     print("✅ Successfully trained Invoice documentation")
 else:
     print("❌ Failed to train Invoice documentation")
 
 print("Training with Invoice_Line documentation (first 5 rows)...")
-if vanna_train(documentation=invoice_line_doc):
+if vanna_train(vanna_manager, documentation=invoice_line_doc):
     print("✅ Successfully trained Invoice_Line documentation")
 else:
     print("❌ Failed to train Invoice_Line documentation")
 
 # Auto-train on startup if enabled
 if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
-    print("\n🔄 Auto-training enabled. Additional training can be done manually with vanna_train().")
+    print("\n🔄 Auto-training enabled. Additional training can be done manually with vanna_train(vanna_manager, ...).")
 else:
-    print("\n🔄 Auto-training is disabled. Use vanna_train() to manually train the model.")
-
-
+    print("\n🔄 Auto-training is disabled. Use vanna_train(vanna_manager, ...) to manually train the model.")
 
 # async def init_vanna():
 #     """Initialize vanna once"""

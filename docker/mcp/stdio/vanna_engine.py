@@ -166,22 +166,23 @@ class VannaModelManager:
             "initialized": self.vanna_client is not None
         }
 
+
 def vanna_train(
+        manager,  # Add manager parameter
         ddl: Optional[str] = None,
         documentation: Optional[str] = None,
         question: Optional[str] = None,
         sql: Optional[str] = None
 ) -> bool:
     """Train Vanna with different types of data"""
-    global vanna_manager
 
-    if not vanna_manager.vanna_client:
-        vanna_manager.initialize_vanna()
+    if not manager.vanna_client:
+        manager.initialize_vanna()
 
     def _safe_train(train_func, data, data_type):
         try:
             train_func(data)
-            print(f"✅ Trained {data_type} with {vanna_manager.current_provider}")
+            print(f"✅ Trained {data_type} with {manager.current_provider}")
             return True
         except Exception as e:
             print(f"❌ Error training {data_type}: {e}")
@@ -190,15 +191,15 @@ def vanna_train(
     success = True
 
     if ddl:
-        if not _safe_train(lambda x: vanna_manager.vanna_client.train(ddl=x), ddl, "DDL"):
+        if not _safe_train(lambda x: manager.vanna_client.train(ddl=x), ddl, "DDL"):
             success = False
 
     if documentation:
-        if not _safe_train(lambda x: vanna_manager.vanna_client.train(documentation=x), documentation, "documentation"):
+        if not _safe_train(lambda x: manager.vanna_client.train(documentation=x), documentation, "documentation"):
             success = False
 
     if question and sql:
-        if not _safe_train(lambda x: vanna_manager.vanna_client.train(question=x[0], sql=x[1]), (question, sql), "SQL pair"):
+        if not _safe_train(lambda x: manager.vanna_client.train(question=x[0], sql=x[1]), (question, sql), "SQL pair"):
             success = False
 
     if not any([ddl, documentation, (question and sql)]):
@@ -206,13 +207,16 @@ def vanna_train(
 
     return success
 
-def get_vanna_info() -> dict:
-    """Get current Vanna configuration info"""
-    return vanna_manager.get_info()
 
-def generate_sql(query: str) -> str:
+def generate_sql(manager, query: str) -> str:
     """Generate SQL from a natural language query"""
-    return vanna_manager.generate_sql(query)
+    return manager.generate_sql(query)
+
+
+def get_vanna_info(manager) -> dict:
+    """Get current Vanna configuration info"""
+    return manager.get_info()
+
 
 # Integrated test code with updated DDLs and documentation
 if __name__ == "__main__":
@@ -364,34 +368,35 @@ if __name__ == "__main__":
     # Train Vanna with DDL and documentation
     print("\n📚 Training Vanna with DDL and documentation...")
     print("Training with Invoice DDL...")
-    if vanna_train(ddl=invoice_ddl):
+    if vanna_train(vanna_manager, ddl=invoice_ddl):
         print("✅ Successfully trained Invoice DDL")
     else:
         print("❌ Failed to train Invoice DDL")
 
     print("Training with Invoice_Line DDL...")
-    if vanna_train(ddl=invoice_line_ddl):
+    if vanna_train(vanna_manager, ddl=invoice_line_ddl):
         print("✅ Successfully trained Invoice_Line DDL")
     else:
         print("❌ Failed to train Invoice_Line DDL")
 
     print("Training with Invoice documentation (first 5 rows)...")
-    if vanna_train(documentation=invoice_doc):
+    if vanna_train(vanna_manager, documentation=invoice_doc):
         print("✅ Successfully trained Invoice documentation")
     else:
         print("❌ Failed to train Invoice documentation")
 
     print("Training with Invoice_Line documentation (first 5 rows)...")
-    if vanna_train(documentation=invoice_line_doc):
+    if vanna_train(vanna_manager, documentation=invoice_line_doc):
         print("✅ Successfully trained Invoice_Line documentation")
     else:
         print("❌ Failed to train Invoice_Line documentation")
 
     # Auto-train on startup if enabled
     if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
-        print("\n🔄 Auto-training enabled. Additional training can be done manually with vanna_train().")
+        print(
+            "\n🔄 Auto-training enabled. Additional training can be done manually with vanna_train(vanna_manager, ...).")
     else:
-        print("\n🔄 Auto-training is disabled. Use vanna_train() to manually train the model.")
+        print("\n🔄 Auto-training is disabled. Use vanna_train(vanna_manager, ...) to manually train the model.")
 
     # Restore original print
     builtins.print = _original_print
