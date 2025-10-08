@@ -434,7 +434,7 @@ async def init_vanna():
 
 # Initialize on first request
 if not vanna_initialized:
-    await init_vanna()
+    init_vanna()
 
 async def greet(name: Optional[str] = None) -> str:
     """Provide a friendly greeting to the user."""
