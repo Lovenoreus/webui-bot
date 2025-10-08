@@ -1,7 +1,7 @@
 # Core FastAPI and web server dependencies
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
-pydantic>=2.0.0docker
+pydantic>=2.0.0
 
 # HTTP client libraries
 requests>=2.31.0
