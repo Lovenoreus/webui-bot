@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
 # Build argument to control cert usage - SET THIS MANUALLY
-ARG USE_CERTS=false
+ARG USE_CERTS=true
 
 WORKDIR /app
 
@@ -73,6 +73,9 @@ EXPOSE 8009
 # Healthcheck (assumes a /health endpoint; adjust as needed)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8009/health || exit 1
+
+# Create and set permissions for ONNX model directory (volume mount)
+RUN mkdir -p /app/onnx_models && chmod -R 777 /app/onnx_models
 
 # Run as non-root
 RUN useradd -m appuser && chown -R appuser:appuser /app

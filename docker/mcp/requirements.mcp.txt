@@ -20,3 +20,4 @@ openai
 httpx
 urllib3
 chromadb
+ollama
