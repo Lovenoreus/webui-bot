@@ -297,22 +297,43 @@ class VannaModelManager:
             
             # Create a custom run_sql function that uses our pymssql connection
             def run_sql_pymssql(sql: str):
+                sql = sql.replace("```sql", "").replace("```", "").strip()
                 cursor = connection.cursor()
-                cursor.execute(sql)
-                if sql.strip().upper().startswith('SELECT'):
-                    results = cursor.fetchall()
+                try:
+                    cursor.execute(sql)
+                    if sql.strip().upper().startswith('SELECT'):
+                        results = cursor.fetchall()
+                        print("✅ EXECUTE SUCCESSFULLY")
+                        if results:
+                            try:
+                                import pandas as pd
+                                return pd.DataFrame(results)
+                            except:
+                                return results
+
+                    
+                except Exception as e:
+                    print("ERORRRRRRRRRRRR: ", e)
+                    return e
+                finally:
                     cursor.close()
-                    # Convert to pandas DataFrame if results exist
-                    if results:
-                        import pandas as pd
-                        return pd.DataFrame(results)
-                    else:
-                        import pandas as pd
-                        return pd.DataFrame()
-                else:
-                    connection.commit()
-                    cursor.close()
-                    return None
+                
+                #     # print("RESULTTTTTTTTTT",results)
+                #     if results:
+                #         # return results
+                #     # Convert to pandas DataFrame if results exist
+                #         try:
+                #             import pandas as pd
+                #             return pd.DataFrame(results)
+                #         except:
+                #             return results
+                #     else:
+                #         import pandas as pd
+                #         return pd.DataFrame()
+                # else:
+                #     connection.commit()
+                #     cursor.close()
+                #     return None
             
             # Set the custom run_sql function on the vanna client
             self.vanna_client.run_sql = run_sql_pymssql
@@ -543,33 +564,6 @@ if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
         if existing_training_data.empty or config.VANNA_TRAIN_ON_STARTUP:
             print(f"Training Vanna with {vanna_manager.current_provider} provider on {vanna_manager.current_database} database...")
             
-            # First, add database-specific system instructions for MSSQL
-            if vanna_manager.current_database == "mssql":
-                system_instructions = """
-                CRITICAL SQL GENERATION RULES FOR MICROSOFT SQL SERVER:
-                
-                1. ALWAYS use full three-part table names: [Nodinite].[ods].[TableName]
-                2. NEVER use simple table names like 'Invoice' - always use '[Nodinite].[ods].[Invoice]'
-                3. Use T-SQL syntax: SELECT TOP N ... instead of LIMIT N
-                4. For date operations use: CAST(column_name AS DATE)
-                5. Database: Nodinite, Schema: ods
-                
-                CORRECT EXAMPLES:
-                - SELECT TOP 100 * FROM [Nodinite].[ods].[Invoice]
-                - SELECT DUE_DATE FROM [Nodinite].[ods].[Invoice] WHERE INVOICE_ID = '12345'
-                - SELECT i.*, il.* FROM [Nodinite].[ods].[Invoice] i JOIN [Nodinite].[ods].[Invoice_Line] il ON i.INVOICE_ID = il.INVOICE_ID
-                
-                WRONG EXAMPLES:
-                - SELECT * FROM Invoice (NEVER do this)
-                - SELECT * FROM ods.Invoice (incomplete)
-                - SELECT * FROM Invoice LIMIT 10 (wrong syntax)
-                """
-                try:
-                    vanna_train(documentation=system_instructions)
-                    print("Trained system instructions for MSSQL")
-                except Exception as e:
-                    print(f"Error training system instructions: {e}")
-            
             # Train on DDL statements
             for ddl in df_ddl['sql'].to_list():
                 try:
@@ -577,53 +571,17 @@ if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
                 except Exception as e:
                     print(f"Error training DDL: {e}")
             
-            # Add specific SQL examples with correct table naming for MSSQL
-            if vanna_manager.current_database == "mssql":
-                example_queries = [
-                    {
-                        "question": "Show me all invoices",
-                        "sql": "SELECT TOP 100 * FROM [Nodinite].[ods].[Invoice]"
-                    },
-                    {
-                        "question": "What is the due date for invoice 00000363?",
-                        "sql": "SELECT DUE_DATE FROM [Nodinite].[ods].[Invoice] WHERE INVOICE_ID = '00000363'"
-                    },
-                    {
-                        "question": "List all supplier names",
-                        "sql": "SELECT DISTINCT SUPPLIER_PARTY_NAME FROM [Nodinite].[ods].[Invoice]"
-                    },
-                    {
-                        "question": "Show invoice line items for a specific invoice",
-                        "sql": "SELECT * FROM [Nodinite].[ods].[Invoice_Line] WHERE INVOICE_ID = '00000363'"
-                    },
-                    {
-                        "question": "Count total number of invoices",
-                        "sql": "SELECT COUNT(*) FROM [Nodinite].[ods].[Invoice]"
-                    },
-                    {
-                        "question": "Get invoice details with line items",
-                        "sql": "SELECT i.INVOICE_ID, i.SUPPLIER_PARTY_NAME, il.ITEM_NAME FROM [Nodinite].[ods].[Invoice] i JOIN [Nodinite].[ods].[Invoice_Line] il ON i.INVOICE_ID = il.INVOICE_ID"
-                    }
-                ]
-                
-                for example in example_queries:
-                    try:
-                        vanna_train(question=example["question"], sql=example["sql"])
-                        print(f"Trained example: {example['question']}")
-                    except Exception as e:
-                        print(f"Error training example query: {e}")
-            
             # Get list of all tables
             tables_df = get_table_names()
             if tables_df is not None and not tables_df.empty:
                 # For each table, get distinct examples
                 for table_name in tables_df['name']:
-                    # Use appropriate LIMIT syntax based on database type
-                    if vanna_manager.current_database == "mssql":
-                        sample_query = f"SELECT TOP 5 * FROM [Nodinite].[ods].[{table_name}]"
-                    else:
-                        sample_query = f"SELECT * FROM {table_name} LIMIT 5"
+                    # sample_query = f"SELECT * FROM {table_name} LIMIT 5"
                     
+                    # sample_query = f"SELECT * FROM [Nodinite].[ods].[{table_name}] LIMIT 5"
+                    sample_query = f"SELECT TOP 5 * FROM [Nodinite].[ods].[{table_name}]"
+                    print(f"DOCUMENTATION TABLEEEE: {table_name} \nWith query {sample_query}")
+                    # [Nodinite].[ods].[Credit_Note_Line_Allowance_Charge]
                     try:
                         sample_df = vn.run_sql(sample_query)
                         training_text = f"Table '{table_name}' contains records like:\n{sample_df.to_string()}"
@@ -638,6 +596,113 @@ if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
         print(f"Could not retrieve schema information from {vanna_manager.current_database} database.")
 else:
     print("Auto-training is disabled. Use vanna_train() function to manually train the model.")
+
+# # Auto-train on startup if enabled
+# if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
+#     print(f"Attempting to get schema information for {vanna_manager.current_database} database...")
+#     df_ddl = get_database_schema_info()
+    
+#     if df_ddl is not None and not df_ddl.empty:
+#         # Check if training data already exists
+#         existing_training_data = vn.get_training_data()
+#         if existing_training_data.empty or config.VANNA_TRAIN_ON_STARTUP:
+#             print(f"Training Vanna with {vanna_manager.current_provider} provider on {vanna_manager.current_database} database...")
+            
+#             # First, add database-specific system instructions for MSSQL
+#             if vanna_manager.current_database == "mssql":
+#                 system_instructions = """
+#                 CRITICAL SQL GENERATION RULES FOR MICROSOFT SQL SERVER:
+                
+#                 1. ALWAYS use full three-part table names: [Nodinite].[ods].[TableName]
+#                 2. NEVER use simple table names like 'Invoice' - always use '[Nodinite].[ods].[Invoice]'
+#                 3. Use T-SQL syntax: SELECT TOP N ... instead of LIMIT N
+#                 4. For date operations use: CAST(column_name AS DATE)
+#                 5. Database: Nodinite, Schema: ods
+                
+#                 CORRECT EXAMPLES:
+#                 - SELECT TOP 100 * FROM [Nodinite].[ods].[Invoice]
+#                 - SELECT DUE_DATE FROM [Nodinite].[ods].[Invoice] WHERE INVOICE_ID = '12345'
+#                 - SELECT i.*, il.* FROM [Nodinite].[ods].[Invoice] i JOIN [Nodinite].[ods].[Invoice_Line] il ON i.INVOICE_ID = il.INVOICE_ID
+                
+#                 WRONG EXAMPLES:
+#                 - SELECT * FROM Invoice (NEVER do this)
+#                 - SELECT * FROM ods.Invoice (incomplete)
+#                 - SELECT * FROM Invoice LIMIT 10 (wrong syntax)
+#                 """
+#                 try:
+#                     vanna_train(documentation=system_instructions)
+#                     print("Trained system instructions for MSSQL")
+#                 except Exception as e:
+#                     print(f"Error training system instructions: {e}")
+            
+#             # Train on DDL statements
+#             for ddl in df_ddl['sql'].to_list():
+#                 try:
+#                     vanna_train(ddl=ddl)
+#                 except Exception as e:
+#                     print(f"Error training DDL: {e}")
+            
+#             # # Add specific SQL examples with correct table naming for MSSQL
+#             # if vanna_manager.current_database == "mssql":
+#             #     example_queries = [
+#             #         {
+#             #             "question": "Show me all invoices",
+#             #             "sql": "SELECT TOP 100 * FROM [Nodinite].[ods].[Invoice]"
+#             #         },
+#             #         {
+#             #             "question": "What is the due date for invoice 00000363?",
+#             #             "sql": "SELECT DUE_DATE FROM [Nodinite].[ods].[Invoice] WHERE INVOICE_ID = '00000363'"
+#             #         },
+#             #         {
+#             #             "question": "List all supplier names",
+#             #             "sql": "SELECT DISTINCT SUPPLIER_PARTY_NAME FROM [Nodinite].[ods].[Invoice]"
+#             #         },
+#             #         {
+#             #             "question": "Show invoice line items for a specific invoice",
+#             #             "sql": "SELECT * FROM [Nodinite].[ods].[Invoice_Line] WHERE INVOICE_ID = '00000363'"
+#             #         },
+#             #         {
+#             #             "question": "Count total number of invoices",
+#             #             "sql": "SELECT COUNT(*) FROM [Nodinite].[ods].[Invoice]"
+#             #         },
+#             #         {
+#             #             "question": "Get invoice details with line items",
+#             #             "sql": "SELECT i.INVOICE_ID, i.SUPPLIER_PARTY_NAME, il.ITEM_NAME FROM [Nodinite].[ods].[Invoice] i JOIN [Nodinite].[ods].[Invoice_Line] il ON i.INVOICE_ID = il.INVOICE_ID"
+#             #         }
+#             #     ]
+                
+#             #     for example in example_queries:
+#             #         try:
+#             #             vanna_train(question=example["question"], sql=example["sql"])
+#             #             print(f"Trained example: {example['question']}")
+#             #         except Exception as e:
+#             #             print(f"Error training example query: {e}")
+            
+#             # # Get list of all tables
+#             # tables_df = get_table_names()
+#             # if tables_df is not None and not tables_df.empty:
+#             #     # For each table, get distinct examples
+#             #     for table_name in tables_df['name']:
+#             #         # Use appropriate LIMIT syntax based on database type
+#             #         if vanna_manager.current_database == "mssql":
+#             #             sample_query = f"SELECT TOP 5 * FROM [Nodinite].[ods].[{table_name}]"
+#             #         else:
+#             #             sample_query = f"SELECT * FROM {table_name} LIMIT 5"
+                    
+#             #         try:
+#             #             sample_df = vn.run_sql(sample_query)
+#             #             training_text = f"Table '{table_name}' contains records like:\n{sample_df.to_string()}"
+#             #             vanna_train(documentation=training_text)
+#             #         except Exception as e:
+#             #             print(f"Error training table data for {table_name}: {e}")
+            
+#             print("Training completed!")
+#         else:
+#             print(f"Training data already exists for {vanna_manager.current_provider}. Skipping training.")
+#     else:
+#         print(f"Could not retrieve schema information from {vanna_manager.current_database} database.")
+# else:
+#     print("Auto-training is disabled. Use vanna_train() function to manually train the model.")
 
 # Restore original print for our output
 builtins.print = _original_print

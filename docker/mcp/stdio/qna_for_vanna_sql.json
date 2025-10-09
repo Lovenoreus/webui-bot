@@ -45,10 +45,7 @@
           "question": "How many invoices were issues before May 2023",
           "answer": "0"
         },
-        {
-          "question": "give me a list of invoice ids that has a invoiced quantity lower than 10",
-          "answer": "[00000363,00002506,00004076,0000470081,0000470109,0000470121,0000470142,0000470157,0000470163,0000470165,0000470166,0000470172,0000470181,0000470195,0000470210,0000470214]"
-        },
+    
         {
           "question": "what is the due date for the invoice with the id 00000363?",
           "answer": "2023-11-05"

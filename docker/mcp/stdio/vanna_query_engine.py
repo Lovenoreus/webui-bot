@@ -80,11 +80,9 @@ class VannaQueryEngine:
                         else config.VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA
                     )
                     
-                    sql, df, fig = self.vanna_client.ask(
+                    sql = self.vanna_client.generate_sql(
                         question=user_question,
-                        print_results=False,
                         allow_llm_to_see_data=allow_llm_to_see_data,
-                        visualize=False
                     )
                     return sql
                 except Exception as e:

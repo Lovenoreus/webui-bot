@@ -71,6 +71,7 @@ class VannaTester:
                 ) as response:
                     if response.status == 200:
                         result = await response.json()
+                        print(result)
                         return result
                     else:
                         return {
@@ -487,6 +488,9 @@ Return only the JSON response:
                 if grading['correct']:
                     total_correct += 1
                 total_score += grading['score']
+                
+                # Wait before processing next question
+                await asyncio.sleep(2)
         
         # Generate final report
         print("\n" + "=" * 80)
