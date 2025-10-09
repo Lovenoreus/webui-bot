@@ -73,13 +73,74 @@ EXPOSE 8009
 # Healthcheck (assumes a /health endpoint; adjust as needed)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8009/health || exit 1
-
 # Create and set permissions for ONNX model directory (volume mount)
-RUN mkdir -p /app/onnx_models && chmod -R 777 /app/onnx_models
+
+# RUN mkdir -p /app/docker/onnx_models && chmod -R 777 /app/docker/onnx_models
+
+# # Set the sentence transformers cache location
+# ENV SENTENCE_TRANSFORMERS_HOME=/app/docker/onnx_models
+
+# # Pre-download ONNX model for ChromaDB
+# RUN python - <<'EOF'
+# from pathlib import Path
+# import os
+# from chromadb.utils import embedding_functions
+
+# cache_dir = Path("/app/docker/onnx_models")
+# print(f"[DOCKER DEBUG] Downloading ONNX model to: {cache_dir}")
+
+# try:
+#     embedding_function = embedding_functions.ONNXMiniLM_L6_V2()
+#     # Force download by calling the model
+#     test_embedding = embedding_function(["test"])
+#     print(f"[DOCKER DEBUG] ✅ Model successfully initialized")
+    
+#     # Verify model files exist
+#     import glob
+#     models = glob.glob(str(cache_dir / "**" / "*.onnx"), recursive=True)
+#     if models:
+#         print(f"[DOCKER DEBUG] Found models: {models}")
+#     else:
+#         print(f"[DOCKER DEBUG] ⚠️  No .onnx files found, but initialization succeeded")
+# except Exception as e:
+#     print(f"[DOCKER DEBUG] ❌ Error: {e}")
+#     import traceback
+#     traceback.print_exc()
+#     exit(1)
+# EOF
 
 # Run as non-root
 RUN useradd -m appuser && chown -R appuser:appuser /app
 USER appuser
+
+# # Create cache directory at ChromaDB's default location
+# RUN mkdir -p /root/.cache/chroma/onnx_models
+
+# # Pre-download ONNX model
+# RUN python - <<'EOF'
+# from chromadb.utils import embedding_functions
+# print("[DOCKER DEBUG] Downloading ONNX model to default location...")
+# embedding_function = embedding_functions.ONNXMiniLM_L6_V2()
+# embedding_function(["test"])
+# print("[DOCKER DEBUG] ✅ Model downloaded successfully")
+# EOF
+
+# # Create symlink for easy access and move to app directory
+# RUN mkdir -p /app/docker/onnx_models && \
+#     cp -r /root/.cache/chroma/onnx_models/* /app/docker/onnx_models/ && \
+#     chmod -R 777 /app/docker/onnx_models
+
+# Now download the model as appuser (so it goes to /home/appuser/.cache)
+RUN python - <<'EOF'
+from chromadb.utils import embedding_functions
+import os
+print("[DOCKER DEBUG] Downloading ONNX model as appuser...")
+print(f"[DOCKER DEBUG] Home directory: {os.path.expanduser('~')}")
+embedding_function = embedding_functions.ONNXMiniLM_L6_V2()
+embedding_function(["test"])
+print("[DOCKER DEBUG] ✅ Model downloaded successfully")
+EOF
+
 
 # Run the app server (use uvicorn/gunicorn if applicable for production)
 CMD ["sh", "-c", "cd /app/docker/mcp/stdio && python server_new.py"]

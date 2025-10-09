@@ -100,32 +100,69 @@ class VannaModelManager:
         """Pre-download the ONNX model for ChromaDB to prevent timeouts during training"""
         try:
             # Define persistent model cache directory (mounted volume)
-            model_dir = Path("/app/onnx_models/all-MiniLM-L6-v2")
+            model_dir = Path("/home/appuser/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx")
             model_path = model_dir / "model.onnx"
-
+            print(f"This is the model path i am checking at yo: {model_path}")
             # Ensure directory exists
             model_dir.mkdir(parents=True, exist_ok=True)
 
             # Check if model already exists
             if model_path.exists():
                 print(f"[VANNA DEBUG] ✅ Found existing ONNX model at {model_path}")
-                os.environ["CHROMA_CACHE_DIR"] = "/app/onnx_models"  # Make ChromaDB use this path
-                return
+                os.environ["CHROMA_CACHE_DIR"] = str(model_dir)  # Make ChromaDB use this path
+                
+            else:
+                print(f"[VANNA DEBUG] ONNX model not found. Starting download to {model_dir}...")
 
-            print("[VANNA DEBUG] ONNX model not found. Starting download to /app/onnx_models...")
+                # Redirect ChromaDB to use /app/docker/onnx_models as cache
+                os.environ["CHROMA_CACHE_DIR"] = str(model_dir)
 
-            # Redirect ChromaDB to use /app/onnx_models as cache
-            os.environ["CHROMA_CACHE_DIR"] = "/app/onnx_models"
+                # Initialize embedding function and download model
+                embedding_function = embedding_functions.ONNXMiniLM_L6_V2()
+                embedding_function._download_model_if_not_exists()
 
-            # Initialize embedding function and download model
-            embedding_function = embedding_functions.ONNXMiniLM_L6_V2()
-            embedding_function._download_model_if_not_exists()
-
-            print("[VANNA DEBUG] ✅ ONNX model downloaded successfully to /app/onnx_models")
+                print(f"[VANNA DEBUG] ✅ ONNX model downloaded successfully to {model_dir}")
 
         except Exception as e:
             print(f"[VANNA DEBUG] ❌ Failed to pre-download ONNX model: {e}")
 
+    # def _pre_download_onnx_model(self):
+    #     """Pre-download the ONNX model for ChromaDB to prevent timeouts during training"""
+    #     try:
+    #         # Define persistent model cache directory (mounted volume)
+    #         model_dir = Path("/home/appuser/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx")
+    #         model_path = model_dir / "model.onnx"
+
+    #         # Ensure directory exists
+    #         model_dir.mkdir(parents=True, exist_ok=True)
+
+    #         # Check if model already exists
+    #         if model_path.exists():
+    #             print(f"[VANNA DEBUG] ✅ Found existing ONNX model at {model_path}")
+    #             return
+
+    #         print(f"[VANNA DEBUG] ONNX model not found. Starting download to {model_dir}...")
+
+    #         # Set environment variables (must be strings, not Path objects)
+    #         os.environ["SENTENCE_TRANSFORMERS_HOME"] = str(model_dir.parent.parent.parent)  # /home/appuser/.cache/chroma
+            
+    #         # Initialize embedding function and download model
+    #         embedding_function = embedding_functions.ONNXMiniLM_L6_V2()
+            
+    #         # Force download by actually calling the model
+    #         test_embedding = embedding_function(["test"])
+
+    #         # Verify the model was downloaded
+    #         if model_path.exists():
+    #             print(f"[VANNA DEBUG] ✅ ONNX model downloaded successfully to {model_path}")
+    #         else:
+    #             print(f"[VANNA DEBUG] ⚠️ Model initialized but not found at expected path: {model_path}")
+
+    #     except Exception as e:
+    #         print(f"[VANNA DEBUG] ❌ Failed to pre-download ONNX model: {e}")
+    #         import traceback
+    #         traceback.print_exc()
+            
     def get_vanna_class(self, provider: str):
         """Get the appropriate Vanna class based on provider"""
         if provider == "openai":
