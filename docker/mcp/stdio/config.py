@@ -20,7 +20,7 @@ VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA = True  # Allow LLM to access training data
 VANNA_OPENAI_VERBOSE = True  # Enable verbose output for debugging
 
 VANNA_OLLAMA_MODEL = "mistral:7b"
-VANNA_OLLAMA_BASE_URL = "http://vs2153.vll.se:11434/"
+VANNA_OLLAMA_BASE_URL = "http://vs2153.vll.se"
 VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA = True
 VANNA_OLLAMA_VERBOSE = True
 

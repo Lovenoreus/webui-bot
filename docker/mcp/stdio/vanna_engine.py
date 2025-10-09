@@ -228,14 +228,15 @@ class VannaModelManager:
         self.vanna_client = VannaClass(config=client_config)
 
         self.current_provider = "openai"
-
+    
     def _init_ollama_vanna(self):
         """Initialize Vanna with Ollama"""
         VannaClass = self.get_vanna_class("ollama")
-
+        urlplaceholder = "http://vs2153.vll.se"
+        portplaceholder = "11434"
         self.vanna_client = VannaClass(config={
             'model': config.VANNA_OLLAMA_MODEL,
-            'base_url': config.VANNA_OLLAMA_BASE_URL,
+            'ollama_host': urlplaceholder + ":"+ portplaceholder, #config.VANNA_OLLAMA_BASE_URL,
             'allow_llm_to_see_data': config.VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA,
             'verbose': config.VANNA_OLLAMA_VERBOSE,
             'path': self.chroma_path  # ChromaDB storage path
