@@ -13,7 +13,13 @@ import httpx
 
 load_dotenv(find_dotenv())
 
-
+# Set environment variables FIRST
+os.environ["CURL_CA_BUNDLE"] = ""
+os.environ["REQUESTS_CA_BUNDLE"] = ""
+os.environ["SSL_VERIFY"] = "false"
+os.environ["PYTHONHTTPSVERIFY"] = "0"
+os.environ["OPENAI_VERIFY_SSL"] = "false"
+os.environ["HF_HUB_DISABLE_SSL_VERIFY"] = "1"
 class VannaModelManager:
     """Manager class to handle Vanna with LLM providers for SQL generation"""
 
@@ -79,13 +85,43 @@ class VannaModelManager:
             raise ValueError(
                 "No Vanna provider is enabled in config. Set either vanna.openai.enabled or vanna.ollama.enabled to true")
 
+    # def _pre_download_onnx_model(self):
+    #     """Pre-download the ONNX model for ChromaDB to prevent timeouts during training"""
+    #     try:
+    #         print("[VANNA DEBUG] Pre-downloading ONNX model for ChromaDB...")
+    #         embedding_function = embedding_functions.ONNXMiniLM_L6_V2()
+    #         embedding_function._download_model_if_not_exists()
+    #         print("[VANNA DEBUG] ✅ ONNX model pre-downloaded successfully")
+
+    #     except Exception as e:
+    #         print(f"[VANNA DEBUG] ❌ Failed to pre-download ONNX model: {e}")
+    
     def _pre_download_onnx_model(self):
         """Pre-download the ONNX model for ChromaDB to prevent timeouts during training"""
         try:
-            print("[VANNA DEBUG] Pre-downloading ONNX model for ChromaDB...")
+            # Define persistent model cache directory (mounted volume)
+            model_dir = Path("/app/onnx_models/all-MiniLM-L6-v2")
+            model_path = model_dir / "model.onnx"
+
+            # Ensure directory exists
+            model_dir.mkdir(parents=True, exist_ok=True)
+
+            # Check if model already exists
+            if model_path.exists():
+                print(f"[VANNA DEBUG] ✅ Found existing ONNX model at {model_path}")
+                os.environ["CHROMA_CACHE_DIR"] = "/app/onnx_models"  # Make ChromaDB use this path
+                return
+
+            print("[VANNA DEBUG] ONNX model not found. Starting download to /app/onnx_models...")
+
+            # Redirect ChromaDB to use /app/onnx_models as cache
+            os.environ["CHROMA_CACHE_DIR"] = "/app/onnx_models"
+
+            # Initialize embedding function and download model
             embedding_function = embedding_functions.ONNXMiniLM_L6_V2()
             embedding_function._download_model_if_not_exists()
-            print("[VANNA DEBUG] ✅ ONNX model pre-downloaded successfully")
+
+            print("[VANNA DEBUG] ✅ ONNX model downloaded successfully to /app/onnx_models")
 
         except Exception as e:
             print(f"[VANNA DEBUG] ❌ Failed to pre-download ONNX model: {e}")

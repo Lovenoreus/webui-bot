@@ -69,6 +69,7 @@ services:
       - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
     volumes:
       - .:/app
+      - mcp-server:/app/onnx_models
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8009/health"]
@@ -101,6 +102,7 @@ services:
 
 volumes:
   open-webui: {}
+  mcp-server: {}
 
 networks:
   mcp-network:
