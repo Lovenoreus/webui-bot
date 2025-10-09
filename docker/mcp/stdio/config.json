@@ -71,7 +71,8 @@
     "database": {
       "auto_train": false,
       "train_on_startup": true
-    }
+    },
+    "allowed_tables": ["Invoice","Invoice_Line"]
   },
   "mcp": {
     "database_choice": "local",

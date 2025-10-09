@@ -553,6 +553,79 @@ def get_table_names():
         print(f"Error getting table names: {e}")
         return None
 
+def get_allowed_tables() -> list:
+    """Get list of allowed tables for training from config"""
+    if hasattr(config, 'VANNA_ALLOWED_TABLES'):
+        allowed_tables = config.VANNA_ALLOWED_TABLES
+        
+        # If it's a string and equals 'all', return all tables
+        if isinstance(allowed_tables, str) and allowed_tables.lower() == 'all':
+            return 'all'
+        # If it's a list, return the list
+        elif isinstance(allowed_tables, list):
+            return allowed_tables
+        else:
+            return 'all'
+    return 'all'
+
+def is_table_allowed_for_training(table_name: str) -> bool:
+    """Check if a table is allowed for training"""
+    allowed_tables = get_allowed_tables()
+    
+    # If all tables are allowed
+    if allowed_tables == 'all':
+        return True
+    
+    # If specific tables are listed
+    if isinstance(allowed_tables, list):
+        return table_name in allowed_tables
+    
+    return True
+
+def get_filtered_ddl_statements(df_ddl):
+    """Filter DDL statements to include only allowed tables"""
+    if df_ddl is None or df_ddl.empty:
+        return df_ddl
+    
+    allowed_tables = get_allowed_tables()
+    
+    # If all tables are allowed, return original DDL
+    if allowed_tables == 'all':
+        return df_ddl
+    
+    # Filter DDL statements for allowed tables only
+    if isinstance(allowed_tables, list):
+        filtered_ddl = []
+        for ddl in df_ddl['sql'].to_list():
+            # Extract table name from DDL
+            table_name = None
+            if 'CREATE TABLE' in ddl.upper():
+                lines = ddl.split('\n')
+                for line in lines:
+                    if 'CREATE TABLE' in line.upper():
+                        # Extract table name (handle different formats like [schema].[table] or just table)
+                        parts = line.split()
+                        for i, part in enumerate(parts):
+                            if part.upper() == 'TABLE' and i + 1 < len(parts):
+                                full_table_name = parts[i + 1].strip('[]"')
+                                # Get just the table name (last part after dots)
+                                table_name = full_table_name.split('.')[-1]
+                                break
+                        break
+            
+            # Include DDL if table is allowed
+            if table_name and table_name in allowed_tables:
+                filtered_ddl.append(ddl)
+                print(f"Including DDL for allowed table: {table_name}")
+            elif table_name:
+                print(f"Skipping DDL for table: {table_name} (not in allowed list)")
+        
+        # Create new DataFrame with filtered DDL
+        import pandas as pd
+        return pd.DataFrame({'sql': filtered_ddl}) if filtered_ddl else pd.DataFrame()
+    
+    return df_ddl
+
 # Auto-train on startup if enabled
 if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
     print(f"Attempting to get schema information for {vanna_manager.current_database} database...")
@@ -564,28 +637,50 @@ if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
         if existing_training_data.empty or config.VANNA_TRAIN_ON_STARTUP:
             print(f"Training Vanna with {vanna_manager.current_provider} provider on {vanna_manager.current_database} database...")
             
-            # Train on DDL statements
-            for ddl in df_ddl['sql'].to_list():
-                try:
-                    vanna_train(ddl=ddl)
-                except Exception as e:
-                    print(f"Error training DDL: {e}")
+            # Filter DDL statements based on allowed tables
+            filtered_ddl = get_filtered_ddl_statements(df_ddl)
             
-            # Get list of all tables
+            if filtered_ddl is not None and not filtered_ddl.empty:
+                print(f"Training on {len(filtered_ddl)} filtered DDL statements...")
+                # Train on filtered DDL statements
+                for ddl in filtered_ddl['sql'].to_list():
+                    try:
+                        vanna_train(ddl=ddl)
+                    except Exception as e:
+                        print(f"Error training DDL: {e}")
+            else:
+                print("No DDL statements found for allowed tables.")
+            
+            # Get list of all tables and filter based on allowed tables
             tables_df = get_table_names()
             if tables_df is not None and not tables_df.empty:
-                # For each table, get distinct examples
+                allowed_tables = get_allowed_tables()
+                print(f"Allowed tables for training: {allowed_tables}")
+                
+                # Filter tables and train only on allowed ones
                 for table_name in tables_df['name']:
-                    # sample_query = f"SELECT * FROM {table_name} LIMIT 5"
+                    # Check if this table is allowed for training
+                    if not is_table_allowed_for_training(table_name):
+                        print(f"Skipping table '{table_name}' - not in allowed tables list")
+                        continue
                     
-                    # sample_query = f"SELECT * FROM [Nodinite].[ods].[{table_name}] LIMIT 5"
-                    sample_query = f"SELECT TOP 5 * FROM [Nodinite].[ods].[{table_name}]"
-                    print(f"DOCUMENTATION TABLEEEE: {table_name} \nWith query {sample_query}")
-                    # [Nodinite].[ods].[Credit_Note_Line_Allowance_Charge]
+                    print(f"Training documentation for allowed table: {table_name}")
+                    
+                    # Build sample query based on database type
+                    if vanna_manager.current_database == "mssql":
+                        sample_query = f"SELECT TOP 5 * FROM [Nodinite].[ods].[{table_name}]"
+                    elif vanna_manager.current_database in ["postgresql", "mysql"]:
+                        sample_query = f"SELECT * FROM {table_name} LIMIT 5"
+                    else:  # sqlite
+                        sample_query = f"SELECT * FROM {table_name} LIMIT 5"
+                    
+                    print(f"Using query: {sample_query}")
+                    
                     try:
                         sample_df = vn.run_sql(sample_query)
                         training_text = f"Table '{table_name}' contains records like:\n{sample_df.to_string()}"
                         vanna_train(documentation=training_text)
+                        print(f"Successfully trained documentation for table: {table_name}")
                     except Exception as e:
                         print(f"Error training table data for {table_name}: {e}")
             
