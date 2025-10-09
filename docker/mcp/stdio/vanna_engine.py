@@ -5,6 +5,7 @@ from dotenv import load_dotenv, find_dotenv
 from typing import Optional
 from pathlib import Path
 import os
+import shutil
 import config
 import chromadb.utils.embedding_functions as embedding_functions
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -16,22 +17,44 @@ load_dotenv(find_dotenv())
 class VannaModelManager:
     """Manager class to handle Vanna with LLM providers for SQL generation"""
 
-    def __init__(self, chroma_path: Optional[str] = None):
+    def __init__(self, chroma_path: Optional[str] = None, clear_existing: bool = False):
         """
         Initialize VannaModelManager
 
         Args:
             chroma_path: Path where ChromaDB data will be stored.
                         Defaults to './chroma_db' if not specified.
+            clear_existing: If True, clears existing ChromaDB data before initialization.
+                           Defaults to False.
         """
         self.current_provider = self._get_active_provider()
         self.vanna_client = None
 
         # Set up ChromaDB storage path
         self.chroma_path = chroma_path or getattr(config, 'CHROMA_DB_PATH', './chroma_db')
-        self._setup_storage_directory()
 
+        # Clear existing data if requested
+        if clear_existing:
+            self._clear_chroma_directory()
+
+        self._setup_storage_directory()
         self._pre_download_onnx_model()
+
+    def _clear_chroma_directory(self):
+        """Clear all files and subdirectories in the ChromaDB path"""
+        if os.path.exists(self.chroma_path):
+            try:
+                print(f"[VANNA DEBUG] 🗑️  Clearing existing ChromaDB data at: {os.path.abspath(self.chroma_path)}")
+
+                # Remove the entire directory and its contents
+                shutil.rmtree(self.chroma_path)
+
+                print(f"[VANNA DEBUG] ✅ ChromaDB directory cleared successfully")
+            except Exception as e:
+                print(f"[VANNA DEBUG] ❌ Failed to clear ChromaDB directory: {e}")
+                raise
+        else:
+            print(f"[VANNA DEBUG] ℹ️  ChromaDB path does not exist, nothing to clear")
 
     def _setup_storage_directory(self):
         """Create ChromaDB storage directory if it doesn't exist"""
@@ -207,19 +230,40 @@ class VannaModelManager:
             "chroma_path": self.get_storage_path()
         }
 
-    def clear_training_data(self):
-        """Clear all training data from ChromaDB"""
-        import shutil
+    def clear_training_data(self, reinitialize: bool = True):
+        """
+        Clear all training data from ChromaDB
+
+        Args:
+            reinitialize: If True, reinitialize the Vanna client after clearing.
+                         Defaults to True.
+        """
         try:
+            print(f"[VANNA DEBUG] 🗑️  Clearing training data from {self.chroma_path}")
+
             if os.path.exists(self.chroma_path):
                 shutil.rmtree(self.chroma_path)
-                print(f"[VANNA DEBUG] ✅ Cleared training data from {self.chroma_path}")
-                self._setup_storage_directory()
-                # Reinitialize if client was already initialized
-                if self.vanna_client:
-                    self.initialize_vanna()
+                print(f"[VANNA DEBUG] ✅ Cleared training data successfully")
             else:
-                print(f"[VANNA DEBUG] No training data found at {self.chroma_path}")
+                print(f"[VANNA DEBUG] ℹ️  No training data found at {self.chroma_path}")
+
+            # Recreate directory
+            self._setup_storage_directory()
+
+            # Reinitialize if client was already initialized and reinitialize=True
+            if self.vanna_client and reinitialize:
+                print(f"[VANNA DEBUG] 🔄 Reinitializing Vanna client...")
+                self.initialize_vanna()
+
         except Exception as e:
             print(f"[VANNA DEBUG] ❌ Error clearing training data: {e}")
             raise
+
+    def reset_and_retrain(self):
+        """
+        Convenience method to clear all data and prepare for fresh training.
+        This is useful when you want to start training from scratch.
+        """
+        print(f"[VANNA DEBUG] 🔄 Resetting Vanna - clearing all training data...")
+        self.clear_training_data(reinitialize=True)
+        print(f"[VANNA DEBUG] ✅ Ready for fresh training!")

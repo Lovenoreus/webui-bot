@@ -110,11 +110,15 @@ query_engine = QueryEngine(
 # Initialize Vanna Manager at module level
 print("Initializing Vanna Manager...")
 # Custom path
-vanna_manager = VannaModelManager(chroma_path=config.CHROMA_DB_PATH)
+vanna_manager = VannaModelManager(
+    chroma_path=config.CHROMA_DB_PATH,
+    clear_existing=True  # Clear the path before setup.
+)
 
 # Initialize on module load
 print("Initializing Vanna...")
 vanna_manager.initialize_vanna()
+
 print(f"✅ Vanna initialized with provider: {vanna_manager.current_provider}")
 
 # Train with your schema
