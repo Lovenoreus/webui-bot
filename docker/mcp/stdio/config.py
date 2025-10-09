@@ -19,6 +19,11 @@ VANNA_OPENAI_MODEL = "gpt-4o-mini"  # Default OpenAI model
 VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA = True  # Allow LLM to access training data
 VANNA_OPENAI_VERBOSE = True  # Enable verbose output for debugging
 
+VANNA_OLLAMA_MODEL = ""
+VANNA_OLLAMA_BASE_URL = ""
+VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA = True
+VANNA_OLLAMA_VERBOSE = True
+
 # SSL bypass settings
 VANNA_SSL_BYPASS_ERRORS = True  # Enable comprehensive SSL bypass
 VANNA_SSL_DISABLE_WARNINGS = True  # Disable SSL warnings

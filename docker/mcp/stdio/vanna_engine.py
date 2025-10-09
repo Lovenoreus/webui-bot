@@ -50,6 +50,7 @@ class VannaModelManager:
                 shutil.rmtree(self.chroma_path)
 
                 print(f"[VANNA DEBUG] ✅ ChromaDB directory cleared successfully")
+
             except Exception as e:
                 print(f"[VANNA DEBUG] ❌ Failed to clear ChromaDB directory: {e}")
                 raise
@@ -61,6 +62,7 @@ class VannaModelManager:
         try:
             Path(self.chroma_path).mkdir(parents=True, exist_ok=True)
             print(f"[VANNA DEBUG] ChromaDB storage path: {os.path.abspath(self.chroma_path)}")
+
         except Exception as e:
             print(f"[VANNA DEBUG] ❌ Failed to create storage directory: {e}")
             raise
@@ -69,8 +71,10 @@ class VannaModelManager:
         """Determine which provider is currently active based on config"""
         if config.USE_VANNA_OPENAI:
             return "openai"
+
         elif config.USE_VANNA_OLLAMA:
             return "ollama"
+
         else:
             raise ValueError(
                 "No Vanna provider is enabled in config. Set either vanna.openai.enabled or vanna.ollama.enabled to true")
@@ -121,12 +125,15 @@ class VannaModelManager:
 
         if target_provider == "openai":
             self._init_openai_vanna()
+
         elif target_provider == "ollama":
             self._init_ollama_vanna()
+
         else:
             raise ValueError(f"Unsupported provider: {target_provider}")
 
         print(f"[VANNA DEBUG] Vanna initialized with provider: {target_provider}")
+
         return self.vanna_client
 
     def _init_openai_vanna(self):
@@ -135,6 +142,7 @@ class VannaModelManager:
             raise ValueError("OPENAI_API_KEY not found in environment")
 
         VannaClass = self.get_vanna_class("openai")
+
         client_config = {
             'api_key': config.OPENAI_API_KEY,
             'model': config.VANNA_OPENAI_MODEL,
@@ -145,11 +153,13 @@ class VannaModelManager:
         }
 
         self.vanna_client = VannaClass(config=client_config)
+
         self.current_provider = "openai"
 
     def _init_ollama_vanna(self):
         """Initialize Vanna with Ollama"""
         VannaClass = self.get_vanna_class("ollama")
+
         self.vanna_client = VannaClass(config={
             'model': config.VANNA_OLLAMA_MODEL,
             'base_url': config.VANNA_OLLAMA_BASE_URL,
@@ -157,6 +167,7 @@ class VannaModelManager:
             'verbose': config.VANNA_OLLAMA_VERBOSE,
             'path': self.chroma_path  # ChromaDB storage path
         })
+
         self.current_provider = "ollama"
 
     def train(
@@ -175,9 +186,12 @@ class VannaModelManager:
             try:
                 train_func(data)
                 print(f"[VANNA DEBUG] ✅ Trained {data_type} with {self.current_provider}")
+
                 return True
+
             except Exception as e:
                 print(f"[VANNA DEBUG] ❌ Error training {data_type}: {e}")
+
                 return False
 
         success = True
@@ -230,7 +244,7 @@ class VannaModelManager:
             "chroma_path": self.get_storage_path()
         }
 
-    def clear_training_data(self, reinitialize: bool = True):
+    def clear_training_data(self, reinitialize: bool = False):
         """
         Clear all training data from ChromaDB
 
@@ -266,4 +280,5 @@ class VannaModelManager:
         """
         print(f"[VANNA DEBUG] 🔄 Resetting Vanna - clearing all training data...")
         self.clear_training_data(reinitialize=True)
+
         print(f"[VANNA DEBUG] ✅ Ready for fresh training!")
