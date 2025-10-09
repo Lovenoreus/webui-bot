@@ -16,6 +16,7 @@ except ImportError:
     sys.path.append(os.path.dirname(__file__))
     from vanna_train import VannaModelManager
 import config
+import pandas as pd
 
 
 class VannaQueryEngine:
@@ -163,10 +164,13 @@ class VannaQueryEngine:
             
             def vanna_execute():
                 try:
-                    df = self.vanna_client.run_sql(sql_query)
-                    if df is not None and not df.empty:
+                    result = self.vanna_client.run_sql(sql_query)
+                    # if df is not None and not df.empty:
+                    if type(result) == pd.DataFrame:
                         # Convert DataFrame to list of dictionaries
-                        return df.to_dict('records')
+                        return result.to_dict('records')
+                    elif type(result) == list or type(result) == dict:
+                        return result
                     else:
                         return []
                 except Exception as e:

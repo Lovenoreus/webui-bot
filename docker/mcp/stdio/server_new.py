@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # -------------------- User-defined Modules --------------------
 import config
+import json
 from query_engine import QueryEngine
 from vanna_query_engine import VannaQueryEngine
 from instructions import SQLITE_INVOICE_PROMPT, SQLSERVER_INVOICE_PROMPT
@@ -232,10 +233,11 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
             return {"success": False, "error": "Failed to generate SQL", "original_query": request.query}
 
         results = await query_engine.execute_query(sql_query)
+        results = json.dumps(results, default=str)
 
         return {
             "success": True,
-            "sql_query": f"```sql {sql_query} ```",
+            "sql_query": sql_query,
             "results": results,
             "original_query": request.query,
             "record_count": len(results)
