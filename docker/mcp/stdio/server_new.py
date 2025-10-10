@@ -161,6 +161,9 @@ if vanna_manager.train(documentation=invoice_line_doc):
 else:
     print("❌ Failed to train Invoice_Line documentation")
 
+# Added a strict syntax command.
+vanna_manager.train(documentation="#STRICT SYNTAX RULE: Your SQL should be on a single line with no line breaks. It should follow this exact syntax ```sql <command> ```")
+
 # Auto-train on startup if enabled
 if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
     print("\n🔄 Auto-training enabled. Additional training can be done manually with vanna_manager.train(...).")
