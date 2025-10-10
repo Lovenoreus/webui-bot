@@ -65,6 +65,7 @@ socket.create_connection = _patched_create_connection
 from vanna.openai import OpenAI_Chat
 from vanna.ollama import Ollama
 from vanna.chromadb import ChromaDB_VectorStore
+from typing import List
 from dotenv import load_dotenv
 import logging
 import builtins
@@ -200,7 +201,7 @@ class VannaModelManager:
         VannaClass = self.get_vanna_class("ollama")
         self.vanna_client = VannaClass(config={
             'model': config.VANNA_OLLAMA_MODEL,
-            'ollama_host':"http://vs2153.vll.se:11434",#"http://localhost:11434",#config.VANNA_OLLAMA_BASE_URL,
+            'ollama_host':"http://125.209.124.155:11434",#"http://localhost:11434",#config.VANNA_OLLAMA_BASE_URL,
             'allow_llm_to_see_data': config.VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA,
             'verbose': config.VANNA_OLLAMA_VERBOSE
         })
@@ -427,6 +428,100 @@ def vanna_train(
     if not any([ddl, documentation, (question and sql)]):
         raise ValueError("Must provide at least one training data type")
 
+def vanna_train_selected_tables(table_names: List[str], include_sample_data: bool = True) -> None:
+    """
+    Train Vanna on specific tables only
+    
+    Args:
+        table_names: List of table names to train on
+        include_sample_data: Whether to include sample data from tables
+    """
+    global vanna_manager
+    
+    # Ensure Vanna is initialized
+    if not vanna_manager.vanna_client:
+        vanna_manager.initialize_vanna()
+    
+    print(f"🎯 Training Vanna on selected tables: {', '.join(table_names)}")
+    
+    # Get DDL for selected tables
+    try:
+        df_ddl = get_database_schema_info(table_names)
+        
+        if df_ddl is not None and not df_ddl.empty:
+            print(f"📋 Training DDL for {len(df_ddl)} table(s)...")
+            
+            # Train on DDL statements
+            for ddl in df_ddl['sql'].to_list():
+                try:
+                    vanna_train(ddl=ddl)
+                    print(f"✅ Trained DDL: {ddl[:100]}...")
+                except Exception as e:
+                    print(f"❌ Error training DDL: {e}")
+            
+            # Train on sample data if requested
+            if include_sample_data:
+                tables_df = get_table_names(table_names)
+                if tables_df is not None and not tables_df.empty:
+                    print(f"📊 Training sample data for {len(tables_df)} table(s)...")
+                    
+                    for table_name in tables_df['name']:
+                        if vanna_manager.current_database == "mssql":
+                            sample_query = f"SELECT TOP 5 * FROM [Nodinite].[ods].[{table_name}]"
+                        elif vanna_manager.current_database in ["sqlite", "postgresql", "mysql"]:
+                            sample_limit = "LIMIT 5" if vanna_manager.current_database != "mssql" else "TOP 5"
+                            sample_query = f"SELECT * FROM {table_name} LIMIT 5" if vanna_manager.current_database != "mssql" else f"SELECT TOP 5 * FROM {table_name}"
+                        
+                        try:
+                            sample_df = vn.run_sql(sample_query)
+                            if sample_df is not None and not sample_df.empty:
+                                training_text = f"Table '{table_name}' contains records like:\n{sample_df.to_string()}"
+                                vanna_train(documentation=training_text)
+                                print(f"✅ Trained sample data for: {table_name}")
+                            else:
+                                print(f"⚠️  No sample data found for: {table_name}")
+                        except Exception as e:
+                            print(f"❌ Error training sample data for {table_name}: {e}")
+            
+            print(f"🎉 Training completed for selected tables: {', '.join(table_names)}")
+        else:
+            print(f"❌ Could not retrieve schema information for tables: {', '.join(table_names)}")
+            
+    except Exception as e:
+        print(f"❌ Error during training: {e}")
+
+def get_available_tables() -> List[str]:
+    """Get list of all available tables in the current database"""
+    try:
+        tables_df = get_table_names()
+        if tables_df is not None and not tables_df.empty:
+            return tables_df['name'].tolist()
+        return []
+    except Exception as e:
+        print(f"Error getting available tables: {e}")
+        return []
+
+def show_training_config() -> None:
+    """Display current training configuration"""
+    print("\n📋 Current Vanna Training Configuration:")
+    print(f"   Database: {vanna_manager.current_database}")
+    print(f"   Provider: {vanna_manager.current_provider}")
+    print(f"   Train all tables: {config.VANNA_TRAIN_ALL_TABLES}")
+    print(f"   Include sample data: {config.VANNA_INCLUDE_SAMPLE_DATA}")
+    
+    if config.VANNA_SELECTED_TABLES:
+        print(f"   Selected tables: {', '.join(config.VANNA_SELECTED_TABLES)}")
+    else:
+        print("   Selected tables: None (will train on all)")
+    
+    # Show available tables
+    available_tables = get_available_tables()
+    if available_tables:
+        print(f"   Available tables: {', '.join(available_tables[:10])}{'...' if len(available_tables) > 10 else ''}")
+        print(f"   Total available tables: {len(available_tables)}")
+    else:
+        print("   Available tables: Could not retrieve")
+
 
 
 
@@ -481,13 +576,17 @@ def switch_database_interactive():
 vanna_manager = VannaModelManager()
 vn = vanna_manager.initialize_vanna()
 
-def get_database_schema_info():
-    """Get database schema information based on current database type"""
+def get_database_schema_info(selected_tables=None):
+    """Get database schema information based on current database type and optionally filter by selected tables"""
     try:
         if vanna_manager.current_database == "sqlite":
-            return vn.run_sql("SELECT type, sql FROM sqlite_master WHERE sql is not null")
+            base_query = "SELECT type, sql FROM sqlite_master WHERE sql is not null"
+            if selected_tables and not config.VANNA_TRAIN_ALL_TABLES:
+                table_filter = "'" + "', '".join(selected_tables) + "'"
+                base_query += f" AND name IN ({table_filter})"
+            return vn.run_sql(base_query)
         elif vanna_manager.current_database == "postgresql":
-            return vn.run_sql("""
+            base_query = """
                 SELECT 'table' as type, 
                        'CREATE TABLE ' || t.table_schema || '.' || t.table_name || ' (' ||
                        string_agg(c.column_name || ' ' || c.data_type, ', ') || ')' as sql
@@ -495,22 +594,29 @@ def get_database_schema_info():
                 JOIN information_schema.columns c ON t.table_name = c.table_name AND t.table_schema = c.table_schema
                 WHERE t.table_schema NOT IN ('information_schema', 'pg_catalog', 'pg_toast')
                   AND t.table_type = 'BASE TABLE'
-                GROUP BY t.table_schema, t.table_name
-                ORDER BY t.table_schema, t.table_name
-            """)
+            """
+            if selected_tables and not config.VANNA_TRAIN_ALL_TABLES:
+                table_filter = "'" + "', '".join(selected_tables) + "'"
+                base_query += f" AND t.table_name IN ({table_filter})"
+            base_query += " GROUP BY t.table_schema, t.table_name ORDER BY t.table_schema, t.table_name"
+            return vn.run_sql(base_query)
         elif vanna_manager.current_database == "mysql":
-            return vn.run_sql("""
+            base_query = """
                 SELECT 'table' as type,
                        CONCAT('CREATE TABLE ', TABLE_NAME, ' (',
                        GROUP_CONCAT(CONCAT(COLUMN_NAME, ' ', COLUMN_TYPE) SEPARATOR ', '),
                        ')') as sql
                 FROM information_schema.columns
                 WHERE table_schema = DATABASE()
-                GROUP BY TABLE_NAME
-            """)
+            """
+            if selected_tables and not config.VANNA_TRAIN_ALL_TABLES:
+                table_filter = "'" + "', '".join(selected_tables) + "'"
+                base_query += f" AND TABLE_NAME IN ({table_filter})"
+            base_query += " GROUP BY TABLE_NAME"
+            return vn.run_sql(base_query)
         elif vanna_manager.current_database == "mssql":
             # Generate proper CREATE TABLE statements with correct schema names
-            return vn.run_sql("""
+            base_query = """
                 SELECT 'table' as type,
                        'CREATE TABLE [Nodinite].[ods].[' + t.TABLE_NAME + '] (' +
                        STUFF((
@@ -532,23 +638,43 @@ def get_database_schema_info():
                        ), 1, 2, '') + ');' as sql
                 FROM INFORMATION_SCHEMA.TABLES t
                 WHERE t.TABLE_TYPE = 'BASE TABLE' AND t.TABLE_SCHEMA = 'ods'
-                GROUP BY t.TABLE_NAME, t.TABLE_SCHEMA
-            """)
+            """
+            if selected_tables and not config.VANNA_TRAIN_ALL_TABLES:
+                table_filter = "'" + "', '".join(selected_tables) + "'"
+                base_query += f" AND t.TABLE_NAME IN ({table_filter})"
+            base_query += " GROUP BY t.TABLE_NAME, t.TABLE_SCHEMA"
+            return vn.run_sql(base_query)
     except Exception as e:
         print(f"Error getting schema info: {e}")
         return None
 
-def get_table_names():
-    """Get table names based on current database type"""
+def get_table_names(selected_tables=None):
+    """Get table names based on current database type and optionally filter by selected tables"""
     try:
         if vanna_manager.current_database == "sqlite":
-            return vn.run_sql("SELECT name FROM sqlite_master WHERE type='table'")
+            base_query = "SELECT name FROM sqlite_master WHERE type='table'"
+            if selected_tables and not config.VANNA_TRAIN_ALL_TABLES:
+                table_filter = "'" + "', '".join(selected_tables) + "'"
+                base_query += f" AND name IN ({table_filter})"
+            return vn.run_sql(base_query)
         elif vanna_manager.current_database == "postgresql":
-            return vn.run_sql("SELECT table_name as name FROM information_schema.tables WHERE table_schema = 'public'")
+            base_query = "SELECT table_name as name FROM information_schema.tables WHERE table_schema = 'public'"
+            if selected_tables and not config.VANNA_TRAIN_ALL_TABLES:
+                table_filter = "'" + "', '".join(selected_tables) + "'"
+                base_query += f" AND table_name IN ({table_filter})"
+            return vn.run_sql(base_query)
         elif vanna_manager.current_database == "mysql":
-            return vn.run_sql("SELECT table_name as name FROM information_schema.tables WHERE table_schema = DATABASE()")
+            base_query = "SELECT table_name as name FROM information_schema.tables WHERE table_schema = DATABASE()"
+            if selected_tables and not config.VANNA_TRAIN_ALL_TABLES:
+                table_filter = "'" + "', '".join(selected_tables) + "'"
+                base_query += f" AND table_name IN ({table_filter})"
+            return vn.run_sql(base_query)
         elif vanna_manager.current_database == "mssql":
-            return vn.run_sql("SELECT TABLE_NAME as name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = 'ods'")
+            base_query = "SELECT TABLE_NAME as name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA = 'ods'"
+            if selected_tables and not config.VANNA_TRAIN_ALL_TABLES:
+                table_filter = "'" + "', '".join(selected_tables) + "'"
+                base_query += f" AND TABLE_NAME IN ({table_filter})"
+            return vn.run_sql(base_query)
     except Exception as e:
         print(f"Error getting table names: {e}")
         return None
@@ -556,7 +682,18 @@ def get_table_names():
 # Auto-train on startup if enabled
 if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
     print(f"Attempting to get schema information for {vanna_manager.current_database} database...")
-    df_ddl = get_database_schema_info()
+    
+    # Get selected tables from config
+    selected_tables = config.VANNA_SELECTED_TABLES if config.VANNA_SELECTED_TABLES else None
+    train_all_tables = config.VANNA_TRAIN_ALL_TABLES
+    include_sample_data = config.VANNA_INCLUDE_SAMPLE_DATA
+    
+    if selected_tables and not train_all_tables:
+        print(f"Training on selected tables only: {', '.join(selected_tables)}")
+    else:
+        print("Training on all available tables")
+    
+    df_ddl = get_database_schema_info(selected_tables)
     
     if df_ddl is not None and not df_ddl.empty:
         # Check if training data already exists
@@ -564,36 +701,117 @@ if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
         if existing_training_data.empty or config.VANNA_TRAIN_ON_STARTUP:
             print(f"Training Vanna with {vanna_manager.current_provider} provider on {vanna_manager.current_database} database...")
             
-            # Train on DDL statements
+            # Train on DDL statements for selected tables only
             for ddl in df_ddl['sql'].to_list():
                 try:
                     vanna_train(ddl=ddl)
+                    print(f"✅ Trained DDL: {ddl[:100]}...")
                 except Exception as e:
-                    print(f"Error training DDL: {e}")
+                    print(f"❌ Error training DDL: {e}")
             
-            # Get list of all tables
-            tables_df = get_table_names()
-            if tables_df is not None and not tables_df.empty:
-                # For each table, get distinct examples
-                for table_name in tables_df['name']:
-                    # sample_query = f"SELECT * FROM {table_name} LIMIT 5"
+            # Train on sample data if enabled
+            if include_sample_data:
+                # Get list of tables (filtered by selection)
+                tables_df = get_table_names(selected_tables)
+                if tables_df is not None and not tables_df.empty:
+                    print(f"Training on sample data from {len(tables_df)} table(s)...")
                     
-                    # sample_query = f"SELECT * FROM [Nodinite].[ods].[{table_name}] LIMIT 5"
-                    sample_query = f"SELECT TOP 5 * FROM [Nodinite].[ods].[{table_name}]"
-                    print(f"DOCUMENTATION TABLEEEE: {table_name} \nWith query {sample_query}")
-                    # [Nodinite].[ods].[Credit_Note_Line_Allowance_Charge]
-                    try:
-                        sample_df = vn.run_sql(sample_query)
-                        training_text = f"Table '{table_name}' contains records like:\n{sample_df.to_string()}"
-                        vanna_train(documentation=training_text)
-                    except Exception as e:
-                        print(f"Error training table data for {table_name}: {e}")
+                    # For each table, get distinct examples
+                    for table_name in tables_df['name']:
+                        # Use appropriate query syntax based on database type
+                        if vanna_manager.current_database == "mssql":
+                            sample_query = f"SELECT TOP 5 * FROM [Nodinite].[ods].[{table_name}]"
+                        elif vanna_manager.current_database == "sqlite":
+                            sample_query = f"SELECT * FROM {table_name} LIMIT 5"
+                        elif vanna_manager.current_database == "postgresql":
+                            sample_query = f"SELECT * FROM {table_name} LIMIT 5"
+                        elif vanna_manager.current_database == "mysql":
+                            sample_query = f"SELECT * FROM {table_name} LIMIT 5"
+                        
+                        print(f"📊 Training sample data for table: {table_name}")
+                        try:
+                            sample_df = vn.run_sql(sample_query)
+                            if sample_df is not None and not sample_df.empty:
+                                training_text = f"Table '{table_name}' contains records like:\n{sample_df.to_string()}"
+                                vanna_train(documentation=training_text)
+                                print(f"✅ Trained sample data for table: {table_name}")
+                            else:
+                                print(f"⚠️  No sample data found for table: {table_name}")
+                        except Exception as e:
+                            print(f"❌ Error training table data for {table_name}: {e}")
             
-            print("Training completed!")
+            # Add database-specific system instructions
+            if vanna_manager.current_database == "mssql":
+                # Create table-specific instructions based on selected tables
+                if selected_tables and not train_all_tables:
+                    table_list = ', '.join([f"[Nodinite].[ods].[{table}]" for table in selected_tables])
+                    system_instructions = f"""
+                    CRITICAL SQL GENERATION RULES FOR MICROSOFT SQL SERVER:
+                    
+                    1. ALWAYS use full three-part table names: [Nodinite].[ods].[TableName]
+                    2. NEVER use simple table names like 'Invoice' - always use '[Nodinite].[ods].[Invoice]'
+                    3. Use T-SQL syntax: SELECT TOP N ... instead of LIMIT N
+                    4. For date operations use: CAST(column_name AS DATE)
+                    5. Database: Nodinite, Schema: ods
+                    
+                    AVAILABLE TABLES (use only these tables): {table_list}
+                    
+                    CORRECT EXAMPLES:
+                    - SELECT TOP 100 * FROM [Nodinite].[ods].[Invoice]
+                    - SELECT DUE_DATE FROM [Nodinite].[ods].[Invoice] WHERE INVOICE_ID = '12345'
+                    - SELECT i.*, il.* FROM [Nodinite].[ods].[Invoice] i JOIN [Nodinite].[ods].[Invoice_Line] il ON i.INVOICE_ID = il.INVOICE_ID
+                    
+                    WRONG EXAMPLES:
+                    - SELECT * FROM Invoice (NEVER do this)
+                    - SELECT * FROM ods.Invoice (incomplete)
+                    - SELECT * FROM Invoice LIMIT 10 (wrong syntax)
+
+                    Just use the tables listed above and no others and return only syntactically correct SQL, please dont include any other text in your response.
+                    """
+                else:
+                    system_instructions = """
+                    CRITICAL SQL GENERATION RULES FOR MICROSOFT SQL SERVER:
+                    
+                    1. ALWAYS use full three-part table names: [Nodinite].[ods].[TableName]
+                    2. NEVER use simple table names like 'Invoice' - always use '[Nodinite].[ods].[Invoice]'
+                    3. Use T-SQL syntax: SELECT TOP N ... instead of LIMIT N
+                    4. For date operations use: CAST(column_name AS DATE)
+                    5. Database: Nodinite, Schema: ods
+                    
+                    CORRECT EXAMPLES:
+                    - SELECT TOP 100 * FROM [Nodinite].[ods].[Invoice]
+                    - SELECT DUE_DATE FROM [Nodinite].[ods].[Invoice] WHERE INVOICE_ID = '12345'
+                    - SELECT i.*, il.* FROM [Nodinite].[ods].[Invoice] i JOIN [Nodinite].[ods].[Invoice_Line] il ON i.INVOICE_ID = il.INVOICE_ID
+                    
+                    WRONG EXAMPLES:
+                    - SELECT * FROM Invoice (NEVER do this)
+                    - SELECT * FROM ods.Invoice (incomplete)
+                    - SELECT * FROM Invoice LIMIT 10 (wrong syntax)
+
+                    Just use the tables listed above and no others and return only syntactically correct SQL, please dont include any other text in your response.
+                    """
+
+                try:
+                    vanna_train(documentation=system_instructions)
+                    print("✅ Trained system instructions for MSSQL")
+                except Exception as e:
+                    print(f"❌ Error training system instructions: {e}")
+            
+            print("🎉 Training completed!")
+            print(f"📊 Training Summary:")
+            print(f"   - Database: {vanna_manager.current_database}")
+            print(f"   - Provider: {vanna_manager.current_provider}")
+            if selected_tables and not train_all_tables:
+                print(f"   - Selected tables: {', '.join(selected_tables)}")
+            else:
+                print(f"   - All available tables")
+            print(f"   - Include sample data: {include_sample_data}")
         else:
             print(f"Training data already exists for {vanna_manager.current_provider}. Skipping training.")
     else:
         print(f"Could not retrieve schema information from {vanna_manager.current_database} database.")
+        if selected_tables and not train_all_tables:
+            print(f"Note: Check if the selected tables exist: {', '.join(selected_tables)}")
 else:
     print("Auto-training is disabled. Use vanna_train() function to manually train the model.")
 

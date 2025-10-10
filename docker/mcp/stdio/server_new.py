@@ -233,12 +233,12 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
             return {"success": False, "error": "Failed to generate SQL", "original_query": request.query}
 
         results = await query_engine.execute_query(sql_query)
-        results = json.dumps(results, default=str)
+        results_str = json.dumps(results, default=str)
 
         return {
             "success": True,
             "sql_query": sql_query,
-            "results": results,
+            "results": results_str,
             "original_query": request.query,
             "record_count": len(results)
         }

@@ -241,7 +241,12 @@ VANNA_DEFAULT_PORTS = {
 # SQLite Configuration (no credentials needed)
 VANNA_SQLITE_DATABASE_PATH = get_nested(config, ["vanna_databases", "sqlite", "database_path"], "compacted.db")
 
-# --- 14) Example usage (remove or adapt in production) ---
+# --- 14) Vanna Training Configuration ---
+VANNA_SELECTED_TABLES = get_nested(config, ["vanna_training", "selected_tables"], [])
+VANNA_TRAIN_ALL_TABLES = to_bool(get_nested(config, ["vanna_training", "train_all_tables"], True), default=True)
+VANNA_INCLUDE_SAMPLE_DATA = to_bool(get_nested(config, ["vanna_training", "include_sample_data"], True), default=True)
+
+# --- 15) Example usage (remove or adapt in production) ---
 if USE_OLLAMA:
     AGENT_MODEL = init_chat_model(
         AGENT_MODEL_NAME,
