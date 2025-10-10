@@ -314,3 +314,8 @@ dist
 cypress/videos
 cypress/screenshots
 .vscode/settings.json
+
+/docker/mcp/stdio/database_data/*
+/compacted.db
+/docker/mcp/stdio/test_results
+/docker/mcp/stdio/chroma.sqlite3
