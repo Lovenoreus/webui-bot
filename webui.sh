@@ -1,4 +1,13 @@
 #!/bin/bash
+
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    echo "Running on Linux"
+elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* ]]; then
+    echo "Running on Windows"
+else
+    echo "Unknown OS: $OSTYPE"
+fi
+
 echo "Shutting down all docker containers"
 docker compose down 
 
