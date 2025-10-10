@@ -85,17 +85,6 @@ class VannaModelManager:
             raise ValueError(
                 "No Vanna provider is enabled in config. Set either vanna.openai.enabled or vanna.ollama.enabled to true")
 
-    # def _pre_download_onnx_model(self):
-    #     """Pre-download the ONNX model for ChromaDB to prevent timeouts during training"""
-    #     try:
-    #         print("[VANNA DEBUG] Pre-downloading ONNX model for ChromaDB...")
-    #         embedding_function = embedding_functions.ONNXMiniLM_L6_V2()
-    #         embedding_function._download_model_if_not_exists()
-    #         print("[VANNA DEBUG] ✅ ONNX model pre-downloaded successfully")
-
-    #     except Exception as e:
-    #         print(f"[VANNA DEBUG] ❌ Failed to pre-download ONNX model: {e}")
-    
     def _pre_download_onnx_model(self):
         """Pre-download the ONNX model for ChromaDB to prevent timeouts during training"""
         try:
@@ -110,7 +99,7 @@ class VannaModelManager:
             if model_path.exists():
                 print(f"[VANNA DEBUG] ✅ Found existing ONNX model at {model_path}")
                 os.environ["CHROMA_CACHE_DIR"] = str(model_dir)  # Make ChromaDB use this path
-                
+
             else:
                 print(f"[VANNA DEBUG] ONNX model not found. Starting download to {model_dir}...")
 
@@ -126,43 +115,6 @@ class VannaModelManager:
         except Exception as e:
             print(f"[VANNA DEBUG] ❌ Failed to pre-download ONNX model: {e}")
 
-    # def _pre_download_onnx_model(self):
-    #     """Pre-download the ONNX model for ChromaDB to prevent timeouts during training"""
-    #     try:
-    #         # Define persistent model cache directory (mounted volume)
-    #         model_dir = Path("/home/appuser/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx")
-    #         model_path = model_dir / "model.onnx"
-
-    #         # Ensure directory exists
-    #         model_dir.mkdir(parents=True, exist_ok=True)
-
-    #         # Check if model already exists
-    #         if model_path.exists():
-    #             print(f"[VANNA DEBUG] ✅ Found existing ONNX model at {model_path}")
-    #             return
-
-    #         print(f"[VANNA DEBUG] ONNX model not found. Starting download to {model_dir}...")
-
-    #         # Set environment variables (must be strings, not Path objects)
-    #         os.environ["SENTENCE_TRANSFORMERS_HOME"] = str(model_dir.parent.parent.parent)  # /home/appuser/.cache/chroma
-            
-    #         # Initialize embedding function and download model
-    #         embedding_function = embedding_functions.ONNXMiniLM_L6_V2()
-            
-    #         # Force download by actually calling the model
-    #         test_embedding = embedding_function(["test"])
-
-    #         # Verify the model was downloaded
-    #         if model_path.exists():
-    #             print(f"[VANNA DEBUG] ✅ ONNX model downloaded successfully to {model_path}")
-    #         else:
-    #             print(f"[VANNA DEBUG] ⚠️ Model initialized but not found at expected path: {model_path}")
-
-    #     except Exception as e:
-    #         print(f"[VANNA DEBUG] ❌ Failed to pre-download ONNX model: {e}")
-    #         import traceback
-    #         traceback.print_exc()
-            
     def get_vanna_class(self, provider: str):
         """Get the appropriate Vanna class based on provider"""
         if provider == "openai":
@@ -228,15 +180,14 @@ class VannaModelManager:
         self.vanna_client = VannaClass(config=client_config)
 
         self.current_provider = "openai"
-    
+
     def _init_ollama_vanna(self):
         """Initialize Vanna with Ollama"""
         VannaClass = self.get_vanna_class("ollama")
-        urlplaceholder = "http://vs2153.vll.se"
-        portplaceholder = "11434"
+
         self.vanna_client = VannaClass(config={
             'model': config.VANNA_OLLAMA_MODEL,
-            'ollama_host': urlplaceholder + ":"+ portplaceholder, #config.VANNA_OLLAMA_BASE_URL,
+            'ollama_host': config.VANNA_OLLAMA_BASE_URL,
             'allow_llm_to_see_data': config.VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA,
             'verbose': config.VANNA_OLLAMA_VERBOSE,
             'path': self.chroma_path  # ChromaDB storage path

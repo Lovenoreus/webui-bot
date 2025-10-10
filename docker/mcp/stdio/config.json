@@ -57,11 +57,17 @@
   },
   "mcp":{
     "database_choice": "remote",
-    "connection_pool_size": 10,
+    "connection_pool_size": 1,
     "database_path": "sqlite_invoices_full.db",
     "docker_database_path": "/app/database_data/sqlite_invoices_full.db",
     "database_server_url": "http://localhost:8762",
     "docker_database_server_url": "http://database_server:8762",
+    "retry": {
+      "max_attempts": 5,
+      "initial_delay": 2.0,
+      "backoff_multiplier": 2.0,
+      "connection_timeout": 300
+    },
     "provider": {
         "openai": false,
         "ollama": true,

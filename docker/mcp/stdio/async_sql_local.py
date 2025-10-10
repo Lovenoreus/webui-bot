@@ -5,7 +5,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Callable, Optional
 import random
 
 # -------------------- External Libraries --------------------
@@ -31,7 +31,13 @@ def load_config():
             "database_choice": "local",
             "database_path": "sqlite_invoices_full.db",
             "docker_database_path": "/app/database_data/sqlite_invoices_full.db",
-            "connection_pool_size": 10
+            "connection_pool_size": 10,
+            "retry": {
+                "max_attempts": 5,
+                "initial_delay": 2.0,
+                "backoff_multiplier": 2.0,
+                "connection_timeout": 300
+            }
         }
     }
 
@@ -92,6 +98,53 @@ def get_database_path():
         return MCP_CONFIG.get("database_path", "sqlite_invoices_full.db")
 
 
+async def retry_async(
+    func: Callable,
+    max_attempts: int = 5,
+    delay: float = 2.0,
+    backoff: float = 2.0,
+    max_delay: float = 60.0,
+    timeout: float = 300.0
+) -> any:
+    """
+    Retry an async function with exponential backoff
+    
+    Args:
+        func: Async function to retry
+        max_attempts: Maximum number of retry attempts
+        delay: Initial delay between retries (seconds)
+        backoff: Multiplier for delay after each attempt
+        max_delay: Maximum delay between retries
+        timeout: Timeout for each individual attempt
+    """
+    current_delay = delay
+    
+    for attempt in range(1, max_attempts + 1):
+        try:
+            print(f"  Attempt {attempt}/{max_attempts}...")
+            result = await asyncio.wait_for(func(), timeout=timeout)
+            print(f"  ✅ Success on attempt {attempt}")
+            return result
+        except asyncio.TimeoutError:
+            print(f"  ⏱️ Attempt {attempt} timed out after {timeout}s")
+            if attempt == max_attempts:
+                raise Exception(f"Failed after {max_attempts} attempts: Timeout")
+        except Exception as e:
+            error_msg = str(e)
+            print(f"  ❌ Attempt {attempt} failed: {error_msg[:150]}")
+            
+            if attempt == max_attempts:
+                raise Exception(f"Failed after {max_attempts} attempts: {error_msg}")
+        
+        # Wait before next attempt (except on last attempt)
+        if attempt < max_attempts:
+            print(f"  ⏳ Waiting {current_delay:.1f}s before retry...")
+            await asyncio.sleep(current_delay)
+            current_delay = min(current_delay * backoff, max_delay)
+    
+    raise Exception(f"Failed after {max_attempts} attempts")
+
+
 class AsyncDatabaseServer:
     def __init__(self, db_path: str = None, pool_size: int = None):
         self.use_remote = USE_REMOTE
@@ -130,14 +183,29 @@ class AsyncDatabaseServer:
         self.pool = asyncio.Queue(maxsize=self.pool_size)
         self.pool_initialized = False
         print(f"Connection pool size: {self.pool_size}")
+        
+        # Load retry configuration
+        retry_config = MCP_CONFIG.get("retry", {})
+        self.max_retry_attempts = retry_config.get("max_attempts", 5)
+        self.retry_delay = retry_config.get("initial_delay", 2.0)
+        self.retry_backoff = retry_config.get("backoff_multiplier", 2.0)
+        self.connection_timeout = retry_config.get("connection_timeout", 300.0)
+        
+        print(f"Retry configuration:")
+        print(f"  Max attempts: {self.max_retry_attempts}")
+        print(f"  Initial delay: {self.retry_delay}s")
+        print(f"  Backoff multiplier: {self.retry_backoff}x")
+        print(f"  Connection timeout: {self.connection_timeout}s")
 
     def _create_connection_sync(self):
-        """Synchronous connection creation for pymssql"""
+        """Synchronous connection creation for pymssql with timeout"""
         if SQL_SERVER_USE_WINDOWS_AUTH:
             # Windows Authentication
             return pymssql.connect(
                 server=self.server,
                 database=self.database,
+                timeout=int(self.connection_timeout),
+                login_timeout=int(self.connection_timeout),
                 as_dict=True
             )
         else:
@@ -147,42 +215,70 @@ class AsyncDatabaseServer:
                 user=self.username,
                 password=self.password,
                 database=self.database,
+                timeout=int(self.connection_timeout),
+                login_timeout=int(self.connection_timeout),
                 as_dict=True
             )
 
+    async def _create_connection_with_retry(self):
+        """Create connection with retry logic"""
+        async def create_conn():
+            if self.use_remote:
+                loop = asyncio.get_running_loop()
+                conn = await loop.run_in_executor(
+                    self.executor,
+                    self._create_connection_sync
+                )
+                return conn
+            else:
+                db = await aiosqlite.connect(self.db_path)
+                await db.execute("PRAGMA journal_mode=WAL")
+                await db.execute("PRAGMA synchronous=NORMAL")
+                await db.execute("PRAGMA cache_size=10000")
+                await db.execute("PRAGMA temp_store=memory")
+                await db.execute("PRAGMA foreign_keys=ON")
+                db.row_factory = aiosqlite.Row
+                return db
+        
+        return await retry_async(
+            create_conn,
+            max_attempts=self.max_retry_attempts,
+            delay=self.retry_delay,
+            backoff=self.retry_backoff,
+            timeout=self.connection_timeout
+        )
+
     async def _create_connection(self):
-        """Create a new database connection with optimal settings"""
-        if self.use_remote:
-            # Create pymssql connection in executor
-            loop = asyncio.get_running_loop()
-            conn = await loop.run_in_executor(
-                self.executor,
-                self._create_connection_sync
-            )
-            return conn
-        else:
-            # Create SQLite connection
-            db = await aiosqlite.connect(self.db_path)
-            await db.execute("PRAGMA journal_mode=WAL")
-            await db.execute("PRAGMA synchronous=NORMAL")
-            await db.execute("PRAGMA cache_size=10000")
-            await db.execute("PRAGMA temp_store=memory")
-            await db.execute("PRAGMA foreign_keys=ON")
-            db.row_factory = aiosqlite.Row
-            return db
+        """Create a new database connection with optimal settings and retry logic"""
+        return await self._create_connection_with_retry()
 
     async def initialize_pool(self):
-        """Initialize the connection pool - ALL CONNECTIONS IN PARALLEL!"""
+        """Initialize the connection pool with retry logic"""
         if self.pool_initialized:
             return
 
-        print(f"Initializing connection pool with {self.pool_size} connections in parallel...")
+        print(f"Initializing connection pool with {self.pool_size} connections...")
         start_time = asyncio.get_event_loop().time()
 
-        # Create ALL connections simultaneously
-        connections = await asyncio.gather(
-            *[self._create_connection() for _ in range(self.pool_size)]
-        )
+        # Create connections with retry logic
+        # Note: We create them sequentially to avoid overwhelming the server
+        connections = []
+        for i in range(self.pool_size):
+            print(f"\nCreating connection {i+1}/{self.pool_size}...")
+            try:
+                conn = await self._create_connection()
+                connections.append(conn)
+                print(f"✅ Connection {i+1} ready")
+            except Exception as e:
+                print(f"❌ Failed to create connection {i+1}: {e}")
+                # Clean up any successful connections
+                for c in connections:
+                    if self.use_remote:
+                        loop = asyncio.get_running_loop()
+                        await loop.run_in_executor(self.executor, self._close_connection_sync, c)
+                    else:
+                        await c.close()
+                raise Exception(f"Failed to initialize pool: {e}")
 
         # Add all connections to the pool
         for conn in connections:
@@ -190,7 +286,7 @@ class AsyncDatabaseServer:
 
         self.pool_initialized = True
         elapsed = asyncio.get_event_loop().time() - start_time
-        print(f"Connection pool initialized in {elapsed * 1000:.2f}ms!")
+        print(f"\n✅ Connection pool initialized in {elapsed:.2f}s!")
         print(f"   ({self.pool_size} connections ready)")
 
     @asynccontextmanager
@@ -433,13 +529,13 @@ async def execute_query_stream(request: QueryRequest):
 @app.get("/health")
 async def health_check():
     try:
-        # Verify tables exist
-        if USE_REMOTE:
-            invoice_exists = await db_server.execute_query("SELECT TOP 1 1 FROM [Nodinite].[ods].[Invoice]")
-            line_exists = await db_server.execute_query("SELECT TOP 1 1 FROM [Nodinite].[ods].[Invoice_Line]")
-        else:
-            invoice_exists = await db_server.execute_query("SELECT 1 FROM Invoice LIMIT 1")
-            line_exists = await db_server.execute_query("SELECT 1 FROM Invoice_Line LIMIT 1")
+        # # Verify tables exist
+        # if USE_REMOTE:
+        #     invoice_exists = await db_server.execute_query("SELECT TOP 1 1 FROM [Nodinite].[ods].[Invoice]")
+        #     line_exists = await db_server.execute_query("SELECT TOP 1 1 FROM [Nodinite].[ods].[Invoice_Line]")
+        # else:
+        #     invoice_exists = await db_server.execute_query("SELECT 1 FROM Invoice LIMIT 1")
+        #     line_exists = await db_server.execute_query("SELECT 1 FROM Invoice_Line LIMIT 1")
 
         return {
             "status": "healthy",
@@ -447,7 +543,7 @@ async def health_check():
             "database_location": SQL_SERVER_HOST if USE_REMOTE else db_server.db_path,
             "pool_size": db_server.pool_size,
             "pool_available": db_server.pool.qsize(),
-            "tables_initialized": bool(invoice_exists and line_exists)
+            # "tables_initialized": bool(invoice_exists and line_exists)
         }
     except Exception as e:
         return {

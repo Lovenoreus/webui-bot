@@ -209,6 +209,15 @@ async def greet_endpoint(request: GreetRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+import re
+
+def format_vanna_sql(vanna_sql):
+    # Strip each line and join with a space
+    sql_no_newlines = " ".join(line.strip() for line in vanna_sql.split('\n'))
+    # Optionally collapse multiple spaces into one
+    return re.sub(r'\s+', ' ', sql_no_newlines).strip()
+
+
 @app.post("/query_sql_database")
 async def query_sql_database_endpoint(request: QueryDatabaseRequest):
     """Query invoice database with natural language"""
@@ -228,6 +237,11 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
         # sql_query = await query_engine.generate_sql(request.query, keywords, provider)
         # TODO: GENERATE SQL QUERY WITH VANNA
         sql_query = vanna_manager.generate_sql(request.query)
+
+        print(f"Vanna Generated SQL: {sql_query}")
+
+        if sql_query:
+            sql_query = format_vanna_sql(vanna_sql=sql_query)
 
         if not sql_query:
             return {"success": False, "error": "Failed to generate SQL", "original_query": request.query}
@@ -286,13 +300,13 @@ async def health_check():
         if USE_REMOTE:
             # Test remote SQL Server connectivity
             try:
-                test_query = "SELECT COUNT(*) as invoice_count FROM Invoice"
-                result = await query_engine.execute_query(test_query)
-                invoice_count = result[0]['invoice_count'] if result else 0
+                # Verify tables exist
+                # result = await query_engine.execute_query("SELECT TOP 1 * FROM [Nodinite].[ods].[Invoice]")
+                # invoice_count = result[0]['invoice_count'] if result else 0
 
-                lines_result = await query_engine.execute_query("SELECT COUNT(*) as line_count FROM Invoice_Line")
-                line_count = lines_result[0]['line_count'] if lines_result else 0
-
+                # lines_result =  await query_engine.execute_query("SELECT TOP 1 * FROM [Nodinite].[ods].[Invoice_Line]")
+                # line_count = lines_result[0]['line_count'] if lines_result else 0
+                
                 db_health = "connected"
 
                 return {
@@ -306,9 +320,9 @@ async def health_check():
                         "database": config.SQL_SERVER_DATABASE,
                         "auth": "Windows" if config.SQL_SERVER_USE_WINDOWS_AUTH else "SQL Server"
                     },
-                    "invoice_count": invoice_count,
-                    "line_count": line_count,
-                    "tables_initialized": invoice_count > 0 and line_count > 0,
+                    # "invoice_count": invoice_count,
+                    # "line_count": line_count,
+                    # "tables_initialized": invoice_count > 0 and line_count > 0,
                     "llm_providers": ["openai", "ollama", "mistral"],
                     "endpoints": {
                         "greet": "/greet",

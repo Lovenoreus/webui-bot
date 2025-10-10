@@ -181,6 +181,9 @@ class QueryEngine:
                 query
             )
 
+            if self.debug:
+                print(f"[QueryEngine] Returned Rows: {rows}")
+
             # Convert to list of dicts (pymssql already returns dicts with as_dict=True)
             data = []
             for row in rows:
