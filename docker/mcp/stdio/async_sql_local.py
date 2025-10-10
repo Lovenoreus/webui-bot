@@ -208,10 +208,11 @@ class AsyncDatabaseServer:
                 login_timeout=int(self.connection_timeout),
                 as_dict=True
             )
+            
         else:
             # SQL Server Authentication
             return pymssql.connect(
-                server=self.server,
+                server=self.server, 
                 user=self.username,
                 password=self.password,
                 database=self.database,
@@ -340,46 +341,194 @@ class AsyncDatabaseServer:
         cursor.close()
         return rows
 
+    def _is_connection_error(self, error: Exception) -> bool:
+        """Check if error is a connection-related error that should trigger retry"""
+        error_str = str(error).lower()
+        
+        print(f"[Connection Error Check] Checking error string: {error_str[:200]}")
+        
+        connection_errors = [
+            'unable to connect',
+            'adaptive server is unavailable',
+            'connection is closed',
+            'connection was killed',
+            'broken pipe',
+            'connection reset',
+            'timed out',
+            'timeout',
+            'network error',
+            'communication link failure',
+            'lost connection',
+            'no such host',
+            'host is down',
+            '20009',  # DB-Lib error code
+            '20003',  # Another common connection error
+            '20006',  # Write to server failed
+            'database is locked',  # SQLite error
+            'disk i/o error',  # SQLite error
+        ]
+        
+        for error_pattern in connection_errors:
+            if error_pattern in error_str:
+                print(f"[Connection Error Check] ✓ MATCH FOUND: '{error_pattern}'")
+                return True
+        
+        print(f"[Connection Error Check] ✗ NO MATCH - Not a connection error")
+        return False
+
     async def execute_query(self, query: str) -> List[Dict[str, Any]]:
-        """Execute any SQL query and return results"""
-        async with self.get_connection() as conn:
-            if self.use_remote:
-                # MSSQL query execution in thread pool
-                loop = asyncio.get_running_loop()
-                rows = await loop.run_in_executor(
-                    self.executor,
-                    self._execute_query_sync,
-                    conn,
-                    query
-                )
-                # pymssql with as_dict=True returns dictionaries already
-                return rows
-            else:
-                # SQLite query execution
-                async with conn.execute(query) as cursor:
-                    rows = await cursor.fetchall()
-                    return [dict(row) for row in rows]
+        """Execute any SQL query and return results with retry logic"""
+        max_retries = 5
+        retry_delay = 1.0
+        max_backoff = 5.0
+        
+        print(f"[Query Execution] ⚡ STARTING QUERY EXECUTION WITH RETRY LOGIC")
+        print(f"[Query Execution] Query: {query[:200]}...")
+        print(f"[Query Execution] Max retries: {max_retries}, Initial delay: {retry_delay}s, Max backoff: {max_backoff}s")
+        
+        for attempt in range(1, max_retries + 1):
+            try:
+                print(f"[Query Execution] 🔄 Attempt {attempt}/{max_retries}")
+                print(f"[Query Execution] Getting connection from pool (use_remote={self.use_remote})...")
+                
+                async with self.get_connection() as conn:
+                    print(f"[Query Execution] ✓ Connection acquired")
+                    
+                    if self.use_remote:
+                        print(f"[Query Execution] Executing MSSQL query in thread pool...")
+                        # MSSQL query execution in thread pool
+                        loop = asyncio.get_running_loop()
+                        rows = await loop.run_in_executor(
+                            self.executor,
+                            self._execute_query_sync,
+                            conn,
+                            query
+                        )
+                        # pymssql with as_dict=True returns dictionaries already
+                        print(f"[Query Execution] ✅ SUCCESS on attempt {attempt} - Returned {len(rows)} rows")
+                        return rows
+                    else:
+                        print(f"[Query Execution] Executing SQLite query...")
+                        # SQLite query execution
+                        async with conn.execute(query) as cursor:
+                            rows = await cursor.fetchall()
+                            result = [dict(row) for row in rows]
+                            print(f"[Query Execution] ✅ SUCCESS on attempt {attempt} - Returned {len(result)} rows")
+                            return result
+                            
+            except Exception as e:
+                error_msg = str(e)
+                error_type = type(e).__name__
+                print(f"[Query Execution] ❌ EXCEPTION CAUGHT on attempt {attempt}")
+                print(f"[Query Execution] Exception type: {error_type}")
+                print(f"[Query Execution] Exception message: {error_msg[:300]}")
+                
+                # Check if it's a connection error that should trigger retry
+                is_conn_error = self._is_connection_error(e)
+                print(f"[Query Execution] Is connection error? {is_conn_error}")
+                
+                if is_conn_error:
+                    print(f"[Query Execution] ⚠️ CONNECTION ERROR DETECTED - Will retry")
+                    
+                    if attempt < max_retries:
+                        current_backoff = min(retry_delay, max_backoff)
+                        print(f"[Query Execution] ⏳ RETRYING in {current_backoff:.1f}s...")
+                        print(f"[Query Execution]    (calculated backoff: {retry_delay:.1f}s, capped at {max_backoff}s)")
+                        await asyncio.sleep(current_backoff)
+                        retry_delay *= 2  # Exponential backoff
+                        print(f"[Query Execution] Next backoff will be: {retry_delay:.1f}s")
+                        continue
+                    else:
+                        print(f"[Query Execution] 💥 ALL {max_retries} RETRY ATTEMPTS EXHAUSTED")
+                        raise Exception(f"Query failed after {max_retries} attempts: {error_msg}")
+                else:
+                    # Not a connection error - fail immediately
+                    print(f"[Query Execution] 💥 NON-CONNECTION ERROR - FAILING IMMEDIATELY")
+                    raise
+            
+            print(f"[Query Execution] ⚠️ End of attempt {attempt} (should not see this)")
+        
+        # Should never reach here
+        print(f"[Query Execution] ⚠️ REACHED END OF RETRY LOOP (should never happen)")
+        raise Exception(f"Query failed after {max_retries} attempts")
 
     async def execute_query_stream(self, query: str):
-        """Execute SQL query and yield results one row at a time"""
-        async with self.get_connection() as conn:
-            if self.use_remote:
-                # MSSQL streaming - fetch all then yield
-                # (true streaming would require cursor iteration in executor)
-                loop = asyncio.get_running_loop()
-                rows = await loop.run_in_executor(
-                    self.executor,
-                    self._execute_query_sync,
-                    conn,
-                    query
-                )
-                for row in rows:
-                    yield row
-            else:
-                # SQLite streaming
-                async with conn.execute(query) as cursor:
-                    async for row in cursor:
-                        yield dict(row)
+        """Execute SQL query and yield results one row at a time with retry logic"""
+        max_retries = 5
+        retry_delay = 1.0
+        max_backoff = 5.0
+        
+        print(f"[Query Stream] ⚡ STARTING STREAMING QUERY WITH RETRY LOGIC")
+        print(f"[Query Stream] Query: {query[:200]}...")
+        print(f"[Query Stream] Max retries: {max_retries}, Initial delay: {retry_delay}s, Max backoff: {max_backoff}s")
+        
+        for attempt in range(1, max_retries + 1):
+            try:
+                print(f"[Query Stream] 🔄 Attempt {attempt}/{max_retries}")
+                print(f"[Query Stream] Getting connection from pool (use_remote={self.use_remote})...")
+                
+                async with self.get_connection() as conn:
+                    print(f"[Query Stream] ✓ Connection acquired")
+                    
+                    if self.use_remote:
+                        print(f"[Query Stream] Executing MSSQL streaming query in thread pool...")
+                        # MSSQL streaming - fetch all then yield
+                        # (true streaming would require cursor iteration in executor)
+                        loop = asyncio.get_running_loop()
+                        rows = await loop.run_in_executor(
+                            self.executor,
+                            self._execute_query_sync,
+                            conn,
+                            query
+                        )
+                        print(f"[Query Stream] ✅ SUCCESS on attempt {attempt} - Streaming {len(rows)} rows")
+                        for row in rows:
+                            yield row
+                        return  # Success - exit retry loop
+                    else:
+                        print(f"[Query Stream] Executing SQLite streaming query...")
+                        # SQLite streaming
+                        print(f"[Query Stream] ✅ SUCCESS on attempt {attempt} - Streaming results")
+                        async with conn.execute(query) as cursor:
+                            async for row in cursor:
+                                yield dict(row)
+                        return  # Success - exit retry loop
+                        
+            except Exception as e:
+                error_msg = str(e)
+                error_type = type(e).__name__
+                print(f"[Query Stream] ❌ EXCEPTION CAUGHT on attempt {attempt}")
+                print(f"[Query Stream] Exception type: {error_type}")
+                print(f"[Query Stream] Exception message: {error_msg[:300]}")
+                
+                # Check if it's a connection error that should trigger retry
+                is_conn_error = self._is_connection_error(e)
+                print(f"[Query Stream] Is connection error? {is_conn_error}")
+                
+                if is_conn_error:
+                    print(f"[Query Stream] ⚠️ CONNECTION ERROR DETECTED - Will retry")
+                    
+                    if attempt < max_retries:
+                        current_backoff = min(retry_delay, max_backoff)
+                        print(f"[Query Stream] ⏳ RETRYING in {current_backoff:.1f}s...")
+                        print(f"[Query Stream]    (calculated backoff: {retry_delay:.1f}s, capped at {max_backoff}s)")
+                        await asyncio.sleep(current_backoff)
+                        retry_delay *= 2  # Exponential backoff
+                        print(f"[Query Stream] Next backoff will be: {retry_delay:.1f}s")
+                        continue
+                    else:
+                        print(f"[Query Stream] 💥 ALL {max_retries} RETRY ATTEMPTS EXHAUSTED")
+                        raise Exception(f"Query stream failed after {max_retries} attempts: {error_msg}")
+                else:
+                    # Not a connection error - fail immediately
+                    print(f"[Query Stream] 💥 NON-CONNECTION ERROR - FAILING IMMEDIATELY")
+                    raise
+            
+            print(f"[Query Stream] ⚠️ End of attempt {attempt} (should not see this)")
+        
+        # Should never reach here
+        print(f"[Query Stream] ⚠️ REACHED END OF RETRY LOOP (should never happen)")
+        raise Exception(f"Query stream failed after {max_retries} attempts")
 
 
 # Initialize database server

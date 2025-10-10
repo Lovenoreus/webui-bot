@@ -2,7 +2,7 @@
 """
 Query Engine - SQL Database Query Generator with LLM Assistance
 Handles natural language to SQL conversion for any database domain
-Supports both local SQLite (via API) and remote SQL Server (direct connection)
+Supports both local SQLite and remote SQL Server via database API server
 """
 
 import json
@@ -10,10 +10,8 @@ import asyncio
 import os
 from typing import List, Dict, Optional
 import re
-from concurrent.futures import ThreadPoolExecutor
 
 import aiohttp
-import pymssql
 from langchain_community.chat_models import ChatOllama
 from langchain_openai import ChatOpenAI
 from langchain_mistralai import ChatMistralAI
@@ -38,12 +36,12 @@ class QueryEngine:
         Initialize the query engine with domain-specific configuration.
 
         Args:
-            database_url: URL of the database server (for local) or connection info (for remote)
+            database_url: URL of the database API server (for both local and remote)
             tables: List of table names in the database
             table_variations: Dict mapping table names to keyword variations to filter
             system_prompt: LLM system prompt with schema and instructions
             debug: Enable debug logging
-            use_remote: Use remote SQL Server instead of local SQLite API
+            use_remote: Use remote SQL Server instead of local SQLite (via API)
         """
         self.database_url = database_url
         self.all_tables = tables
@@ -52,57 +50,10 @@ class QueryEngine:
         self.debug = debug
         self.use_remote = use_remote
 
-        # Initialize remote SQL Server connection if needed
-        if self.use_remote:
-            self.executor = ThreadPoolExecutor(max_workers=5)
-            self._init_remote_connection()
-        else:
-            self.executor = None
-
-    def _init_remote_connection(self):
-        """Initialize pymssql connection info (connections created on demand)"""
-        self.server = config.SQL_SERVER_HOST
-        self.database = config.SQL_SERVER_DATABASE
-        self.use_windows_auth = config.SQL_SERVER_USE_WINDOWS_AUTH
-        
-        if not self.use_windows_auth:
-            self.username = config.SQL_SERVER_USERNAME
-            self.password = config.SQL_SERVER_PASSWORD
-
         if self.debug:
-            print(f"[QueryEngine] Remote SQL Server configuration loaded")
-            print(f"[QueryEngine] Server: {self.server}")
-            print(f"[QueryEngine] Database: {self.database}")
-            print(f"[QueryEngine] Auth: {'Windows' if self.use_windows_auth else 'SQL Server'}")
-
-    def _create_connection_sync(self):
-        """Create synchronous pymssql connection"""
-        if self.use_windows_auth:
-            return pymssql.connect(
-                server=self.server,
-                database=self.database,
-                as_dict=True
-            )
-        else:
-            return pymssql.connect(
-                server=self.server,
-                user=self.username,
-                password=self.password,
-                database=self.database,
-                as_dict=True
-            )
-
-    def _execute_query_sync(self, query: str):
-        """Execute query synchronously with pymssql"""
-        conn = self._create_connection_sync()
-        try:
-            cursor = conn.cursor()
-            cursor.execute(query)
-            rows = cursor.fetchall()
-            cursor.close()
-            return rows
-        finally:
-            conn.close()
+            print(f"[QueryEngine] Initialized with database_url: {database_url}")
+            print(f"[QueryEngine] Database mode: {'REMOTE' if use_remote else 'LOCAL'}")
+            print(f"[QueryEngine] Tables: {tables}")
 
     def extract_sql_from_json(self, llm_output: str) -> str:
         """Extract SQL from LLM response - handles JSON, markdown, or plain SQL"""
@@ -132,29 +83,24 @@ class QueryEngine:
         return ""
 
     async def execute_query(self, query: str):
-        """Run a query on the database - routes to local or remote"""
-        if self.use_remote:
-            return await self._execute_query_remote(query)
-
-        else:
-            return await self._execute_query_local(query)
-
-    async def _execute_query_local(self, query: str):
-        """Execute query via local SQLite API server"""
+        """Execute query via database API server (works for both local and remote)"""
         try:
             if self.debug:
-                print(f"[QueryEngine] Executing LOCAL query: {query}")
+                print(f"[QueryEngine] Executing query via API: {query}")
+                print(f"[QueryEngine] Database URL: {self.database_url}")
 
             async with aiohttp.ClientSession() as session:
                 async with session.post(
                         f"{self.database_url}/query",
                         json={"query": query},
-                        timeout=300
+                        timeout=aiohttp.ClientTimeout(total=300)
                 ) as response:
                     result = await response.json()
 
                     if self.debug:
-                        print(f"[QueryEngine] Query result: {result}")
+                        print(f"[QueryEngine] Query result success: {result.get('success')}")
+                        if result.get('success'):
+                            print(f"[QueryEngine] Returned {len(result.get('data', []))} rows")
 
                     if result.get("success"):
                         return result.get("data", [])
@@ -168,65 +114,17 @@ class QueryEngine:
                 print(f"[QueryEngine] Database connection error: {e}")
             return []
 
-    async def _execute_query_remote(self, query: str):
-        """Execute query on remote SQL Server using pymssql in executor"""
-        try:
-            if self.debug:
-                print(f"[QueryEngine] Executing REMOTE query: {query}")
-
-            loop = asyncio.get_running_loop()
-            rows = await loop.run_in_executor(
-                self.executor,
-                self._execute_query_sync,
-                query
-            )
-
-            if self.debug:
-                print(f"[QueryEngine] Returned Rows: {rows}")
-
-            # Convert to list of dicts (pymssql already returns dicts with as_dict=True)
-            data = []
-            for row in rows:
-                row_dict = {}
-                for key, value in row.items():
-                    # Convert datetime and decimal to string for JSON serialization
-                    if hasattr(value, 'isoformat'):
-                        value = value.isoformat()
-                    elif hasattr(value, '__float__'):
-                        value = float(value)
-                    row_dict[key] = value
-                data.append(row_dict)
-
-            if self.debug:
-                print(f"[QueryEngine] Remote query returned {len(data)} rows")
-
-            return data
-
-        except Exception as e:
-            if self.debug:
-                print(f"[QueryEngine] Remote database error: {e}")
-            return []
-
     async def execute_query_stream(self, query: str):
-        """Stream database results - routes to local or remote"""
-        if self.use_remote:
-            async for result in self._execute_query_stream_remote(query):
-                yield result
-        else:
-            async for result in self._execute_query_stream_local(query):
-                yield result
-
-    async def _execute_query_stream_local(self, query: str):
-        """Stream results from local SQLite API"""
+        """Stream database results via API server (works for both local and remote)"""
         try:
             if self.debug:
-                print(f"[QueryEngine] Starting LOCAL streaming query: {query}")
+                print(f"[QueryEngine] Starting streaming query via API: {query}")
 
             async with aiohttp.ClientSession() as session:
                 async with session.post(
                         f"{self.database_url}/query_stream",
                         json={"query": query},
-                        timeout=300
+                        timeout=aiohttp.ClientTimeout(total=300)
                 ) as response:
 
                     if response.status != 200:
@@ -242,7 +140,7 @@ class QueryEngine:
                                 data = json.loads(line.decode())
 
                                 if self.debug:
-                                    print(f"[QueryEngine] Streaming data: {data}")
+                                    print(f"[QueryEngine] Streaming data type: {data.get('type')}")
 
                                 if data["type"] == "start":
                                     yield {
@@ -285,60 +183,6 @@ class QueryEngine:
             if self.debug:
                 print(f"[QueryEngine] Stream execution error: {e}")
             yield {"success": False, "error": f"Database connection error: {str(e)}"}
-
-    async def _execute_query_stream_remote(self, query: str):
-        """Stream results from remote SQL Server"""
-        try:
-            if self.debug:
-                print(f"[QueryEngine] Starting REMOTE streaming query: {query}")
-
-            yield {
-                "success": True,
-                "sql_query": f"```sql {query} ```",
-                "streaming": True,
-                "status": "started"
-            }
-
-            loop = asyncio.get_running_loop()
-            rows = await loop.run_in_executor(
-                self.executor,
-                self._execute_query_sync,
-                query
-            )
-
-            results = []
-            for idx, row in enumerate(rows, 1):
-                row_dict = {}
-                for key, value in row.items():
-                    # Convert datetime and decimal to string for JSON serialization
-                    if hasattr(value, 'isoformat'):
-                        value = value.isoformat()
-                    elif hasattr(value, '__float__'):
-                        value = float(value)
-                    row_dict[key] = value
-
-                results.append(row_dict)
-
-                yield {
-                    "success": True,
-                    "type": "row",
-                    "data": row_dict,
-                    "index": idx,
-                    "running_total": len(results)
-                }
-
-            yield {
-                "success": True,
-                "type": "complete",
-                "results": results,
-                "record_count": len(results),
-                "status": "finished"
-            }
-
-        except Exception as e:
-            if self.debug:
-                print(f"[QueryEngine] Remote stream error: {e}")
-            yield {"success": False, "error": f"Remote database error: {str(e)}"}
 
     def filter_keywords_for_table(self, keywords: List[str], table_name: str) -> List[str]:
         """Filter out keywords that match the table name to avoid false matches"""

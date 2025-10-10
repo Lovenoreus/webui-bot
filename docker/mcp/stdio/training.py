@@ -14,6 +14,13 @@ def get_vanna_training(remote=False):
         print(f"Using remote database schema: [Nodinite].[ods]")
         #
         invoice_ddl = """
+            ## Database Information
+            - **Database Type**: Microsoft SQL Server
+            - **Dialect**: T-SQL (Transact-SQL)
+            - **Database Name**: Nodinite
+            - **Schema**: ods
+            - **CRITICAL**: ALL table references MUST use full three-part names: [Nodinite].[ods].[TableName]
+    
             CREATE TABLE [Nodinite].[ods].[Invoice] (
                 INVOICE_ID NVARCHAR(50) NOT NULL PRIMARY KEY,
                 ISSUE_DATE NVARCHAR(10) NOT NULL,
@@ -92,6 +99,13 @@ def get_vanna_training(remote=False):
             """
 
         invoice_line_ddl = """
+            ## Database Information
+            - **Database Type**: Microsoft SQL Server
+            - **Dialect**: T-SQL (Transact-SQL)
+            - **Database Name**: Nodinite
+            - **Schema**: ods
+            - **CRITICAL**: ALL table references MUST use full three-part names: [Nodinite].[ods].[TableName]
+    
             CREATE TABLE [Nodinite].[ods].[Invoice_Line] (
                 INVOICE_ID NVARCHAR(50) NOT NULL,
                 ISSUE_DATE NVARCHAR(10) NOT NULL,
@@ -258,6 +272,10 @@ def get_vanna_training(remote=False):
         print("Using local database schema")
 
         invoice_ddl = """
+        ## Database Information
+        - **Database Type**: SQLite
+        - **Dialect**: You must generate SQLite-compatible SQL syntax
+
         CREATE TABLE Invoice (
             INVOICE_ID TEXT NOT NULL PRIMARY KEY,
             ISSUE_DATE TEXT NOT NULL,
@@ -336,6 +354,10 @@ def get_vanna_training(remote=False):
         """
 
         invoice_line_ddl = """
+        ## Database Information
+        - **Database Type**: SQLite
+        - **Dialect**: You must generate SQLite-compatible SQL syntax
+
         CREATE TABLE Invoice_Line (
             INVOICE_ID TEXT NOT NULL,
             ISSUE_DATE TEXT NOT NULL,

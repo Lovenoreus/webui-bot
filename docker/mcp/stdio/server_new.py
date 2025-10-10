@@ -99,7 +99,7 @@ if DEBUG:
 
 # Initialize QueryEngine with invoice configuration
 query_engine = QueryEngine(
-    database_url=DATABASE_SERVER_URL if not USE_REMOTE else None,
+    database_url="http://database_server:8762",
     tables=INVOICE_TABLES,
     table_variations=INVOICE_TABLE_VARIATIONS,
     system_prompt=INVOICE_SYSTEM_PROMPT,
