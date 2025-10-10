@@ -56,23 +56,22 @@
   },
   "vanna": {
     "openai": {
-      "enabled": true,
+      "enabled": false,
       "model": "gpt-4o-mini",
       "allow_llm_to_see_data": true,
       "verbose": false
     },
     "ollama": {
-      "enabled": false,
-      "model": "HridaAI/hrida-t2sql:latest",
-      "base_url": "http://localhost:11434",
+      "enabled": true,
+      "model": "gpt-oss:20b",
+      "base_url": "http:localhost:11434",
       "allow_llm_to_see_data": true,
       "verbose": false
     },
     "database": {
       "auto_train": false,
       "train_on_startup": true
-    },
-    "allowed_tables": ["Invoice","Invoice_Line"]
+    }
   },
   "mcp": {
     "database_choice": "local",

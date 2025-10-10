@@ -196,11 +196,6 @@ VANNA_OLLAMA_VERBOSE = to_bool(get_nested(config, ["vanna", "ollama", "verbose"]
 VANNA_AUTO_TRAIN = to_bool(get_nested(config, ["vanna", "database", "auto_train"], True), default=True)
 VANNA_TRAIN_ON_STARTUP = to_bool(get_nested(config, ["vanna", "database", "train_on_startup"], False), default=False)
 
-# --- Vanna Table Training Configuration ---
-# Configuration for training on specific tables
-# Can be a list of table names or "all" for all tables
-VANNA_ALLOWED_TABLES = get_nested(config, ["vanna", "allowed_tables"], "all")
-
 # --- 13) Vanna Database Configuration ---
 # Database Enable/Disable Flags
 VANNA_POSTGRESQL_ENABLED = to_bool(get_nested(config, ["vanna_databases", "postgresql", "enabled"], False), default=False)
