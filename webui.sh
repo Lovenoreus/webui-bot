@@ -1,11 +1,12 @@
 #!/bin/bash
 
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    echo "Running on Linux"
-elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* ]]; then
-    echo "Running on Windows"
+# --- Detect host OS even if Bash reports 'Linux' ---
+if [[ -n "$WINDIR" || -n "$SystemRoot" ]]; then
+    echo "Host: Windows"
+elif [[ "$(uname -r)" =~ "microsoft" ]]; then
+    echo "Host: Windows (WSL)"
 else
-    echo "Unknown OS: $OSTYPE"
+    echo "Host: Linux"
 fi
 
 echo "Shutting down all docker containers"
