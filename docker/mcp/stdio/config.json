@@ -63,7 +63,7 @@
     },
     "ollama": {
       "enabled": true,
-      "model": "HridaAI/hrida-t2sql-128k:latest",
+      "model": "gpt-oss:20b",
       "base_url": "http:localhost:11434",
       "allow_llm_to_see_data": true,
       "verbose": false
@@ -108,18 +108,18 @@
       "charset": "utf8mb4"
     },
     "mssql": {
-      "enabled": false,
+      "enabled": true,
       "driver": "ODBC Driver 17 for SQL Server",
       "trusted_connection": false
     },
     "sqlite": {
-      "enabled": true,
+      "enabled": false,
       "database_path": "compacted.db"
     }
   },
   "vanna_training": {
     "selected_tables": [
-      "Invoice"
+      "Invoice", "Invoice_Line"
     ],
     "train_all_tables": false,
     "include_sample_data": true

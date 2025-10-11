@@ -201,7 +201,7 @@ class VannaModelManager:
         VannaClass = self.get_vanna_class("ollama")
         self.vanna_client = VannaClass(config={
             'model': config.VANNA_OLLAMA_MODEL,
-            'ollama_host':"http://125.209.124.155:11434",#"http://localhost:11434",#config.VANNA_OLLAMA_BASE_URL,
+            'ollama_host':"http://vs2153.vll.se:11434",#"http://localhost:11434",#config.VANNA_OLLAMA_BASE_URL,
             'allow_llm_to_see_data': config.VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA,
             'verbose': config.VANNA_OLLAMA_VERBOSE
         })
@@ -298,7 +298,7 @@ class VannaModelManager:
             
             # Create a custom run_sql function that uses our pymssql connection
             def run_sql_pymssql(sql: str):
-                sql = sql.replace("```sql", "").replace("```", "").strip()
+                # sql = sql.replace("```sql", "").replace("```", "").strip()
                 cursor = connection.cursor()
                 try:
                     cursor.execute(sql)
