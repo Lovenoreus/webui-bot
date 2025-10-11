@@ -20,6 +20,9 @@ def get_vanna_training(remote=False):
             - **Database Name**: Nodinite
             - **Schema**: ods
             - **CRITICAL**: ALL table references MUST use full three-part names: [Nodinite].[ods].[TableName]
+
+            Always use column aliases for aggregate functions and expressions. 
+            Example: SELECT COUNT(*) AS count, SUM(amount) AS total_amount
     
             CREATE TABLE [Nodinite].[ods].[Invoice] (
                 INVOICE_ID NVARCHAR(50) NOT NULL PRIMARY KEY,
@@ -105,6 +108,9 @@ def get_vanna_training(remote=False):
             - **Database Name**: Nodinite
             - **Schema**: ods
             - **CRITICAL**: ALL table references MUST use full three-part names: [Nodinite].[ods].[TableName]
+
+            Always use column aliases for aggregate functions and expressions. 
+            Example: SELECT COUNT(*) AS count, SUM(amount) AS total_amount
     
             CREATE TABLE [Nodinite].[ods].[Invoice_Line] (
                 INVOICE_ID NVARCHAR(50) NOT NULL,

@@ -335,6 +335,7 @@ class AsyncDatabaseServer:
 
     def _execute_query_sync(self, conn, query: str):
         """Synchronous query execution for pymssql"""
+        print(f"[DATABASE SERVER] Executing query: {query}")
         cursor = conn.cursor()
         cursor.execute(query)
         rows = cursor.fetchall()
