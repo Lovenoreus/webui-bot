@@ -300,23 +300,19 @@ class VannaModelManager:
             def run_sql_pymssql(sql: str):
                 sql = sql.replace("```sql", "").replace("```", "").strip()
                 cursor = connection.cursor()
-                try:
-                    cursor.execute(sql)
-                    if sql.strip().upper().startswith('SELECT'):
-                        results = cursor.fetchall()
-                        print("✅ EXECUTE SUCCESSFULLY")
-                        if results:
-                            try:
-                                import pandas as pd
-                                return pd.DataFrame(results)
-                            except:
-                                return results
-
-                    
-                except Exception as e:
-                    print("ERORRRRRRRRRRRR: ", e)
-                    return e
-                finally:
+                cursor.execute(sql)
+                if sql.strip().upper().startswith('SELECT'):
+                    results = cursor.fetchall()
+                    cursor.close()
+                    # Convert to pandas DataFrame if results exist
+                    if results:
+                        import pandas as pd
+                        return pd.DataFrame(results)
+                    else:
+                        import pandas as pd
+                        return pd.DataFrame()
+                else:
+                    connection.commit()
                     cursor.close()
                 
                 #     # print("RESULTTTTTTTTTT",results)
@@ -345,6 +341,24 @@ class VannaModelManager:
         except Exception as e:
             raise Exception(f"Failed to connect to MSSQL database with pymssql: {str(e)}")
     
+    # def _connect_to_mssql(self):
+    #     import pyodbc
+    #     conn_str = (
+    #         f"Driver={{ODBC Driver 17 for SQL Server}};"
+    #         f"Server={config.VANNA_DB_HOST};"
+    #         f"Database={config.VANNA_DB_DATABASE};"
+    #         f"UID={config.VANNA_DB_USERNAME};"
+    #         f"PWD={config.VANNA_DB_PASSWORD};"
+    #         f"Encrypt=no;"
+    #         f"TrustServerCertificate=yes;"
+    #     )
+    #     self.vanna_client.connect_to_mssql(odbc_conn_str=conn_str) # You can use the ODBC connection string here
+
+    #     self.database_connection = f"mssql://{config.VANNA_DB_HOST}/{config.VANNA_DB_DATABASE}"
+    #     print(f"Connected to MSSQL using pyodbc: {config.VANNA_DB_HOST}/{config.VANNA_DB_DATABASE}")
+
+
+
     def _connect_to_sqlite(self):
         """Connect to SQLite database"""
         if not config.VANNA_SQLITE_ENABLED:
