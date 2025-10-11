@@ -109,13 +109,20 @@
       "charset": "utf8mb4"
     },
     "mssql": {
-      "enabled": false,
+      "enabled": true,
       "driver": "ODBC Driver 17 for SQL Server",
       "trusted_connection": false
     },
     "sqlite": {
-      "enabled": true,
+      "enabled": false,
       "database_path": "compacted.db"
     }
+  },
+  "vanna_training": {
+    "selected_tables": [
+      "Invoice", "Invoice_Line"
+    ],
+    "train_all_tables": false,
+    "include_sample_data": true
   }
 }

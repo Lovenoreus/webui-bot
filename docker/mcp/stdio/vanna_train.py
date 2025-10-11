@@ -298,7 +298,7 @@ class VannaModelManager:
             
             # Create a custom run_sql function that uses our pymssql connection
             def run_sql_pymssql(sql: str):
-                sql = sql.replace("```sql", "").replace("```", "").strip()
+                # sql = sql.replace("```sql", "").replace("```", "").strip()
                 cursor = connection.cursor()
                 cursor.execute(sql)
                 # if sql.strip().upper().startswith('SELECT'):
