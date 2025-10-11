@@ -9,12 +9,12 @@ import json
 from typing import List, Dict, Optional, AsyncGenerator
 
 try:
-    from vanna_train import VannaModelManager
+    from vanna_train import VannaModelManager, vanna_train, get_database_schema_info, get_table_names, get_vanna_info
 except ImportError:
     import sys
     import os
     sys.path.append(os.path.dirname(__file__))
-    from vanna_train import VannaModelManager
+    from vanna_train import VannaModelManager, vanna_train, get_database_schema_info, get_table_names, get_vanna_info
 import config
 import pandas as pd
 
@@ -45,6 +45,15 @@ class VannaQueryEngine:
             if self.debug:
                 print(f"[VANNA DEBUG] Initialized with provider: {self.vanna_manager.current_provider}")
                 print(f"[VANNA DEBUG] Database: {self.vanna_manager.current_database}")
+            
+            # Perform training if configured
+            self._perform_training_if_needed(selected_tables = config.VANNA_ALLOWED_TABLES)
+            
+            # Print initialization success message
+            vanna_info = get_vanna_info(self.vanna_manager)
+            print(f"\n🤖 Vanna SQL Assistant initialized with {self.vanna_manager.current_provider} provider")
+            print(f"📊 Current model: {vanna_info['model']}")
+            print(f"🗄️  Current database: {self.vanna_manager.current_database.upper()}")
                 
         except Exception as e:
             print(f"[VANNA ERROR] Failed to initialize Vanna: {e}")
@@ -218,6 +227,88 @@ class VannaQueryEngine:
                 "message": f"Database execution error: {str(e)}"
             }
     
+    def _perform_training_if_needed(self, selected_tables: Optional[List[str]] = config.VANNA_ALLOWED_TABLES):    
+        """Perform auto-training on startup if enabled"""
+        if not (config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP):
+            print("Auto-training is disabled. Use vanna_train() function to manually train the model.")
+            return
+            
+        print(f"Attempting to get schema information for {self.vanna_manager.current_database} database...")
+        df_ddl = get_database_schema_info(self.vanna_client, self.vanna_manager.current_database)
+        
+        print("Schema information retrieved:")
+        print("ddllllllll:", df_ddl["table_name"] if df_ddl is not None else "No DataFrame")
+        print("Type of df_ddl:", type(df_ddl))
+        if df_ddl is not None and not df_ddl.empty:
+            # Check if training data already exists
+            existing_training_data = self.vanna_client.get_training_data()
+            if existing_training_data.empty or config.VANNA_TRAIN_ON_STARTUP:
+                print(f"Training Vanna with {self.vanna_manager.current_provider} provider on {self.vanna_manager.current_database} database...")
+                
+                # Train on DDL statements with selected_columns
+                for ddl, table_name in zip(df_ddl['sql'].to_list(), df_ddl['table_name'].to_list()):
+                    table_name = table_name.strip('"')
+                    if selected_tables and table_name not in selected_tables:
+                        print(f"Skipping training for table {table_name} as it's not in selected_tables")
+                        continue
+                    try:
+                        vanna_train(
+                            vanna_client=self.vanna_client,
+                            current_provider=self.vanna_manager.current_provider,
+                            ddl=ddl
+                        )
+                    except Exception as e:
+                        print(f"Error training DDL: {e}")
+                
+                # Get list of all tables
+                # tables_df = get_table_names(self.vanna_client, self.vanna_manager.current_database)
+                if df_ddl is not None and not df_ddl.empty:
+                    # For each table, get distinct examples
+                    print("df_ddl['table_name'].to_list(): ",df_ddl['table_name'].to_list())
+                    for table_name in df_ddl['table_name'].to_list():
+                        table_name = table_name.strip('"')
+                        # print("selected_tables:", selected_tables, "type:", type(selected_tables))
+                        if selected_tables and table_name not in selected_tables:
+                            print(f"Skipping training for table {table_name} as it's not in selected_tables")
+                            continue
+                        # if mssql
+                        if self.vanna_manager.current_database.lower() == "mssql":
+                            sample_query = f"SELECT TOP 5 * FROM [Nodinite].[ods].[{table_name}]"
+                            print(f"DOCUMENTATION TABLE: {table_name} \nWith query {sample_query}")
+                            
+                            try:
+                                sample_df = self.vanna_client.run_sql(sample_query)
+                                training_text = f"Table '{table_name}' contains records like:\n{sample_df.to_string()}"
+                                vanna_train(
+                                    vanna_client=self.vanna_client,
+                                    current_provider=self.vanna_manager.current_provider,
+                                    documentation=training_text
+                                )
+                            except Exception as e:
+                                print(f"Error training table data for {table_name}: {e}")
+                        elif self.vanna_manager.current_database.lower() == "sqlite":
+                            sample_query = f'SELECT * FROM "{table_name}" LIMIT 5;'
+                            print(f"DOCUMENTATION TABLE: {table_name} \nWith query {sample_query}")
+                            
+                            try:
+                                sample_df = self.vanna_client.run_sql(sample_query)
+                                training_text = f"Table '{table_name}' contains records like:\n{sample_df.to_string()}"
+                                vanna_train(
+                                    vanna_client=self.vanna_client,
+                                    current_provider=self.vanna_manager.current_provider,
+                                    documentation=training_text
+                                )
+                            except Exception as e:
+                                print(f"Error training table data for {table_name}: {e}")
+                
+                print("Training completed!")
+            else:
+                print(f"Training data already exists for {self.vanna_manager.current_provider}. Skipping training.")
+        else:
+            print(f"Could not retrieve schema information from {self.vanna_manager.current_database} database.")
+
+    
+
     def get_database_info(self) -> Dict:
         """Get information about the current Vanna configuration"""
         if self.vanna_manager:
@@ -234,3 +325,7 @@ class VannaQueryEngine:
             }
         else:
             return {"engine": "vanna", "status": "not_initialized"}
+    
+    def get_vanna_info(self) -> Dict:
+        """Get current Vanna configuration info"""
+        return get_vanna_info(self.vanna_manager)

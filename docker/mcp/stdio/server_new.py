@@ -239,8 +239,7 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
             "success": True,
             "sql_query": sql_query,
             "results": results_str,
-            "original_query": request.query,
-            "record_count": len(results)
+            "original_query": request.query
         }
 
     except Exception as e:

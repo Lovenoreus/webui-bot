@@ -63,12 +63,13 @@
     },
     "ollama": {
       "enabled": true,
-      "model": "HridaAI/hrida-t2sql-128k:latest",
-      "base_url": "http:localhost:11434",
+      "model": "gpt-oss:20b",
+      "base_url": "http://125.209.124.155:11434",
       "allow_llm_to_see_data": true,
       "verbose": false
     },
     "database": {
+      "allowed_tables": ["Invoice"],
       "auto_train": false,
       "train_on_startup": true
     }
@@ -116,12 +117,5 @@
       "enabled": true,
       "database_path": "compacted.db"
     }
-  },
-  "vanna_training": {
-    "selected_tables": [
-      "Invoice"
-    ],
-    "train_all_tables": false,
-    "include_sample_data": true
   }
 }
