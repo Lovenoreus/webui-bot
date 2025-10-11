@@ -1419,12 +1419,13 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         elif tool_name == "ad_list_users":
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 data = await ad.list_users()
+                user_count = len(data.get("value", []))
                 result = {
                     "success": True,
                     "action": "list_users",
-                    "message": f"✅ Found {len(data)} users in the directory",
+                    "message": f"✅ Found {user_count} users in the directory",
                     "data": data,
-                    "count": len(data)
+                    "count": user_count
                 }
 
             return format_mcp_response(result, tool_name)
@@ -1831,13 +1832,14 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         elif tool_name == "ad_list_roles":
             async with FastActiveDirectory(max_concurrent=20) as ad:
                 data = await ad.list_roles()
-
+                role_count = len(data.get("value", []))
+                
                 result = {
                     "success": True,
                     "action": "list_roles",
-                    "message": f"✅ Found {len(data)} roles in the directory",
+                    "message": f"✅ Found {role_count} roles in the directory",
                     "data": data,
-                    "count": len(data)
+                    "count": role_count
                 }
 
             return format_mcp_response(result, tool_name)
