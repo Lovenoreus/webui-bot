@@ -63,7 +63,7 @@
     },
     "ollama": {
       "enabled": true,
-      "model": "gpt-oss:20b",
+      "model": "Har",
       "base_url": "http://125.209.124.155:11434",
       "allow_llm_to_see_data": true,
       "verbose": false

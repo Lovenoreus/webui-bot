@@ -301,7 +301,9 @@ class VannaModelManager:
                 sql = sql.replace("```sql", "").replace("```", "").strip()
                 cursor = connection.cursor()
                 cursor.execute(sql)
-                if sql.strip().upper().startswith('SELECT'):
+                # if sql.strip().upper().startswith('SELECT'):
+                if sql:
+                    print("SQLLLLLL", sql)
                     results = cursor.fetchall()
                     cursor.close()
                     # Convert to pandas DataFrame if results exist
