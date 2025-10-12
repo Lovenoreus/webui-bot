@@ -18,7 +18,7 @@ from query_engine import QueryEngine
 from instructions import SQLITE_INVOICE_PROMPT, SQLSERVER_INVOICE_PROMPT
 # from vanna_engine import initialize_vanna_engine, vanna_manager, generate_sql
 from vanna_engine import VannaModelManager
-from training import get_vanna_training
+from training import get_vanna_training, get_vanna_question_sql_pairs
 from models import (
     QueryDatabaseRequest,
     GreetRequest,
@@ -128,7 +128,7 @@ print("📚 Training Vanna with schema...")
 print(f"Remote choice for Vanna is: {USE_REMOTE}")
 
 # Get the training data.
-invoice_ddl, invoice_line_ddl, invoice_doc, invoice_line_doc = get_vanna_training(remote=USE_REMOTE)
+invoice_ddl, invoice_line_ddl, invoice_doc, invoice_line_doc, training_pairs = get_vanna_training(remote=USE_REMOTE)
 
 # Train Vanna with DDL and documentation
 print("\n📚 Training Vanna with DDL and documentation...")
@@ -160,6 +160,27 @@ if vanna_manager.train(documentation=invoice_line_doc):
 
 else:
     print("❌ Failed to train Invoice_Line documentation")
+
+# Train with question-SQL pairs
+print("Training with question-SQL pairs...")
+successful_pairs = 0
+total_pairs = len(training_pairs)
+
+for i, pair in enumerate(training_pairs, 1):
+    question = pair["question"]
+    sql = pair["sql"]
+    print(f"Training pair {i}/{total_pairs}: {question[:50]}...")
+    
+    try:
+        if vanna_manager.train(question=question, sql=sql):
+            successful_pairs += 1
+            print(f"✅ Successfully trained pair {i}")
+        else:
+            print(f"❌ Failed to train pair {i}")
+    except Exception as e:
+        print(f"❌ Error training pair {i}: {e}")
+
+print(f"📊 Question-SQL training completed: {successful_pairs}/{total_pairs} pairs successful")
 
 # Added a strict syntax command.
 vanna_manager.train(documentation="#STRICT SYNTAX RULE: Your SQL should be on a single line with no line breaks. It should follow this exact syntax ```sql <command> ```")
