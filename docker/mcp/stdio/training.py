@@ -1,10 +1,376 @@
 # -------------------- External Libraries --------------------
 # from dotenv import load_dotenv, find_dotenv
-#
+import re
+
 # # -------------------- User-defined Modules --------------------
 # import config
 
 # load_dotenv(find_dotenv())
+
+
+def pluralize_to_singular(word):
+    """
+    Convert a single word from plural to singular using English pluralization rules.
+    
+    Args:
+        word (str): The word to convert
+        
+    Returns:
+        str: The singular form of the word
+    """
+    if len(word) < 2:
+        return word
+    
+    word_lower = word.lower()
+    
+    # Handle irregular plurals
+    irregular_plurals = {
+        'children': 'child',
+        'feet': 'foot',
+        'geese': 'goose',
+        'men': 'man',
+        'women': 'woman',
+        'teeth': 'tooth',
+        'mice': 'mouse',
+        'people': 'person',
+        'oxen': 'ox',
+        'deer': 'deer',
+        'sheep': 'sheep',
+        'fish': 'fish',
+        'moose': 'moose',
+        'series': 'series',
+        'species': 'species',
+        'data': 'datum',
+        'media': 'medium',
+        'criteria': 'criterion',
+        'phenomena': 'phenomenon',
+        'bacteria': 'bacterium',
+        'alumni': 'alumnus',
+        'fungi': 'fungus',
+        'nuclei': 'nucleus',
+        'cacti': 'cactus',
+        'foci': 'focus',
+        'radii': 'radius',
+        'analyses': 'analysis',
+        'bases': 'basis',
+        'diagnoses': 'diagnosis',
+        'oases': 'oasis',
+        'theses': 'thesis',
+        'crises': 'crisis',
+        'axes': 'axis',
+        'matrices': 'matrix',
+        'vertices': 'vertex',
+        'indices': 'index',
+        'appendices': 'appendix'
+    }
+    
+    if word_lower in irregular_plurals:
+        # Preserve original case pattern
+        singular = irregular_plurals[word_lower]
+        if word.isupper():
+            return singular.upper()
+        elif word.istitle():
+            return singular.capitalize()
+        else:
+            return singular
+    
+    # Handle regular plural patterns
+    
+    # Words ending in 'ies' -> 'y' (e.g., companies -> company, batteries -> battery)
+    if word_lower.endswith('ies') and len(word) > 3:
+        base = word[:-3] + 'y'
+        return base
+    
+    # Words ending in 'ves' -> 'f' or 'fe' (e.g., knives -> knife, shelves -> shelf)
+    if word_lower.endswith('ves') and len(word) > 3:
+        if word_lower.endswith('ives'):
+            # knives -> knife, lives -> life
+            base = word[:-4] + 'ife'
+        else:
+            # shelves -> shelf, calves -> calf
+            base = word[:-3] + 'f'
+        return base
+    
+    # Words ending in 'ses' -> 's' (e.g., glasses -> glass, classes -> class)
+    if word_lower.endswith('ses') and len(word) > 3:
+        # Special case for 'chases', 'purchases', 'releases', etc.
+        if word_lower.endswith('chases') or word_lower.endswith('eases'):
+            return word[:-1]  # Remove just the 's'
+        return word[:-2]
+    
+    # Words ending in 'xes' -> 'x' (e.g., boxes -> box, fixes -> fix)
+    if word_lower.endswith('xes') and len(word) > 3:
+        return word[:-2]
+    
+    # Words ending in 'zes' -> 'z' (e.g., prizes -> prize)
+    if word_lower.endswith('zes') and len(word) > 3:
+        return word[:-2]
+    
+    # Words ending in 'shes' -> 'sh' (e.g., dishes -> dish, brushes -> brush)
+    if word_lower.endswith('shes') and len(word) > 4:
+        return word[:-2]
+    
+    # Words ending in 'ches' -> 'ch' (e.g., watches -> watch, beaches -> beach)
+    if word_lower.endswith('ches') and len(word) > 4:
+        return word[:-2]
+    
+    # Words ending in 'oes' -> 'o' (e.g., tomatoes -> tomato, heroes -> hero)
+    if word_lower.endswith('oes') and len(word) > 3:
+        return word[:-2]
+    
+    # Words ending in just 's' (most common case)
+    if word_lower.endswith('s') and len(word) > 1:
+        # Don't remove 's' from words that are naturally singular and end in 's'
+        # (e.g., glass, pass, mass, etc.)
+        potential_singular = word[:-1]
+        
+        # Simple heuristic: if removing 's' creates a very short word, it might be incorrect
+        if len(potential_singular) < 2:
+            return word
+        
+        # Special cases where the word naturally ends in 's' when singular
+        if word_lower in ['glass', 'mass', 'pass', 'class', 'bass', 'grass', 'brass', 'cross']:
+            return word
+            
+        # For most regular plurals, just remove the 's'
+        return potential_singular
+    
+    # If no plural pattern matches, return the original word
+    return word
+
+
+def singular_to_plural(word):
+    """
+    Convert a single word from singular to plural using English pluralization rules.
+    
+    Args:
+        word (str): The word to convert
+        
+    Returns:
+        str: The plural form of the word
+    """
+    if len(word) < 2:
+        return word
+    
+    word_lower = word.lower()
+    
+    # Handle irregular plurals
+    irregular_singulars = {
+        'child': 'children',
+        'foot': 'feet',
+        'goose': 'geese',
+        'man': 'men',
+        'woman': 'women',
+        'tooth': 'teeth',
+        'mouse': 'mice',
+        'person': 'people',
+        'ox': 'oxen',
+        'deer': 'deer',
+        'sheep': 'sheep',
+        'fish': 'fish',
+        'moose': 'moose',
+        'series': 'series',
+        'species': 'species',
+        'datum': 'data',
+        'medium': 'media',
+        'criterion': 'criteria',
+        'phenomenon': 'phenomena',
+        'bacterium': 'bacteria',
+        'alumnus': 'alumni',
+        'fungus': 'fungi',
+        'nucleus': 'nuclei',
+        'cactus': 'cacti',
+        'focus': 'foci',
+        'radius': 'radii',
+        'analysis': 'analyses',
+        'basis': 'bases',
+        'diagnosis': 'diagnoses',
+        'oasis': 'oases',
+        'thesis': 'theses',
+        'crisis': 'crises',
+        'axis': 'axes',
+        'matrix': 'matrices',
+        'vertex': 'vertices',
+        'index': 'indices',
+        'appendix': 'appendices'
+    }
+    
+    if word_lower in irregular_singulars:
+        # Preserve original case pattern
+        plural = irregular_singulars[word_lower]
+        if word.isupper():
+            return plural.upper()
+        elif word.istitle():
+            return plural.capitalize()
+        else:
+            return plural
+    
+    # Handle regular singular to plural patterns
+    
+    # Words ending in 'y' preceded by a consonant -> 'ies' (e.g., company -> companies, battery -> batteries)
+    if word_lower.endswith('y') and len(word) > 2 and word[-2].lower() not in 'aeiou':
+        return word[:-1] + 'ies'
+    
+    # Words ending in 'f' or 'fe' -> 'ves' (e.g., knife -> knives, shelf -> shelves)
+    if word_lower.endswith('f'):
+        return word[:-1] + 'ves'
+    elif word_lower.endswith('fe'):
+        return word[:-2] + 'ves'
+    
+    # Words ending in 's', 'ss', 'sh', 'ch', 'x', 'z' -> add 'es'
+    if word_lower.endswith(('s', 'ss', 'sh', 'ch', 'x', 'z')):
+        return word + 'es'
+    
+    # Words ending in 'o' preceded by a consonant -> 'oes' (e.g., tomato -> tomatoes, hero -> heroes)
+    if word_lower.endswith('o') and len(word) > 1 and word[-2].lower() not in 'aeiou':
+        return word + 'es'
+    
+    # Most regular words -> add 's'
+    return word + 's'
+
+
+def get_both_singular_and_plural(word):
+    """
+    Get both singular and plural forms of a word for comprehensive searching.
+    
+    Args:
+        word (str): The input word (could be singular or plural)
+        
+    Returns:
+        tuple: (singular_form, plural_form)
+    """
+    # First, get the singular form
+    singular = pluralize_to_singular(word)
+    
+    # Then get the plural form from the singular
+    plural = singular_to_plural(singular)
+    
+    return singular, plural
+
+
+def normalize_for_comprehensive_search(query):
+    """
+    Enhance query to search for both singular and plural forms of nouns for comprehensive matching.
+    This creates OR conditions to find items whether they're stored as singular or plural.
+    """
+    # Split query into words, preserving spaces and punctuation
+    words = re.findall(r'\b\w+\b|\W+', query)
+    
+    enhanced_instructions = []
+    query_enhanced = False
+    
+    # Common stop words and query words that shouldn't be treated as item names
+    stop_words = {
+        'what', 'which', 'who', 'when', 'where', 'why', 'how', 'many', 'much', 'all',
+        'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with',
+        'by', 'from', 'up', 'about', 'into', 'through', 'during', 'before', 'after', 
+        'above', 'below', 'between', 'among', 'under', 'over', 'is', 'are', 'was', 'were',
+        'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing',
+        'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'shall',
+        'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they',
+        'me', 'him', 'her', 'us', 'them', 'my', 'your', 'his', 'her', 'its', 'our', 'their',
+        'show', 'find', 'get', 'list', 'give', 'tell', 'sold', 'bought', 'purchased', 'sell',
+        'buy', 'purchase', 'companies', 'company', 'suppliers', 'supplier', 'vendor', 'vendors',
+        'spend', 'spent', 'cost', 'costs', 'price', 'prices', 'total', 'totals', 'amount', 'amounts',
+        'provided', 'provide', 'provides', 'offering', 'offers', 'selling', 'sells', 'invoices', 'invoice'
+    }
+    
+    for word in words:
+        if re.match(r'\b\w+\b', word):  # It's a word
+            word_lower = word.lower()
+            
+            # Skip stop words and common query terms
+            if word_lower in stop_words:
+                continue
+                
+            # Skip very short words (less than 3 characters) as they're likely not item names
+            if len(word) < 3:
+                continue
+                
+            singular, plural = get_both_singular_and_plural(word)
+            
+            # Only process words that have meaningful singular/plural differences
+            # and appear to be potential item names
+            if (singular.lower() != plural.lower() and 
+                word.lower() in [singular.lower(), plural.lower()] and
+                len(singular) >= 3):  # Ensure meaningful word length
+                enhanced_instructions.append(f"'{word.lower()}' -> search both '{singular}' and '{plural}'")
+                query_enhanced = True
+    
+    # If we found words that should be searched with both forms, add comprehensive instructions
+    if query_enhanced:
+        instruction = f"""
+{query}
+
+COMPREHENSIVE SEARCH INSTRUCTIONS: 
+When searching for item names, use OR conditions to search for BOTH singular AND plural forms to get complete results.
+
+For key item terms in the query, generate LIKE conditions for both forms:
+{', '.join(enhanced_instructions)}
+
+SQL Pattern Example:
+- If user asks about "screws": WHERE (LOWER(ITEM_NAME) LIKE LOWER('%screw%') OR LOWER(ITEM_NAME) LIKE LOWER('%screws%'))
+- If user asks about "swimming trunks": WHERE (LOWER(ITEM_NAME) LIKE LOWER('%swimming trunk%') OR LOWER(ITEM_NAME) LIKE LOWER('%swimming trunks%'))
+
+This ensures you find items whether they're stored as "Screw", "Screws", "Wood Screw", "Metal Screws", etc.
+"""
+        return instruction
+    
+    return query
+
+
+def get_comprehensive_search_instructions():
+    """
+    Get comprehensive plural/singular handling instructions for Vanna training.
+    
+    Returns:
+        str: Training instructions for comprehensive search handling
+    """
+    return """
+# CRITICAL COMPREHENSIVE SINGULAR/PLURAL HANDLING FOR ITEM SEARCHES
+
+## Key Rule: Use OR conditions to search for BOTH singular AND plural forms of item names
+
+## Core Principle:
+When users ask about items (whether in singular or plural form), generate SQL that searches for BOTH forms using OR conditions.
+This ensures maximum coverage of data that may contain items in either singular or plural forms.
+
+## Why Use Both Forms:
+- Database may contain: "Screw", "Screws", "Wood Screw", "Metal Screws", "Screw Set"
+- Single search term misses variations: searching only "screw" misses "Screws Kit"  
+- Single search term misses variations: searching only "screws" misses "Screw Driver"
+- OR condition catches everything: (LIKE '%screw%' OR LIKE '%screws%')
+
+## SQL Pattern Examples:
+
+### User asks: "What companies sold us swimming trunks?"
+**SQL:** WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%swimming trunk%') OR LOWER(il.ITEM_NAME) LIKE LOWER('%swimming trunks%'))
+
+### User asks: "How many screws did we buy?"  
+**SQL:** WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%screw%') OR LOWER(il.ITEM_NAME) LIKE LOWER('%screws%'))
+
+### User asks: "Show me all battery purchases"
+**SQL:** WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%battery%') OR LOWER(il.ITEM_NAME) LIKE LOWER('%batteries%'))
+
+### User asks: "Find computer suppliers"
+**SQL:** WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%computer%') OR LOWER(il.ITEM_NAME) LIKE LOWER('%computers%'))
+
+## Implementation Rules:
+1. **Always use OR conditions** for comprehensive coverage
+2. **Generate both singular and plural forms** using English linguistic rules
+3. **Handle regular plurals**: add/remove 's' (computer/computers)
+4. **Handle 'ies' forms**: company/companies, battery/batteries
+5. **Handle 'ves' forms**: knife/knives, shelf/shelves  
+6. **Handle irregular plurals**: child/children, mouse/mice
+7. **Handle compound terms**: swimming trunk/swimming trunks
+
+## Template:
+```sql
+WHERE (LOWER(ITEM_NAME) LIKE LOWER('%{singular}%') OR LOWER(ITEM_NAME) LIKE LOWER('%{plural}%'))
+```
+
+This approach guarantees finding ALL items regardless of how they're stored in the database.
+"""
 
 
 def get_synonym_mappings():

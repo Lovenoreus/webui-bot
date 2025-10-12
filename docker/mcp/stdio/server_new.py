@@ -18,7 +18,7 @@ from query_engine import QueryEngine
 from instructions import SQLITE_INVOICE_PROMPT, SQLSERVER_INVOICE_PROMPT
 # from vanna_engine import initialize_vanna_engine, vanna_manager, generate_sql
 from vanna_engine import VannaModelManager
-from training import get_vanna_training, get_vanna_question_sql_pairs
+from training import get_vanna_training, get_vanna_question_sql_pairs, normalize_for_comprehensive_search, get_comprehensive_search_instructions
 from models import (
     QueryDatabaseRequest,
     GreetRequest,
@@ -192,46 +192,8 @@ print(f"📊 Question-SQL training completed: {successful_pairs}/{total_pairs} p
 # Added a strict syntax command.
 vanna_manager.train(documentation="#STRICT SYNTAX RULE: Your SQL should be on a single line with no line breaks. It should follow this exact syntax ```sql <command> ```")
 
-# Add plural/singular handling instructions
-singular_plural_instructions = """
-# CRITICAL PLURAL/SINGULAR HANDLING FOR ITEM SEARCHES
-
-## Key Rule: Always use SINGULAR forms in LIKE conditions for item names
-
-## Core Principle:
-When users ask about items in plural form, convert to singular in your LIKE conditions.
-This ensures broader matching of data that may contain both singular and plural forms.
-
-## Conversion Rules:
-1. Remove 's' from regular plurals: 'computers' → 'computer'
-2. Handle 'ies' endings: 'companies' → 'company', 'batteries' → 'battery' 
-3. Handle 'es' endings: 'boxes' → 'box', 'glasses' → 'glass'
-4. Handle 'ves' endings: 'knives' → 'knife', 'shelves' → 'shelf'
-5. Handle compound words: 'swimming trunks' → 'swimming trunk'
-
-## Why This Works:
-- Searching for 'screw' matches: "Screw", "Screws", "Hex Screw", "Wood Screws", "Screw Set"
-- Searching for 'computer' matches: "Computer", "Computers", "Computer Mouse", "Gaming Computer"
-- Searching for 'swimming trunk' matches: "Swimming Trunk", "Swimming Trunks", "Men's Swimming Trunk"
-
-## SQL Pattern:
-User query: "What companies sold us swimming trunks?"
-SQL: WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%swimming trunk%')
-
-User query: "How many screws did we buy?"  
-SQL: WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%screw%')
-
-User query: "Show me all batteries purchased"
-SQL: WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%battery%')
-
-## Implementation Strategy:
-- Automatically convert ANY plural word in user query to singular form for LIKE conditions
-- Use linguistic rules (remove 's', handle 'ies'→'y', 'es'→'', 'ves'→'f', etc.)
-- This approach works for ANY item name, not just predefined ones
-- Focus on the root/base form for maximum data coverage
-"""
-
-vanna_manager.train(documentation=singular_plural_instructions)
+# Add comprehensive plural/singular handling instructions
+vanna_manager.train(documentation=get_comprehensive_search_instructions())
 
 # Auto-train on startup if enabled
 if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
@@ -290,15 +252,18 @@ def format_vanna_sql(vanna_sql):
     return re.sub(r'\s+', ' ', sql_no_newlines).strip()
 
 
-def pluralize_to_singular(word):
+
+
+
+def singular_to_plural(word):
     """
-    Convert a single word from plural to singular using English pluralization rules.
+    Convert a single word from singular to plural using English pluralization rules.
     
     Args:
         word (str): The word to convert
         
     Returns:
-        str: The singular form of the word
+        str: The plural form of the word
     """
     if len(word) < 2:
         return word
@@ -306,152 +271,76 @@ def pluralize_to_singular(word):
     word_lower = word.lower()
     
     # Handle irregular plurals
-    irregular_plurals = {
-        'children': 'child',
-        'feet': 'foot',
-        'geese': 'goose',
-        'men': 'man',
-        'women': 'woman',
-        'teeth': 'tooth',
-        'mice': 'mouse',
-        'people': 'person',
-        'oxen': 'ox',
+    irregular_singulars = {
+        'child': 'children',
+        'foot': 'feet',
+        'goose': 'geese',
+        'man': 'men',
+        'woman': 'women',
+        'tooth': 'teeth',
+        'mouse': 'mice',
+        'person': 'people',
+        'ox': 'oxen',
         'deer': 'deer',
         'sheep': 'sheep',
         'fish': 'fish',
         'moose': 'moose',
         'series': 'series',
         'species': 'species',
-        'data': 'datum',
-        'media': 'medium',
-        'criteria': 'criterion',
-        'phenomena': 'phenomenon',
-        'bacteria': 'bacterium',
-        'alumni': 'alumnus',
-        'fungi': 'fungus',
-        'nuclei': 'nucleus',
-        'cacti': 'cactus',
-        'foci': 'focus',
-        'radii': 'radius',
-        'analyses': 'analysis',
-        'bases': 'basis',
-        'diagnoses': 'diagnosis',
-        'oases': 'oasis',
-        'theses': 'thesis',
-        'crises': 'crisis',
-        'axes': 'axis',
-        'matrices': 'matrix',
-        'vertices': 'vertex',
-        'indices': 'index',
-        'appendices': 'appendix'
+        'datum': 'data',
+        'medium': 'media',
+        'criterion': 'criteria',
+        'phenomenon': 'phenomena',
+        'bacterium': 'bacteria',
+        'alumnus': 'alumni',
+        'fungus': 'fungi',
+        'nucleus': 'nuclei',
+        'cactus': 'cacti',
+        'focus': 'foci',
+        'radius': 'radii',
+        'analysis': 'analyses',
+        'basis': 'bases',
+        'diagnosis': 'diagnoses',
+        'oasis': 'oases',
+        'thesis': 'theses',
+        'crisis': 'crises',
+        'axis': 'axes',
+        'matrix': 'matrices',
+        'vertex': 'vertices',
+        'index': 'indices',
+        'appendix': 'appendices'
     }
     
-    if word_lower in irregular_plurals:
+    if word_lower in irregular_singulars:
         # Preserve original case pattern
-        singular = irregular_plurals[word_lower]
+        plural = irregular_singulars[word_lower]
         if word.isupper():
-            return singular.upper()
+            return plural.upper()
         elif word.istitle():
-            return singular.capitalize()
+            return plural.capitalize()
         else:
-            return singular
+            return plural
     
-    # Handle regular plural patterns
+    # Handle regular singular to plural patterns
     
-    # Words ending in 'ies' -> 'y' (e.g., companies -> company, batteries -> battery)
-    if word_lower.endswith('ies') and len(word) > 3:
-        base = word[:-3] + 'y'
-        return base
+    # Words ending in 'y' preceded by a consonant -> 'ies' (e.g., company -> companies, battery -> batteries)
+    if word_lower.endswith('y') and len(word) > 2 and word[-2].lower() not in 'aeiou':
+        return word[:-1] + 'ies'
     
-    # Words ending in 'ves' -> 'f' or 'fe' (e.g., knives -> knife, shelves -> shelf)
-    if word_lower.endswith('ves') and len(word) > 3:
-        if word_lower.endswith('ives'):
-            # knives -> knife, lives -> life
-            base = word[:-4] + 'ife'
-        else:
-            # shelves -> shelf, calves -> calf
-            base = word[:-3] + 'f'
-        return base
+    # Words ending in 'f' or 'fe' -> 'ves' (e.g., knife -> knives, shelf -> shelves)
+    if word_lower.endswith('f'):
+        return word[:-1] + 'ves'
+    elif word_lower.endswith('fe'):
+        return word[:-2] + 'ves'
     
-    # Words ending in 'ses' -> 's' (e.g., glasses -> glass, classes -> class)
-    if word_lower.endswith('ses') and len(word) > 3:
-        # Special case for 'chases', 'purchases', 'releases', etc.
-        if word_lower.endswith('chases') or word_lower.endswith('eases'):
-            return word[:-1]  # Remove just the 's'
-        return word[:-2]
+    # Words ending in 's', 'ss', 'sh', 'ch', 'x', 'z' -> add 'es'
+    if word_lower.endswith(('s', 'ss', 'sh', 'ch', 'x', 'z')):
+        return word + 'es'
     
-    # Words ending in 'xes' -> 'x' (e.g., boxes -> box, fixes -> fix)
-    if word_lower.endswith('xes') and len(word) > 3:
-        return word[:-2]
+    # Words ending in 'o' preceded by a consonant -> 'oes' (e.g., tomato -> tomatoes, hero -> heroes)
+    if word_lower.endswith('o') and len(word) > 1 and word[-2].lower() not in 'aeiou':
+        return word + 'es'
     
-    # Words ending in 'zes' -> 'z' (e.g., prizes -> prize)
-    if word_lower.endswith('zes') and len(word) > 3:
-        return word[:-2]
-    
-    # Words ending in 'shes' -> 'sh' (e.g., dishes -> dish, brushes -> brush)
-    if word_lower.endswith('shes') and len(word) > 4:
-        return word[:-2]
-    
-    # Words ending in 'ches' -> 'ch' (e.g., watches -> watch, beaches -> beach)
-    if word_lower.endswith('ches') and len(word) > 4:
-        return word[:-2]
-    
-    # Words ending in 'oes' -> 'o' (e.g., tomatoes -> tomato, heroes -> hero)
-    if word_lower.endswith('oes') and len(word) > 3:
-        return word[:-2]
-    
-    # Words ending in just 's' (most common case)
-    if word_lower.endswith('s') and len(word) > 1:
-        # Don't remove 's' from words that are naturally singular and end in 's'
-        # (e.g., glass, pass, mass, etc.)
-        potential_singular = word[:-1]
-        
-        # Simple heuristic: if removing 's' creates a very short word, it might be incorrect
-        if len(potential_singular) < 2:
-            return word
-        
-        # Special cases where the word naturally ends in 's' when singular
-        if word_lower in ['glass', 'mass', 'pass', 'class', 'bass', 'grass', 'brass', 'cross']:
-            return word
-            
-        # For most regular plurals, just remove the 's'
-        return potential_singular
-    
-    # If no plural pattern matches, return the original word
-    return word
-
-
-def normalize_plural_to_singular(query):
-    """
-    Dynamically normalize plural forms to singular forms for better matching.
-    This uses linguistic rules to handle any plural word, not just a static list.
-    """
-    import re
-    
-    # Split query into words, preserving spaces and punctuation
-    words = re.findall(r'\b\w+\b|\W+', query)
-    
-    normalized_words = []
-    query_changed = False
-    
-    for word in words:
-        if re.match(r'\b\w+\b', word):  # It's a word
-            singular_word = pluralize_to_singular(word)
-            if singular_word.lower() != word.lower():
-                query_changed = True
-            normalized_words.append(singular_word)
-        else:  # It's whitespace or punctuation
-            normalized_words.append(word)
-    
-    normalized_query = ''.join(normalized_words)
-    
-    # If the query was changed, append instruction
-    if query_changed:
-        return f"{normalized_query}\n\nNOTE: When searching for items, use singular forms in LIKE conditions to match both singular and plural forms in the data. For example: use 'swimming trunk' to find both 'Swimming Trunk' and 'Swimming Trunks', use 'screw' to find 'Screw', 'Screws', etc."
-    
-    return query
-
-
 @app.post("/query_sql_database")
 async def query_sql_database_endpoint(request: QueryDatabaseRequest):
     """Query invoice database with natural language"""
@@ -471,11 +360,11 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
         # sql_query = await query_engine.generate_sql(request.query, keywords, provider)
         # TODO: GENERATE SQL QUERY WITH VANNA
 
-        # Normalize plural forms to singular for better matching
-        normalized_query = normalize_plural_to_singular(request.query)
+        # Enhance query to search for both singular and plural forms
+        enhanced_query = normalize_for_comprehensive_search(request.query)
         
         # Add additional instructions for better SQL generation
-        enhanced_query = normalized_query + "\nMake sure you use Like and Lower Keywords to compare the values if needed, to get better results."
+        enhanced_query = enhanced_query + "\nMake sure you use Like and Lower Keywords to compare the values if needed, to get better results."
         
         sql_query = vanna_manager.generate_sql(enhanced_query)
         print(f"Vanna Generated SQL: {sql_query}")
