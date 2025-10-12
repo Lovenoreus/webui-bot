@@ -417,146 +417,117 @@ def singular_to_plural(word):
     return word + 's'
 
 
-def get_cross_language_synonyms():
-    """
-    Get cross-language synonyms between Swedish and English for comprehensive searching.
-    
-    Returns:
-        dict: Mapping of words to their cross-language equivalents
-    """
+def get_english_irregular_forms():
+    """Get English irregular plural forms."""
     return {
-        # Body parts
-        'tooth': ['tand'],
-        'teeth': ['tänder'],
-        'tand': ['tooth'],
-        'tänder': ['teeth'],
-        'hand': ['hand'],  # Same in both languages
-        'händer': ['hands'],
-        'hands': ['händer'],
-        'foot': ['fot'],
-        'feet': ['fötter'],
-        'fot': ['foot'],
-        'fötter': ['feet'],
-        'eye': ['öga'],
-        'eyes': ['ögon'],
-        'öga': ['eye'],
-        'ögon': ['eyes'],
-        'ear': ['öra'],
-        'ears': ['öron'],
-        'öra': ['ear'],
-        'öron': ['ears'],
-        
-        # Common items
-        'knife': ['kniv'],
-        'knives': ['knivar'],
-        'kniv': ['knife'],
-        'knivar': ['knives'],
-        'screw': ['skruv'],
-        'screws': ['skruvar'],
-        'skruv': ['screw'],
-        'skruvar': ['screws'],
-        'computer': ['dator'],
-        'computers': ['datorer'],
-        'dator': ['computer'],
-        'datorer': ['computers'],
-        'battery': ['batteri'],
-        'batteries': ['batterier'],
-        'batteri': ['battery'],
-        'batterier': ['batteries'],
-        'car': ['bil'],
-        'cars': ['bilar'],
-        'bil': ['car'],
-        'bilar': ['cars'],
-        'house': ['hus'],
-        'houses': ['hus'],  # Swedish 'hus' is same for both
-        'hus': ['house', 'houses'],
-        'cat': ['katt'],
-        'cats': ['katter'],
-        'katt': ['cat'],
-        'katter': ['cats'],
-        'girl': ['flicka'],
-        'girls': ['flickor'],
-        'flicka': ['girl'],
-        'flickor': ['girls'],
-        'boy': ['pojke'],
-        'boys': ['pojkar'],
-        'pojke': ['boy'],
-        'pojkar': ['boys'],
-        
-        # Tools and equipment
-        'tool': ['verktyg'],
-        'tools': ['verktyg'],  # Swedish same for both
-        'verktyg': ['tool', 'tools'],
-        
-        # Materials
-        'wood': ['trä'],
-        'trä': ['wood'],
-        'metal': ['metall'],
-        'metall': ['metal'],
-        'glass': ['glas'],
-        'glas': ['glass'],
-        'plastic': ['plast'],
-        'plast': ['plastic'],
-        
-        # Common verbs (for context understanding)
-        'buy': ['köp', 'köpa'],
-        'bought': ['köpte'],
-        'köp': ['buy'],
-        'köpa': ['buy'],
-        'köpte': ['bought'],
-        'sell': ['sälj', 'sälja'],
-        'sold': ['sålde'],
-        'sälj': ['sell'],
-        'sälja': ['sell'],
-        'sålde': ['sold'],
-        
-        # Business terms
-        'company': ['företag'],
-        'companies': ['företag'],  # Swedish same for both
-        'företag': ['company', 'companies'],
-        'supplier': ['leverantör'],
-        'suppliers': ['leverantörer'],
-        'leverantör': ['supplier'],
-        'leverantörer': ['suppliers'],
+        # Common irregular plurals
+        'knife': 'knives',
+        'knives': 'knife',
+        'battery': 'batteries',
+        'batteries': 'battery',
+        'tooth': 'teeth',
+        'teeth': 'tooth',
+        'foot': 'feet',
+        'feet': 'foot',
+        'child': 'children',
+        'children': 'child',
+        'mouse': 'mice',
+        'mice': 'mouse',
+        'person': 'people',
+        'people': 'person',
+        'man': 'men',
+        'men': 'man',
+        'woman': 'women',
+        'women': 'woman',
+        'goose': 'geese',
+        'geese': 'goose',
     }
 
 
-def get_all_language_variants(word):
+def get_swedish_irregular_forms():
+    """Get Swedish irregular plural forms."""
+    return {
+        # Irregular plurals
+        'katt': 'katter',      # cat/cats (double consonant)
+        'katter': 'katt',
+        'flicka': 'flickor',   # girl/girls (a->or)
+        'flickor': 'flicka',
+        'pojke': 'pojkar',     # boy/boys (e->ar)  
+        'pojkar': 'pojke',
+        'bil': 'bilar',        # car/cars (consonant+ar)
+        'bilar': 'bil',
+        'dator': 'datorer',    # computer/computers (or->orer)
+        'datorer': 'dator',
+        'batteri': 'batterier', # battery/batteries (i->ier)
+        'batterier': 'batteri',
+        'kniv': 'knivar',      # knife/knives (consonant+ar)
+        'knivar': 'kniv',
+        'skruv': 'skruvar',    # screw/screws (consonant+ar)
+        'skruvar': 'skruv',
+        'tand': 'tänder',      # tooth/teeth (irregular)
+        'tänder': 'tand',
+        'fot': 'fötter',       # foot/feet (irregular)
+        'fötter': 'fot',
+        'hand': 'händer',      # hand/hands (irregular) 
+        'händer': 'hand',
+        'öga': 'ögon',         # eye/eyes (irregular)
+        'ögon': 'öga',
+        'öra': 'öron',         # ear/ears (irregular)
+        'öron': 'öra',
+        # Invariant forms (same singular/plural)
+        'hus': 'hus',          # house/houses (invariant)
+        'verktyg': 'verktyg',  # tool/tools (invariant)
+        'företag': 'företag',  # company/companies (invariant)
+    }
+
+
+def generate_all_singular_plural_variants(word):
     """
-    Get all language variants (Swedish/English) and singular/plural forms of a word.
+    Generate legitimate singular and plural variants of a word using proper linguistic rules.
+    This is a fully dynamic system that can handle any word in Swedish or English.
     
     Args:
         word (str): The input word
         
     Returns:
-        set: All possible variants of the word
+        set: All singular and plural variants
     """
     variants = set()
-    word_lower = word.lower()
+    word_lower = word.lower().strip()
     
-    # Get basic singular/plural forms
-    singular, plural = get_both_singular_and_plural(word)
-    variants.add(singular.lower())
-    variants.add(plural.lower())
+    if not word_lower or len(word_lower) < 2:
+        return {word_lower}
     
-    # Get cross-language synonyms
-    synonyms_map = get_cross_language_synonyms()
+    # Add the original word
+    variants.add(word_lower)
     
-    # Check if the word or its variants have cross-language equivalents
-    words_to_check = [word_lower, singular.lower(), plural.lower()]
+    # Get the proper singular form, then generate plural from that
+    singular = pluralize_to_singular(word_lower)
+    plural = singular_to_plural(singular)
     
-    for check_word in words_to_check:
-        if check_word in synonyms_map:
-            for synonym in synonyms_map[check_word]:
-                # Add the synonym itself
-                variants.add(synonym.lower())
-                
-                # Also get singular/plural forms of the synonym
-                syn_singular, syn_plural = get_both_singular_and_plural(synonym)
-                variants.add(syn_singular.lower())
-                variants.add(syn_plural.lower())
+    # Only add if they're actually different from the original
+    if singular.lower() != word_lower:
+        variants.add(singular.lower())
+    if plural.lower() != word_lower and plural.lower() != singular.lower():
+        variants.add(plural.lower())
     
-    return variants
+    # Clean up: remove any obviously invalid variants and keep only meaningful ones
+    final_variants = set()
+    for variant in variants:
+        if (variant and len(variant) >= 2 and 
+            not variant.endswith('ses') and  # Avoid double pluralization like "screwses"
+            not variant.endswith('erar') and  # Avoid invalid Swedish forms
+            not variant.endswith('arar')):   # Avoid invalid Swedish forms
+            final_variants.add(variant)
+    
+    # Ensure we always have at least the original word
+    if not final_variants:
+        final_variants.add(word_lower)
+    
+    return final_variants
+
+
+
 
 
 def get_both_singular_and_plural(word):
@@ -580,9 +551,9 @@ def get_both_singular_and_plural(word):
 
 def normalize_for_comprehensive_search(query):
     """
-    Enhance query to search for both singular and plural forms AND cross-language synonyms 
-    of nouns for comprehensive matching. This creates OR conditions to find items whether 
-    they're stored in Swedish, English, singular, or plural forms.
+    Enhance query to search for both singular and plural forms of nouns using dynamic 
+    linguistic rules for Swedish and English. This creates OR conditions to find items 
+    whether they're stored as singular or plural in either language.
     """
     # Split query into words, preserving spaces and punctuation
     words = re.findall(r'\b\w+\b|\W+', query)
@@ -618,14 +589,14 @@ def normalize_for_comprehensive_search(query):
             if len(word) < 3:
                 continue
                 
-            # Get all possible variants (singular/plural + cross-language synonyms)
-            all_variants = get_all_language_variants(word)
+            # Get all singular/plural variants dynamically
+            all_variants = generate_all_singular_plural_variants(word)
             
-            # Only process words that have meaningful variants and appear to be potential item names
+            # Only process words that have multiple meaningful variants
             if len(all_variants) > 1 and len(word) >= 3:
                 # Create a sorted list of all variants for consistent output
                 variant_list = sorted(all_variants)
-                enhanced_instructions.append(f"'{word_lower}' -> search all variants: {', '.join(variant_list)}")
+                enhanced_instructions.append(f"'{word_lower}' -> search all forms: {', '.join(variant_list)}")
                 query_enhanced = True
     
     # If we found words that should be searched with multiple forms, add comprehensive instructions
@@ -633,18 +604,20 @@ def normalize_for_comprehensive_search(query):
         instruction = f"""
 {query}
 
-COMPREHENSIVE MULTI-LANGUAGE SEARCH INSTRUCTIONS: 
-When searching for item names, use OR conditions to search for ALL language variants and singular/plural forms to get complete results.
+DYNAMIC SINGULAR/PLURAL SEARCH INSTRUCTIONS: 
+When searching for item names, use OR conditions to search for ALL singular and plural forms to get complete results.
+The system dynamically generates all legitimate variations using linguistic rules for both Swedish and English.
 
-For key item terms in the query, generate LIKE conditions for all variants:
+For key item terms in the query, generate LIKE conditions for all forms:
 {', '.join(enhanced_instructions)}
 
 SQL Pattern Examples:
-- If user asks about "teeth": WHERE (LOWER(ITEM_NAME) LIKE LOWER('%teeth%') OR LOWER(ITEM_NAME) LIKE LOWER('%tooth%') OR LOWER(ITEM_NAME) LIKE LOWER('%tänder%') OR LOWER(ITEM_NAME) LIKE LOWER('%tand%'))
-- If user asks about "screws": WHERE (LOWER(ITEM_NAME) LIKE LOWER('%screw%') OR LOWER(ITEM_NAME) LIKE LOWER('%screws%') OR LOWER(ITEM_NAME) LIKE LOWER('%skruv%') OR LOWER(ITEM_NAME) LIKE LOWER('%skruvar%'))
+- If user asks about "screws": WHERE (LOWER(ITEM_NAME) LIKE LOWER('%screw%') OR LOWER(ITEM_NAME) LIKE LOWER('%screws%'))
 - If user asks about "swimming trunks": WHERE (LOWER(ITEM_NAME) LIKE LOWER('%swimming trunk%') OR LOWER(ITEM_NAME) LIKE LOWER('%swimming trunks%'))
+- If user asks about "skruvar": WHERE (LOWER(ITEM_NAME) LIKE LOWER('%skruv%') OR LOWER(ITEM_NAME) LIKE LOWER('%skruvar%'))
+- If user asks about "batterier": WHERE (LOWER(ITEM_NAME) LIKE LOWER('%batteri%') OR LOWER(ITEM_NAME) LIKE LOWER('%batterier%'))
 
-This ensures you find items whether they're stored in Swedish or English, singular or plural forms.
+This ensures you find items whether they're stored in singular or plural form, in Swedish or English.
 """
         return instruction
     
