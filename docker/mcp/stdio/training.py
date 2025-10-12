@@ -7,6 +7,92 @@
 # load_dotenv(find_dotenv())
 
 
+def get_synonym_mappings():
+    """
+    Define synonym mappings for different categories
+    
+    Returns:
+        dict: Synonym mappings organized by category
+    """
+    return {
+        "electrical_services": {
+            "primary_terms": ["elektriker", "elarbete", "electrical work", "electrician"],
+            "description": "Services related to electrical work and electricians",
+            "expand_search": True,  # Use OR conditions to find all related terms
+            "examples": ["elektriker", "elarbete", "electrical", "el-installation", "elinstallation"]
+        },
+        "medical_equipment": {
+            "primary_terms": ["medical", "medicinsk", "healthcare", "sjukvård"],
+            "description": "Medical equipment and healthcare services", 
+            "expand_search": True,
+            "examples": ["medical device", "medicinsk utrustning", "healthcare equipment", "sjukvårdsutrustning"]
+        },
+        "computer_hardware": {
+            "primary_terms": ["computer", "dator", "laptop", "PC"],
+            "description": "Specific computer hardware - do NOT expand to unrelated items",
+            "expand_search": False,  # Use exact matching to avoid false positives
+            "exclusions": ["datorbord", "datorprogram", "computer desk", "computer software", "computer bag"],
+            "examples": ["laptop", "dator", "PC", "computer hardware"]
+        },
+        "reagents_tests": {
+            "primary_terms": ["reagent", "RGT", "test kit", "assay"],
+            "description": "Laboratory reagents and test kits - use exact matching for specific products",
+            "expand_search": False,  # Exact matching for specific medical products
+            "examples": ["PP ALNTY I HAVAB IGM RGT", "anti-HCV RGT", "HIV COMBO RGT"]
+        },
+        "office_supplies": {
+            "primary_terms": ["office", "kontor", "supplies", "material"],
+            "description": "General office supplies and materials",
+            "expand_search": True,
+            "examples": ["office supplies", "kontorsmaterial", "office equipment", "kontorsutrustning"]
+        }
+    }
+
+
+def get_synonym_training_examples(remote=False):
+    """
+    Generate training examples that demonstrate proper synonym handling
+    
+    Args:
+        remote (bool): If True, returns SQL Server examples, otherwise SQLite
+    
+    Returns:
+        list: Training examples with proper synonym usage
+    """
+    if remote:
+        table_prefix = "[Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb]"
+    else:
+        table_prefix = "Invoice_Line"
+    
+    return [
+        {
+            "question": "Find all electrical work and electrician services",
+            "sql": f"SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM {table_prefix} WHERE (LOWER(ITEM_NAME) LIKE LOWER('%elektriker%') OR LOWER(ITEM_NAME) LIKE LOWER('%elarbete%') OR LOWER(ITEM_NAME) LIKE LOWER('%electrical%') OR LOWER(ITEM_NAME) LIKE LOWER('%el-installation%')) GROUP BY ITEM_NAME ORDER BY total_amount DESC",
+            "category": "synonym_expansion"
+        },
+        {
+            "question": "Show me computer hardware purchases only",
+            "sql": f"SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM {table_prefix} WHERE (LOWER(ITEM_NAME) LIKE LOWER('%computer%') OR LOWER(ITEM_NAME) LIKE LOWER('%dator%') OR LOWER(ITEM_NAME) LIKE LOWER('%laptop%') OR LOWER(ITEM_NAME) LIKE LOWER('%PC%')) AND LOWER(ITEM_NAME) NOT LIKE LOWER('%datorbord%') AND LOWER(ITEM_NAME) NOT LIKE LOWER('%datorprogram%') AND LOWER(ITEM_NAME) NOT LIKE LOWER('%computer desk%') AND LOWER(ITEM_NAME) NOT LIKE LOWER('%computer software%') GROUP BY ITEM_NAME ORDER BY total_amount DESC",
+            "category": "synonym_with_exclusions"
+        },
+        {
+            "question": "Find PP ALNTY reagents specifically",
+            "sql": f"SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM {table_prefix} WHERE LOWER(ITEM_NAME) LIKE LOWER('%PP ALNTY%') GROUP BY ITEM_NAME ORDER BY total_amount DESC",
+            "category": "exact_matching"
+        },
+        {
+            "question": "Show me medical equipment and healthcare supplies",
+            "sql": f"SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM {table_prefix} WHERE (LOWER(ITEM_NAME) LIKE LOWER('%medical%') OR LOWER(ITEM_NAME) LIKE LOWER('%medicinsk%') OR LOWER(ITEM_NAME) LIKE LOWER('%healthcare%') OR LOWER(ITEM_NAME) LIKE LOWER('%sjukvård%')) GROUP BY ITEM_NAME ORDER BY total_amount DESC",
+            "category": "synonym_expansion"
+        },
+        {
+            "question": "Find office supplies and materials",
+            "sql": f"SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM {table_prefix} WHERE (LOWER(ITEM_NAME) LIKE LOWER('%office%') OR LOWER(ITEM_NAME) LIKE LOWER('%kontor%') OR LOWER(ITEM_NAME) LIKE LOWER('%supplies%') OR LOWER(ITEM_NAME) LIKE LOWER('%material%')) GROUP BY ITEM_NAME ORDER BY total_amount DESC",
+            "category": "synonym_expansion"
+        }
+    ]
+
+
 def get_vanna_question_sql_pairs(remote=False):
     """
     Get just the question-SQL training pairs for Vanna
@@ -566,6 +652,26 @@ def get_vanna_question_sql_pairs(remote=False):
             {
                 "question": "List all unique item names containing 'test' or 'kit'",
                 "sql": "SELECT DISTINCT ITEM_NAME, COUNT(*) AS frequency FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] WHERE LOWER(ITEM_NAME) LIKE LOWER('%test%') OR LOWER(ITEM_NAME) LIKE LOWER('%kit%') GROUP BY ITEM_NAME ORDER BY frequency DESC"
+            },
+            {
+                "question": "Find all electrical work and electrician services",
+                "sql": "SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] WHERE (LOWER(ITEM_NAME) LIKE LOWER('%elektriker%') OR LOWER(ITEM_NAME) LIKE LOWER('%elarbete%') OR LOWER(ITEM_NAME) LIKE LOWER('%electrical%') OR LOWER(ITEM_NAME) LIKE LOWER('%el-installation%')) GROUP BY ITEM_NAME ORDER BY total_amount DESC"
+            },
+            {
+                "question": "Show me computer hardware purchases only",
+                "sql": "SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] WHERE (LOWER(ITEM_NAME) LIKE LOWER('%computer%') OR LOWER(ITEM_NAME) LIKE LOWER('%dator%') OR LOWER(ITEM_NAME) LIKE LOWER('%laptop%') OR LOWER(ITEM_NAME) LIKE LOWER('%PC%')) AND LOWER(ITEM_NAME) NOT LIKE LOWER('%datorbord%') AND LOWER(ITEM_NAME) NOT LIKE LOWER('%datorprogram%') AND LOWER(ITEM_NAME) NOT LIKE LOWER('%computer desk%') AND LOWER(ITEM_NAME) NOT LIKE LOWER('%computer software%') GROUP BY ITEM_NAME ORDER BY total_amount DESC"
+            },
+            {
+                "question": "Find PP ALNTY reagents specifically",
+                "sql": "SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] WHERE LOWER(ITEM_NAME) LIKE LOWER('%PP ALNTY%') GROUP BY ITEM_NAME ORDER BY total_amount DESC"
+            },
+            {
+                "question": "Show me medical equipment and healthcare supplies",
+                "sql": "SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] WHERE (LOWER(ITEM_NAME) LIKE LOWER('%medical%') OR LOWER(ITEM_NAME) LIKE LOWER('%medicinsk%') OR LOWER(ITEM_NAME) LIKE LOWER('%healthcare%') OR LOWER(ITEM_NAME) LIKE LOWER('%sjukvård%')) GROUP BY ITEM_NAME ORDER BY total_amount DESC"
+            },
+            {
+                "question": "Find office supplies and materials",
+                "sql": "SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] WHERE (LOWER(ITEM_NAME) LIKE LOWER('%office%') OR LOWER(ITEM_NAME) LIKE LOWER('%kontor%') OR LOWER(ITEM_NAME) LIKE LOWER('%supplies%') OR LOWER(ITEM_NAME) LIKE LOWER('%material%')) GROUP BY ITEM_NAME ORDER BY total_amount DESC"
             }
         ]
     
@@ -776,8 +882,27 @@ def get_vanna_question_sql_pairs(remote=False):
             HAVING COUNT(*) > 0
             ORDER BY avg_price DESC
         """
-    }
-
+    },
+            {
+                "question": "Find all electrical work and electrician services",
+                "sql": "SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM Invoice_Line WHERE (LOWER(ITEM_NAME) LIKE LOWER('%elektriker%') OR LOWER(ITEM_NAME) LIKE LOWER('%elarbete%') OR LOWER(ITEM_NAME) LIKE LOWER('%electrical%') OR LOWER(ITEM_NAME) LIKE LOWER('%el-installation%')) GROUP BY ITEM_NAME ORDER BY total_amount DESC"
+            },
+            {
+                "question": "Show me computer hardware purchases only",
+                "sql": "SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM Invoice_Line WHERE (LOWER(ITEM_NAME) LIKE LOWER('%computer%') OR LOWER(ITEM_NAME) LIKE LOWER('%dator%') OR LOWER(ITEM_NAME) LIKE LOWER('%laptop%') OR LOWER(ITEM_NAME) LIKE LOWER('%PC%')) AND LOWER(ITEM_NAME) NOT LIKE LOWER('%datorbord%') AND LOWER(ITEM_NAME) NOT LIKE LOWER('%datorprogram%') AND LOWER(ITEM_NAME) NOT LIKE LOWER('%computer desk%') AND LOWER(ITEM_NAME) NOT LIKE LOWER('%computer software%') GROUP BY ITEM_NAME ORDER BY total_amount DESC"
+            },
+            {
+                "question": "Find PP ALNTY reagents specifically",
+                "sql": "SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM Invoice_Line WHERE LOWER(ITEM_NAME) LIKE LOWER('%PP ALNTY%') GROUP BY ITEM_NAME ORDER BY total_amount DESC"
+            },
+            {
+                "question": "Show me medical equipment and healthcare supplies",
+                "sql": "SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM Invoice_Line WHERE (LOWER(ITEM_NAME) LIKE LOWER('%medical%') OR LOWER(ITEM_NAME) LIKE LOWER('%medicinsk%') OR LOWER(ITEM_NAME) LIKE LOWER('%healthcare%') OR LOWER(ITEM_NAME) LIKE LOWER('%sjukvård%')) GROUP BY ITEM_NAME ORDER BY total_amount DESC"
+            },
+            {
+                "question": "Find office supplies and materials",
+                "sql": "SELECT ITEM_NAME, SUM(INVOICED_QUANTITY) AS total_quantity, SUM(INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount FROM Invoice_Line WHERE (LOWER(ITEM_NAME) LIKE LOWER('%office%') OR LOWER(ITEM_NAME) LIKE LOWER('%kontor%') OR LOWER(ITEM_NAME) LIKE LOWER('%supplies%') OR LOWER(ITEM_NAME) LIKE LOWER('%material%')) GROUP BY ITEM_NAME ORDER BY total_amount DESC"
+            }
         ]
 
 
@@ -1139,7 +1264,75 @@ def get_vanna_training(remote=False):
             - Make sure you use Like and Lower Keywords to compare the values if needed, to get better results.
             """
 
+    # Comprehensive synonym handling instructions
+    synonym_instructions = """
+    # CRITICAL SYNONYM HANDLING RULES FOR SQL GENERATION
+
+    ## When to Use Synonym Expansion (OR conditions):
+    
+    ### 1. ELECTRICAL SERVICES - EXPAND SYNONYMS
+    - Terms: elektriker, elarbete, electrical work, electrician, el-installation
+    - SQL Pattern: WHERE (LOWER(ITEM_NAME) LIKE LOWER('%elektriker%') OR LOWER(ITEM_NAME) LIKE LOWER('%elarbete%') OR LOWER(ITEM_NAME) LIKE LOWER('%electrical%'))
+    - Reason: These are true synonyms for the same service category
+    
+    ### 2. MEDICAL EQUIPMENT - EXPAND SYNONYMS  
+    - Terms: medical, medicinsk, healthcare, sjukvård, medicinsk utrustning
+    - SQL Pattern: WHERE (LOWER(ITEM_NAME) LIKE LOWER('%medical%') OR LOWER(ITEM_NAME) LIKE LOWER('%medicinsk%') OR LOWER(ITEM_NAME) LIKE LOWER('%healthcare%'))
+    - Reason: These represent the same domain area
+    
+    ### 3. OFFICE SUPPLIES - EXPAND SYNONYMS
+    - Terms: office, kontor, supplies, material, kontorsmaterial  
+    - SQL Pattern: WHERE (LOWER(ITEM_NAME) LIKE LOWER('%office%') OR LOWER(ITEM_NAME) LIKE LOWER('%kontor%') OR LOWER(ITEM_NAME) LIKE LOWER('%supplies%'))
+    - Reason: General category with clear synonyms
+
+    ## When to Use EXACT MATCHING (NO synonym expansion):
+
+    ### 1. COMPUTER HARDWARE - USE EXCLUSIONS
+    - Include: computer, dator, laptop, PC
+    - EXCLUDE: datorbord, datorprogram, computer desk, computer software, computer bag
+    - SQL Pattern: WHERE (LOWER(ITEM_NAME) LIKE LOWER('%computer%') OR LOWER(ITEM_NAME) LIKE LOWER('%dator%')) 
+                   AND LOWER(ITEM_NAME) NOT LIKE LOWER('%datorbord%') 
+                   AND LOWER(ITEM_NAME) NOT LIKE LOWER('%computer desk%')
+    - Reason: Avoid false positives for unrelated items
+
+    ### 2. SPECIFIC MEDICAL PRODUCTS - EXACT MATCH
+    - Examples: "PP ALNTY", "ISTAT CREATINI CARTRIDGE", specific reagent codes
+    - SQL Pattern: WHERE LOWER(ITEM_NAME) LIKE LOWER('%PP ALNTY%')
+    - Reason: Medical products need precise matching
+
+    ### 3. COMPANY/BRAND NAMES - EXACT MATCH
+    - Examples: "Abbott", "Visma", specific supplier names
+    - SQL Pattern: WHERE LOWER(SUPPLIER_PARTY_NAME) LIKE LOWER('%Abbott%')
+    - Reason: Company names should not be expanded
+
+    ## DECISION LOGIC:
+    1. If user asks for a SERVICE CATEGORY → Use synonym expansion with OR
+    2. If user asks for SPECIFIC PRODUCTS → Use exact matching  
+    3. If user asks for COMPUTER-related → Use inclusion with exclusions
+    4. If user asks for COMPANY/BRAND → Use exact matching
+
+    ## EXAMPLES:
+
+    ✅ CORRECT - Synonym expansion for services:
+    "Find electrical work" → WHERE (LOWER(ITEM_NAME) LIKE '%elektriker%' OR LOWER(ITEM_NAME) LIKE '%electrical%')
+
+    ✅ CORRECT - Exact matching for products:  
+    "Find PP ALNTY reagents" → WHERE LOWER(ITEM_NAME) LIKE '%PP ALNTY%'
+
+    ✅ CORRECT - Computer with exclusions:
+    "Find computers" → WHERE (LOWER(ITEM_NAME) LIKE '%computer%' OR LOWER(ITEM_NAME) LIKE '%dator%') 
+                       AND LOWER(ITEM_NAME) NOT LIKE '%computer desk%'
+
+    ❌ INCORRECT - Don't expand product names:
+    "Find PP ALNTY" → WHERE (LOWER(ITEM_NAME) LIKE '%PP%' OR LOWER(ITEM_NAME) LIKE '%reagent%') -- TOO BROAD
+
+    ❌ INCORRECT - Don't expand computer without exclusions:
+    "Find computers" → WHERE LOWER(ITEM_NAME) LIKE '%computer%' -- INCLUDES computer desks, software, etc.
+
+    This ensures accurate results while avoiding false positives.
+    """
+
     # Get the question-SQL training pairs
     training_pairs = get_vanna_question_sql_pairs(remote)
 
-    return [invoice_ddl, invoice_line_ddl, invoice_doc, invoice_line_doc, training_pairs]
+    return [invoice_ddl, invoice_line_ddl, invoice_doc, invoice_line_doc, synonym_instructions, training_pairs]

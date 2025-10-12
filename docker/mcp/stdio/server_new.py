@@ -128,7 +128,7 @@ print("📚 Training Vanna with schema...")
 print(f"Remote choice for Vanna is: {USE_REMOTE}")
 
 # Get the training data.
-invoice_ddl, invoice_line_ddl, invoice_doc, invoice_line_doc, training_pairs = get_vanna_training(remote=USE_REMOTE)
+invoice_ddl, invoice_line_ddl, invoice_doc, invoice_line_doc, synonym_instructions, training_pairs = get_vanna_training(remote=USE_REMOTE)
 
 # Train Vanna with DDL and documentation
 print("\n📚 Training Vanna with DDL and documentation...")
@@ -160,6 +160,13 @@ if vanna_manager.train(documentation=invoice_line_doc):
 
 else:
     print("❌ Failed to train Invoice_Line documentation")
+
+print("Training with synonym handling instructions...")
+if vanna_manager.train(documentation=synonym_instructions):
+    print("✅ Successfully trained synonym handling instructions")
+
+else:
+    print("❌ Failed to train synonym handling instructions")
 
 # Train with question-SQL pairs
 print("Training with question-SQL pairs...")
