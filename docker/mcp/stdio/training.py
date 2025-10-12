@@ -74,6 +74,409 @@ def get_vanna_question_sql_pairs(remote=False):
             """
             },
 
+            {
+        "question": "What are the different currency codes in the data?",
+        "sql": """
+            SELECT DISTINCT 
+                DOCUMENT_CURRENCY_CODE
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+            WHERE DOCUMENT_CURRENCY_CODE IS NOT NULL
+            ORDER BY DOCUMENT_CURRENCY_CODE
+        """
+    },
+    {
+        "question": "List all unique currencies used in invoices",
+        "sql": """
+            SELECT DISTINCT 
+                DOCUMENT_CURRENCY_CODE
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+            WHERE DOCUMENT_CURRENCY_CODE IS NOT NULL
+            ORDER BY DOCUMENT_CURRENCY_CODE
+        """
+    },
+
+## computer specific
+
+
+{
+        "question": "Hur många datorer har vi köpt senaste 12 månaderna?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_QUANTITY) AS total_computers
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%dator%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%laptop%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%desktop%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%computer%'))
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%datorbord%')
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%datorprogram%')
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%software%')
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%installation%')
+                AND i.ISSUE_DATE >= CAST(DATEADD(MONTH, -12, GETDATE()) AS DATE)
+        """
+    },
+    {
+        "question": "How many computers were purchased in the last 12 months?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_QUANTITY) AS total_computers
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%dator%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%laptop%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%desktop%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%computer%'))
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%datorbord%')
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%datorprogram%')
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%software%')
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%installation%')
+                AND i.ISSUE_DATE >= CAST(DATEADD(MONTH, -12, GETDATE()) AS DATE)
+        """
+    },
+    {
+        "question": "Hur många bärbara datorer köpte vi under 2024?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_QUANTITY) AS total_laptops
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%bärbar dator%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%laptop%'))
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%datorbord%')
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%datorprogram%')
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%software%')
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%installation%')
+                AND i.ISSUE_DATE LIKE '2024%'
+        """
+    },
+    {
+        "question": "How many desktop computers did we buy in the last 6 months?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_QUANTITY) AS total_desktops
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%stationär dator%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%desktop%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%desktop computer%'))
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%datorbord%')
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%datorprogram%')
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%software%')
+                AND LOWER(il.ITEM_NAME) NOT LIKE LOWER('%installation%')
+                AND i.ISSUE_DATE >= CAST(DATEADD(MONTH, -6, GETDATE()) AS DATE)
+        """
+    },
+
+
+## not specific
+
+
+        {
+        "question": "How many invoices have been for electrical work, like 'elarbete' or 'elektriker'?",
+        "sql": """
+            SELECT 
+                COUNT(DISTINCT i.INVOICE_ID) AS invoice_count
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%elarbete%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%elektriker%')
+        """
+    },
+    {
+        "question": "How many invoices include plumbing services, like 'rörarbete' or 'rörmokare'?",
+        "sql": """
+            SELECT 
+                COUNT(DISTINCT i.INVOICE_ID) AS invoice_count
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%rörarbete%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%rörmokare%')
+        """
+    },
+    {
+        "question": "How many invoices are there for cleaning services, like 'städning' or 'städtjänster'?",
+        "sql": """
+            SELECT 
+                COUNT(DISTINCT i.INVOICE_ID) AS invoice_count
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%städning%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%städtjänster%')
+        """
+    },   {
+        "question": "Hur mycket spenderade vi på konsulterande i Skellefteå under 2024?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%konsult%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%consult%'))
+                AND LOWER(i.DELIVERY_LOCATION_CITY_NAME) LIKE LOWER('%Skellefteå%')
+                AND i.ISSUE_DATE LIKE '2024%'
+        """
+    },
+    {
+        "question": "What was the total spending on consulting services in Umeå in 2023?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%konsult%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%consult%'))
+                AND LOWER(i.DELIVERY_LOCATION_CITY_NAME) LIKE LOWER('%Umeå%')
+                AND i.ISSUE_DATE LIKE '2023%'
+        """
+    },
+    {
+        "question": "Hur mycket kostade konsulttjänster i Stockholm 2024?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%konsult%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%consult%'))
+                AND LOWER(i.DELIVERY_LOCATION_CITY_NAME) LIKE LOWER('%Stockholm%')
+                AND i.ISSUE_DATE LIKE '2024%'
+        """
+    },
+    {
+        "question": "What was the cost of consultant work for Region Västerbotten in 2024?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%konsult%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%consult%'))
+                AND LOWER(i.CUSTOMER_PARTY_NAME) LIKE LOWER('%Region Västerbotten%')
+                AND i.ISSUE_DATE LIKE '2024%'
+        """
+    },
+    {
+        "question": "Hur mycket spenderade vi på konsultarbete totalt under 2023?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%konsult%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%consult%'))
+                AND i.ISSUE_DATE LIKE '2023%'
+        """
+    },
+    {
+        "question": "What was the total cost of consulting by supplier in 2024?",
+        "sql": """
+            SELECT 
+                i.SUPPLIER_PARTY_NAME,
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%konsult%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%consult%'))
+                AND i.ISSUE_DATE LIKE '2024%'
+            GROUP BY i.SUPPLIER_PARTY_NAME
+            ORDER BY total_amount DESC
+        """
+    },
+    {
+        "question": "How much was spent on consulting services with SEK currency in 2024?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%konsult%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%consult%'))
+                AND i.DOCUMENT_CURRENCY_CODE = 'SEK'
+                AND i.ISSUE_DATE LIKE '2024%'
+        """
+    },
+    {
+        "question": "Hur mycket kostade konsulttjänster för leveranser till thoraxradiologi 2023?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%konsult%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%consult%'))
+                AND (LOWER(i.DELIVERY_PARTY_NAME) LIKE LOWER('%thoraxradiologi%')
+                    OR LOWER(i.DELIVERY_LOCATION_ADDRESS_LINE) LIKE LOWER('%thoraxradiologi%')
+                    OR LOWER(i.DELIVERY_LOCATION_CITY_NAME) LIKE LOWER('%thoraxradiologi%'))
+                AND i.ISSUE_DATE LIKE '2023%'
+        """
+    },
+    {
+        "question": "What was the average cost per invoice for consulting in 2024?",
+        "sql": """
+            SELECT 
+                AVG(il.INVOICED_LINE_EXTENSION_AMOUNT) AS avg_amount
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%konsult%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%consult%'))
+                AND i.ISSUE_DATE LIKE '2024%'
+        """
+    },
+    {
+        "question": "How much did we spend on consulting services from Abbott Scandinavia in 2024?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%konsult%')
+                OR LOWER(il.ITEM_NAME) LIKE LOWER('%consult%'))
+                AND LOWER(i.SUPPLIER_PARTY_NAME) LIKE LOWER('%Abbott Scandinavia%')
+                AND i.ISSUE_DATE LIKE '2024%'
+        """
+    },
+
+
+
+            ### singular / plural
+
+
+                {
+        "question": "What companies have sold us Swimming trunks?",
+        "sql": """
+            SELECT DISTINCT 
+                i.SUPPLIER_PARTY_NAME
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%swimming trunk%')
+        """
+    },
+    {
+        "question": "Which suppliers provided screws to us?",
+        "sql": """
+            SELECT DISTINCT 
+                i.SUPPLIER_PARTY_NAME
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%screw%')
+        """
+    },
+    {
+        "question": "How much did we spend on pipettes in total?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%pipette%')
+        """
+    },
+    {
+        "question": "List all invoices for bandages purchased",
+        "sql": """
+            SELECT 
+                i.INVOICE_ID, 
+                i.SUPPLIER_PARTY_NAME, 
+                i.ISSUE_DATE, 
+                i.LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%bandage%')
+        """
+    },
+    {
+        "question": "What is the total quantity of gloves ordered?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_QUANTITY) AS total_quantity
+            FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%glove%')
+        """
+    },
+    {
+        "question": "Which companies sold us test tubes?",
+        "sql": """
+            SELECT DISTINCT 
+                i.SUPPLIER_PARTY_NAME
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%test tube%')
+        """
+    },
+    {
+        "question": "How many invoices include masks?",
+        "sql": """
+            SELECT 
+                COUNT(DISTINCT il.INVOICE_ID) AS invoice_count
+            FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%mask%')
+        """
+    },
+    {
+        "question": "Show total spending on syringes by supplier",
+        "sql": """
+            SELECT 
+                i.SUPPLIER_PARTY_NAME, 
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%syringe%')
+            GROUP BY i.SUPPLIER_PARTY_NAME
+            ORDER BY total_amount DESC
+        """
+    },
+    {
+        "question": "List invoices for catheters delivered in 2023",
+        "sql": """
+            SELECT 
+                i.INVOICE_ID, 
+                i.SUPPLIER_PARTY_NAME, 
+                i.ISSUE_DATE
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%catheter%')
+            AND i.ISSUE_DATE LIKE '2023%'
+        """
+    },
+    {
+        "question": "What is the average price of thermometers per supplier?",
+        "sql": """
+            SELECT 
+                i.SUPPLIER_PARTY_NAME, 
+                AVG(il.PRICE_AMOUNT) AS avg_price
+            FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+            INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%thermometer%')
+            GROUP BY i.SUPPLIER_PARTY_NAME
+            HAVING COUNT(*) > 0
+            ORDER BY avg_price DESC
+        """
+    },
+
 
 
             {
@@ -165,6 +568,7 @@ def get_vanna_question_sql_pairs(remote=False):
                 "sql": "SELECT DISTINCT ITEM_NAME, COUNT(*) AS frequency FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] WHERE LOWER(ITEM_NAME) LIKE LOWER('%test%') OR LOWER(ITEM_NAME) LIKE LOWER('%kit%') GROUP BY ITEM_NAME ORDER BY frequency DESC"
             }
         ]
+    
     else:
         # SQLite specific training pairs
         return [
@@ -255,7 +659,125 @@ def get_vanna_question_sql_pairs(remote=False):
             {
                 "question": "List all unique item names containing 'test' or 'kit'",
                 "sql": "SELECT DISTINCT ITEM_NAME, COUNT(*) AS frequency FROM Invoice_Line WHERE LOWER(ITEM_NAME) LIKE LOWER('%test%') OR LOWER(ITEM_NAME) LIKE LOWER('%kit%') GROUP BY ITEM_NAME ORDER BY frequency DESC"
-            }
+            },
+             {
+        "question": "What companies have sold us Swimming trunks?",
+        "sql": """
+            SELECT DISTINCT 
+                i.SUPPLIER_PARTY_NAME
+            FROM Invoice i
+            INNER JOIN Invoice_Line il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%swimming trunk%')
+        """
+    },
+    {
+        "question": "Which suppliers provided screws to us?",
+        "sql": """
+            SELECT DISTINCT 
+                i.SUPPLIER_PARTY_NAME
+            FROM Invoice i
+            INNER JOIN Invoice_Line il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%screw%')
+        """
+    },
+    {
+        "question": "How much did we spend on pipettes in total?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM Invoice_Line il
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%pipette%')
+        """
+    },
+    {
+        "question": "List all invoices for bandages purchased",
+        "sql": """
+            SELECT 
+                i.INVOICE_ID, 
+                i.SUPPLIER_PARTY_NAME, 
+                i.ISSUE_DATE, 
+                i.LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+            FROM Invoice i
+            INNER JOIN Invoice_Line il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%bandage%')
+        """
+    },
+    {
+        "question": "What is the total quantity of gloves ordered?",
+        "sql": """
+            SELECT 
+                SUM(il.INVOICED_QUANTITY) AS total_quantity
+            FROM Invoice_Line il
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%glove%')
+        """
+    },
+    {
+        "question": "Which companies sold us test tubes?",
+        "sql": """
+            SELECT DISTINCT 
+                i.SUPPLIER_PARTY_NAME
+            FROM Invoice i
+            INNER JOIN Invoice_Line il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%test tube%')
+        """
+    },
+    {
+        "question": "How many invoices include masks?",
+        "sql": """
+            SELECT 
+                COUNT(DISTINCT il.INVOICE_ID) AS invoice_count
+            FROM Invoice_Line il
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%mask%')
+        """
+    },
+    {
+        "question": "Show total spending on syringes by supplier",
+        "sql": """
+            SELECT 
+                i.SUPPLIER_PARTY_NAME, 
+                SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount
+            FROM Invoice i
+            INNER JOIN Invoice_Line il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%syringe%')
+            GROUP BY i.SUPPLIER_PARTY_NAME
+            ORDER BY total_amount DESC
+        """
+    },
+    {
+        "question": "List invoices for catheters delivered in 2023",
+        "sql": """
+            SELECT 
+                i.INVOICE_ID, 
+                i.SUPPLIER_PARTY_NAME, 
+                i.ISSUE_DATE
+            FROM Invoice i
+            INNER JOIN Invoice_Line il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%catheter%')
+            AND i.ISSUE_DATE LIKE '2023%'
+        """
+    },
+    {
+        "question": "What is the average price of thermometers per supplier?",
+        "sql": """
+            SELECT 
+                i.SUPPLIER_PARTY_NAME, 
+                AVG(il.PRICE_AMOUNT) AS avg_price
+            FROM Invoice i
+            INNER JOIN Invoice_Line il
+                ON i.INVOICE_ID = il.INVOICE_ID
+            WHERE LOWER(il.ITEM_NAME) LIKE LOWER('%thermometer%')
+            GROUP BY i.SUPPLIER_PARTY_NAME
+            HAVING COUNT(*) > 0
+            ORDER BY avg_price DESC
+        """
+    }
+
         ]
 
 
