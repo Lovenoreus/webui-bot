@@ -236,6 +236,21 @@ class VannaQueryEngine:
         print(f"Attempting to get schema information for {self.vanna_manager.current_database} database...")
         df_ddl = get_database_schema_info(self.vanna_client, self.vanna_manager.current_database)
         
+        # Handle different types of selected_tables parameter
+        train_all_tables = False
+        allowed_tables_list = []
+        
+        if selected_tables == "all" or selected_tables is None:
+            train_all_tables = True
+            print("Training on ALL tables as selected_tables is 'all' or None")
+        elif isinstance(selected_tables, list):
+            train_all_tables = False
+            allowed_tables_list = selected_tables
+            print(f"Training on selected tables: {allowed_tables_list}")
+        else:
+            print(f"Warning: Invalid selected_tables type: {type(selected_tables)}. Training on all tables.")
+            train_all_tables = True
+        
         print("Schema information retrieved:")
         print("ddllllllll:", df_ddl["table_name"] if df_ddl is not None else "No DataFrame")
         print("Type of df_ddl:", type(df_ddl))
@@ -248,7 +263,7 @@ class VannaQueryEngine:
                 # Train on DDL statements with selected_columns
                 for ddl, table_name in zip(df_ddl['sql'].to_list(), df_ddl['table_name'].to_list()):
                     table_name = table_name.strip('"')
-                    if selected_tables and table_name not in selected_tables:
+                    if not train_all_tables and table_name not in allowed_tables_list:
                         print(f"Skipping training for table {table_name} as it's not in selected_tables")
                         continue
                     try:
@@ -268,12 +283,12 @@ class VannaQueryEngine:
                     for table_name in df_ddl['table_name'].to_list():
                         table_name = table_name.strip('"')
                         # print("selected_tables:", selected_tables, "type:", type(selected_tables))
-                        if selected_tables and table_name not in selected_tables:
+                        if not train_all_tables and table_name not in allowed_tables_list:
                             print(f"Skipping training for table {table_name} as it's not in selected_tables")
                             continue
                         # if mssql
                         if self.vanna_manager.current_database.lower() == "mssql":
-                            sample_query = f"SELECT TOP 5 * FROM [Nodinite].[ods].[{table_name}]"
+                            sample_query = f"SELECT TOP 5 * FROM [Nodinite].[dbo].[{table_name}]"
                             print(f"DOCUMENTATION TABLE: {table_name} \nWith query {sample_query}")
                             
                             try:
@@ -300,6 +315,48 @@ class VannaQueryEngine:
                                 )
                             except Exception as e:
                                 print(f"Error training table data for {table_name}: {e}")
+                    
+                    # training on plan examples
+                    if self.vanna_manager.current_database.lower() != "sqlite":
+                        if train_all_tables:
+                            # Query all tables in the database
+                            query = """
+                            SELECT 
+                                *
+                            FROM INFORMATION_SCHEMA.COLUMNS
+                            """
+                        else:
+                            # Query only specific tables
+                            table_list = ', '.join([f'"{t}"' for t in allowed_tables_list])
+                            query = f"""
+                            SELECT 
+                                *
+                            FROM INFORMATION_SCHEMA.COLUMNS
+                            WHERE TABLE_NAME IN ({table_list})
+                            """
+
+                    df_information_schema = self.vanna_client.run_sql(query)
+                    plan = self.vanna_client.get_training_plan_generic(df_information_schema)
+                    vanna_train(
+                        vanna_client=self.vanna_client,
+                        current_provider=self.vanna_manager.current_provider,
+                        plan = plan
+                    )
+
+                    # train on question-SQL pairs only for mssql
+                    if self.vanna_manager.current_database.lower() == "postgresql" or self.vanna_manager.current_database.lower() == "mssql":
+                        question_sql_pairs = json.load(open("traning_ques_sql.json", "r"))
+                        for pair in question_sql_pairs:
+                            try:
+                                vanna_train(
+                                    vanna_client=self.vanna_client,
+                                    current_provider=self.vanna_manager.current_provider,
+                                    # question_sql=(pair['question'], pair['sql'])
+                                    question_sql=pair
+                                )
+                            except Exception as e:
+                                print(f"Error training question-SQL pair: {e}")
+
                 
                 print("Training completed!")
             else:

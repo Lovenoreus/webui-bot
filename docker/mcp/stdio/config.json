@@ -56,20 +56,20 @@
   },
   "vanna": {
     "openai": {
-      "enabled": false,
+      "enabled": true,
       "model": "gpt-4o-mini",
       "allow_llm_to_see_data": true,
       "verbose": false
     },
     "ollama": {
-      "enabled": true,
-      "model": "Har",
-      "base_url": "http://125.209.124.155:11434",
+      "enabled": false,
+      "model": "gpt-oss:20b",
+      "base_url": "http://vs2153.vll.se:11434",
       "allow_llm_to_see_data": true,
       "verbose": false
     },
     "database": {
-      "allowed_tables": ["Invoice"],
+      "allowed_tables":"all",
       "auto_train": false,
       "train_on_startup": true
     }
@@ -101,7 +101,7 @@
   },
   "vanna_databases": {
     "postgresql": {
-      "enabled": false,
+      "enabled": true,
       "ssl_mode": "prefer"
     },
     "mysql": {
@@ -109,7 +109,7 @@
       "charset": "utf8mb4"
     },
     "mssql": {
-      "enabled": true,
+      "enabled": false,
       "driver": "ODBC Driver 17 for SQL Server",
       "trusted_connection": false
     },
@@ -119,9 +119,6 @@
     }
   },
   "vanna_training": {
-    "selected_tables": [
-      "Invoice", "Invoice_Line"
-    ],
     "train_all_tables": false,
     "include_sample_data": true
   }

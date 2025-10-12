@@ -68,7 +68,7 @@ from vanna.chromadb import ChromaDB_VectorStore
 from dotenv import load_dotenv
 import logging
 import builtins
-from typing import Optional
+from typing import Optional, List, Dict
 import pymssql
 import pandas as pd
 import config
@@ -412,8 +412,9 @@ def vanna_train(
     current_provider: str,
     ddl: Optional[str] = None,
     documentation: Optional[str] = None,
-    question: Optional[str] = None,
-    sql: Optional[str] = None
+    question_sql: List[Dict] = None,
+    plan: Optional[Dict] = None
+
 ) -> None:
     """
     Train Vanna with different types of data
@@ -438,12 +439,20 @@ def vanna_train(
         vanna_client.train(documentation=documentation)
         print(f"Trained documentation with {current_provider}")
     
-    if question and sql:
-        vanna_client.train(question=question, sql=sql)
-        print(f"Trained SQL pair with {current_provider}")
+
+    # question_sql is expected to be a list of dictionaries with 'question' and 'sql' keys
+    if question_sql:
+        question = question_sql.get('question')
+        sql = question_sql.get('sql')
+        if question and sql:
+            vanna_client.train(question=question, sql=sql)
+        print(f"Trained SQL pair {question_sql} with {current_provider}")
     
-    
-    if not any([ddl, documentation, (question and sql)]):
+    if plan:
+        vanna_client.train(plan=plan)
+        print(f"Trained plan with {current_provider}")
+
+    if not any([ddl, documentation, question_sql, plan]):
         raise ValueError("Must provide at least one training data type")
 
 def get_vanna_info(vanna_manager) -> dict:
@@ -509,7 +518,7 @@ def get_database_schema_info(vanna_client, current_database):
             return vanna_client.run_sql("""
                 SELECT 'table' as type,
                        t.TABLE_NAME as table_name,
-                       'CREATE TABLE [Nodinite].[ods].[' + t.TABLE_NAME + '] (' +
+                       'CREATE TABLE [Nodinite].[dbo].[' + t.TABLE_NAME + '] (' +
                        STUFF((
                            SELECT ', ' + COLUMN_NAME + ' ' + 
                                   CASE 

@@ -224,7 +224,7 @@ VANNA_DB_HOST = os.getenv("DB_HOST") or get_nested(config, ["vanna_databases", "
 VANNA_DB_DATABASE = os.getenv("DB_DATABASE") or get_nested(config, ["vanna_databases", "connection", "database"], "your_database")
 VANNA_DB_USERNAME = os.getenv("DB_USERNAME") or get_nested(config, ["vanna_databases", "connection", "username"], "your_username")
 VANNA_DB_PASSWORD = os.getenv("DB_PASSWORD") or get_nested(config, ["vanna_databases", "connection", "password"], "your_password")
-VANNA_ALLOWED_TABLES = get_nested(config, ["vanna", "database", "allowed_tables"], [])  # List of tables to include
+VANNA_ALLOWED_TABLES = get_nested(config, ["vanna", "database", "selected_tables"], "all")  # List of tables to include
 
 # Database-specific configurations (only for special settings)
 VANNA_POSTGRESQL_SSL_MODE = get_nested(config, ["vanna_databases", "postgresql", "ssl_mode"], "prefer")
