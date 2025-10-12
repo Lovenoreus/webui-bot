@@ -10,7 +10,7 @@ import re
 
 def pluralize_to_singular(word):
     """
-    Convert a single word from plural to singular using English pluralization rules.
+    Convert a single word from plural to singular using Swedish and English pluralization rules.
     
     Args:
         word (str): The word to convert
@@ -21,9 +21,13 @@ def pluralize_to_singular(word):
     if len(word) < 2:
         return word
     
+    # Check if it's likely a Swedish word
+    if is_swedish_word(word):
+        return pluralize_to_singular_swedish(word)
+    
     word_lower = word.lower()
     
-    # Handle irregular plurals
+    # Handle English irregular plurals
     irregular_plurals = {
         'children': 'child',
         'feet': 'foot',
@@ -74,7 +78,7 @@ def pluralize_to_singular(word):
         else:
             return singular
     
-    # Handle regular plural patterns
+    # Handle regular English plural patterns
     
     # Words ending in 'ies' -> 'y' (e.g., companies -> company, batteries -> battery)
     if word_lower.endswith('ies') and len(word) > 3:
@@ -118,7 +122,7 @@ def pluralize_to_singular(word):
     if word_lower.endswith('oes') and len(word) > 3:
         return word[:-2]
     
-    # Words ending in just 's' (most common case)
+    # Words ending in just 's' (most common case for English)
     if word_lower.endswith('s') and len(word) > 1:
         # Don't remove 's' from words that are naturally singular and end in 's'
         # (e.g., glass, pass, mass, etc.)
@@ -132,16 +136,196 @@ def pluralize_to_singular(word):
         if word_lower in ['glass', 'mass', 'pass', 'class', 'bass', 'grass', 'brass', 'cross']:
             return word
             
-        # For most regular plurals, just remove the 's'
+        # For most regular English plurals, just remove the 's'
         return potential_singular
     
     # If no plural pattern matches, return the original word
     return word
 
 
+def is_swedish_word(word):
+    """
+    Detect if a word is likely Swedish based on common Swedish characteristics.
+    """
+    word_lower = word.lower()
+    
+    # Known English words (to avoid false positives)
+    known_english = {
+        'computer', 'computers', 'battery', 'batteries', 'screw', 'screws',
+        'knife', 'knives', 'swimming', 'trunk', 'trunks', 'the', 'and', 'or',
+        'what', 'which', 'how', 'many', 'show', 'find', 'all', 'purchases'
+    }
+    
+    if word_lower in known_english:
+        return False
+    
+    # Known Swedish words (common ones to help with detection)
+    known_swedish = {
+        'skruv', 'skruvar', 'bil', 'bilar', 'flicka', 'flickor', 'katt', 'katter', 
+        'hus', 'pojke', 'pojkar', 'batteri', 'batterier', 'dator', 'datorer',
+        'kniv', 'knivar', 'företag', 'vilka', 'sålde', 'köpte', 'alla', 'visa'
+    }
+    
+    if word_lower in known_swedish:
+        return True
+    
+    # Swedish-specific characters (definitive indicators)
+    if any(char in word_lower for char in ['å', 'ä', 'ö']):
+        return True
+    
+    # Swedish-specific letter combinations and patterns
+    swedish_patterns = [
+        'sj', 'skj', 'tj', 'kj',  # Swedish consonant combinations
+    ]
+    
+    # Swedish common endings (but be careful with English words)
+    swedish_endings = [
+        'ning', 'het', 'dom', 'skap', 'else', 'are', 'ere', 'ande', 'ende'
+    ]
+    
+    # Check for Swedish-specific patterns
+    for pattern in swedish_patterns:
+        if pattern in word_lower:
+            return True
+    
+    # Check for Swedish-specific endings (but not if it's likely English)
+    for ending in swedish_endings:
+        if word_lower.endswith(ending) and len(word) > 4:
+            return True
+    
+    # If word ends with typical Swedish plural patterns (but check length and context)
+    if len(word) > 3:
+        if (word_lower.endswith('ar') and not word_lower.endswith('lar')) or word_lower.endswith('or'):
+            return True
+        if word_lower.endswith('er') and len(word) > 5:  # Avoid short English words like "her"
+            return True
+    
+    return False
+
+
+def singular_to_plural_swedish(word):
+    """
+    Convert Swedish singular to plural using Swedish pluralization rules.
+    """
+    word_lower = word.lower()
+    
+    # Swedish irregular plurals
+    swedish_irregulars = {
+        'man': 'män',
+        'kvinna': 'kvinnor',
+        'barn': 'barn',  # Same form
+        'mus': 'möss',
+        'gås': 'gäss',
+        'tand': 'tänder',
+        'fot': 'fötter',
+        'hand': 'händer',
+        'öga': 'ögon',
+        'öra': 'öron',
+        'hus': 'hus',  # Same form
+        'katt': 'katter'  # Double consonant case
+    }
+    
+    if word_lower in swedish_irregulars:
+        plural = swedish_irregulars[word_lower]
+        if word.isupper():
+            return plural.upper()
+        elif word.istitle():
+            return plural.capitalize()
+        else:
+            return plural
+    
+    # Swedish pluralization patterns
+    
+    # Words ending in 'a' -> remove 'a' and add 'or' (flicka -> flickor)
+    if word_lower.endswith('a') and len(word) > 2:
+        return word[:-1] + 'or'
+    
+    # Words ending in 'e' -> remove 'e' and add 'ar' (pojke -> pojkar)
+    if word_lower.endswith('e') and len(word) > 2:
+        return word[:-1] + 'ar'
+    
+    # Words ending in consonant
+    if word_lower[-1] not in 'aeiouåäö' and len(word) > 1:
+        # Special double consonant cases (katt -> katter)
+        # Only for single consonants that typically double in Swedish
+        if (word_lower[-1] in 'tmn' and len(word) > 2 and 
+            word_lower[-2] in 'aeiouåäö'):  # Vowel before the consonant
+            return word + word[-1] + 'er'
+        else:
+            # Regular consonant ending -> add 'ar' (bil -> bilar)
+            return word + 'ar'
+    
+    # Words ending in vowels (not 'a' or 'e') -> add 'r' 
+    return word + 'r'
+
+
+def pluralize_to_singular_swedish(word):
+    """
+    Convert Swedish plural to singular using Swedish pluralization rules.
+    """
+    word_lower = word.lower()
+    
+    # Swedish irregular plurals (reverse mapping)
+    swedish_irregular_plurals = {
+        'män': 'man',
+        'kvinnor': 'kvinna',
+        'barn': 'barn',  # Same form
+        'möss': 'mus',
+        'gäss': 'gås',
+        'tänder': 'tand',
+        'fötter': 'fot',
+        'händer': 'hand',
+        'ögon': 'öga',
+        'öron': 'öra',
+        'hus': 'hus',  # Same form
+        'katter': 'katt'  # Double consonant case
+    }
+    
+    if word_lower in swedish_irregular_plurals:
+        singular = swedish_irregular_plurals[word_lower]
+        if word.isupper():
+            return singular.upper()
+        elif word.istitle():
+            return singular.capitalize()
+        else:
+            return singular
+    
+    # Swedish singular patterns (reverse of plural rules)
+    
+    # Words ending in 'or' -> remove 'or' and add 'a' (flickor -> flicka)
+    if word_lower.endswith('or') and len(word) > 3:
+        return word[:-2] + 'a'
+    
+    # Words ending in 'er' -> handle double consonant (katter -> katt)
+    if word_lower.endswith('er') and len(word) > 4:
+        # Check for double consonant pattern (katter -> katt)
+        if len(word) > 5 and word[-3] == word[-4]:
+            return word[:-3]  # Remove one consonant + 'er'
+        else:
+            return word[:-2]  # Just remove 'er'
+    
+    # Words ending in 'ar' -> remove 'ar' (bilar -> bil, pojkar -> pojke)
+    if word_lower.endswith('ar') and len(word) > 3:
+        # Check if it should end in 'e' (pojkar -> pojke)
+        base = word[:-2]
+        # Simple heuristic: if base ends in consonant cluster, might need 'e'
+        if len(base) > 2 and base[-1] in 'kgtp' and base[-2] in 'jln':
+            return base + 'e'
+        else:
+            return base
+    
+    # Words ending in single 'r' -> remove 'r' (special cases)
+    if (word_lower.endswith('r') and not word_lower.endswith(('ar', 'er', 'or')) 
+        and len(word) > 2):
+        return word[:-1]
+    
+    # If no pattern matches, return original
+    return word
+
+
 def singular_to_plural(word):
     """
-    Convert a single word from singular to plural using English pluralization rules.
+    Convert a single word from singular to plural using Swedish and English pluralization rules.
     
     Args:
         word (str): The word to convert
@@ -152,9 +336,13 @@ def singular_to_plural(word):
     if len(word) < 2:
         return word
     
+    # Check if it's likely a Swedish word
+    if is_swedish_word(word):
+        return singular_to_plural_swedish(word)
+    
     word_lower = word.lower()
     
-    # Handle irregular plurals
+    # Handle English irregular plurals
     irregular_singulars = {
         'child': 'children',
         'foot': 'feet',
@@ -205,7 +393,7 @@ def singular_to_plural(word):
         else:
             return plural
     
-    # Handle regular singular to plural patterns
+    # Handle regular English singular to plural patterns
     
     # Words ending in 'y' preceded by a consonant -> 'ies' (e.g., company -> companies, battery -> batteries)
     if word_lower.endswith('y') and len(word) > 2 and word[-2].lower() not in 'aeiou':
@@ -225,8 +413,150 @@ def singular_to_plural(word):
     if word_lower.endswith('o') and len(word) > 1 and word[-2].lower() not in 'aeiou':
         return word + 'es'
     
-    # Most regular words -> add 's'
+    # Most regular English words -> add 's'
     return word + 's'
+
+
+def get_cross_language_synonyms():
+    """
+    Get cross-language synonyms between Swedish and English for comprehensive searching.
+    
+    Returns:
+        dict: Mapping of words to their cross-language equivalents
+    """
+    return {
+        # Body parts
+        'tooth': ['tand'],
+        'teeth': ['tänder'],
+        'tand': ['tooth'],
+        'tänder': ['teeth'],
+        'hand': ['hand'],  # Same in both languages
+        'händer': ['hands'],
+        'hands': ['händer'],
+        'foot': ['fot'],
+        'feet': ['fötter'],
+        'fot': ['foot'],
+        'fötter': ['feet'],
+        'eye': ['öga'],
+        'eyes': ['ögon'],
+        'öga': ['eye'],
+        'ögon': ['eyes'],
+        'ear': ['öra'],
+        'ears': ['öron'],
+        'öra': ['ear'],
+        'öron': ['ears'],
+        
+        # Common items
+        'knife': ['kniv'],
+        'knives': ['knivar'],
+        'kniv': ['knife'],
+        'knivar': ['knives'],
+        'screw': ['skruv'],
+        'screws': ['skruvar'],
+        'skruv': ['screw'],
+        'skruvar': ['screws'],
+        'computer': ['dator'],
+        'computers': ['datorer'],
+        'dator': ['computer'],
+        'datorer': ['computers'],
+        'battery': ['batteri'],
+        'batteries': ['batterier'],
+        'batteri': ['battery'],
+        'batterier': ['batteries'],
+        'car': ['bil'],
+        'cars': ['bilar'],
+        'bil': ['car'],
+        'bilar': ['cars'],
+        'house': ['hus'],
+        'houses': ['hus'],  # Swedish 'hus' is same for both
+        'hus': ['house', 'houses'],
+        'cat': ['katt'],
+        'cats': ['katter'],
+        'katt': ['cat'],
+        'katter': ['cats'],
+        'girl': ['flicka'],
+        'girls': ['flickor'],
+        'flicka': ['girl'],
+        'flickor': ['girls'],
+        'boy': ['pojke'],
+        'boys': ['pojkar'],
+        'pojke': ['boy'],
+        'pojkar': ['boys'],
+        
+        # Tools and equipment
+        'tool': ['verktyg'],
+        'tools': ['verktyg'],  # Swedish same for both
+        'verktyg': ['tool', 'tools'],
+        
+        # Materials
+        'wood': ['trä'],
+        'trä': ['wood'],
+        'metal': ['metall'],
+        'metall': ['metal'],
+        'glass': ['glas'],
+        'glas': ['glass'],
+        'plastic': ['plast'],
+        'plast': ['plastic'],
+        
+        # Common verbs (for context understanding)
+        'buy': ['köp', 'köpa'],
+        'bought': ['köpte'],
+        'köp': ['buy'],
+        'köpa': ['buy'],
+        'köpte': ['bought'],
+        'sell': ['sälj', 'sälja'],
+        'sold': ['sålde'],
+        'sälj': ['sell'],
+        'sälja': ['sell'],
+        'sålde': ['sold'],
+        
+        # Business terms
+        'company': ['företag'],
+        'companies': ['företag'],  # Swedish same for both
+        'företag': ['company', 'companies'],
+        'supplier': ['leverantör'],
+        'suppliers': ['leverantörer'],
+        'leverantör': ['supplier'],
+        'leverantörer': ['suppliers'],
+    }
+
+
+def get_all_language_variants(word):
+    """
+    Get all language variants (Swedish/English) and singular/plural forms of a word.
+    
+    Args:
+        word (str): The input word
+        
+    Returns:
+        set: All possible variants of the word
+    """
+    variants = set()
+    word_lower = word.lower()
+    
+    # Get basic singular/plural forms
+    singular, plural = get_both_singular_and_plural(word)
+    variants.add(singular.lower())
+    variants.add(plural.lower())
+    
+    # Get cross-language synonyms
+    synonyms_map = get_cross_language_synonyms()
+    
+    # Check if the word or its variants have cross-language equivalents
+    words_to_check = [word_lower, singular.lower(), plural.lower()]
+    
+    for check_word in words_to_check:
+        if check_word in synonyms_map:
+            for synonym in synonyms_map[check_word]:
+                # Add the synonym itself
+                variants.add(synonym.lower())
+                
+                # Also get singular/plural forms of the synonym
+                syn_singular, syn_plural = get_both_singular_and_plural(synonym)
+                variants.add(syn_singular.lower())
+                variants.add(syn_plural.lower())
+    
+    return variants
 
 
 def get_both_singular_and_plural(word):
@@ -250,8 +580,9 @@ def get_both_singular_and_plural(word):
 
 def normalize_for_comprehensive_search(query):
     """
-    Enhance query to search for both singular and plural forms of nouns for comprehensive matching.
-    This creates OR conditions to find items whether they're stored as singular or plural.
+    Enhance query to search for both singular and plural forms AND cross-language synonyms 
+    of nouns for comprehensive matching. This creates OR conditions to find items whether 
+    they're stored in Swedish, English, singular, or plural forms.
     """
     # Split query into words, preserving spaces and punctuation
     words = re.findall(r'\b\w+\b|\W+', query)
@@ -287,32 +618,33 @@ def normalize_for_comprehensive_search(query):
             if len(word) < 3:
                 continue
                 
-            singular, plural = get_both_singular_and_plural(word)
+            # Get all possible variants (singular/plural + cross-language synonyms)
+            all_variants = get_all_language_variants(word)
             
-            # Only process words that have meaningful singular/plural differences
-            # and appear to be potential item names
-            if (singular.lower() != plural.lower() and 
-                word.lower() in [singular.lower(), plural.lower()] and
-                len(singular) >= 3):  # Ensure meaningful word length
-                enhanced_instructions.append(f"'{word.lower()}' -> search both '{singular}' and '{plural}'")
+            # Only process words that have meaningful variants and appear to be potential item names
+            if len(all_variants) > 1 and len(word) >= 3:
+                # Create a sorted list of all variants for consistent output
+                variant_list = sorted(all_variants)
+                enhanced_instructions.append(f"'{word_lower}' -> search all variants: {', '.join(variant_list)}")
                 query_enhanced = True
     
-    # If we found words that should be searched with both forms, add comprehensive instructions
+    # If we found words that should be searched with multiple forms, add comprehensive instructions
     if query_enhanced:
         instruction = f"""
 {query}
 
-COMPREHENSIVE SEARCH INSTRUCTIONS: 
-When searching for item names, use OR conditions to search for BOTH singular AND plural forms to get complete results.
+COMPREHENSIVE MULTI-LANGUAGE SEARCH INSTRUCTIONS: 
+When searching for item names, use OR conditions to search for ALL language variants and singular/plural forms to get complete results.
 
-For key item terms in the query, generate LIKE conditions for both forms:
+For key item terms in the query, generate LIKE conditions for all variants:
 {', '.join(enhanced_instructions)}
 
-SQL Pattern Example:
-- If user asks about "screws": WHERE (LOWER(ITEM_NAME) LIKE LOWER('%screw%') OR LOWER(ITEM_NAME) LIKE LOWER('%screws%'))
+SQL Pattern Examples:
+- If user asks about "teeth": WHERE (LOWER(ITEM_NAME) LIKE LOWER('%teeth%') OR LOWER(ITEM_NAME) LIKE LOWER('%tooth%') OR LOWER(ITEM_NAME) LIKE LOWER('%tänder%') OR LOWER(ITEM_NAME) LIKE LOWER('%tand%'))
+- If user asks about "screws": WHERE (LOWER(ITEM_NAME) LIKE LOWER('%screw%') OR LOWER(ITEM_NAME) LIKE LOWER('%screws%') OR LOWER(ITEM_NAME) LIKE LOWER('%skruv%') OR LOWER(ITEM_NAME) LIKE LOWER('%skruvar%'))
 - If user asks about "swimming trunks": WHERE (LOWER(ITEM_NAME) LIKE LOWER('%swimming trunk%') OR LOWER(ITEM_NAME) LIKE LOWER('%swimming trunks%'))
 
-This ensures you find items whether they're stored as "Screw", "Screws", "Wood Screw", "Metal Screws", etc.
+This ensures you find items whether they're stored in Swedish or English, singular or plural forms.
 """
         return instruction
     
@@ -327,49 +659,60 @@ def get_comprehensive_search_instructions():
         str: Training instructions for comprehensive search handling
     """
     return """
-# CRITICAL COMPREHENSIVE SINGULAR/PLURAL HANDLING FOR ITEM SEARCHES
+# CRITICAL COMPREHENSIVE SINGULAR/PLURAL HANDLING FOR ITEM SEARCHES (SWEDISH & ENGLISH)
 
 ## Key Rule: Use OR conditions to search for BOTH singular AND plural forms of item names
 
 ## Core Principle:
 When users ask about items (whether in singular or plural form), generate SQL that searches for BOTH forms using OR conditions.
-This ensures maximum coverage of data that may contain items in either singular or plural forms.
+This ensures maximum coverage of data that may contain items in either Swedish or English, singular or plural forms.
+
+## Multi-Language Support:
+The system automatically detects Swedish vs English words and applies appropriate pluralization rules:
+
+### Swedish Examples:
+- "bil" ↔ "bilar" (car/cars)
+- "flicka" ↔ "flickor" (girl/girls)  
+- "katt" ↔ "katter" (cat/cats)
+- "hus" ↔ "hus" (house/houses - same form)
+
+### English Examples:
+- "computer" ↔ "computers"
+- "battery" ↔ "batteries"
+- "knife" ↔ "knives"
+- "child" ↔ "children"
 
 ## Why Use Both Forms:
-- Database may contain: "Screw", "Screws", "Wood Screw", "Metal Screws", "Screw Set"
-- Single search term misses variations: searching only "screw" misses "Screws Kit"  
+- Database may contain: "Skruv", "Skruvar", "Wood Screw", "Metal Screws", "Skruvmejsel"
+- Single search term misses variations: searching only "skruv" misses "Skruvar Kit"  
 - Single search term misses variations: searching only "screws" misses "Screw Driver"
-- OR condition catches everything: (LIKE '%screw%' OR LIKE '%screws%')
+- OR condition catches everything: (LIKE '%skruv%' OR LIKE '%skruvar%')
 
 ## SQL Pattern Examples:
 
-### User asks: "What companies sold us swimming trunks?"
+### User asks: "What companies sold us swimming trunks?" (English)
 **SQL:** WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%swimming trunk%') OR LOWER(il.ITEM_NAME) LIKE LOWER('%swimming trunks%'))
 
-### User asks: "How many screws did we buy?"  
-**SQL:** WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%screw%') OR LOWER(il.ITEM_NAME) LIKE LOWER('%screws%'))
+### User asks: "Vilka företag sålde skruvar till oss?" (Swedish)
+**SQL:** WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%skruv%') OR LOWER(il.ITEM_NAME) LIKE LOWER('%skruvar%'))
 
-### User asks: "Show me all battery purchases"
-**SQL:** WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%battery%') OR LOWER(il.ITEM_NAME) LIKE LOWER('%batteries%'))
-
-### User asks: "Find computer suppliers"
-**SQL:** WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%computer%') OR LOWER(il.ITEM_NAME) LIKE LOWER('%computers%'))
+### User asks: "How many batterier did we buy?" (Mixed)
+**SQL:** WHERE (LOWER(il.ITEM_NAME) LIKE LOWER('%battery%') OR LOWER(il.ITEM_NAME) LIKE LOWER('%batteries%')) OR (LOWER(il.ITEM_NAME) LIKE LOWER('%batteri%') OR LOWER(il.ITEM_NAME) LIKE LOWER('%batterier%'))
 
 ## Implementation Rules:
 1. **Always use OR conditions** for comprehensive coverage
-2. **Generate both singular and plural forms** using English linguistic rules
-3. **Handle regular plurals**: add/remove 's' (computer/computers)
-4. **Handle 'ies' forms**: company/companies, battery/batteries
-5. **Handle 'ves' forms**: knife/knives, shelf/shelves  
-6. **Handle irregular plurals**: child/children, mouse/mice
-7. **Handle compound terms**: swimming trunk/swimming trunks
+2. **Auto-detect language** and apply appropriate pluralization rules:
+   - Swedish: -a→-or, consonant→-ar, -e→-r, irregular patterns
+   - English: -s, -ies, -ves, irregular patterns
+3. **Handle both languages** when item names might exist in either
+4. **Preserve original case** in the search terms
 
 ## Template:
 ```sql
 WHERE (LOWER(ITEM_NAME) LIKE LOWER('%{singular}%') OR LOWER(ITEM_NAME) LIKE LOWER('%{plural}%'))
 ```
 
-This approach guarantees finding ALL items regardless of how they're stored in the database.
+This approach guarantees finding ALL items regardless of language or how they're stored in the database.
 """
 
 
