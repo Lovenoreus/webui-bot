@@ -239,8 +239,9 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
         # sql_query = await query_engine.generate_sql(request.query, request.keywords, provider)
         # sql_query = await query_engine.generate_sql(request.query, keywords, provider)
         # TODO: GENERATE SQL QUERY WITH VANNA
-        sql_query = vanna_manager.generate_sql(request.query)
 
+        request.query = request.query + "\nMake sure you use Like and Lower Keywords to compare the values if needed, to get better results."
+        sql_query = vanna_manager.generate_sql(request.query)
         print(f"Vanna Generated SQL: {sql_query}")
 
         if sql_query:
@@ -415,7 +416,11 @@ async def mcp_tools_list():
                 "properties": {
                     "query": {
                         "type": "string",
-                        "description": "Natural language question about the invoice database (invoices, suppliers, customers, payments, line items)"
+                        "description": """Natural language question about the invoice database - leverages context awareness from previous chat
+                                        **Example:**
+                - User asks: "How many invoices does ABC Corp have?"
+                - User then asks: "What's the IT department for that company?"
+                - You should understand "that company" = "ABC Corp" and query accordingly"""
                     },
                     "keywords": {
                         "type": "array",

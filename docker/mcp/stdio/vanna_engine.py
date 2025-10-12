@@ -312,7 +312,7 @@ class VannaModelManager:
             raise ValueError("Vanna client must be initialized before generating SQL")
 
         try:
-            sql = self.vanna_client.generate_sql(query)
+            sql = self.vanna_client.generate_sql(query, allow_llm_to_see_data=True)
 
             if not sql:
                 print("[VANNA DEBUG] Warning: Generated SQL is empty")

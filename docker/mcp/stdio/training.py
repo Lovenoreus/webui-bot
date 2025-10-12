@@ -11,20 +11,20 @@
 # Get training
 def get_vanna_training(remote=False):
     if remote:
-        print(f"Using remote database schema: [Nodinite].[ods]")
+        print(f"Using remote database schema: [Nodinite].[dbo]")
         #
         invoice_ddl = """
             ## Database Information
             - **Database Type**: Microsoft SQL Server
             - **Dialect**: T-SQL (Transact-SQL)
             - **Database Name**: Nodinite
-            - **Schema**: ods
-            - **CRITICAL**: ALL table references MUST use full three-part names: [Nodinite].[ods].[TableName]
+            - **Schema**: dbo
+            - **CRITICAL**: ALL table references MUST use full three-part names: [Nodinite].[dbo].[TableName]
 
             Always use column aliases for aggregate functions and expressions. 
             Example: SELECT COUNT(*) AS count, SUM(amount) AS total_amount
     
-            CREATE TABLE [Nodinite].[ods].[Invoice] (
+            CREATE TABLE [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] (
                 INVOICE_ID NVARCHAR(50) NOT NULL PRIMARY KEY,
                 ISSUE_DATE NVARCHAR(10) NOT NULL,
                 SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID NVARCHAR(50) NOT NULL,
@@ -106,13 +106,13 @@ def get_vanna_training(remote=False):
             - **Database Type**: Microsoft SQL Server
             - **Dialect**: T-SQL (Transact-SQL)
             - **Database Name**: Nodinite
-            - **Schema**: ods
-            - **CRITICAL**: ALL table references MUST use full three-part names: [Nodinite].[ods].[TableName]
+            - **Schema**: dbo
+            - **CRITICAL**: ALL table references MUST use full three-part names: [Nodinite].[dbo].[TableName]
 
             Always use column aliases for aggregate functions and expressions. 
             Example: SELECT COUNT(*) AS count, SUM(amount) AS total_amount
     
-            CREATE TABLE [Nodinite].[ods].[Invoice_Line] (
+            CREATE TABLE [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] (
                 INVOICE_ID NVARCHAR(50) NOT NULL,
                 ISSUE_DATE NVARCHAR(10) NOT NULL,
                 SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID NVARCHAR(50) NOT NULL,
@@ -145,7 +145,7 @@ def get_vanna_training(remote=False):
                 PRICE_ALLOWANCE_CHARGE_INDICATOR NVARCHAR(10),
                 ETL_LOAD_TS NVARCHAR(30),
                 PRIMARY KEY (INVOICE_ID, INVOICE_LINE_ID),
-                FOREIGN KEY (INVOICE_ID) REFERENCES [Nodinite].[ods].[Invoice](INVOICE_ID)
+                FOREIGN KEY (INVOICE_ID) REFERENCES [Nodinite].[dbo].[Invoice](INVOICE_ID)
             );
             """
 
@@ -455,6 +455,8 @@ def get_vanna_training(remote=False):
             - Region Skåne
             - Stockholms Stad
             - Västra Götaland
+            - Make sure you use Like and Lower Keywords to compare the values if needed, to get better results.
+            - Example: 
             """
 
         invoice_line_doc = """
@@ -525,6 +527,7 @@ def get_vanna_training(remote=False):
             - Invoice line totals should sum to the invoice header LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT
             - Tax is calculated per line: INVOICED_LINE_EXTENSION_AMOUNT × (ITEM_TAXCAT_PERCENT / 100)
             - NULL values in ORDER_LINE_REFERENCE_LINE_ID, ACCOUNTING_COST are common
+            - Make sure you use Like and Lower Keywords to compare the values if needed, to get better results.
             """
 
     return [invoice_ddl, invoice_line_ddl, invoice_doc, invoice_line_doc]
