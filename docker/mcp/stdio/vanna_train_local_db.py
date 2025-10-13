@@ -1,5 +1,22 @@
 def train_for_local_db(vanna_manager):
-    
+    # CRITICAL: Database dialect and naming conventions
+    if vanna_manager.train(ddl="""
+        -- Database: Custom SQLite
+        -- Dialect: SQLite
+        -- CRITICAL REQUIREMENT: Use SQLite-compatible SQL syntax ONLY
+
+        -- SQLite-Specific Syntax Rules:
+        -- - Use TEXT for strings, REAL for numeric values
+        -- - Date functions: date('now'), strftime('%Y-%m', ISSUE_DATE)
+        -- - String concatenation: Use || (e.g., column1 || column2)
+        -- - LIMIT clause: SELECT * FROM table_name LIMIT 20
+        -- - Schema inspection: PRAGMA table_info(table_name)
+        """):
+        print("✅ Successfully trained Schema DDL")
+
+    else:
+        print("❌ Failed to train Schema DDL")
+
         # ================================================================
         # TABLE 1: Invoice Header Table (Main Invoice Information)
         # ================================================================
@@ -395,3 +412,7 @@ def train_for_local_db(vanna_manager):
         print("✅ Successfully trained Supplier Address & Contact")
     else:
         print("❌ Failed to train Supplier Address & Contact")
+
+    # Return the manager
+    return vanna_manager
+

@@ -129,33 +129,35 @@ print("📚 Training Vanna with schema...")
 print(f"Remote choice for Vanna is: {USE_REMOTE}")
 
 # Get the training data.
-invoice_ddl, invoice_line_ddl, invoice_doc, invoice_line_doc, synonym_instructions, training_pairs = get_vanna_training(remote=USE_REMOTE)
+# invoice_ddl, invoice_line_ddl, invoice_doc, invoice_line_doc, synonym_instructions, training_pairs = get_vanna_training(remote=USE_REMOTE)
 
 
 # MANUAL TRAINING. TO SEND TO TRAINING.
 # CRITICAL: Database dialect and naming conventions
-if vanna_manager.train(ddl="""
--- Database: Nodinite
--- Schema: dbo
--- Dialect: T-SQL (Microsoft SQL Server)
--- CRITICAL REQUIREMENT: ALL table references MUST use three-part names: [Nodinite].[dbo].[TableName]
-"""):
-    print("✅ Successfully trained Schema DDL")
+# if vanna_manager.train(ddl="""
+# -- Database: Nodinite
+# -- Schema: dbo
+# -- Dialect: T-SQL (Microsoft SQL Server)
+# -- CRITICAL REQUIREMENT: ALL table references MUST use three-part names: [Nodinite].[dbo].[TableName]
+# """):
+#     print("✅ Successfully trained Schema DDL")
 
 start_time=datetime.now()
 
+# Train depending on the database choice.
 if USE_REMOTE:
-    train_for_remote_db(vanna_manager)
+    vanna_manager = train_for_remote_db(vanna_manager)
+
 else:
-    train_for_local_db(vanna_manager)
+    vanna_manager = train_for_local_db(vanna_manager)
     
 print(f"🕒 Completed remote DB specific training in:", datetime.now()-start_time)
 
 # Added a strict syntax command.
-vanna_manager.train(documentation="#STRICT SYNTAX RULE: Your SQL should be on a single line with no line breaks. It should follow this exact syntax ```sql <command> ```")
+vanna_manager.train(documentation="#STRICT SYNTAX RULE: Your SQL should be on a single line with no line breaks. It should follow this exact syntax ```sql <command> ```. Do not add comments to the code you generate")
 
 # Add comprehensive plural/singular handling instructions
-vanna_manager.train(documentation=get_comprehensive_search_instructions())
+# vanna_manager.train(documentation=get_comprehensive_search_instructions())
 
 # Auto-train on startup if enabled
 if config.VANNA_AUTO_TRAIN or config.VANNA_TRAIN_ON_STARTUP:
@@ -207,14 +209,24 @@ async def greet_endpoint(request: GreetRequest):
 
 import re
 
-def format_vanna_sql(vanna_sql):
-    # Strip each line and join with a space
-    sql_no_newlines = " ".join(line.strip() for line in vanna_sql.split('\n'))
-    # Optionally collapse multiple spaces into one
-    return re.sub(r'\s+', ' ', sql_no_newlines).strip()
+def format_vanna_sql(vanna_sql: str) -> str:
+    """
+    Clean and format SQL:
+    - Remove line and block comments
+    - Remove extra whitespace and newlines
+    - Return clean single-line T-SQL (for MSSQL)
+    """
 
+    # Remove -- single-line comments
+    sql_no_line_comments = re.sub(r'--.*?(?=\n|$)', '', vanna_sql)
 
+    # Remove /* block */ comments
+    sql_no_block_comments = re.sub(r'/\*.*?\*/', '', sql_no_line_comments, flags=re.DOTALL)
 
+    # Remove newlines and collapse multiple spaces
+    sql_clean = re.sub(r'\s+', ' ', sql_no_block_comments)
+
+    return sql_clean.strip()
 
 
 def singular_to_plural(word):
@@ -323,12 +335,12 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
         # TODO: GENERATE SQL QUERY WITH VANNA
 
         # Enhance query to search for both singular and plural forms
-        enhanced_query = normalize_for_comprehensive_search(request.query)
+        # enhanced_query = normalize_for_comprehensive_search(request.query)
         
         # Add additional instructions for better SQL generation
-        enhanced_query = enhanced_query + "\nMake sure you use Like and Lower Keywords to compare the values if needed, to get better results."
+        # enhanced_query = enhanced_query + "\nMake sure you use Like and Lower Keywords to compare the values if needed, to get better results."
         
-        sql_query = vanna_manager.generate_sql(enhanced_query)
+        sql_query = vanna_manager.generate_sql(request.query)
 
         print(f"Vanna Generated SQL: {sql_query}")
 

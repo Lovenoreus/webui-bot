@@ -9,7 +9,8 @@ services:
     volumes:
       - open-webui:/app/backend/data
     depends_on:
-      - mcpo
+      mcpo:
+        condition: service_healthy
     ports:
       - ${OPEN_WEBUI_PORT-3000}:8080
     environment:
@@ -57,7 +58,8 @@ services:
     ports:
       - "8009:8009"
     depends_on:
-      - database_server
+      database_server:
+        condition: service_healthy
     environment:
       - DATABASE_URL=http://database_server:8762
       - PYTHONPATH=/app

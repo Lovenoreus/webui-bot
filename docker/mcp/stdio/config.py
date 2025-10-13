@@ -12,18 +12,7 @@ local_config_path = os.path.join(script_dir, 'config.json')
 
 load_dotenv(find_dotenv())
 
-# OpenAI provider settings
-USE_VANNA_OPENAI = True  # Enable OpenAI provider
-USE_VANNA_OLLAMA = False  # Disable Ollama provider
-VANNA_OPENAI_MODEL = "gpt-4o-mini"  # Default OpenAI model
-VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA = True  # Allow LLM to access training data
-VANNA_OPENAI_VERBOSE = True  # Enable verbose output for debugging
-
-VANNA_OLLAMA_MODEL = "gpt-oss:20b"
-VANNA_OLLAMA_BASE_URL = "http://vs2153.vll.se:11434"
-VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA = True
-VANNA_OLLAMA_VERBOSE = True
-
+# Vanna Configs
 # SSL bypass settings
 VANNA_SSL_BYPASS_ERRORS = True  # Enable comprehensive SSL bypass
 VANNA_SSL_DISABLE_WARNINGS = True  # Disable SSL warnings
@@ -120,10 +109,22 @@ if USE_OLLAMA:
     AGENT_MODEL_NAME = get_nested(config, ["ollama", "agent_model_name"], "qwen3:latest")
     EMBEDDINGS_MODEL_NAME = get_nested(config, ["ollama", "embeddings_model_name"],
                                        "jeffh/intfloat-multilingual-e5-large:q8_0")
+    USE_VANNA_OLLAMA = True  # Disable Ollama provider
+    VANNA_OLLAMA_MODEL = "gpt-oss:20b"
+    VANNA_OLLAMA_BASE_URL = "http://vs2153.vll.se:11434"
+    VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA = True
+    VANNA_OLLAMA_VERBOSE = True
+
 
 if USE_OPENAI:
     AGENT_MODEL_NAME = get_nested(config, ["openai", "agent_model_name"], "gpt-4o-mini")
     EMBEDDINGS_MODEL_NAME = get_nested(config, ["openai", "embeddings_model_name"], "text-embedding-3-large")
+
+    # OpenAI provider settings
+    USE_VANNA_OPENAI = True  # Enable OpenAI provider
+    VANNA_OPENAI_MODEL = "gpt-4o-mini"  # Default OpenAI model
+    VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA = True  # Allow LLM to access training data
+    VANNA_OPENAI_VERBOSE = True  # Enable verbose output for debugging
 
 USE_MISTRAL = to_bool(get_nested(config, ["mistral", "enabled"], False), default=False)
 

@@ -1,4 +1,14 @@
 def train_for_remote_db(vanna_manager):
+    if vanna_manager.train(ddl="""
+    -- Database: Nodinite
+    -- Schema: dbo
+    -- Dialect: T-SQL (Microsoft SQL Server)
+    -- CRITICAL REQUIREMENT: ALL table references MUST use three-part names: [Nodinite].[dbo].[TableName]
+    """):
+        print("✅ Successfully trained Schema DDL")
+
+    else:
+        print("❌ Failed to train Schema DDL")
 
     # ================================================================
     # TABLE 1: Invoice Header Table (Main Invoice Information)
@@ -3147,3 +3157,366 @@ def train_for_remote_db(vanna_manager):
         print("✅ Successfully trained Pricing Information")
     else:
         print("❌ Failed to train Pricing Information")
+
+    print()
+    # ================================================================
+    # SWEDISH CHARACTER HANDLING - BEST PRACTICES TRAINING
+    # Teaches Vanna to properly handle Swedish characters (Å, Ä, Ö)
+    # ================================================================
+
+    print("\n" + "=" * 80)
+    print("TRAINING: Swedish Character Handling Best Practices")
+    print("=" * 80 + "\n")
+
+    # ================================================================
+    # PART 1: DOCUMENTATION TRAINING
+    # ================================================================
+
+    if vanna_manager.train(documentation="""
+    SWEDISH CHARACTER HANDLING IN SQL QUERIES:
+
+    When filtering by names or text fields containing Swedish characters (Å, Ä, Ö, å, ä, ö), 
+    ALWAYS use regular string literals with the actual characters, NOT Unicode escape sequences.
+
+    CORRECT APPROACH:
+    - WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Örjan Larsson'
+    - WHERE SUPPLIER_PARTY_NAME = 'Göteborg AB'
+    - WHERE CUSTOMER_PARTY_CITY = 'Västerås'
+    - WHERE DELIVERY_LOCATION_CITY_NAME = 'Skellefteå'
+    - WHERE SUPPLIER_PARTY_NAME LIKE '%Malmö%'
+
+    INCORRECT APPROACH (NEVER USE):
+    - WHERE CUSTOMER_PARTY_CONTACT_NAME = N'\\u00d6rjan Larsson'  -- WRONG!
+    - WHERE SUPPLIER_PARTY_NAME = N'G\\u00f6teborg AB'  -- WRONG!
+    - WHERE CUSTOMER_PARTY_CITY = N'V\\u00e4ster\\u00e5s'  -- WRONG!
+
+    The database uses NVARCHAR fields which natively support Swedish characters. 
+    Use the actual characters directly in WHERE clauses, LIKE patterns, and all string literals.
+
+    Common Swedish characters to handle correctly:
+    - Å, å (A with ring above)
+    - Ä, ä (A with diaeresis)
+    - Ö, ö (O with diaeresis)
+    """):
+        print("✅ Part 1: Swedish character documentation trained")
+    else:
+        print("❌ Part 1: Failed to train documentation")
+
+    if vanna_manager.train(documentation="""
+    SWEDISH CITIES IN REGION VÄSTERBOTTEN:
+
+    When users ask about cities or locations in northern Sweden, these are common city names 
+    that contain Swedish characters and should be used exactly as written:
+
+    Major Cities:
+    - Umeå (regional capital)
+    - Skellefteå
+    - Lycksele
+    - Storuman
+    - Vilhelmina
+    - Åsele
+    - Dorotea
+    - Malå
+    - Norsjö
+    - Bjurholm
+    - Vindeln
+    - Robertsfors
+    - Vännäs
+    - Sorsele
+    - Nordmaling
+
+    Other Swedish Cities (Suppliers):
+    - Stockholm
+    - Göteborg
+    - Malmö
+    - Uppsala
+    - Västerås
+    - Örebro
+    - Linköping
+    - Helsingborg
+    - Jönköping
+    - Norrköping
+    - Lund
+    - Borås
+    - Gävle
+    - Eskilstuna
+    - Södertälje
+
+    Always use these exact spellings with proper Swedish characters in SQL queries.
+    """):
+        print("✅ Part 1: Swedish cities documentation trained")
+    else:
+        print("❌ Part 1: Failed to train cities documentation")
+
+    if vanna_manager.train(documentation="""
+    SWEDISH NAMES AND CONTACT HANDLING:
+
+    Swedish personal names commonly contain the characters Å, Ä, Ö. When filtering by 
+    CUSTOMER_PARTY_CONTACT_NAME or SUPPLIER_PARTY_CONTACT_NAME, use the actual characters.
+
+    Common Swedish name patterns:
+    - Names with Ö: Örjan, Östen, Göran, Björn, Jörgen
+    - Names with Å: Åsa, Åke, Mårten, Pål, Håkan
+    - Names with Ä: Änn-Marie, Pär, Kärlek
+
+    Last names with Swedish characters:
+    - Larsson, Andersson, Johansson (no special chars, but very common)
+    - Sjögren, Ström, Åström, Öberg, Lindström
+    - Järvinen, Säterberg, Blomkvist
+
+    Example queries:
+    WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Örjan Larsson'
+    WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Åsa Andersson'
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Björn%'
+    WHERE SUPPLIER_PARTY_CONTACT_NAME = 'Göran Svensson'
+    """):
+        print("✅ Part 1: Swedish names documentation trained")
+    else:
+        print("❌ Part 1: Failed to train names documentation")
+
+    # ================================================================
+    # PART 2: SPECIFIC EXAMPLE TRAINING (Question-SQL Pairs)
+    # ================================================================
+
+    print("\n" + "-" * 80)
+    print("PART 2: Training Specific Swedish Character Examples")
+    print("-" * 80 + "\n")
+
+    # Example 1: Contact name with Ö
+    if vanna_manager.train(
+            question="Show me all departments where Örjan Larsson is the contact person",
+            sql="""
+    SELECT DISTINCT 
+        CUSTOMER_PARTY_CONTACT_NAME, 
+        CUSTOMER_PARTY_NAME AS department 
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
+    WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Örjan Larsson' 
+    ORDER BY CUSTOMER_PARTY_NAME
+    """
+    ):
+        print("✅ Example 1: Örjan Larsson (Ö character)")
+    else:
+        print("❌ Example 1: Failed")
+
+    # Example 2: City with Ö
+    if vanna_manager.train(
+            question="Find all suppliers located in Göteborg",
+            sql="""
+    SELECT DISTINCT 
+        SUPPLIER_PARTY_NAME, 
+        SUPPLIER_PARTY_STREET_NAME,
+        SUPPLIER_PARTY_POSTAL_ZONE
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
+    WHERE SUPPLIER_PARTY_CITY = 'Göteborg'
+    ORDER BY SUPPLIER_PARTY_NAME
+    """
+    ):
+        print("✅ Example 2: Göteborg city (Ö character)")
+    else:
+        print("❌ Example 2: Failed")
+
+    # Example 3: City with Ä
+    if vanna_manager.train(
+            question="Show me invoices delivered to Västerås",
+            sql="""
+    SELECT 
+        INVOICE_ID,
+        ISSUE_DATE,
+        SUPPLIER_PARTY_NAME,
+        DELIVERY_LOCATION_CITY_NAME,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
+    WHERE DELIVERY_LOCATION_CITY_NAME = 'Västerås'
+    ORDER BY ISSUE_DATE DESC
+    """
+    ):
+        print("✅ Example 3: Västerås delivery (Ä character)")
+    else:
+        print("❌ Example 3: Failed")
+
+    # Example 4: Contact name with Å
+    if vanna_manager.train(
+            question="Find invoices where Åsa Andersson is the contact",
+            sql="""
+    SELECT 
+        INVOICE_ID,
+        ISSUE_DATE,
+        SUPPLIER_PARTY_NAME,
+        CUSTOMER_PARTY_CONTACT_NAME,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
+    WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Åsa Andersson'
+    ORDER BY ISSUE_DATE DESC
+    """
+    ):
+        print("✅ Example 4: Åsa Andersson (Å character)")
+    else:
+        print("❌ Example 4: Failed")
+
+    # Example 5: City Skellefteå
+    if vanna_manager.train(
+            question="How many deliveries were made to Skellefteå?",
+            sql="""
+    SELECT 
+        DELIVERY_LOCATION_CITY_NAME,
+        COUNT(*) AS delivery_count,
+        SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS total_value
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
+    WHERE DELIVERY_LOCATION_CITY_NAME = 'Skellefteå'
+    GROUP BY DELIVERY_LOCATION_CITY_NAME
+    """
+    ):
+        print("✅ Example 5: Skellefteå deliveries (Å character)")
+    else:
+        print("❌ Example 5: Failed")
+
+    # Example 6: LIKE pattern with Swedish characters
+    if vanna_manager.train(
+            question="Find all contacts whose name contains Björn",
+            sql="""
+    SELECT DISTINCT 
+        CUSTOMER_PARTY_CONTACT_NAME,
+        CUSTOMER_PARTY_NAME,
+        COUNT(*) AS invoice_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Björn%'
+    GROUP BY CUSTOMER_PARTY_CONTACT_NAME, CUSTOMER_PARTY_NAME
+    ORDER BY invoice_count DESC
+    """
+    ):
+        print("✅ Example 6: LIKE pattern with Björn (Ö character)")
+    else:
+        print("❌ Example 6: Failed")
+
+    # Example 7: Multiple Swedish characters - Jönköping
+    if vanna_manager.train(
+            question="Show me suppliers from Jönköping",
+            sql="""
+    SELECT 
+        SUPPLIER_PARTY_NAME,
+        SUPPLIER_PARTY_STREET_NAME,
+        COUNT(*) AS invoice_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
+    WHERE SUPPLIER_PARTY_CITY = 'Jönköping'
+    GROUP BY SUPPLIER_PARTY_NAME, SUPPLIER_PARTY_STREET_NAME
+    ORDER BY invoice_count DESC
+    """
+    ):
+        print("✅ Example 7: Jönköping suppliers (Ö character)")
+    else:
+        print("❌ Example 7: Failed")
+
+    # Example 8: Contact with Ä
+    if vanna_manager.train(
+            question="Find invoices where Pär Svensson is the contact",
+            sql="""
+    SELECT 
+        INVOICE_ID,
+        ISSUE_DATE,
+        CUSTOMER_PARTY_CONTACT_NAME,
+        CUSTOMER_PARTY_NAME
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
+    WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Pär Svensson'
+    ORDER BY ISSUE_DATE DESC
+    """
+    ):
+        print("✅ Example 8: Pär Svensson (Ä character)")
+    else:
+        print("❌ Example 8: Failed")
+
+    # Example 9: Search in multiple cities
+    if vanna_manager.train(
+            question="Show me invoices delivered to Umeå, Skellefteå, or Lycksele",
+            sql="""
+    SELECT 
+        DELIVERY_LOCATION_CITY_NAME,
+        COUNT(*) AS delivery_count,
+        SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS total_value
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
+    WHERE DELIVERY_LOCATION_CITY_NAME IN ('Umeå', 'Skellefteå', 'Lycksele')
+    GROUP BY DELIVERY_LOCATION_CITY_NAME
+    ORDER BY delivery_count DESC
+    """
+    ):
+        print("✅ Example 9: Multiple cities with Å (IN clause)")
+    else:
+        print("❌ Example 9: Failed")
+
+    # Example 10: Supplier name with Ö
+    if vanna_manager.train(
+            question="Find invoices from suppliers with Ö in their name",
+            sql="""
+    SELECT 
+        SUPPLIER_PARTY_NAME,
+        COUNT(*) AS invoice_count,
+        SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS total_amount
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
+    WHERE SUPPLIER_PARTY_NAME LIKE '%ö%' 
+       OR SUPPLIER_PARTY_NAME LIKE '%Ö%'
+    GROUP BY SUPPLIER_PARTY_NAME
+    ORDER BY invoice_count DESC
+    """
+    ):
+        print("✅ Example 10: Suppliers with Ö (case-insensitive LIKE)")
+    else:
+        print("❌ Example 10: Failed")
+
+    # Example 11: Multiple Swedish characters in one query
+    if vanna_manager.train(
+            question="Show me all deliveries to Åsele, Örebro, and Västerås",
+            sql="""
+    SELECT 
+        DELIVERY_LOCATION_CITY_NAME,
+        COUNT(*) AS delivery_count,
+        AVG(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS avg_value,
+        SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS total_value
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
+    WHERE DELIVERY_LOCATION_CITY_NAME IN ('Åsele', 'Örebro', 'Västerås')
+    GROUP BY DELIVERY_LOCATION_CITY_NAME
+    ORDER BY total_value DESC
+    """
+    ):
+        print("✅ Example 11: Multiple cities (Å, Ö, Ä characters)")
+    else:
+        print("❌ Example 11: Failed")
+
+    # Example 12: Contact name search pattern
+    if vanna_manager.train(
+            question="Find all contacts whose last name starts with Ö",
+            sql="""
+    SELECT DISTINCT 
+        CUSTOMER_PARTY_CONTACT_NAME,
+        COUNT(*) AS invoice_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '% Ö%'
+    GROUP BY CUSTOMER_PARTY_CONTACT_NAME
+    ORDER BY invoice_count DESC
+    """
+    ):
+        print("✅ Example 12: Last name pattern with Ö")
+    else:
+        print("❌ Example 12: Failed")
+
+    print("\n" + "=" * 80)
+    print("✅ SWEDISH CHARACTER HANDLING TRAINING COMPLETE!")
+    print("=" * 80)
+    print("📊 Training Summary:")
+    print("   - Part 1: Documentation (3 sections)")
+    print("     • General Swedish character handling rules")
+    print("     • Swedish cities in Region Västerbotten")
+    print("     • Swedish names and contact patterns")
+    print("   - Part 2: Specific Examples (12 Q&A pairs)")
+    print("     • Ö character examples: 6")
+    print("     • Å character examples: 4")
+    print("     • Ä character examples: 3")
+    print("     • Multiple characters: 2")
+    print("=" * 80)
+    print("\n💡 Vanna should now correctly handle Swedish characters!")
+    print("   When users ask about 'Örjan Larsson', Vanna will use:")
+    print("   ✅ WHERE name = 'Örjan Larsson'")
+    print("   ❌ NOT: WHERE name = N'\\u00d6rjan Larsson'")
+    print("=" * 80 + "\n")
+
+
+    # Return the manager
+    return vanna_manager
