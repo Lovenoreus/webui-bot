@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, ValidationError
 # -------------------- SQL MODELS --------------------
 class QueryDatabaseRequest(BaseModel):
     query: str
-    keywords: List[str]
+    # keywords: List[str]
 
 
 # -------------------- GreetRequest MODELS --------------------
