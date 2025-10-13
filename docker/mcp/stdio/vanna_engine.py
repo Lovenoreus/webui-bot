@@ -263,11 +263,11 @@ class VannaModelManager:
         self.current_provider = "ollama"
 
     def train(
-            self,
-            ddl: Optional[str] = None,
-            documentation: Optional[str] = None,
-            question: Optional[str] = None,
-            sql: Optional[str] = None
+        self,
+        ddl: Optional[str] = None,
+        documentation: Optional[str] = None,
+        question: Optional[str] = None,
+        sql: Optional[str] = None
     ) -> bool:
         """Train Vanna with different types of data"""
 
@@ -278,12 +278,9 @@ class VannaModelManager:
             try:
                 train_func(data)
                 print(f"[VANNA DEBUG] ✅ Trained {data_type} with {self.current_provider}")
-
                 return True
-
             except Exception as e:
                 print(f"[VANNA DEBUG] ❌ Error training {data_type}: {e}")
-
                 return False
 
         success = True
@@ -296,11 +293,16 @@ class VannaModelManager:
             if not _safe_train(lambda x: self.vanna_client.train(documentation=x), documentation, "documentation"):
                 success = False
 
+        # Handle question-SQL pairs
         if question and sql:
             if not _safe_train(lambda x: self.vanna_client.train(question=x[0], sql=x[1]), (question, sql), "SQL pair"):
                 success = False
+        # Handle SQL-only training (NEW - this was missing!)
+        elif sql and not question:
+            if not _safe_train(lambda x: self.vanna_client.train(sql=x), sql, "SQL"):
+                success = False
 
-        if not any([ddl, documentation, (question and sql)]):
+        if not any([ddl, documentation, sql, (question and sql)]):
             raise ValueError("Must provide at least one training data type")
 
         return success
