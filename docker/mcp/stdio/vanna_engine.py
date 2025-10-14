@@ -78,10 +78,10 @@ class VannaModelManager:
 
     def _get_active_provider(self) -> str:
         """Determine which provider is currently active based on config"""
-        if config.USE_VANNA_OPENAI:
+        if config.USE_OPENAI:
             return "openai"
 
-        elif config.USE_VANNA_OLLAMA:
+        elif config.USE_OLLAMA:
             return "ollama"
 
         else:
@@ -232,6 +232,7 @@ class VannaModelManager:
         client_config = {
             'api_key': config.OPENAI_API_KEY,
             'model': config.VANNA_OPENAI_MODEL,
+            'temperature': 0.0,
             'allow_llm_to_see_data': config.VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA,
             'verbose': config.VANNA_OPENAI_VERBOSE,
             'http_client': httpx.Client(timeout=60.0),  # Increased timeout
@@ -251,6 +252,7 @@ class VannaModelManager:
 
         self.vanna_client = VannaClass(config={
             'model': config.VANNA_OLLAMA_MODEL,
+            'temperature': 0.0,
             'ollama_host': config.VANNA_OLLAMA_BASE_URL,
             'allow_llm_to_see_data': config.VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA,
             'verbose': config.VANNA_OLLAMA_VERBOSE,

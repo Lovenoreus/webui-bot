@@ -167,7 +167,7 @@ def train_for_remote_db(vanna_manager):
         
         -- Quantity and Amount Information
         INVOICED_QUANTITY DECIMAL(18,3),             -- Quantity invoiced (e.g., 27.680)
-        INVOICED_QUANTITY_UNIT_CODE NVARCHAR(10),    -- Unit of measure (e.g., 'EA', 'HUR', 'XHG')
+        INVOICED_QUANTITY_UNIT_CODE NVARCHAR(10),    -- Unit of measure (e.g., 'EA', 'TIMME', 'XHG')
         INVOICED_LINE_EXTENSION_AMOUNT DECIMAL(18,2),           -- Line total excluding tax
         INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID NVARCHAR(3), -- Usually 'SEK'
         
@@ -625,7 +625,7 @@ def train_for_remote_db(vanna_manager):
     - INVOICED_QUANTITY_UNIT_CODE: Unit of measure
     Common codes:
     * 'EA' = Each (individual items)
-    * 'HUR' = Hour (time-based services)
+    * 'TIMME' = Hour (time-based services with)
     * 'XHG' = Piece/Unit
     * 'MTR' = Meter
     * 'KGM' = Kilogram
@@ -723,7 +723,7 @@ def train_for_remote_db(vanna_manager):
     Sometimes other values for bulk pricing (e.g., price per 10 units)
     
     - PRICE_BASE_QUANTITY_UNIT_CODE: Unit of measure for base quantity
-    Examples: 'EA', 'HUR', 'KGM'
+    Examples: 'EA', 'TIMME', 'KGM'
 
     DISCOUNTS AND CHARGES:
     - PRICE_ALLOWANCE_CHARGE_AMOUNT: Amount of discount or additional charge
@@ -2427,7 +2427,7 @@ def train_for_remote_db(vanna_manager):
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
     INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
         ON i.INVOICE_ID = il.INVOICE_ID
-    WHERE il.INVOICED_QUANTITY_UNIT_CODE = 'HUR'
+    WHERE il.INVOICED_QUANTITY_UNIT_CODE = 'TIMME'
     GROUP BY i.SUPPLIER_PARTY_NAME, il.ITEM_NAME
     ORDER BY total_cost DESC
     """
@@ -3516,6 +3516,226 @@ def train_for_remote_db(vanna_manager):
     print("   ✅ WHERE name = 'Örjan Larsson'")
     print("   ❌ NOT: WHERE name = N'\\u00d6rjan Larsson'")
     print("=" * 80 + "\n")
+
+    # ================================================================
+    # OVERTIME SPENDING TRAINING
+    # ================================================================
+
+    print("\n" + "="*80)
+    print("TRAINING: Overtime Spending Queries")
+    print("="*80 + "\n")
+
+    # ================================================================
+    # APPROACH 1: Search for "overtime" keywords in item descriptions
+    # ================================================================
+
+    if vanna_manager.train(
+        question="How much did we spend on overtime in 2024?",
+        sql="""
+    SELECT 
+        SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_overtime_cost,
+        COUNT(*) AS overtime_line_items,
+        SUM(il.INVOICED_QUANTITY) AS total_overtime_hours
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
+        ON i.INVOICE_ID = il.INVOICE_ID
+    WHERE i.ISSUE_DATE >= '2024-01-01' 
+    AND i.ISSUE_DATE < '2025-01-01'
+    AND (
+        il.ITEM_NAME LIKE '%övertid%' 
+        OR il.ITEM_NAME LIKE '%overtime%'
+        OR il.ITEM_DESCRIPTION LIKE '%övertid%'
+        OR il.ITEM_DESCRIPTION LIKE '%overtime%'
+        OR il.ITEM_NAME LIKE '%OB%'
+        OR il.ITEM_DESCRIPTION LIKE '%OB%'
+    )
+    """
+    ):
+        print("✅ Approach 1: Overtime keyword search (Swedish: övertid, OB)")
+    else:
+        print("❌ Approach 1: Failed")
+
+    # ================================================================
+    # APPROACH 2: All hourly services in 2024 (broader definition)
+    # ================================================================
+
+    if vanna_manager.train(
+        question="What did we spend on hourly services in 2024?",
+        sql="""
+    SELECT 
+        SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_hourly_cost,
+        COUNT(*) AS hourly_line_items,
+        SUM(il.INVOICED_QUANTITY) AS total_hours,
+        AVG(il.PRICE_AMOUNT) AS avg_hourly_rate
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
+        ON i.INVOICE_ID = il.INVOICE_ID
+    WHERE i.ISSUE_DATE >= '2024-01-01' 
+    AND i.ISSUE_DATE < '2025-01-01'
+    AND il.INVOICED_QUANTITY_UNIT_CODE = 'HUR'
+    """
+    ):
+        print("✅ Approach 2: All hourly services (unit code HUR)")
+    else:
+        print("❌ Approach 2: Failed")
+
+    # ================================================================
+    # APPROACH 3: Detailed overtime breakdown by supplier
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Show me overtime costs by supplier for 2024",
+        sql="""
+    SELECT 
+        i.SUPPLIER_PARTY_NAME,
+        COUNT(DISTINCT i.INVOICE_ID) AS invoice_count,
+        COUNT(*) AS overtime_line_items,
+        SUM(il.INVOICED_QUANTITY) AS total_overtime_hours,
+        SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_overtime_cost,
+        AVG(il.PRICE_AMOUNT) AS avg_hourly_rate
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
+        ON i.INVOICE_ID = il.INVOICE_ID
+    WHERE i.ISSUE_DATE >= '2024-01-01' 
+    AND i.ISSUE_DATE < '2025-01-01'
+    AND (
+        il.ITEM_NAME LIKE '%övertid%' 
+        OR il.ITEM_NAME LIKE '%overtime%'
+        OR il.ITEM_DESCRIPTION LIKE '%övertid%'
+        OR il.ITEM_DESCRIPTION LIKE '%overtime%'
+        OR il.ITEM_NAME LIKE '%OB%'
+        OR il.ITEM_DESCRIPTION LIKE '%OB%'
+
+    )
+    GROUP BY i.SUPPLIER_PARTY_NAME
+    ORDER BY total_overtime_cost DESC
+    """
+    ):
+        print("✅ Approach 3: Overtime by supplier breakdown")
+    else:
+        print("❌ Approach 3: Failed")
+
+    # ================================================================
+    # APPROACH 4: Monthly overtime trend in 2024
+    # ================================================================
+
+    if vanna_manager.train(
+        question="What was the monthly overtime spending trend in 2024?",
+        sql="""
+    SELECT 
+        LEFT(i.ISSUE_DATE, 7) AS year_month,
+        SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS monthly_overtime_cost,
+        SUM(il.INVOICED_QUANTITY) AS monthly_overtime_hours,
+        COUNT(*) AS overtime_line_items
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
+        ON i.INVOICE_ID = il.INVOICE_ID
+    WHERE i.ISSUE_DATE >= '2024-01-01' 
+    AND i.ISSUE_DATE < '2025-01-01'
+    AND (
+        il.ITEM_NAME LIKE '%övertid%' 
+        OR il.ITEM_NAME LIKE '%overtime%'
+        OR il.ITEM_DESCRIPTION LIKE '%övertid%'
+        OR il.ITEM_DESCRIPTION LIKE '%overtime%'
+        OR il.ITEM_NAME LIKE '%OB%'
+        OR il.ITEM_DESCRIPTION LIKE '%OB%'
+    )
+    GROUP BY LEFT(i.ISSUE_DATE, 7)
+    ORDER BY year_month
+    """
+    ):
+        print("✅ Approach 4: Monthly overtime trend")
+    else:
+        print("❌ Approach 4: Failed")
+
+    # ================================================================
+    # APPROACH 5: Overtime by department/cost center
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Which departments spent the most on overtime in 2024?",
+        sql="""
+    SELECT 
+        i.CUSTOMER_PARTY_NAME AS department,
+        SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS overtime_cost,
+        SUM(il.INVOICED_QUANTITY) AS overtime_hours,
+        COUNT(DISTINCT i.INVOICE_ID) AS invoice_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
+        ON i.INVOICE_ID = il.INVOICE_ID
+    WHERE i.ISSUE_DATE >= '2024-01-01' 
+    AND i.ISSUE_DATE < '2025-01-01'
+    AND (
+        il.ITEM_NAME LIKE '%övertid%' 
+        OR il.ITEM_NAME LIKE '%overtime%'
+        OR il.ITEM_DESCRIPTION LIKE '%övertid%'
+        OR il.ITEM_DESCRIPTION LIKE '%overtime%'
+        OR il.ITEM_NAME LIKE '%OB%'
+        OR il.ITEM_DESCRIPTION LIKE '%OB%'
+    )
+    AND i.CUSTOMER_PARTY_NAME IS NOT NULL
+    GROUP BY i.CUSTOMER_PARTY_NAME
+    ORDER BY overtime_cost DESC
+    """
+    ):
+        print("✅ Approach 5: Overtime by department")
+    else:
+        print("❌ Approach 5: Failed")
+
+    # ================================================================
+    # APPROACH 6: Documentation about overtime terminology
+    # ================================================================
+
+    if vanna_manager.train(documentation="""
+    OVERTIME AND HOURLY SERVICES IN SWEDEN:
+
+    Swedish Terminology:
+    - "Övertid" = Overtime
+    - "OB" = Obekväm arbetstid (Unsocial hours - evenings, nights, weekends)
+    - "Jour" = On-call duty
+    - "Beredskap" = Standby duty
+
+    When users ask about "overtime", they may mean:
+    1. Explicit overtime work (övertid)
+    2. Unsocial hours compensation (OB)
+    3. All hourly-based services (items with unit code 'HUR')
+    4. On-call or standby services (jour, beredskap)
+
+    Search Patterns for Overtime:
+    - ITEM_NAME or ITEM_DESCRIPTION containing: 'övertid', 'overtime', 'OB', 'jour', 'beredskap'
+    - INVOICED_QUANTITY_UNIT_CODE = 'HUR' (hourly services)
+
+    To find overtime costs, search invoice line items where:
+    - Item descriptions contain overtime-related keywords
+    - Unit of measure is hours (HUR)
+    - Items are from staffing or service providers
+
+    Common overtime scenarios in healthcare (Region Västerbotten):
+    - Medical staff overtime during high patient load
+    - Nursing overtime for shift coverage
+    - Emergency on-call services
+    - Weekend and holiday staffing
+    """):
+        print("✅ Documentation: Overtime terminology and patterns")
+    else:
+        print("❌ Documentation: Failed")
+
+    print("\n" + "="*80)
+    print("✅ OVERTIME TRAINING COMPLETE!")
+    print("="*80)
+    print("📊 Training Summary:")
+    print("   - Approach 1: Keyword search (övertid, overtime, OB)")
+    print("   - Approach 2: All hourly services (HUR)")
+    print("   - Approach 3: Overtime by supplier")
+    print("   - Approach 4: Monthly overtime trends")
+    print("   - Approach 5: Overtime by department")
+    print("   - Documentation: Swedish overtime terminology")
+    print("="*80)
+    print("\n💡 Key Search Terms:")
+    print("   🇸🇪 Swedish: övertid, OB, jour, beredskap")
+    print("   🇬🇧 English: overtime")
+    print("   📊 Unit Code: HUR (hours)")
+    print("="*80 + "\n")
 
 
     # Return the manager

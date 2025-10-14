@@ -9,7 +9,7 @@ services:
     volumes:
       - open-webui:/app/backend/data
     depends_on:
-      mcpo:
+      mcp_server:
         condition: service_healthy
     ports:
       - ${OPEN_WEBUI_PORT-3000}:8080
