@@ -229,6 +229,34 @@ class VannaModelManager:
         # Replace the method
         self.vanna_client.extract_sql = patched_extract_sql
         print("[VANNA DEBUG] ✅ Patched extract_sql method to fix truncation bug and remove comments")
+    
+    def _patch_generate_sql(self):
+        """Patch generate_sql to bypass intermediate SQL execution"""
+        original_generate_sql = self.vanna_client.generate_sql
+        
+        def patched_generate_sql(question: str, allow_llm_to_see_data: bool = False) -> str:
+            """
+            Patched generate_sql that prevents intermediate SQL execution.
+            Simply calls the parent and returns the SQL without any execution logic.
+            """
+            print(f"[VANNA DEBUG] 🔍 Generating SQL for: {question}")
+            
+            # Temporarily set run_sql_is_set to False to prevent execution
+            original_run_sql_is_set = self.vanna_client.run_sql_is_set
+            self.vanna_client.run_sql_is_set = False
+            
+            try:
+                # Call original generate_sql
+                sql = original_generate_sql(question=question, allow_llm_to_see_data=True)
+                print(f"[VANNA DEBUG] ✅ Generated SQL successfully")
+                return sql
+            finally:
+                # Restore original value
+                self.vanna_client.run_sql_is_set = original_run_sql_is_set
+        
+        # Replace the method
+        self.vanna_client.generate_sql = patched_generate_sql
+        print("[VANNA DEBUG] ✅ Patched generate_sql to prevent intermediate SQL execution")
 
     def initialize_vanna(self, provider: Optional[str] = None):
         """Initialize Vanna with specified provider or use config default"""
@@ -266,13 +294,11 @@ class VannaModelManager:
 
         self.vanna_client = VannaClass(config=client_config)
         
-        # CRITICAL: Tell Vanna that no SQL execution function is available
-        # This prevents it from trying to execute intermediate SQL
-        self.vanna_client.run_sql_is_set = False
-        print("[VANNA DEBUG] ✅ Disabled SQL execution (run_sql_is_set = False)")
-        
         # Patch extract_sql method to fix truncation bug and remove comments
         self._patch_extract_sql()
+        
+        # Patch generate_sql to prevent intermediate SQL execution
+        self._patch_generate_sql()
         
         self.current_provider = "openai"
 
@@ -289,13 +315,11 @@ class VannaModelManager:
             'path': self.chroma_path
         })
         
-        # CRITICAL: Tell Vanna that no SQL execution function is available
-        # This prevents it from trying to execute intermediate SQL
-        self.vanna_client.run_sql_is_set = False
-        print("[VANNA DEBUG] ✅ Disabled SQL execution (run_sql_is_set = False)")
-        
         # Patch extract_sql method to fix truncation bug and remove comments
         self._patch_extract_sql()
+        
+        # Patch generate_sql to prevent intermediate SQL execution
+        self._patch_generate_sql()
         
         self.current_provider = "ollama"
 

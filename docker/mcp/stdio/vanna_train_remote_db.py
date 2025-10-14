@@ -81,32 +81,32 @@ def train_for_remote_db(vanna_manager):
         
         -- Tax Information
         TAX_AMOUNT_CURRENCY NVARCHAR(3),             -- Usually 'SEK'
-        TAX_AMOUNT DECIMAL(18,2),
+        TAX_AMOUNT DECIMAL(18,3),
         
         -- Legal Monetary Totals
         LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT DECIMAL(18,2),           -- Sum of line items before tax
+        LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT DECIMAL(18,3),           -- Sum of line items before tax
         
         LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT DECIMAL(18,2),           -- Total excluding tax
+        LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT DECIMAL(18,3),           -- Total excluding tax
         
         LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT DECIMAL(18,2),           -- Total including tax
+        LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT DECIMAL(18,3),           -- Total including tax
         
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT DECIMAL(18,2),            -- Final amount to be paid
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT DECIMAL(18,3),            -- Final amount to be paid
         
         LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT DECIMAL(18,2),    -- Discounts/reductions
+        LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT DECIMAL(18,3),    -- Discounts/reductions
         
         LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT DECIMAL(18,2),       -- Additional charges
+        LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT DECIMAL(18,3),       -- Additional charges
         
         LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT DECIMAL(18,2),   -- Rounding adjustment
+        LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT DECIMAL(18,3),   -- Rounding adjustment
         
         LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT DECIMAL(18,2),            -- Prepaid amount
+        LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT DECIMAL(18,3),            -- Prepaid amount
         
         -- Reference Information
         BUYER_REFERENCE NVARCHAR(100),               -- Internal reference from region
@@ -168,7 +168,7 @@ def train_for_remote_db(vanna_manager):
         -- Quantity and Amount Information
         INVOICED_QUANTITY DECIMAL(18,3),             -- Quantity invoiced (e.g., 27.680)
         INVOICED_QUANTITY_UNIT_CODE NVARCHAR(10),    -- Unit of measure (e.g., 'EA', 'TIMME', 'XHG')
-        INVOICED_LINE_EXTENSION_AMOUNT DECIMAL(18,2),           -- Line total excluding tax
+        INVOICED_LINE_EXTENSION_AMOUNT DECIMAL(18,3),           -- Line total excluding tax
         INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID NVARCHAR(3), -- Usually 'SEK'
         
         -- Item Description
@@ -178,7 +178,7 @@ def train_for_remote_db(vanna_manager):
         
         -- Tax Information
         ITEM_TAXCAT_ID NVARCHAR(10),                 -- Tax category (e.g., 'S' for standard rate)
-        ITEM_TAXCAT_PERCENT DECIMAL(18,2),           -- Tax percentage (typically 25.00 for Swedish VAT)
+        ITEM_TAXCAT_PERCENT DECIMAL(18,3),           -- Tax percentage (typically 25.000 for Swedish VAT)
         
         -- Item Identifiers
         ITEM_BUYERS_ID NVARCHAR(100),                -- Region's internal article number
@@ -190,11 +190,11 @@ def train_for_remote_db(vanna_manager):
         ITEM_COMMODITYCLASS_CLASSIFICATION_LIST_ID NVARCHAR(50), -- Classification system ('MP', 'STI')
         
         -- Pricing Information
-        PRICE_AMOUNT DECIMAL(18,2),                  -- Unit price excluding tax
+        PRICE_AMOUNT DECIMAL(18,3),                  -- Unit price excluding tax
         PRICE_AMOUNT_CURRENCY_ID NVARCHAR(3),        -- Usually 'SEK'
-        PRICE_BASE_QUANTITY DECIMAL(18,4),           -- Base quantity for pricing (often 1.0000)
+        PRICE_BASE_QUANTITY DECIMAL(18,3),           -- Base quantity for pricing (often 1.000)
         PRICE_BASE_QUANTITY_UNIT_CODE NVARCHAR(10),  -- Unit for base quantity
-        PRICE_ALLOWANCE_CHARGE_AMOUNT DECIMAL(18,2), -- Discount or charge amount
+        PRICE_ALLOWANCE_CHARGE_AMOUNT DECIMAL(18,3), -- Discount or charge amount
         PRICE_ALLOWANCE_CHARGE_INDICATOR BIT,        -- false=allowance/discount, true=charge
         
         -- ETL Metadata
@@ -470,7 +470,7 @@ def train_for_remote_db(vanna_manager):
 
     if vanna_manager.train(documentation="""
     CURRENCY AND AMOUNT FIELDS:
-    All monetary amounts are stored as DECIMAL(18,2) with two decimal places.
+    All monetary amounts are stored as DECIMAL(18,3) with three decimal places.
     Currency codes follow ISO 4217 standard.
 
     DOCUMENT_CURRENCY_CODE: The currency for the entire invoice
@@ -713,7 +713,7 @@ def train_for_remote_db(vanna_manager):
 
     UNIT PRICE:
     - PRICE_AMOUNT: Unit price of the item EXCLUDING tax and before allowances
-    Format: DECIMAL(18,2) - e.g., 1250.00 SEK per unit
+    Format: DECIMAL(18,3) - e.g., 1250.000 SEK per unit
     
     - PRICE_AMOUNT_CURRENCY_ID: Currency for the price (usually 'SEK')
 
@@ -727,7 +727,7 @@ def train_for_remote_db(vanna_manager):
 
     DISCOUNTS AND CHARGES:
     - PRICE_ALLOWANCE_CHARGE_AMOUNT: Amount of discount or additional charge
-    Format: DECIMAL(18,2) - e.g., 50.00 for 50 SEK discount
+    Format: DECIMAL(18,3) - e.g., 50.000 for 50 SEK discount
     
     - PRICE_ALLOWANCE_CHARGE_INDICATOR: Type of adjustment
     * false (0) = Allowance/Discount (reduces price)
