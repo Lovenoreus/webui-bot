@@ -161,7 +161,7 @@ def train_for_remote_db(vanna_manager):
         
         -- Quantity and Amount Information
         INVOICED_QUANTITY DECIMAL(18,3),             -- Quantity invoiced (e.g., 27.680)
-        INVOICED_QUANTITY_UNIT_CODE NVARCHAR(10),    -- Unit of measure (e.g., 'EA', 'TIMME', 'XHG')
+        INVOICED_QUANTITY_UNIT_CODE NVARCHAR(10),    -- Unit of measure (e.g., 'EA', 'HUR', 'XHG')
         INVOICED_LINE_EXTENSION_AMOUNT DECIMAL(18,3),           -- Line total excluding tax
         INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID NVARCHAR(3), -- Usually 'SEK'
         
@@ -304,6 +304,224 @@ def train_for_remote_db(vanna_manager):
 
     print("\n" + "="*80)
     print("✅ POST-DDL CHARACTER ENCODING TRAINING COMPLETE")
+    print("="*80 + "\n")
+
+    # ================================================================
+    # CRITICAL: SEARCH PATTERN RULES
+    # Place this immediately after DDL and Unicode training
+    # ================================================================
+
+    if vanna_manager.train(documentation="""
+    CRITICAL: ALWAYS USE LIKE FOR TEXT SEARCHES
+
+    When users search for ANY text value (names, descriptions, addresses, cities, etc.), 
+    you MUST ALWAYS use LIKE with wildcards (%), NEVER use exact equals (=).
+
+    This rule applies to ALL text columns in ALL tables, including but not limited to:
+    - Names: SUPPLIER_PARTY_NAME, CUSTOMER_PARTY_NAME, CUSTOMER_PARTY_CONTACT_NAME, 
+    SUPPLIER_PARTY_CONTACT_NAME, DELIVERY_PARTY_NAME, ITEM_NAME
+    - Descriptions: ITEM_DESCRIPTION, NOTE, INVOICE_LINE_NOTE
+    - Addresses: SUPPLIER_PARTY_STREET_NAME, CUSTOMER_PARTY_STREET_NAME, 
+    DELIVERY_LOCATION_STREET_NAME, SUPPLIER_PARTY_ADDRESS_LINE
+    - Cities: SUPPLIER_PARTY_CITY, DELIVERY_LOCATION_CITY_NAME
+    - References: ORDER_REFERENCE_ID, PROJECT_REFERENCE_ID, BUYER_REFERENCE
+    - Any other NVARCHAR text field
+
+    MANDATORY PATTERN:
+    User says: "contact person Peter" or "name Peter" or "Peter"
+    SQL MUST use: WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Peter%'
+    SQL MUST NOT use: WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Peter'
+
+    User says: "supplier Instrumenta"
+    SQL MUST use: WHERE SUPPLIER_PARTY_NAME LIKE '%Instrumenta%'
+    SQL MUST NOT use: WHERE SUPPLIER_PARTY_NAME = 'Instrumenta'
+
+    User says: "item catheter" or "catheter"
+    SQL MUST use: WHERE ITEM_NAME LIKE '%catheter%' OR ITEM_DESCRIPTION LIKE '%catheter%'
+    SQL MUST NOT use: WHERE ITEM_NAME = 'catheter'
+
+    User says: "city Stockholm"
+    SQL MUST use: WHERE SUPPLIER_PARTY_CITY LIKE '%Stockholm%'
+    SQL MUST NOT use: WHERE SUPPLIER_PARTY_CITY = 'Stockholm'
+
+    WILDCARD PLACEMENT:
+    Always use wildcards on BOTH sides: '%searchterm%'
+    This matches partial text anywhere in the field.
+
+    EXCEPTIONS - Only use exact equals (=) for:
+    1. Primary keys: INVOICE_ID, INVOICE_LINE_ID (when user provides exact ID)
+    2. Codes: INVOICE_TYPE_CODE, DOCUMENT_CURRENCY_CODE, INVOICED_QUANTITY_UNIT_CODE
+    3. Numeric IDs: SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID, CUSTOMER_PARTY_LEGAL_ENTITY_COMPANY_ID
+    4. Country codes: SUPPLIER_PARTY_COUNTRY, CUSTOMER_PARTY_COUNTRY (when user says exact "SE", "NO", "FI")
+
+    DEFAULT BEHAVIOR:
+    Always, use LIKE '%value%' instead of = 'value'
+
+    REASONING:
+    Users rarely know the exact full text in the database. They search with partial names,
+    keywords, or fragments. Using LIKE ensures results are found even with incomplete input.
+
+    Example: User searches "Peter" might match:
+    - "Peter Andersson"
+    - "Lars-Peter Svensson"
+    - "Petersson, Anna"
+    All would be missed with = 'Peter'
+    """):
+        print("✅ CRITICAL: LIKE search pattern rules trained")
+    else:
+        print("❌ CRITICAL: Failed to train LIKE search rules")
+
+    # ================================================================
+    # FOLLOW-UP: Concrete Examples of LIKE Usage
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Find contact person Peter",
+        sql="""
+    SELECT DISTINCT
+        CUSTOMER_PARTY_CONTACT_NAME,
+        CUSTOMER_PARTY_NAME,
+        COUNT(*) AS invoice_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Peter%'
+    GROUP BY CUSTOMER_PARTY_CONTACT_NAME, CUSTOMER_PARTY_NAME
+    ORDER BY invoice_count DESC
+    """
+    ):
+        print("✅ Example: Search contact person with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Show me invoices from Instrumenta",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        SUPPLIER_PARTY_NAME,
+        ISSUE_DATE,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE SUPPLIER_PARTY_NAME LIKE '%Instrumenta%'
+    ORDER BY ISSUE_DATE DESC
+    """
+    ):
+        print("✅ Example: Search supplier with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Find items with catheter",
+        sql="""
+    SELECT 
+        ITEM_NAME,
+        ITEM_DESCRIPTION,
+        COUNT(*) AS order_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb]
+    WHERE ITEM_NAME LIKE '%catheter%'
+    OR ITEM_DESCRIPTION LIKE '%catheter%'
+    GROUP BY ITEM_NAME, ITEM_DESCRIPTION
+    ORDER BY order_count DESC
+    """
+    ):
+        print("✅ Example: Search items with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Suppliers in Stockholm",
+        sql="""
+    SELECT DISTINCT
+        SUPPLIER_PARTY_NAME,
+        SUPPLIER_PARTY_CITY,
+        COUNT(*) AS invoice_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE SUPPLIER_PARTY_CITY LIKE '%Stockholm%'
+    GROUP BY SUPPLIER_PARTY_NAME, SUPPLIER_PARTY_CITY
+    ORDER BY invoice_count DESC
+    """
+    ):
+        print("✅ Example: Search city with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Search for Anna in contact names",
+        sql="""
+    SELECT DISTINCT
+        CUSTOMER_PARTY_CONTACT_NAME,
+        COUNT(*) AS invoice_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Anna%'
+    GROUP BY CUSTOMER_PARTY_CONTACT_NAME
+    ORDER BY invoice_count DESC
+    """
+    ):
+        print("✅ Example: Search name fragment with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Find invoices with reference 12345",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        ORDER_REFERENCE_ID,
+        SUPPLIER_PARTY_NAME,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE ORDER_REFERENCE_ID LIKE '%12345%'
+    ORDER BY ISSUE_DATE DESC
+    """
+    ):
+        print("✅ Example: Search reference with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Show me invoices to Umeå",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        DELIVERY_LOCATION_CITY_NAME,
+        SUPPLIER_PARTY_NAME,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE DELIVERY_LOCATION_CITY_NAME LIKE '%Umeå%'
+    ORDER BY ISSUE_DATE DESC
+    """
+    ):
+        print("✅ Example: Search delivery city with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    # Exception example - when to use equals
+    if vanna_manager.train(
+        question="Find invoice with ID 0000470520",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        SUPPLIER_PARTY_NAME,
+        ISSUE_DATE,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE INVOICE_ID = '0000470520'
+    """
+    ):
+        print("✅ Example: Exception - exact ID uses equals (=)")
+    else:
+        print("❌ Example: Failed")
+
+    print("\n" + "="*80)
+    print("✅ LIKE SEARCH PATTERN TRAINING COMPLETE")
+    print("="*80)
+    print("📊 Training Summary:")
+    print("   - Documentation: ALWAYS use LIKE for text searches")
+    print("   - 7 Examples: Various LIKE patterns across different columns")
+    print("   - 1 Exception: When to use = (IDs, codes)")
+    print("="*80)
+    print("\n💡 Effect: All text searches will now use LIKE '%value%'")
+    print("   User: 'contact person Peter'")
+    print("   SQL:  WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Peter%'")
     print("="*80 + "\n")
 
     # ================================================================
@@ -673,16 +891,26 @@ def train_for_remote_db(vanna_manager):
     - INVOICED_QUANTITY: Quantity of goods or services on this line
     Format: DECIMAL(18,3) allows for fractional quantities (e.g., 27.680)
     
-    - INVOICED_QUANTITY_UNIT_CODE: Unit of measure
+    - INVOICED_QUANTITY_UNIT_CODE: Unit of measure  
     Common codes:
-    * 'EA' = Each (individual items)
-    * 'TIMME' = Hour (time-based services with)
-    * 'XHG' = Piece/Unit
-    * 'MTR' = Meter
-    * 'KGM' = Kilogram
-    * 'LTR' = Liter
-    * 'SET' = Set
-    * 'PCE' = Piece
+    * 'EA' = Each (individual items)  
+    * 'HUR' = Hour (time-based services)  
+    * 'XHG' = Piece/Unit  
+    * 'MTR' = Meter  
+    * 'KGM' = Kilogram  
+    * 'LTR' = Liter  
+    * 'SET' = Set  
+    * 'PCE' = Piece  
+    * '4L' = Barrel (Imperial measure — 1 barrel = 4.54609 liters)  
+    * 'C62' = One (generic unit, "each" or "count")  
+    * 'H87' = Piece (synonym of "each" in some systems)  
+    * 'NAR' = Number of articles (individually counted items)  
+    * 'SEC' = Second (time unit)  
+    * 'XBX' = Box (packaging unit)  
+    * 'XCA' = Can (container unit, like a can of liquid)  
+    * 'XCT' = Carton (grouped packaging)  
+    * 'XPK' = Package (generic packaging unit)  
+    * 'ZZ' = Mutually defined (custom unit agreed between parties)
 
     LINE AMOUNTS:
     - INVOICED_LINE_EXTENSION_AMOUNT: Total for this line EXCLUDING tax
@@ -774,7 +1002,7 @@ def train_for_remote_db(vanna_manager):
     Sometimes other values for bulk pricing (e.g., price per 10 units)
     
     - PRICE_BASE_QUANTITY_UNIT_CODE: Unit of measure for base quantity
-    Examples: 'EA', 'TIMME', 'KGM'
+    Examples: 'EA', 'HUR', 'KGM'
 
     DISCOUNTS AND CHARGES:
     - PRICE_ALLOWANCE_CHARGE_AMOUNT: Amount of discount or additional charge
@@ -2478,7 +2706,7 @@ def train_for_remote_db(vanna_manager):
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
     INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
         ON i.INVOICE_ID = il.INVOICE_ID
-    WHERE il.INVOICED_QUANTITY_UNIT_CODE = 'TIMME'
+    WHERE il.INVOICED_QUANTITY_UNIT_CODE = 'HUR'
     GROUP BY i.SUPPLIER_PARTY_NAME, il.ITEM_NAME
     ORDER BY total_cost DESC
     """
@@ -3623,10 +3851,10 @@ def train_for_remote_db(vanna_manager):
         ON i.INVOICE_ID = il.INVOICE_ID
     WHERE i.ISSUE_DATE >= '2024-01-01' 
     AND i.ISSUE_DATE < '2025-01-01'
-    AND il.INVOICED_QUANTITY_UNIT_CODE = 'TIMME'
+    AND il.INVOICED_QUANTITY_UNIT_CODE = 'HUR'
     """
     ):
-        print("✅ Approach 2: All hourly services (unit code TIMME)")
+        print("✅ Approach 2: All hourly services (unit code HUR)")
     else:
         print("❌ Approach 2: Failed")
 
@@ -3749,16 +3977,16 @@ def train_for_remote_db(vanna_manager):
     When users ask about "overtime", they may mean:
     1. Explicit overtime work (övertid)
     2. Unsocial hours compensation (OB)
-    3. All hourly-based services (items with unit code 'TIMME')
+    3. All hourly-based services (items with unit code 'HUR')
     4. On-call or standby services (jour, beredskap)
 
     Search Patterns for Overtime:
     - ITEM_NAME or ITEM_DESCRIPTION containing: 'övertid', 'overtime', 'OB', 'jour', 'beredskap'
-    - INVOICED_QUANTITY_UNIT_CODE = 'TIMME' (hourly services)
+    - INVOICED_QUANTITY_UNIT_CODE = 'HUR' (hourly services)
 
     To find overtime costs, search invoice line items where:
     - Item descriptions contain overtime-related keywords
-    - Unit of measure is hours (TIMME)
+    - Unit of measure is hours (HUR)
     - Items are from staffing or service providers
 
     Common overtime scenarios in healthcare (Region Västerbotten):
@@ -3776,7 +4004,7 @@ def train_for_remote_db(vanna_manager):
     print("="*80)
     print("📊 Training Summary:")
     print("   - Approach 1: Keyword search (övertid, overtime, OB)")
-    print("   - Approach 2: All hourly services (TIMME)")
+    print("   - Approach 2: All hourly services (HUR)")
     print("   - Approach 3: Overtime by supplier")
     print("   - Approach 4: Monthly overtime trends")
     print("   - Approach 5: Overtime by department")
@@ -3785,7 +4013,7 @@ def train_for_remote_db(vanna_manager):
     print("\n💡 Key Search Terms:")
     print("   🇸🇪 Swedish: övertid, OB, jour, beredskap")
     print("   🇬🇧 English: overtime")
-    print("   📊 Unit Code: TIMME (hours)")
+    print("   📊 Unit Code: HUR (hours)")
     print("="*80 + "\n")
 
     # ================================================================
