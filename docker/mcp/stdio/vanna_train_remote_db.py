@@ -81,32 +81,32 @@ def train_for_remote_db(vanna_manager):
         
         -- Tax Information
         TAX_AMOUNT_CURRENCY NVARCHAR(3),             -- Usually 'SEK'
-        TAX_AMOUNT DECIMAL(18,2),
+        TAX_AMOUNT DECIMAL(18,3),
         
         -- Legal Monetary Totals
         LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT DECIMAL(18,2),           -- Sum of line items before tax
+        LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT DECIMAL(18,3),           -- Sum of line items before tax
         
         LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT DECIMAL(18,2),           -- Total excluding tax
+        LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT DECIMAL(18,3),           -- Total excluding tax
         
         LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT DECIMAL(18,2),           -- Total including tax
+        LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT DECIMAL(18,3),           -- Total including tax
         
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT DECIMAL(18,2),            -- Final amount to be paid
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT DECIMAL(18,3),            -- Final amount to be paid
         
         LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT DECIMAL(18,2),    -- Discounts/reductions
+        LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT DECIMAL(18,3),    -- Discounts/reductions
         
         LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT DECIMAL(18,2),       -- Additional charges
+        LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT DECIMAL(18,3),       -- Additional charges
         
         LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT DECIMAL(18,2),   -- Rounding adjustment
+        LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT DECIMAL(18,3),   -- Rounding adjustment
         
         LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT_CURRENCY NVARCHAR(3),
-        LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT DECIMAL(18,2),            -- Prepaid amount
+        LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT DECIMAL(18,3),            -- Prepaid amount
         
         -- Reference Information
         BUYER_REFERENCE NVARCHAR(100),               -- Internal reference from region
@@ -137,12 +137,6 @@ def train_for_remote_db(vanna_manager):
     print("\n📚 Training Vanna with DDL and documentation...")
     print("Training with Invoice DDL...")
 
-    # if vanna_manager.train(ddl=invoice_ddl):
-    #     print("✅ Successfully trained Invoice DDL")
-
-    # else:
-    #     print("❌ Failed to train Invoice DDL")
-
     print("Training with Invoice_Line DDL...")
     if vanna_manager.train(ddl="""
     CREATE TABLE [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] (
@@ -168,7 +162,7 @@ def train_for_remote_db(vanna_manager):
         -- Quantity and Amount Information
         INVOICED_QUANTITY DECIMAL(18,3),             -- Quantity invoiced (e.g., 27.680)
         INVOICED_QUANTITY_UNIT_CODE NVARCHAR(10),    -- Unit of measure (e.g., 'EA', 'HUR', 'XHG')
-        INVOICED_LINE_EXTENSION_AMOUNT DECIMAL(18,2),           -- Line total excluding tax
+        INVOICED_LINE_EXTENSION_AMOUNT DECIMAL(18,3),           -- Line total excluding tax
         INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID NVARCHAR(3), -- Usually 'SEK'
         
         -- Item Description
@@ -178,7 +172,7 @@ def train_for_remote_db(vanna_manager):
         
         -- Tax Information
         ITEM_TAXCAT_ID NVARCHAR(10),                 -- Tax category (e.g., 'S' for standard rate)
-        ITEM_TAXCAT_PERCENT DECIMAL(18,2),           -- Tax percentage (typically 25.00 for Swedish VAT)
+        ITEM_TAXCAT_PERCENT DECIMAL(18,3),           -- Tax percentage (typically 25.000 for Swedish VAT)
         
         -- Item Identifiers
         ITEM_BUYERS_ID NVARCHAR(100),                -- Region's internal article number
@@ -190,11 +184,11 @@ def train_for_remote_db(vanna_manager):
         ITEM_COMMODITYCLASS_CLASSIFICATION_LIST_ID NVARCHAR(50), -- Classification system ('MP', 'STI')
         
         -- Pricing Information
-        PRICE_AMOUNT DECIMAL(18,2),                  -- Unit price excluding tax
+        PRICE_AMOUNT DECIMAL(18,3),                  -- Unit price excluding tax
         PRICE_AMOUNT_CURRENCY_ID NVARCHAR(3),        -- Usually 'SEK'
-        PRICE_BASE_QUANTITY DECIMAL(18,4),           -- Base quantity for pricing (often 1.0000)
+        PRICE_BASE_QUANTITY DECIMAL(18,3),           -- Base quantity for pricing (often 1.000)
         PRICE_BASE_QUANTITY_UNIT_CODE NVARCHAR(10),  -- Unit for base quantity
-        PRICE_ALLOWANCE_CHARGE_AMOUNT DECIMAL(18,2), -- Discount or charge amount
+        PRICE_ALLOWANCE_CHARGE_AMOUNT DECIMAL(18,3), -- Discount or charge amount
         PRICE_ALLOWANCE_CHARGE_INDICATOR BIT,        -- false=allowance/discount, true=charge
         
         -- ETL Metadata
@@ -254,6 +248,281 @@ def train_for_remote_db(vanna_manager):
     print("   - Complete InvoiceLine table schema (36 columns)")
     print("   - Table relationships and join patterns")
     print("   - Important query patterns and data formats")
+
+    print("\n" + "="*80)
+    print("POST-DDL TRAINING: Character Encoding")
+    print("="*80 + "\n")
+
+    if vanna_manager.train(documentation="""
+    CRITICAL: CHARACTER ENCODING IN SQL QUERIES
+
+    This database uses NVARCHAR fields that store Swedish characters (Å, Ä, Ö, å, ä, ö) 
+    as native Unicode characters. When generating SQL queries, you MUST use the actual 
+    characters directly in your SQL code, NOT Unicode escape sequences.
+
+    MANDATORY RULE:
+    Write Swedish characters as themselves in SQL: å ä ö Å Ä Ö
+
+    CORRECT SQL EXAMPLES:
+    WHERE ITEM_NAME LIKE '%övertid%'
+    WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Örjan Larsson'
+    WHERE SUPPLIER_PARTY_CITY = 'Göteborg'
+    WHERE ITEM_DESCRIPTION LIKE '%Västerås%'
+
+    FORBIDDEN - NEVER USE THESE:
+    WHERE ITEM_NAME LIKE '%\\u00f6vertid%'         -- WRONG!
+    WHERE CUSTOMER_PARTY_CONTACT_NAME = '\\u00d6rjan Larsson'  -- WRONG!
+    WHERE SUPPLIER_PARTY_CITY = 'G\\u00f6teborg'   -- WRONG!
+
+    Unicode escape sequences (\\u00f6, \\u00e4, \\u00d6, etc.) will NOT match the data 
+    in the database and will return zero results. SQL Server T-SQL expects the literal 
+    characters å, ä, ö in string comparisons.
+
+    If a query contains any \\uXXXX sequences, it is INCORRECT and must be rewritten 
+    with actual Swedish characters.
+    """):
+        print("✅ Documentation: Unicode handling rules")
+    else:
+        print("❌ Documentation: Failed")
+
+    if vanna_manager.train(sql="""
+    SELECT 
+        INVOICE_ID,
+        SUPPLIER_PARTY_NAME,
+        ITEM_NAME
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
+        ON i.INVOICE_ID = il.INVOICE_ID
+    WHERE ITEM_NAME LIKE '%övertid%'
+    OR ITEM_DESCRIPTION LIKE '%Göteborg%'
+    OR CUSTOMER_PARTY_CITY = 'Västerås'
+    """
+    ):
+        print("✅ SQL Example: Swedish characters in LIKE clauses")
+    else:
+        print("❌ SQL Example: Failed")
+
+    print("\n" + "="*80)
+    print("✅ POST-DDL CHARACTER ENCODING TRAINING COMPLETE")
+    print("="*80 + "\n")
+
+    # ================================================================
+    # CRITICAL: SEARCH PATTERN RULES
+    # Place this immediately after DDL and Unicode training
+    # ================================================================
+
+    if vanna_manager.train(documentation="""
+    CRITICAL: ALWAYS USE LIKE FOR TEXT SEARCHES
+
+    When users search for ANY text value (names, descriptions, addresses, cities, etc.), 
+    you MUST ALWAYS use LIKE with wildcards (%), NEVER use exact equals (=).
+
+    This rule applies to ALL text columns in ALL tables, including but not limited to:
+    - Names: SUPPLIER_PARTY_NAME, CUSTOMER_PARTY_NAME, CUSTOMER_PARTY_CONTACT_NAME, 
+    SUPPLIER_PARTY_CONTACT_NAME, DELIVERY_PARTY_NAME, ITEM_NAME
+    - Descriptions: ITEM_DESCRIPTION, NOTE, INVOICE_LINE_NOTE
+    - Addresses: SUPPLIER_PARTY_STREET_NAME, CUSTOMER_PARTY_STREET_NAME, 
+    DELIVERY_LOCATION_STREET_NAME, SUPPLIER_PARTY_ADDRESS_LINE
+    - Cities: SUPPLIER_PARTY_CITY, DELIVERY_LOCATION_CITY_NAME
+    - References: ORDER_REFERENCE_ID, PROJECT_REFERENCE_ID, BUYER_REFERENCE
+    - Any other NVARCHAR text field
+
+    MANDATORY PATTERN:
+    User says: "contact person Peter" or "name Peter" or "Peter"
+    SQL MUST use: WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Peter%'
+    SQL MUST NOT use: WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Peter'
+
+    User says: "supplier Instrumenta"
+    SQL MUST use: WHERE SUPPLIER_PARTY_NAME LIKE '%Instrumenta%'
+    SQL MUST NOT use: WHERE SUPPLIER_PARTY_NAME = 'Instrumenta'
+
+    User says: "item catheter" or "catheter"
+    SQL MUST use: WHERE ITEM_NAME LIKE '%catheter%' OR ITEM_DESCRIPTION LIKE '%catheter%'
+    SQL MUST NOT use: WHERE ITEM_NAME = 'catheter'
+
+    User says: "city Stockholm"
+    SQL MUST use: WHERE SUPPLIER_PARTY_CITY LIKE '%Stockholm%'
+    SQL MUST NOT use: WHERE SUPPLIER_PARTY_CITY = 'Stockholm'
+
+    WILDCARD PLACEMENT:
+    Always use wildcards on BOTH sides: '%searchterm%'
+    This matches partial text anywhere in the field.
+
+    EXCEPTIONS - Only use exact equals (=) for:
+    1. Primary keys: INVOICE_ID, INVOICE_LINE_ID (when user provides exact ID)
+    2. Codes: INVOICE_TYPE_CODE, DOCUMENT_CURRENCY_CODE, INVOICED_QUANTITY_UNIT_CODE
+    3. Numeric IDs: SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID, CUSTOMER_PARTY_LEGAL_ENTITY_COMPANY_ID
+    4. Country codes: SUPPLIER_PARTY_COUNTRY, CUSTOMER_PARTY_COUNTRY (when user says exact "SE", "NO", "FI")
+
+    DEFAULT BEHAVIOR:
+    Always, use LIKE '%value%' instead of = 'value'
+
+    REASONING:
+    Users rarely know the exact full text in the database. They search with partial names,
+    keywords, or fragments. Using LIKE ensures results are found even with incomplete input.
+
+    Example: User searches "Peter" might match:
+    - "Peter Andersson"
+    - "Lars-Peter Svensson"
+    - "Petersson, Anna"
+    All would be missed with = 'Peter'
+    """):
+        print("✅ CRITICAL: LIKE search pattern rules trained")
+    else:
+        print("❌ CRITICAL: Failed to train LIKE search rules")
+
+    # ================================================================
+    # FOLLOW-UP: Concrete Examples of LIKE Usage
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Find contact person Peter",
+        sql="""
+    SELECT DISTINCT
+        CUSTOMER_PARTY_CONTACT_NAME,
+        CUSTOMER_PARTY_NAME,
+        COUNT(*) AS invoice_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Peter%'
+    GROUP BY CUSTOMER_PARTY_CONTACT_NAME, CUSTOMER_PARTY_NAME
+    ORDER BY invoice_count DESC
+    """
+    ):
+        print("✅ Example: Search contact person with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Show me invoices from Instrumenta",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        SUPPLIER_PARTY_NAME,
+        ISSUE_DATE,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE SUPPLIER_PARTY_NAME LIKE '%Instrumenta%'
+    ORDER BY ISSUE_DATE DESC
+    """
+    ):
+        print("✅ Example: Search supplier with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Find items with catheter",
+        sql="""
+    SELECT 
+        ITEM_NAME,
+        ITEM_DESCRIPTION,
+        COUNT(*) AS order_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb]
+    WHERE ITEM_NAME LIKE '%catheter%'
+    OR ITEM_DESCRIPTION LIKE '%catheter%'
+    GROUP BY ITEM_NAME, ITEM_DESCRIPTION
+    ORDER BY order_count DESC
+    """
+    ):
+        print("✅ Example: Search items with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Suppliers in Stockholm",
+        sql="""
+    SELECT DISTINCT
+        SUPPLIER_PARTY_NAME,
+        SUPPLIER_PARTY_CITY,
+        COUNT(*) AS invoice_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE SUPPLIER_PARTY_CITY LIKE '%Stockholm%'
+    GROUP BY SUPPLIER_PARTY_NAME, SUPPLIER_PARTY_CITY
+    ORDER BY invoice_count DESC
+    """
+    ):
+        print("✅ Example: Search city with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Search for Anna in contact names",
+        sql="""
+    SELECT DISTINCT
+        CUSTOMER_PARTY_CONTACT_NAME,
+        COUNT(*) AS invoice_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Anna%'
+    GROUP BY CUSTOMER_PARTY_CONTACT_NAME
+    ORDER BY invoice_count DESC
+    """
+    ):
+        print("✅ Example: Search name fragment with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Find invoices with reference 12345",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        ORDER_REFERENCE_ID,
+        SUPPLIER_PARTY_NAME,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE ORDER_REFERENCE_ID LIKE '%12345%'
+    ORDER BY ISSUE_DATE DESC
+    """
+    ):
+        print("✅ Example: Search reference with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Show me invoices to Umeå",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        DELIVERY_LOCATION_CITY_NAME,
+        SUPPLIER_PARTY_NAME,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE DELIVERY_LOCATION_CITY_NAME LIKE '%Umeå%'
+    ORDER BY ISSUE_DATE DESC
+    """
+    ):
+        print("✅ Example: Search delivery city with LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    # Exception example - when to use equals
+    if vanna_manager.train(
+        question="Find invoice with ID 0000470520",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        SUPPLIER_PARTY_NAME,
+        ISSUE_DATE,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE INVOICE_ID = '0000470520'
+    """
+    ):
+        print("✅ Example: Exception - exact ID uses equals (=)")
+    else:
+        print("❌ Example: Failed")
+
+    print("\n" + "="*80)
+    print("✅ LIKE SEARCH PATTERN TRAINING COMPLETE")
+    print("="*80)
+    print("📊 Training Summary:")
+    print("   - Documentation: ALWAYS use LIKE for text searches")
+    print("   - 7 Examples: Various LIKE patterns across different columns")
+    print("   - 1 Exception: When to use = (IDs, codes)")
+    print("="*80)
+    print("\n💡 Effect: All text searches will now use LIKE '%value%'")
+    print("   User: 'contact person Peter'")
+    print("   SQL:  WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Peter%'")
+    print("="*80 + "\n")
 
     # ================================================================
     # PHASE 2: DOCUMENTATION TRAINING FOR VANNA AI
@@ -470,7 +739,7 @@ def train_for_remote_db(vanna_manager):
 
     if vanna_manager.train(documentation="""
     CURRENCY AND AMOUNT FIELDS:
-    All monetary amounts are stored as DECIMAL(18,2) with two decimal places.
+    All monetary amounts are stored as DECIMAL(18,3) with three decimal places.
     Currency codes follow ISO 4217 standard.
 
     DOCUMENT_CURRENCY_CODE: The currency for the entire invoice
@@ -622,16 +891,26 @@ def train_for_remote_db(vanna_manager):
     - INVOICED_QUANTITY: Quantity of goods or services on this line
     Format: DECIMAL(18,3) allows for fractional quantities (e.g., 27.680)
     
-    - INVOICED_QUANTITY_UNIT_CODE: Unit of measure
+    - INVOICED_QUANTITY_UNIT_CODE: Unit of measure  
     Common codes:
-    * 'EA' = Each (individual items)
-    * 'HUR' = Hour (time-based services)
-    * 'XHG' = Piece/Unit
-    * 'MTR' = Meter
-    * 'KGM' = Kilogram
-    * 'LTR' = Liter
-    * 'SET' = Set
-    * 'PCE' = Piece
+    * 'EA' = Each (individual items)  
+    * 'HUR' = Hour (time-based services)  
+    * 'XHG' = Piece/Unit  
+    * 'MTR' = Meter  
+    * 'KGM' = Kilogram  
+    * 'LTR' = Liter  
+    * 'SET' = Set  
+    * 'PCE' = Piece  
+    * '4L' = Barrel (Imperial measure — 1 barrel = 4.54609 liters)  
+    * 'C62' = One (generic unit, "each" or "count")  
+    * 'H87' = Piece (synonym of "each" in some systems)  
+    * 'NAR' = Number of articles (individually counted items)  
+    * 'SEC' = Second (time unit)  
+    * 'XBX' = Box (packaging unit)  
+    * 'XCA' = Can (container unit, like a can of liquid)  
+    * 'XCT' = Carton (grouped packaging)  
+    * 'XPK' = Package (generic packaging unit)  
+    * 'ZZ' = Mutually defined (custom unit agreed between parties)
 
     LINE AMOUNTS:
     - INVOICED_LINE_EXTENSION_AMOUNT: Total for this line EXCLUDING tax
@@ -713,7 +992,7 @@ def train_for_remote_db(vanna_manager):
 
     UNIT PRICE:
     - PRICE_AMOUNT: Unit price of the item EXCLUDING tax and before allowances
-    Format: DECIMAL(18,2) - e.g., 1250.00 SEK per unit
+    Format: DECIMAL(18,3) - e.g., 1250.000 SEK per unit
     
     - PRICE_AMOUNT_CURRENCY_ID: Currency for the price (usually 'SEK')
 
@@ -727,7 +1006,7 @@ def train_for_remote_db(vanna_manager):
 
     DISCOUNTS AND CHARGES:
     - PRICE_ALLOWANCE_CHARGE_AMOUNT: Amount of discount or additional charge
-    Format: DECIMAL(18,2) - e.g., 50.00 for 50 SEK discount
+    Format: DECIMAL(18,3) - e.g., 50.000 for 50 SEK discount
     
     - PRICE_ALLOWANCE_CHARGE_INDICATOR: Type of adjustment
     * false (0) = Allowance/Discount (reduces price)
@@ -3516,6 +3795,416 @@ def train_for_remote_db(vanna_manager):
     print("   ✅ WHERE name = 'Örjan Larsson'")
     print("   ❌ NOT: WHERE name = N'\\u00d6rjan Larsson'")
     print("=" * 80 + "\n")
+
+    # ================================================================
+    # OVERTIME SPENDING TRAINING
+    # ================================================================
+
+    print("\n" + "="*80)
+    print("TRAINING: Overtime Spending Queries")
+    print("="*80 + "\n")
+
+    # ================================================================
+    # APPROACH 1: Search for "overtime" keywords in item descriptions
+    # ================================================================
+
+    if vanna_manager.train(
+        question="How much did we spend on overtime in 2024?",
+        sql="""
+    SELECT 
+        SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_overtime_cost,
+        COUNT(*) AS overtime_line_items,
+        SUM(il.INVOICED_QUANTITY) AS total_overtime_hours
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
+        ON i.INVOICE_ID = il.INVOICE_ID
+    WHERE i.ISSUE_DATE >= '2024-01-01' 
+    AND i.ISSUE_DATE < '2025-01-01'
+    AND (
+        il.ITEM_NAME LIKE '%övertid%' 
+        OR il.ITEM_NAME LIKE '%overtime%'
+        OR il.ITEM_DESCRIPTION LIKE '%övertid%'
+        OR il.ITEM_DESCRIPTION LIKE '%overtime%'
+        OR il.ITEM_NAME LIKE '%OB%'
+        OR il.ITEM_DESCRIPTION LIKE '%OB%'
+    )
+    """
+    ):
+        print("✅ Approach 1: Overtime keyword search (Swedish: övertid, OB)")
+    else:
+        print("❌ Approach 1: Failed")
+
+    # ================================================================
+    # APPROACH 2: All hourly services in 2024 (broader definition)
+    # ================================================================
+
+    if vanna_manager.train(
+        question="What did we spend on hourly services in 2024?",
+        sql="""
+    SELECT 
+        SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_hourly_cost,
+        COUNT(*) AS hourly_line_items,
+        SUM(il.INVOICED_QUANTITY) AS total_hours,
+        AVG(il.PRICE_AMOUNT) AS avg_hourly_rate
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
+        ON i.INVOICE_ID = il.INVOICE_ID
+    WHERE i.ISSUE_DATE >= '2024-01-01' 
+    AND i.ISSUE_DATE < '2025-01-01'
+    AND il.INVOICED_QUANTITY_UNIT_CODE = 'HUR'
+    """
+    ):
+        print("✅ Approach 2: All hourly services (unit code HUR)")
+    else:
+        print("❌ Approach 2: Failed")
+
+    # ================================================================
+    # APPROACH 3: Detailed overtime breakdown by supplier
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Show me overtime costs by supplier for 2024",
+        sql="""
+    SELECT 
+        i.SUPPLIER_PARTY_NAME,
+        COUNT(DISTINCT i.INVOICE_ID) AS invoice_count,
+        COUNT(*) AS overtime_line_items,
+        SUM(il.INVOICED_QUANTITY) AS total_overtime_hours,
+        SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_overtime_cost,
+        AVG(il.PRICE_AMOUNT) AS avg_hourly_rate
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
+        ON i.INVOICE_ID = il.INVOICE_ID
+    WHERE i.ISSUE_DATE >= '2024-01-01' 
+    AND i.ISSUE_DATE < '2025-01-01'
+    AND (
+        il.ITEM_NAME LIKE '%övertid%' 
+        OR il.ITEM_NAME LIKE '%overtime%'
+        OR il.ITEM_DESCRIPTION LIKE '%övertid%'
+        OR il.ITEM_DESCRIPTION LIKE '%overtime%'
+        OR il.ITEM_NAME LIKE '%OB%'
+        OR il.ITEM_DESCRIPTION LIKE '%OB%'
+
+    )
+    GROUP BY i.SUPPLIER_PARTY_NAME
+    ORDER BY total_overtime_cost DESC
+    """
+    ):
+        print("✅ Approach 3: Overtime by supplier breakdown")
+    else:
+        print("❌ Approach 3: Failed")
+
+    # ================================================================
+    # APPROACH 4: Monthly overtime trend in 2024
+    # ================================================================
+
+    if vanna_manager.train(
+        question="What was the monthly overtime spending trend in 2024?",
+        sql="""
+    SELECT 
+        LEFT(i.ISSUE_DATE, 7) AS year_month,
+        SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS monthly_overtime_cost,
+        SUM(il.INVOICED_QUANTITY) AS monthly_overtime_hours,
+        COUNT(*) AS overtime_line_items
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
+        ON i.INVOICE_ID = il.INVOICE_ID
+    WHERE i.ISSUE_DATE >= '2024-01-01' 
+    AND i.ISSUE_DATE < '2025-01-01'
+    AND (
+        il.ITEM_NAME LIKE '%övertid%' 
+        OR il.ITEM_NAME LIKE '%overtime%'
+        OR il.ITEM_DESCRIPTION LIKE '%övertid%'
+        OR il.ITEM_DESCRIPTION LIKE '%overtime%'
+        OR il.ITEM_NAME LIKE '%OB%'
+        OR il.ITEM_DESCRIPTION LIKE '%OB%'
+    )
+    GROUP BY LEFT(i.ISSUE_DATE, 7)
+    ORDER BY year_month
+    """
+    ):
+        print("✅ Approach 4: Monthly overtime trend")
+    else:
+        print("❌ Approach 4: Failed")
+
+    # ================================================================
+    # APPROACH 5: Overtime by department/cost center
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Which departments spent the most on overtime in 2024?",
+        sql="""
+    SELECT 
+        i.CUSTOMER_PARTY_NAME AS department,
+        SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS overtime_cost,
+        SUM(il.INVOICED_QUANTITY) AS overtime_hours,
+        COUNT(DISTINCT i.INVOICE_ID) AS invoice_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
+        ON i.INVOICE_ID = il.INVOICE_ID
+    WHERE i.ISSUE_DATE >= '2024-01-01' 
+    AND i.ISSUE_DATE < '2025-01-01'
+    AND (
+        il.ITEM_NAME LIKE '%övertid%' 
+        OR il.ITEM_NAME LIKE '%overtime%'
+        OR il.ITEM_DESCRIPTION LIKE '%övertid%'
+        OR il.ITEM_DESCRIPTION LIKE '%overtime%'
+        OR il.ITEM_NAME LIKE '%OB%'
+        OR il.ITEM_DESCRIPTION LIKE '%OB%'
+    )
+    AND i.CUSTOMER_PARTY_NAME IS NOT NULL
+    GROUP BY i.CUSTOMER_PARTY_NAME
+    ORDER BY overtime_cost DESC
+    """
+    ):
+        print("✅ Approach 5: Overtime by department")
+    else:
+        print("❌ Approach 5: Failed")
+
+    # ================================================================
+    # APPROACH 6: Documentation about overtime terminology
+    # ================================================================
+
+    if vanna_manager.train(documentation="""
+    OVERTIME AND HOURLY SERVICES IN SWEDEN:
+
+    Swedish Terminology:
+    - "Övertid" = Overtime
+    - "OB" = Obekväm arbetstid (Unsocial hours - evenings, nights, weekends)
+    - "Jour" = On-call duty
+    - "Beredskap" = Standby duty
+
+    When users ask about "overtime", they may mean:
+    1. Explicit overtime work (övertid)
+    2. Unsocial hours compensation (OB)
+    3. All hourly-based services (items with unit code 'HUR')
+    4. On-call or standby services (jour, beredskap)
+
+    Search Patterns for Overtime:
+    - ITEM_NAME or ITEM_DESCRIPTION containing: 'övertid', 'overtime', 'OB', 'jour', 'beredskap'
+    - INVOICED_QUANTITY_UNIT_CODE = 'HUR' (hourly services)
+
+    To find overtime costs, search invoice line items where:
+    - Item descriptions contain overtime-related keywords
+    - Unit of measure is hours (HUR)
+    - Items are from staffing or service providers
+
+    Common overtime scenarios in healthcare (Region Västerbotten):
+    - Medical staff overtime during high patient load
+    - Nursing overtime for shift coverage
+    - Emergency on-call services
+    - Weekend and holiday staffing
+    """):
+        print("✅ Documentation: Overtime terminology and patterns")
+    else:
+        print("❌ Documentation: Failed")
+
+    print("\n" + "="*80)
+    print("✅ OVERTIME TRAINING COMPLETE!")
+    print("="*80)
+    print("📊 Training Summary:")
+    print("   - Approach 1: Keyword search (övertid, overtime, OB)")
+    print("   - Approach 2: All hourly services (HUR)")
+    print("   - Approach 3: Overtime by supplier")
+    print("   - Approach 4: Monthly overtime trends")
+    print("   - Approach 5: Overtime by department")
+    print("   - Documentation: Swedish overtime terminology")
+    print("="*80)
+    print("\n💡 Key Search Terms:")
+    print("   🇸🇪 Swedish: övertid, OB, jour, beredskap")
+    print("   🇬🇧 English: overtime")
+    print("   📊 Unit Code: HUR (hours)")
+    print("="*80 + "\n")
+
+    # ================================================================
+    # TRAINING: "COST" TERMINOLOGY CLARIFICATION
+    # ================================================================
+
+    print("\n" + "="*80)
+    print("TRAINING: Cost Terminology")
+    print("="*80 + "\n")
+
+    # ================================================================
+    # DOCUMENTATION: Define what "cost" means
+    # ================================================================
+
+    if vanna_manager.train(documentation="""
+    UNDERSTANDING "COST" IN USER QUERIES:
+
+    When users ask about the "cost" of an invoice, they are asking about the MONETARY AMOUNT, 
+    NOT the cost center (ACCOUNTING_COST field).
+
+    USER SAYS: "cost of invoice" → MEANS: LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    USER SAYS: "cost center" → MEANS: ACCOUNTING_COST field
+
+    Common user phrases and their meanings:
+    - "What is the cost of invoice X?" → SELECT LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    - "How much did invoice X cost?" → SELECT LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    - "Invoice X cost" → SELECT LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    - "Cost of invoice number X" → SELECT LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    - "Total cost of invoice X" → SELECT LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    - "What did we pay for invoice X?" → SELECT LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    - "Amount for invoice X" → SELECT LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+
+    The LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT is the final amount due to be paid 
+    and is what users mean when they ask about "cost" or "amount" of an invoice.
+
+    NOTE: "cost center" is a different concept (ACCOUNTING_COST) used for budget tracking.
+    """):
+        print("✅ Documentation: Cost terminology defined")
+    else:
+        print("❌ Documentation: Failed")
+
+    # ================================================================
+    # SPECIFIC EXAMPLES: Train question-SQL pairs for "cost"
+    # ================================================================
+
+    if vanna_manager.train(
+        question="What is the cost of invoice 0000470520?",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        SUPPLIER_PARTY_NAME,
+        ISSUE_DATE,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT AS invoice_cost,
+        DOCUMENT_CURRENCY_CODE
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE INVOICE_ID = '0000470520'
+    """
+    ):
+        print("✅ Example 1: Cost of specific invoice")
+    else:
+        print("❌ Example 1: Failed")
+
+    if vanna_manager.train(
+        question="How much did invoice INV-2024-12345 cost?",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        SUPPLIER_PARTY_NAME,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT AS invoice_cost,
+        DOCUMENT_CURRENCY_CODE
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE INVOICE_ID = 'INV-2024-12345'
+    """
+    ):
+        print("✅ Example 2: How much did invoice cost")
+    else:
+        print("❌ Example 2: Failed")
+
+    if vanna_manager.train(
+        question="Show me the cost and details of invoice 0000470520",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        SUPPLIER_PARTY_NAME,
+        ISSUE_DATE,
+        DUE_DATE,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT AS invoice_cost,
+        LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT AS amount_excl_tax,
+        TAX_AMOUNT,
+        DOCUMENT_CURRENCY_CODE
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE INVOICE_ID = '0000470520'
+    """
+    ):
+        print("✅ Example 3: Cost and details")
+    else:
+        print("❌ Example 3: Failed")
+
+    if vanna_manager.train(
+        question="What did we pay for invoice 0000470520?",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        SUPPLIER_PARTY_NAME,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT AS amount_paid,
+        DOCUMENT_CURRENCY_CODE
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE INVOICE_ID = '0000470520'
+    """
+    ):
+        print("✅ Example 4: What did we pay")
+    else:
+        print("❌ Example 4: Failed")
+
+    if vanna_manager.train(
+        question="Get the amount for invoice 0000470520",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT AS invoice_amount,
+        DOCUMENT_CURRENCY_CODE
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE INVOICE_ID = '0000470520'
+    """
+    ):
+        print("✅ Example 5: Get amount")
+    else:
+        print("❌ Example 5: Failed")
+
+    if vanna_manager.train(
+        question="Total cost of invoice 0000470520",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT AS total_cost
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE INVOICE_ID = '0000470520'
+    """
+    ):
+        print("✅ Example 6: Total cost")
+    else:
+        print("❌ Example 6: Failed")
+
+    # ================================================================
+    # CONTRAST: Cost center vs invoice cost
+    # ================================================================
+
+    if vanna_manager.train(
+        question="What is the cost center for invoice 0000470520?",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        ACCOUNTING_COST AS cost_center,
+        SUPPLIER_PARTY_NAME
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE INVOICE_ID = '0000470520'
+    """
+    ):
+        print("✅ Example 7: Cost center (ACCOUNTING_COST) - contrast")
+    else:
+        print("❌ Example 7: Failed")
+
+    if vanna_manager.train(
+        question="Show me invoices with cost center 6354538",
+        sql="""
+    SELECT 
+        INVOICE_ID,
+        SUPPLIER_PARTY_NAME,
+        ACCOUNTING_COST AS cost_center,
+        LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
+    WHERE ACCOUNTING_COST = '6354538'
+    ORDER BY ISSUE_DATE DESC
+    """
+    ):
+        print("✅ Example 8: Filter by cost center")
+    else:
+        print("❌ Example 8: Failed")
+
+    print("\n" + "="*80)
+    print("✅ COST TERMINOLOGY TRAINING COMPLETE!")
+    print("="*80)
+    print("📊 Training Summary:")
+    print("   - Documentation: Cost = LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT")
+    print("   - Example 1-6: Various ways to ask about invoice cost")
+    print("   - Example 7-8: Cost center contrast (ACCOUNTING_COST)")
+    print("="*80)
+    print("\n💡 Now Vanna knows:")
+    print("   'cost of invoice' → LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT")
+    print("   'cost center' → ACCOUNTING_COST")
+    print("="*80 + "\n")
 
 
     # Return the manager

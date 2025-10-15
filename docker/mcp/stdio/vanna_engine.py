@@ -78,10 +78,10 @@ class VannaModelManager:
 
     def _get_active_provider(self) -> str:
         """Determine which provider is currently active based on config"""
-        if config.USE_VANNA_OPENAI:
+        if config.USE_OPENAI:
             return "openai"
 
-        elif config.USE_VANNA_OLLAMA:
+        elif config.USE_OLLAMA:
             return "ollama"
 
         else:
@@ -148,12 +148,30 @@ class VannaModelManager:
             raise ValueError(f"Unsupported provider: {provider}")
 
     def _patch_extract_sql(self):
-        """Patch Vanna's extract_sql method to fix truncation bug"""
+        """Patch Vanna's extract_sql method to fix truncation bug and remove comments"""
         original_extract = self.vanna_client.extract_sql
         
+        def _clean_sql(sql_text: str) -> str:
+            """Remove SQL comments and clean up the query"""
+            if not sql_text:
+                return sql_text
+                
+            # Remove single-line comments (-- ...)
+            sql_no_line_comments = re.sub(r'--.*?(?=\n|$)', '', sql_text)
+            
+            # Remove block comments (/* ... */)
+            sql_no_block_comments = re.sub(r'/\*.*?\*/', '', sql_no_line_comments, flags=re.DOTALL)
+            
+            # Collapse multiple whitespaces and newlines into single spaces
+            sql_clean = re.sub(r'\s+', ' ', sql_no_block_comments)
+            
+            return sql_clean.strip()
+        
         def patched_extract_sql(llm_response: str) -> str:
-            """Fixed SQL extraction that doesn't truncate queries"""
+            """Fixed SQL extraction that doesn't truncate queries and removes comments"""
             print(f"[VANNA DEBUG] Raw LLM Response:\n{llm_response}")
+            
+            sql = None
             
             # Try to extract from ```sql code blocks
             if "```sql" in llm_response.lower():
@@ -161,11 +179,10 @@ class VannaModelManager:
                 matches = re.findall(pattern, llm_response, re.DOTALL | re.IGNORECASE)
                 if matches:
                     sql = matches[0].strip()
-                    print(f"[VANNA DEBUG] ✅ Extracted SQL from ```sql block:\n{sql}")
-                    return sql
+                    print(f"[VANNA DEBUG] ✅ Extracted SQL from ```sql block")
             
             # Try generic code blocks
-            if "```" in llm_response:
+            elif "```" in llm_response:
                 pattern = r'```\s*(.*?)\s*```'
                 matches = re.findall(pattern, llm_response, re.DOTALL)
                 if matches:
@@ -173,37 +190,73 @@ class VannaModelManager:
                     for match in matches:
                         if any(keyword in match.upper() for keyword in ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'WITH']):
                             sql = match.strip()
-                            print(f"[VANNA DEBUG] ✅ Extracted SQL from generic code block:\n{sql}")
-                            return sql
+                            print(f"[VANNA DEBUG] ✅ Extracted SQL from generic code block")
+                            break
             
             # Handle case where response starts with "sql" or "SQL" without backticks
-            if llm_response.strip().lower().startswith('sql'):
+            elif llm_response.strip().lower().startswith('sql'):
                 # Remove the "sql" prefix and return the rest
                 sql = llm_response.strip()[3:].strip()
-                print(f"[VANNA DEBUG] ✅ Extracted SQL by removing 'sql' prefix:\n{sql}")
-                return sql
+                print(f"[VANNA DEBUG] ✅ Extracted SQL by removing 'sql' prefix")
             
             # Check if the response directly contains SQL keywords (no formatting at all)
-            if any(keyword in llm_response.upper() for keyword in ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'WITH']):
+            elif any(keyword in llm_response.upper() for keyword in ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'WITH']):
                 sql = llm_response.strip()
-                print(f"[VANNA DEBUG] ✅ Using raw response as SQL:\n{sql}")
-                return sql
+                print(f"[VANNA DEBUG] ✅ Using raw response as SQL")
             
             # Fallback to original method
-            try:
-                sql = original_extract(llm_response)
-                print(f"[VANNA DEBUG] ⚠️ Used original extract_sql:\n{sql}")
-                return sql
-            except Exception as e:
-                print(f"[VANNA DEBUG] ❌ Original extract_sql failed: {e}")
-                # Last resort: return the whole response cleaned up
-                sql = llm_response.strip()
-                print(f"[VANNA DEBUG] ⚠️ Returning cleaned raw response:\n{sql}")
-                return sql
+            else:
+                try:
+                    sql = original_extract(llm_response)
+                    print(f"[VANNA DEBUG] ⚠️ Used original extract_sql")
+                except Exception as e:
+                    print(f"[VANNA DEBUG] ❌ Original extract_sql failed: {e}")
+                    # Last resort: return the whole response cleaned up
+                    sql = llm_response.strip()
+                    print(f"[VANNA DEBUG] ⚠️ Returning cleaned raw response")
+            
+            # Clean the SQL (remove comments and extra whitespace)
+            if sql:
+                original_sql = sql
+                sql = _clean_sql(sql)
+                if sql != original_sql:
+                    print(f"[VANNA DEBUG] 🧹 Cleaned SQL (removed comments):\n{sql}")
+                else:
+                    print(f"[VANNA DEBUG] 📝 Final SQL:\n{sql}")
+            
+            return sql
         
         # Replace the method
         self.vanna_client.extract_sql = patched_extract_sql
-        print("[VANNA DEBUG] ✅ Patched extract_sql method to fix truncation bug")
+        print("[VANNA DEBUG] ✅ Patched extract_sql method to fix truncation bug and remove comments")
+    
+    def _patch_generate_sql(self):
+        """Patch generate_sql to bypass intermediate SQL execution"""
+        original_generate_sql = self.vanna_client.generate_sql
+        
+        def patched_generate_sql(question: str, allow_llm_to_see_data: bool = False) -> str:
+            """
+            Patched generate_sql that prevents intermediate SQL execution.
+            Simply calls the parent and returns the SQL without any execution logic.
+            """
+            print(f"[VANNA DEBUG] 🔍 Generating SQL for: {question}")
+            
+            # Temporarily set run_sql_is_set to False to prevent execution
+            original_run_sql_is_set = self.vanna_client.run_sql_is_set
+            self.vanna_client.run_sql_is_set = False
+            
+            try:
+                # Call original generate_sql
+                sql = original_generate_sql(question=question, allow_llm_to_see_data=True)
+                print(f"[VANNA DEBUG] ✅ Generated SQL successfully")
+                return sql
+            finally:
+                # Restore original value
+                self.vanna_client.run_sql_is_set = original_run_sql_is_set
+        
+        # Replace the method
+        self.vanna_client.generate_sql = patched_generate_sql
+        print("[VANNA DEBUG] ✅ Patched generate_sql to prevent intermediate SQL execution")
 
     def initialize_vanna(self, provider: Optional[str] = None):
         """Initialize Vanna with specified provider or use config default"""
@@ -232,16 +285,20 @@ class VannaModelManager:
         client_config = {
             'api_key': config.OPENAI_API_KEY,
             'model': config.VANNA_OPENAI_MODEL,
+            'temperature': 0.0,
             'allow_llm_to_see_data': config.VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA,
             'verbose': config.VANNA_OPENAI_VERBOSE,
-            'http_client': httpx.Client(timeout=60.0),  # Increased timeout
-            'path': self.chroma_path  # ChromaDB storage path
+            'http_client': httpx.Client(timeout=60.0),
+            'path': self.chroma_path
         }
 
         self.vanna_client = VannaClass(config=client_config)
         
-        # Patch extract_sql method to fix truncation bug
+        # Patch extract_sql method to fix truncation bug and remove comments
         self._patch_extract_sql()
+        
+        # Patch generate_sql to prevent intermediate SQL execution
+        self._patch_generate_sql()
         
         self.current_provider = "openai"
 
@@ -251,14 +308,18 @@ class VannaModelManager:
 
         self.vanna_client = VannaClass(config={
             'model': config.VANNA_OLLAMA_MODEL,
+            'temperature': 0.0,
             'ollama_host': config.VANNA_OLLAMA_BASE_URL,
             'allow_llm_to_see_data': config.VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA,
             'verbose': config.VANNA_OLLAMA_VERBOSE,
-            'path': self.chroma_path  # ChromaDB storage path
+            'path': self.chroma_path
         })
         
-        # Patch extract_sql method to fix truncation bug
+        # Patch extract_sql method to fix truncation bug and remove comments
         self._patch_extract_sql()
+        
+        # Patch generate_sql to prevent intermediate SQL execution
+        self._patch_generate_sql()
         
         self.current_provider = "ollama"
 
@@ -297,7 +358,7 @@ class VannaModelManager:
         if question and sql:
             if not _safe_train(lambda x: self.vanna_client.train(question=x[0], sql=x[1]), (question, sql), "SQL pair"):
                 success = False
-        # Handle SQL-only training (NEW - this was missing!)
+        # Handle SQL-only training
         elif sql and not question:
             if not _safe_train(lambda x: self.vanna_client.train(sql=x), sql, "SQL"):
                 success = False
@@ -381,4 +442,3 @@ class VannaModelManager:
         self.clear_training_data(reinitialize=True)
 
         print(f"[VANNA DEBUG] ✅ Ready for fresh training!")
-        
