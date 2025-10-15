@@ -265,8 +265,8 @@ def train_for_remote_db(vanna_manager):
 
     CORRECT SQL EXAMPLES:
     WHERE ITEM_NAME LIKE '%övertid%'
-    WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Örjan Larsson'
-    WHERE SUPPLIER_PARTY_CITY = 'Göteborg'
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Örjan Larsson%'
+    WHERE SUPPLIER_PARTY_CITY LIKE '%Göteborg%'
     WHERE ITEM_DESCRIPTION LIKE '%Västerås%'
 
     FORBIDDEN - NEVER USE THESE:
@@ -295,7 +295,7 @@ def train_for_remote_db(vanna_manager):
         ON i.INVOICE_ID = il.INVOICE_ID
     WHERE ITEM_NAME LIKE '%övertid%'
     OR ITEM_DESCRIPTION LIKE '%Göteborg%'
-    OR CUSTOMER_PARTY_CITY = 'Västerås'
+    OR CUSTOMER_PARTY_CITY LIKE '%Västerås%'
     """
     ):
         print("✅ SQL Example: Swedish characters in LIKE clauses")
@@ -348,11 +348,8 @@ def train_for_remote_db(vanna_manager):
     Always use wildcards on BOTH sides: '%searchterm%'
     This matches partial text anywhere in the field.
 
-    EXCEPTIONS - Only use exact equals (=) for:
-    1. Primary keys: INVOICE_ID, INVOICE_LINE_ID (when user provides exact ID)
-    2. Codes: INVOICE_TYPE_CODE, DOCUMENT_CURRENCY_CODE, INVOICED_QUANTITY_UNIT_CODE
-    3. Numeric IDs: SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID, CUSTOMER_PARTY_LEGAL_ENTITY_COMPANY_ID
-    4. Country codes: SUPPLIER_PARTY_COUNTRY, CUSTOMER_PARTY_COUNTRY (when user says exact "SE", "NO", "FI")
+    EXCEPTIONS 
+    NO EXCEPTIONS. Always use LIKE '%value%' instead of = 'value'
 
     DEFAULT BEHAVIOR:
     Always, use LIKE '%value%' instead of = 'value'
@@ -1537,9 +1534,9 @@ def train_for_remote_db(vanna_manager):
     SELECT 
         INVOICE_TYPE_CODE,
         CASE 
-            WHEN INVOICE_TYPE_CODE = '380' THEN 'Standard Invoice'
-            WHEN INVOICE_TYPE_CODE = '381' THEN 'Credit Note'
-            WHEN INVOICE_TYPE_CODE = '383' THEN 'Prepayment Invoice'
+            WHEN INVOICE_TYPE_CODE LIKE '%380%' THEN 'Standard Invoice'
+            WHEN INVOICE_TYPE_CODE LIKE '%381%' THEN 'Credit Note'
+            WHEN INVOICE_TYPE_CODE LIKE '%383%' THEN 'Prepayment Invoice'
             ELSE 'Other'
         END AS invoice_type_description,
         COUNT(*) AS invoice_count,
@@ -1641,7 +1638,7 @@ def train_for_remote_db(vanna_manager):
         i.NOTE
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
     WHERE i.SUPPLIER_PARTY_NAME LIKE '%Instrumenta%'
-    OR i.SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID = '5560466137'
+    OR i.SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID LIKE '%5560466137%'
     ORDER BY i.ISSUE_DATE DESC
     """):
         print("✅ Successfully trained: Search invoices by supplier name or ID")
@@ -1677,7 +1674,7 @@ def train_for_remote_db(vanna_manager):
         i.LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT,
         i.ORDER_REFERENCE_ID
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
-    WHERE i.ORDER_REFERENCE_ID = '7051810'
+    WHERE i.ORDER_REFERENCE_ID LIKE '%7051810%'
     ORDER BY i.ISSUE_DATE DESC
     """):
         print("✅ Successfully trained: Find invoices by order reference")
@@ -1867,7 +1864,7 @@ def train_for_remote_db(vanna_manager):
         SUPPLIER_PARTY_POSTAL_ZONE,
         COUNT(*) AS invoice_count
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
-    WHERE SUPPLIER_PARTY_CITY = 'Stockholm'
+    WHERE SUPPLIER_PARTY_CITY LIKE '%Stockholm%'
     GROUP BY SUPPLIER_PARTY_NAME, SUPPLIER_PARTY_STREET_NAME, SUPPLIER_PARTY_POSTAL_ZONE
     ORDER BY invoice_count DESC
     """
@@ -2219,7 +2216,7 @@ def train_for_remote_db(vanna_manager):
         COUNT(*) AS count,
         SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS total_amount
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
-    WHERE INVOICE_TYPE_CODE = '381'
+    WHERE INVOICE_TYPE_CODE LIKE '%381%'
     GROUP BY INVOICE_TYPE_CODE
     """
     ):
@@ -2233,9 +2230,9 @@ def train_for_remote_db(vanna_manager):
     SELECT 
         INVOICE_TYPE_CODE,
         CASE 
-            WHEN INVOICE_TYPE_CODE = '380' THEN 'Standard Invoice'
-            WHEN INVOICE_TYPE_CODE = '381' THEN 'Credit Note'
-            WHEN INVOICE_TYPE_CODE = '383' THEN 'Prepayment Invoice'
+            WHEN INVOICE_TYPE_CODE LIKE '%380%' THEN 'Standard Invoice'
+            WHEN INVOICE_TYPE_CODE LIKE '%381%' THEN 'Credit Note'
+            WHEN INVOICE_TYPE_CODE LIKE '%383%' THEN 'Prepayment Invoice'
             ELSE 'Other'
         END AS invoice_type,
         COUNT(*) AS invoice_count,
@@ -2368,7 +2365,7 @@ def train_for_remote_db(vanna_manager):
         ORDER_REFERENCE_ID,
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
-    WHERE ORDER_REFERENCE_ID = '12345'
+    WHERE ORDER_REFERENCE_ID LIKE '%12345%'
     ORDER BY ISSUE_DATE DESC
     """
     ):
@@ -2423,7 +2420,7 @@ def train_for_remote_db(vanna_manager):
         SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID,
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
-    WHERE SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID = '5560466137'
+    WHERE SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID LIKE '%5560466137%'
     ORDER BY ISSUE_DATE DESC
     """
     ):
@@ -2706,7 +2703,7 @@ def train_for_remote_db(vanna_manager):
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
     INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
         ON i.INVOICE_ID = il.INVOICE_ID
-    WHERE il.INVOICED_QUANTITY_UNIT_CODE = 'HUR'
+    WHERE il.INVOICED_QUANTITY_UNIT_CODE LIKE '%HUR%'
     GROUP BY i.SUPPLIER_PARTY_NAME, il.ITEM_NAME
     ORDER BY total_cost DESC
     """
@@ -2826,7 +2823,7 @@ def train_for_remote_db(vanna_manager):
         COUNT(*) AS delivery_count,
         SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS total_value
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
-    WHERE DELIVERY_LOCATION_CITY_NAME = 'Umeå'
+    WHERE DELIVERY_LOCATION_CITY_NAME LIKE '%Umeå%'
     GROUP BY DELIVERY_LOCATION_STREET_NAME, DELIVERY_LOCATION_ADDRESS_LINE, DELIVERY_PARTY_NAME
     ORDER BY delivery_count DESC
     """
@@ -2962,50 +2959,6 @@ def train_for_remote_db(vanna_manager):
     print("   2. Review results and add more training as needed")
     print("   3. Use auto_train=True to continuously improve")
     print("="*80)
-
-
-    # print("Training with Invoice documentation (first 5 rows)...")
-    # if vanna_manager.train(documentation=invoice_doc):
-    #     print("✅ Successfully trained Invoice documentation")
-
-    # else:
-    #     print("❌ Failed to train Invoice documentation")
-
-    # print("Training with Invoice_Line documentation (first 5 rows)...")
-    # if vanna_manager.train(documentation=invoice_line_doc):
-    #     print("✅ Successfully trained Invoice_Line documentation")
-
-    # else:
-    #     print("❌ Failed to train Invoice_Line documentation")
-
-    # print("Training with synonym handling instructions...")
-    # if vanna_manager.train(documentation=synonym_instructions):
-    #     print("✅ Successfully trained synonym handling instructions")
-
-    # else:
-    #     print("❌ Failed to train synonym handling instructions")
-
-    # # Train with question-SQL pairs
-    # print("Training with question-SQL pairs...")
-
-    # successful_pairs = 0
-    # total_pairs = len(training_pairs)
-
-    # for i, pair in enumerate(training_pairs, 1):
-    #     question = pair["question"]
-    #     sql = pair["sql"]
-    #     print(f"Training pair {i}/{total_pairs}: {question[:50]}...")
-        
-    #     try:
-    #         if vanna_manager.train(question=question, sql=sql):
-    #             successful_pairs += 1
-    #             print(f"✅ Successfully trained pair {i}")
-    #         else:
-    #             print(f"❌ Failed to train pair {i}")
-    #     except Exception as e:
-    #         print(f"❌ Error training pair {i}: {e}")
-
-    # print(f"📊 Question-SQL training completed: {successful_pairs}/{total_pairs} pairs successful")
 
     # ================================================================
     # SECTION 5: CUSTOMER PARTY INFORMATION (REGION VÄSTERBOTTEN)
@@ -3569,7 +3522,7 @@ def train_for_remote_db(vanna_manager):
         CUSTOMER_PARTY_CONTACT_NAME, 
         CUSTOMER_PARTY_NAME AS department 
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
-    WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Örjan Larsson' 
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Örjan Larsson%' 
     ORDER BY CUSTOMER_PARTY_NAME
     """
     ):
@@ -3586,7 +3539,7 @@ def train_for_remote_db(vanna_manager):
         SUPPLIER_PARTY_STREET_NAME,
         SUPPLIER_PARTY_POSTAL_ZONE
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
-    WHERE SUPPLIER_PARTY_CITY = 'Göteborg'
+    WHERE SUPPLIER_PARTY_CITY LIKE '%Göteborg%'
     ORDER BY SUPPLIER_PARTY_NAME
     """
     ):
@@ -3605,7 +3558,7 @@ def train_for_remote_db(vanna_manager):
         DELIVERY_LOCATION_CITY_NAME,
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
-    WHERE DELIVERY_LOCATION_CITY_NAME = 'Västerås'
+    WHERE DELIVERY_LOCATION_CITY_NAME LIKE '%Västerås%'
     ORDER BY ISSUE_DATE DESC
     """
     ):
@@ -3624,7 +3577,7 @@ def train_for_remote_db(vanna_manager):
         CUSTOMER_PARTY_CONTACT_NAME,
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
-    WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Åsa Andersson'
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Åsa Andersson%'
     ORDER BY ISSUE_DATE DESC
     """
     ):
@@ -3641,7 +3594,7 @@ def train_for_remote_db(vanna_manager):
         COUNT(*) AS delivery_count,
         SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS total_value
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
-    WHERE DELIVERY_LOCATION_CITY_NAME = 'Skellefteå'
+    WHERE DELIVERY_LOCATION_CITY_NAME LIKE '%Skellefteå%'
     GROUP BY DELIVERY_LOCATION_CITY_NAME
     """
     ):
@@ -3676,7 +3629,7 @@ def train_for_remote_db(vanna_manager):
         SUPPLIER_PARTY_STREET_NAME,
         COUNT(*) AS invoice_count
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
-    WHERE SUPPLIER_PARTY_CITY = 'Jönköping'
+    WHERE SUPPLIER_PARTY_CITY LIKE '%Jönköping%
     GROUP BY SUPPLIER_PARTY_NAME, SUPPLIER_PARTY_STREET_NAME
     ORDER BY invoice_count DESC
     """
@@ -3695,7 +3648,7 @@ def train_for_remote_db(vanna_manager):
         CUSTOMER_PARTY_CONTACT_NAME,
         CUSTOMER_PARTY_NAME
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
-    WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Pär Svensson'
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Pär Svensson%'
     ORDER BY ISSUE_DATE DESC
     """
     ):
@@ -3851,7 +3804,7 @@ def train_for_remote_db(vanna_manager):
         ON i.INVOICE_ID = il.INVOICE_ID
     WHERE i.ISSUE_DATE >= '2024-01-01' 
     AND i.ISSUE_DATE < '2025-01-01'
-    AND il.INVOICED_QUANTITY_UNIT_CODE = 'HUR'
+    AND il.INVOICED_QUANTITY_UNIT_CODE LIKE '%HUR%'
     """
     ):
         print("✅ Approach 2: All hourly services (unit code HUR)")
@@ -4185,7 +4138,7 @@ def train_for_remote_db(vanna_manager):
         ACCOUNTING_COST AS cost_center,
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
-    WHERE ACCOUNTING_COST = '6354538'
+    WHERE ACCOUNTING_COST LIKE '%6354538%'
     ORDER BY ISSUE_DATE DESC
     """
     ):
