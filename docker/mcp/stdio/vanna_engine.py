@@ -11,6 +11,7 @@ import chromadb.utils.embedding_functions as embedding_functions
 from tenacity import retry, stop_after_attempt, wait_exponential
 import httpx
 import re
+import traceback
 
 load_dotenv(find_dotenv())
 
@@ -54,12 +55,8 @@ class VannaModelManager:
         if os.path.exists(self.chroma_path):
             try:
                 print(f"[VANNA DEBUG] 🗑️  Clearing existing ChromaDB data at: {os.path.abspath(self.chroma_path)}")
-
-                # Remove the entire directory and its contents
                 shutil.rmtree(self.chroma_path)
-
                 print(f"[VANNA DEBUG] ✅ ChromaDB directory cleared successfully")
-
             except Exception as e:
                 print(f"[VANNA DEBUG] ❌ Failed to clear ChromaDB directory: {e}")
                 raise
@@ -71,7 +68,6 @@ class VannaModelManager:
         try:
             Path(self.chroma_path).mkdir(parents=True, exist_ok=True)
             print(f"[VANNA DEBUG] ChromaDB storage path: {os.path.abspath(self.chroma_path)}")
-
         except Exception as e:
             print(f"[VANNA DEBUG] ❌ Failed to create storage directory: {e}")
             raise
@@ -80,10 +76,8 @@ class VannaModelManager:
         """Determine which provider is currently active based on config"""
         if config.USE_OPENAI:
             return "openai"
-
         elif config.USE_OLLAMA:
             return "ollama"
-
         else:
             raise ValueError(
                 "No Vanna provider is enabled in config. Set either vanna.openai.enabled or vanna.ollama.enabled to true")
@@ -94,20 +88,19 @@ class VannaModelManager:
             # Define persistent model cache directory (mounted volume)
             model_dir = Path("/home/appuser/.cache/chroma/onnx_models/all-MiniLM-L6-v2/onnx")
             model_path = model_dir / "model.onnx"
-            print(f"This is the model path i am checking at yo: {model_path}")
+            
             # Ensure directory exists
             model_dir.mkdir(parents=True, exist_ok=True)
 
             # Check if model already exists
             if model_path.exists():
                 print(f"[VANNA DEBUG] ✅ Found existing ONNX model at {model_path}")
-                os.environ["CHROMA_CACHE_DIR"] = str(model_dir)  # Make ChromaDB use this path
-
+                os.environ["CHROMA_CACHE_DIR"] = str(model_dir.parent.parent.parent)
             else:
                 print(f"[VANNA DEBUG] ONNX model not found. Starting download to {model_dir}...")
-
-                # Redirect ChromaDB to use /app/docker/onnx_models as cache
-                os.environ["CHROMA_CACHE_DIR"] = str(model_dir)
+                
+                # Redirect ChromaDB to use persistent cache
+                os.environ["CHROMA_CACHE_DIR"] = str(model_dir.parent.parent.parent)
 
                 # Initialize embedding function and download model
                 embedding_function = embedding_functions.ONNXMiniLM_L6_V2()
@@ -117,6 +110,7 @@ class VannaModelManager:
 
         except Exception as e:
             print(f"[VANNA DEBUG] ❌ Failed to pre-download ONNX model: {e}")
+            traceback.print_exc()
 
     def get_vanna_class(self, provider: str):
         """Get the appropriate Vanna class based on provider"""
@@ -148,7 +142,12 @@ class VannaModelManager:
             raise ValueError(f"Unsupported provider: {provider}")
 
     def _patch_extract_sql(self):
-        """Patch Vanna's extract_sql method to fix truncation bug and remove comments"""
+        """
+        Patch Vanna's extract_sql method to:
+        1. Fix SQL truncation bugs
+        2. Remove SQL comments (-- and /* */)
+        3. Handle various SQL formatting styles
+        """
         original_extract = self.vanna_client.extract_sql
         
         def _clean_sql(sql_text: str) -> str:
@@ -168,8 +167,13 @@ class VannaModelManager:
             return sql_clean.strip()
         
         def patched_extract_sql(llm_response: str) -> str:
-            """Fixed SQL extraction that doesn't truncate queries and removes comments"""
-            print(f"[VANNA DEBUG] Raw LLM Response:\n{llm_response}")
+            """
+            Fixed SQL extraction that:
+            - Doesn't truncate queries
+            - Removes comments
+            - Handles multiple formatting styles
+            """
+            print(f"[VANNA DEBUG] 📥 Raw LLM Response:\n{llm_response[:500]}...")
             
             sql = None
             
@@ -186,7 +190,6 @@ class VannaModelManager:
                 pattern = r'```\s*(.*?)\s*```'
                 matches = re.findall(pattern, llm_response, re.DOTALL)
                 if matches:
-                    # Find the match that looks like SQL
                     for match in matches:
                         if any(keyword in match.upper() for keyword in ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'WITH']):
                             sql = match.strip()
@@ -195,7 +198,6 @@ class VannaModelManager:
             
             # Handle case where response starts with "sql" or "SQL" without backticks
             elif llm_response.strip().lower().startswith('sql'):
-                # Remove the "sql" prefix and return the rest
                 sql = llm_response.strip()[3:].strip()
                 print(f"[VANNA DEBUG] ✅ Extracted SQL by removing 'sql' prefix")
             
@@ -211,7 +213,6 @@ class VannaModelManager:
                     print(f"[VANNA DEBUG] ⚠️ Used original extract_sql")
                 except Exception as e:
                     print(f"[VANNA DEBUG] ❌ Original extract_sql failed: {e}")
-                    # Last resort: return the whole response cleaned up
                     sql = llm_response.strip()
                     print(f"[VANNA DEBUG] ⚠️ Returning cleaned raw response")
             
@@ -220,43 +221,130 @@ class VannaModelManager:
                 original_sql = sql
                 sql = _clean_sql(sql)
                 if sql != original_sql:
-                    print(f"[VANNA DEBUG] 🧹 Cleaned SQL (removed comments):\n{sql}")
-                else:
-                    print(f"[VANNA DEBUG] 📝 Final SQL:\n{sql}")
+                    print(f"[VANNA DEBUG] 🧹 Cleaned SQL (removed comments)")
+                print(f"[VANNA DEBUG] 📝 Final SQL: {sql[:200]}...")
+            else:
+                print(f"[VANNA DEBUG] ⚠️ No SQL extracted from response")
             
             return sql
         
         # Replace the method
         self.vanna_client.extract_sql = patched_extract_sql
-        print("[VANNA DEBUG] ✅ Patched extract_sql method to fix truncation bug and remove comments")
-    
+        print("[VANNA DEBUG] ✅ Patched extract_sql method")
+
     def _patch_generate_sql(self):
-        """Patch generate_sql to bypass intermediate SQL execution"""
+        """
+        HYBRID APPROACH: Patch both submit_prompt and generate_sql to:
+        1. Capture raw LLM responses before Vanna processes them
+        2. Extract SQL immediately from LLM response
+        3. Let Vanna's context retrieval and prompt building work properly
+        4. Block all execution attempts
+        5. Always return extracted SQL, never error messages
+        """
+        
+        # Store original methods
+        original_submit_prompt = self.vanna_client.submit_prompt
         original_generate_sql = self.vanna_client.generate_sql
+        
+        # Storage for captured SQL from LLM response
+        captured_sql = {'value': None}
+        
+        def patched_submit_prompt(prompt, **kwargs):
+            """
+            Intercept LLM response and extract SQL immediately
+            before Vanna's internal logic can replace it with error messages
+            """
+            print(f"[VANNA DEBUG] 🤖 Submitting prompt to LLM...")
+            
+            try:
+                # Get raw LLM response
+                llm_response = original_submit_prompt(prompt, **kwargs)
+                
+                print(f"[VANNA DEBUG] 📥 Raw LLM Response received ({len(llm_response)} chars)")
+                print(f"LLM Response: {llm_response}")
+                
+                # Extract SQL immediately using our patched extract_sql
+                sql = self.vanna_client.extract_sql(llm_response)
+                
+                # Store it so generate_sql can return it
+                if sql:
+                    captured_sql['value'] = sql
+                    print(f"[VANNA DEBUG] ✅ SQL captured from LLM response ({len(sql)} chars)")
+                else:
+                    print(f"[VANNA DEBUG] ⚠️ No SQL found in LLM response")
+                
+                return llm_response
+                
+            except Exception as e:
+                print(f"[VANNA DEBUG] ❌ Error in patched_submit_prompt: {e}")
+                traceback.print_exc()
+                raise
         
         def patched_generate_sql(question: str, allow_llm_to_see_data: bool = False) -> str:
             """
-            Patched generate_sql that prevents intermediate SQL execution.
-            Simply calls the parent and returns the SQL without any execution logic.
+            Generate SQL and return captured value from LLM, never error messages
+            Lets Vanna do context retrieval but intercepts the result
             """
-            print(f"[VANNA DEBUG] 🔍 Generating SQL for: {question}")
+            print(f"[VANNA DEBUG] 🔍 Generating SQL for question: '{question}'")
             
-            # Temporarily set run_sql_is_set to False to prevent execution
+            # Reset captured SQL
+            captured_sql['value'] = None
+            
+            # Block execution completely
             original_run_sql_is_set = self.vanna_client.run_sql_is_set
+            original_run_sql = getattr(self.vanna_client, 'run_sql', None)
+            
+            def mock_run_sql(*args, **kwargs):
+                """Mock that blocks any execution attempts"""
+                print("[VANNA DEBUG] 🚫 Blocked intermediate SQL execution attempt")
+                return None
+            
+            # Replace run_sql temporarily
             self.vanna_client.run_sql_is_set = False
+            self.vanna_client.run_sql = mock_run_sql
             
             try:
                 # Call original generate_sql
-                sql = original_generate_sql(question=question, allow_llm_to_see_data=True)
-                print(f"[VANNA DEBUG] ✅ Generated SQL successfully")
-                return sql
+                # This will trigger our patched_submit_prompt which captures SQL
+                # Force allow_llm_to_see_data to False to prevent execution logic
+                result = original_generate_sql(question=question, allow_llm_to_see_data=False)
+                
+                # Priority 1: Return captured SQL from LLM response
+                if captured_sql['value']:
+                    print(f"[VANNA DEBUG] ✅ Returning captured SQL from LLM ({len(captured_sql['value'])} chars)")
+                    return captured_sql['value']
+                
+                # Priority 2: Check if result itself is valid SQL
+                if result and isinstance(result, str):
+                    # Filter out error messages
+                    if result.startswith("Error") or result.startswith("The LLM") or "not allowed" in result.lower():
+                        print(f"[VANNA DEBUG] ❌ Result is error message: {result[:100]}")
+                        return None
+                    
+                    # Verify it looks like SQL
+                    if any(kw in result.upper() for kw in ['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'WITH', 'CREATE', 'ALTER', 'DROP']):
+                        print(f"[VANNA DEBUG] ✅ Result is valid SQL, returning it")
+                        return result
+                
+                print(f"[VANNA DEBUG] ⚠️ No valid SQL generated")
+                return None
+                
+            except Exception as e:
+                print(f"[VANNA DEBUG] ❌ Error in patched_generate_sql: {e}")
+                traceback.print_exc()
+                return None
+                
             finally:
-                # Restore original value
+                # Restore original methods
                 self.vanna_client.run_sql_is_set = original_run_sql_is_set
+                if original_run_sql:
+                    self.vanna_client.run_sql = original_run_sql
         
-        # Replace the method
+        # Apply both patches
+        self.vanna_client.submit_prompt = patched_submit_prompt
         self.vanna_client.generate_sql = patched_generate_sql
-        print("[VANNA DEBUG] ✅ Patched generate_sql to prevent intermediate SQL execution")
+        
+        print("[VANNA DEBUG] ✅ Patched both submit_prompt and generate_sql (HYBRID approach)")
 
     def initialize_vanna(self, provider: Optional[str] = None):
         """Initialize Vanna with specified provider or use config default"""
@@ -264,15 +352,12 @@ class VannaModelManager:
 
         if target_provider == "openai":
             self._init_openai_vanna()
-
         elif target_provider == "ollama":
             self._init_ollama_vanna()
-
         else:
             raise ValueError(f"Unsupported provider: {target_provider}")
 
-        print(f"[VANNA DEBUG] Vanna initialized with provider: {target_provider}")
-
+        print(f"[VANNA DEBUG] ✅ Vanna initialized with provider: {target_provider}")
         return self.vanna_client
 
     def _init_openai_vanna(self):
@@ -280,48 +365,57 @@ class VannaModelManager:
         if not config.OPENAI_API_KEY:
             raise ValueError("OPENAI_API_KEY not found in environment")
 
+        print(f"[VANNA DEBUG] 🔧 Initializing OpenAI Vanna...")
+        print(f"[VANNA DEBUG] Model: {config.VANNA_OPENAI_MODEL}")
+        print(f"[VANNA DEBUG] ChromaDB Path: {self.chroma_path}")
+
         VannaClass = self.get_vanna_class("openai")
 
         client_config = {
             'api_key': config.OPENAI_API_KEY,
             'model': config.VANNA_OPENAI_MODEL,
             'temperature': 0.0,
-            'allow_llm_to_see_data': config.VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA,
+            'allow_llm_to_see_data': False,  # CRITICAL: Never allow data access
             'verbose': config.VANNA_OPENAI_VERBOSE,
-            'http_client': httpx.Client(timeout=60.0),
+            'http_client': httpx.Client(timeout=120.0),  # Increased timeout
             'path': self.chroma_path
         }
 
         self.vanna_client = VannaClass(config=client_config)
         
-        # Patch extract_sql method to fix truncation bug and remove comments
+        # Apply all patches AFTER initialization
         self._patch_extract_sql()
-        
-        # Patch generate_sql to prevent intermediate SQL execution
         self._patch_generate_sql()
         
         self.current_provider = "openai"
+        
+        print(f"[VANNA DEBUG] ✅ OpenAI Vanna initialized successfully")
 
     def _init_ollama_vanna(self):
         """Initialize Vanna with Ollama"""
+        print(f"[VANNA DEBUG] 🔧 Initializing Ollama Vanna...")
+        print(f"[VANNA DEBUG] Model: {config.VANNA_OLLAMA_MODEL}")
+        print(f"[VANNA DEBUG] Host: {config.VANNA_OLLAMA_BASE_URL}")
+        print(f"[VANNA DEBUG] ChromaDB Path: {self.chroma_path}")
+
         VannaClass = self.get_vanna_class("ollama")
 
         self.vanna_client = VannaClass(config={
             'model': config.VANNA_OLLAMA_MODEL,
             'temperature': 0.0,
             'ollama_host': config.VANNA_OLLAMA_BASE_URL,
-            'allow_llm_to_see_data': config.VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA,
+            'allow_llm_to_see_data': False,  # CRITICAL: Never allow data access
             'verbose': config.VANNA_OLLAMA_VERBOSE,
             'path': self.chroma_path
         })
         
-        # Patch extract_sql method to fix truncation bug and remove comments
+        # Apply all patches AFTER initialization
         self._patch_extract_sql()
-        
-        # Patch generate_sql to prevent intermediate SQL execution
         self._patch_generate_sql()
         
         self.current_provider = "ollama"
+        
+        print(f"[VANNA DEBUG] ✅ Ollama Vanna initialized successfully")
 
     def train(
         self,
@@ -330,36 +424,53 @@ class VannaModelManager:
         question: Optional[str] = None,
         sql: Optional[str] = None
     ) -> bool:
-        """Train Vanna with different types of data"""
-
+        """
+        Train Vanna with different types of data
+        
+        Args:
+            ddl: Database schema definition (CREATE TABLE statements, etc.)
+            documentation: Business logic or domain documentation
+            question: Natural language question (must be paired with sql)
+            sql: SQL query (can be standalone or paired with question)
+            
+        Returns:
+            bool: True if all training succeeded, False otherwise
+        """
         if not self.vanna_client:
+            print(f"[VANNA DEBUG] Vanna client not initialized, initializing now...")
             self.initialize_vanna()
 
         def _safe_train(train_func, data, data_type):
+            """Helper to safely train with error handling"""
             try:
                 train_func(data)
-                print(f"[VANNA DEBUG] ✅ Trained {data_type} with {self.current_provider}")
+                print(f"[VANNA DEBUG] ✅ Successfully trained {data_type}")
                 return True
             except Exception as e:
                 print(f"[VANNA DEBUG] ❌ Error training {data_type}: {e}")
+                traceback.print_exc()
                 return False
 
         success = True
 
         if ddl:
+            print(f"[VANNA DEBUG] 📊 Training DDL ({len(ddl)} chars)...")
             if not _safe_train(lambda x: self.vanna_client.train(ddl=x), ddl, "DDL"):
                 success = False
 
         if documentation:
+            print(f"[VANNA DEBUG] 📖 Training documentation ({len(documentation)} chars)...")
             if not _safe_train(lambda x: self.vanna_client.train(documentation=x), documentation, "documentation"):
                 success = False
 
         # Handle question-SQL pairs
         if question and sql:
-            if not _safe_train(lambda x: self.vanna_client.train(question=x[0], sql=x[1]), (question, sql), "SQL pair"):
+            print(f"[VANNA DEBUG] 💬 Training Q&A pair: '{question[:50]}...'")
+            if not _safe_train(lambda x: self.vanna_client.train(question=x[0], sql=x[1]), (question, sql), "Q&A pair"):
                 success = False
         # Handle SQL-only training
         elif sql and not question:
+            print(f"[VANNA DEBUG] 📝 Training SQL query ({len(sql)} chars)...")
             if not _safe_train(lambda x: self.vanna_client.train(sql=x), sql, "SQL"):
                 success = False
 
@@ -369,22 +480,49 @@ class VannaModelManager:
         return success
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-    def generate_sql(self, query: str) -> str:
-        """Generate SQL from a natural language query"""
+    def generate_sql(self, query: str) -> Optional[str]:
+        """
+        Generate SQL from a natural language query
+        
+        Args:
+            query: Natural language question
+            
+        Returns:
+            str: Generated SQL query, or None if generation failed
+        """
         if not self.vanna_client:
             raise ValueError("Vanna client must be initialized before generating SQL")
 
+        print(f"[VANNA DEBUG] " + "="*80)
+        print(f"[VANNA DEBUG] 🚀 Starting SQL generation")
+        print(f"[VANNA DEBUG] Question: '{query}'")
+        print(f"[VANNA DEBUG] " + "="*80)
+
         try:
-            sql = self.vanna_client.generate_sql(query, allow_llm_to_see_data=True)
+            # Generate SQL (patched version handles everything with hybrid approach)
+            sql = self.vanna_client.generate_sql(query, allow_llm_to_see_data=False)
 
             if not sql:
-                print("[VANNA DEBUG] Warning: Generated SQL is empty")
+                print(f"[VANNA DEBUG] ⚠️ Warning: SQL generation returned None/empty")
+                return None
+
+            # Double-check it's not an error message
+            if isinstance(sql, str) and (sql.startswith("Error") or "not allowed" in sql.lower()[:100]):
+                print(f"[VANNA DEBUG] ❌ Error message returned instead of SQL: {sql[:100]}")
+                return None
+
+            print(f"[VANNA DEBUG] " + "="*80)
+            print(f"[VANNA DEBUG] ✅ SQL GENERATION SUCCESSFUL")
+            print(f"[VANNA DEBUG] Generated SQL Length: {len(sql)} characters")
+            print(f"[VANNA DEBUG] Full SQL: {sql}")
+            print(f"[VANNA DEBUG] " + "="*80)
 
             return sql
 
         except Exception as e:
-            print(f"[VANNA DEBUG] Error generating SQL: {e}")
-            return ""
+            print(f"[VANNA DEBUG] ❌ Error generating SQL: {e}")
+            traceback.print_exc()
+            return None
 
     def get_current_provider(self) -> str:
         """Get current active provider"""
@@ -403,7 +541,7 @@ class VannaModelManager:
             "chroma_path": self.get_storage_path()
         }
 
-    def clear_training_data(self, reinitialize: bool = False):
+    def clear_training_data(self, reinitialize: bool = True):
         """
         Clear all training data from ChromaDB
 
@@ -417,7 +555,6 @@ class VannaModelManager:
             if os.path.exists(self.chroma_path):
                 shutil.rmtree(self.chroma_path)
                 print(f"[VANNA DEBUG] ✅ Cleared training data successfully")
-
             else:
                 print(f"[VANNA DEBUG] ℹ️  No training data found at {self.chroma_path}")
 
@@ -431,14 +568,100 @@ class VannaModelManager:
 
         except Exception as e:
             print(f"[VANNA DEBUG] ❌ Error clearing training data: {e}")
+            traceback.print_exc()
             raise
 
     def reset_and_retrain(self):
         """
         Convenience method to clear all data and prepare for fresh training.
-        This is useful when you want to start training from scratch.
+        Useful when you want to start training from scratch.
         """
         print(f"[VANNA DEBUG] 🔄 Resetting Vanna - clearing all training data...")
         self.clear_training_data(reinitialize=True)
-
         print(f"[VANNA DEBUG] ✅ Ready for fresh training!")
+
+    def get_training_data_summary(self) -> dict:
+        """
+        Get a summary of the training data stored in ChromaDB
+        
+        Returns:
+            dict: Summary of training data including counts and examples
+        """
+        if not self.vanna_client:
+            return {"error": "Vanna client not initialized"}
+        
+        try:
+            # Get training data from ChromaDB
+            training_data = self.vanna_client.get_training_data()
+            
+            summary = {
+                "total_entries": len(training_data) if training_data else 0,
+                "ddl_count": 0,
+                "documentation_count": 0,
+                "sql_count": 0,
+                "question_sql_pairs": 0
+            }
+            
+            if training_data:
+                for entry in training_data:
+                    if 'ddl' in entry:
+                        summary["ddl_count"] += 1
+                    if 'documentation' in entry:
+                        summary["documentation_count"] += 1
+                    if 'sql' in entry and 'question' in entry:
+                        summary["question_sql_pairs"] += 1
+                    elif 'sql' in entry:
+                        summary["sql_count"] += 1
+            
+            print(f"[VANNA DEBUG] 📊 Training Data Summary:")
+            print(f"[VANNA DEBUG]    Total entries: {summary['total_entries']}")
+            print(f"[VANNA DEBUG]    DDL: {summary['ddl_count']}")
+            print(f"[VANNA DEBUG]    Documentation: {summary['documentation_count']}")
+            print(f"[VANNA DEBUG]    SQL: {summary['sql_count']}")
+            print(f"[VANNA DEBUG]    Q&A pairs: {summary['question_sql_pairs']}")
+            
+            return summary
+            
+        except Exception as e:
+            print(f"[VANNA DEBUG] ❌ Error getting training data summary: {e}")
+            traceback.print_exc()
+            return {"error": str(e)}
+
+    def get_similar_training_data(self, question: str, n: int = 5) -> dict:
+        """
+        Get similar training data for a given question (useful for debugging)
+        
+        Args:
+            question: The question to find similar training data for
+            n: Number of similar items to retrieve
+            
+        Returns:
+            dict: Similar DDL, documentation, and Q&A pairs
+        """
+        if not self.vanna_client:
+            return {"error": "Vanna client not initialized"}
+        
+        try:
+            print(f"[VANNA DEBUG] 🔍 Finding similar training data for: '{question}'")
+            
+            similar_qna = self.vanna_client.get_similar_question_sql(question, n=n)
+            related_ddl = self.vanna_client.get_related_ddl(question, n=n)
+            related_docs = self.vanna_client.get_related_documentation(question, n=n)
+            
+            result = {
+                "question": question,
+                "similar_qna_pairs": similar_qna,
+                "related_ddl": related_ddl,
+                "related_documentation": related_docs
+            }
+            
+            print(f"[VANNA DEBUG] ✓ Found {len(similar_qna)} similar Q&A pairs")
+            print(f"[VANNA DEBUG] ✓ Found {len(related_ddl)} related DDL statements")
+            print(f"[VANNA DEBUG] ✓ Found {len(related_docs)} related documentation entries")
+            
+            return result
+            
+        except Exception as e:
+            print(f"[VANNA DEBUG] ❌ Error getting similar training data: {e}")
+            traceback.print_exc()
+            return {"error": str(e)}

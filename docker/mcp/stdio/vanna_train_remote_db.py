@@ -293,7 +293,6 @@ def train_for_remote_db(vanna_manager):
         ON i.INVOICE_ID = il.INVOICE_ID
     WHERE ITEM_NAME LIKE '%övertid%'
     OR ITEM_DESCRIPTION LIKE '%Göteborg%'
-    OR CUSTOMER_PARTY_CITY = 'Västerås'
     """
                            ):
         print("✅ SQL Example: Swedish characters in LIKE clauses")
@@ -3451,14 +3450,12 @@ def train_for_remote_db(vanna_manager):
     CORRECT APPROACH:
     - WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Örjan Larsson%'
     - WHERE SUPPLIER_PARTY_NAME LIKE '%Göteborg AB%'
-    - WHERE CUSTOMER_PARTY_CITY LIKE '%Västerås%'
     - WHERE DELIVERY_LOCATION_CITY_NAME LIKE '%Skellefteå%'
     - WHERE SUPPLIER_PARTY_NAME LIKE '%Malmö%'
 
     INCORRECT APPROACH (NEVER USE):
     - WHERE CUSTOMER_PARTY_CONTACT_NAME = N'\\u00d6rjan Larsson'  -- WRONG!
     - WHERE SUPPLIER_PARTY_NAME = N'G\\u00f6teborg AB'  -- WRONG!
-    - WHERE CUSTOMER_PARTY_CITY = N'V\\u00e4ster\\u00e5s'  -- WRONG!
 
     The database uses NVARCHAR fields which natively support Swedish characters. 
     Use the actual characters directly in WHERE clauses, LIKE patterns, and all string literals.

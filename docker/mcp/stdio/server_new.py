@@ -31,6 +31,7 @@ from models import (
 from vanna_train_remote_db import train_for_remote_db
 from vanna_train_local_db import train_for_local_db
 from query_rephraser import rephrase_query
+
 load_dotenv(find_dotenv())
 
 # Debug flag
@@ -340,9 +341,10 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
         
         # Add additional instructions for better SQL generation
         # enhanced_query = enhanced_query + "\nMake sure you use Like and Lower Keywords to compare the values if needed, to get better results."
-        # rephrased_query=rephrase_query(request.query)
-        # sql_query = vanna_manager.generate_sql(rephrased_query)
-        sql_query = vanna_manager.generate_sql(request.query)
+        rephrased_query = rephrase_query(request.query)
+
+        sql_query = vanna_manager.generate_sql(rephrased_query)
+        # sql_query = vanna_manager.generate_sql(request.query)
 
 
         print(f"Vanna Generated SQL: {sql_query}")
@@ -351,8 +353,8 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
             sql_query = format_vanna_sql(vanna_sql=sql_query)
 
         if not sql_query:
-            return {"success": False, "error": "Failed to generate SQL", "original_query": request.query}
-            # return {"success": False, "error": "Failed to generate SQL", "original_query": rephrased_query}
+            # return {"success": False, "error": "Failed to generate SQL", "original_query": request.query}
+            return {"success": False, "error": "Failed to generate SQL", "original_query": request.query, "rephrased_query": rephrased_query}
 
         results = await query_engine.execute_query(sql_query)
 
@@ -361,6 +363,7 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
             "sql_query": f"```sql {sql_query} ```",
             "results": results,
             "original_query": request.query,
+            "rephrased_query": rephrased_query,
             "record_count": len(results)
         }
 
