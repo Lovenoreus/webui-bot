@@ -1,4 +1,6 @@
 def train_for_remote_db(vanna_manager):
+    print("🌐 Initializing Remote Vanna Training")
+    
     if vanna_manager.train(ddl="""
     -- Database: Nodinite
     -- Schema: dbo

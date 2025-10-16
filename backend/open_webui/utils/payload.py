@@ -3,15 +3,43 @@ from open_webui.utils.misc import (
     deep_update,
     add_or_update_system_message,
 )
+from open_webui.utils.system_prompt_loader import load_system_prompt
 
 from typing import Callable, Optional
 import json
+import os
 
 
 # inplace function: form_data is modified
 def apply_system_prompt_to_body(
     system: Optional[str], form_data: dict, metadata: Optional[dict] = None, user=None
 ) -> dict:
+    # Check if we should load system prompt from file
+    # This can be controlled via environment variable or metadata
+    use_file_prompt = os.getenv("SYSTEM_PROMPT_FROM_FILE", "false").lower() == "true"
+    
+    # Allow metadata to override
+    if metadata and "use_file_prompt" in metadata:
+        use_file_prompt = metadata.get("use_file_prompt", False)
+    
+    # Load from file if enabled
+    if use_file_prompt:
+        # Get the prompt name from metadata or use default
+        prompt_name = metadata.get("prompt_file", "default") if metadata else "default"
+        file_extension = metadata.get("prompt_file_extension", "txt") if metadata else "txt"
+        
+        # Load the prompt with the original system as fallback
+        file_system_prompt = load_system_prompt(
+            prompt_name=prompt_name,
+            file_extension=file_extension,
+            fallback=system,
+            env_var="DEFAULT_SYSTEM_PROMPT"
+        )
+        
+        # Use the file prompt if loaded, otherwise use the original
+        if file_system_prompt:
+            system = file_system_prompt
+    
     if not system:
         return form_data
 
