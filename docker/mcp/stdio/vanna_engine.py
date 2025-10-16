@@ -665,3 +665,26 @@ class VannaModelManager:
             print(f"[VANNA DEBUG] ❌ Error getting similar training data: {e}")
             traceback.print_exc()
             return {"error": str(e)}
+
+
+# ## What This Hybrid Approach Does
+
+# ### **1. Intercepts at Two Levels**
+# - **`submit_prompt` level**: Captures raw LLM response immediately
+# - **`generate_sql` level**: Wraps entire generation process with safeguards
+
+# ### **2. SQL Capture Flow**
+# ```
+# User Question
+#     ↓
+# generate_sql() called
+#     ↓
+# Vanna builds context (DDL, docs, similar Q&A)
+#     ↓
+# submit_prompt() called with full prompt
+#     ↓
+# LLM generates SQL → CAPTURED HERE immediately
+#     ↓
+# Vanna tries to process (we block execution)
+#     ↓
+# Return captured SQL (never error messages)
