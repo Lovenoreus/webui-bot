@@ -4,6 +4,7 @@ def train_for_remote_db(vanna_manager):
     -- Schema: dbo
     -- Dialect: T-SQL (Microsoft SQL Server)
     -- CRITICAL REQUIREMENT: ALL table references MUST use three-part names: [Nodinite].[dbo].[TableName]
+    -- Best Operator: Use LIKE for all matches. This enhances the efficiency of results
     """):
         print("✅ Successfully trained Schema DDL")
 
@@ -18,7 +19,7 @@ def train_for_remote_db(vanna_manager):
     CREATE TABLE [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] (
         -- Primary Key
         INVOICE_ID NVARCHAR(50) NOT NULL PRIMARY KEY,
-        
+
         -- Date Information
         ISSUE_DATE NVARCHAR(10) NOT NULL,  -- Format: YYYY-MM-DD (e.g., '2025-06-11')
         DUE_DATE NVARCHAR(10),              -- Format: YYYY-MM-DD
@@ -27,13 +28,13 @@ def train_for_remote_db(vanna_manager):
         PERIOD_START_DATE NVARCHAR(10),     -- Format: YYYY-MM-DD
         PERIOD_END_DATE NVARCHAR(10),       -- Format: YYYY-MM-DD
         BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ISSUE_DATE NVARCHAR(10),
-        
+
         -- Supplier Party Information
         SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID NVARCHAR(50) NOT NULL,  -- Swedish organization number (e.g., '5560466137')
         SUPPLIER_PARTY_NAME NVARCHAR(255),                             -- Company common name (e.g., 'Instrumenta AB')
         SUPPLIER_PARTY_LEGAL_ENTITY_REG_NAME NVARCHAR(255),           -- Official legal name
         SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_LEGAL_FORM NVARCHAR(100), -- Legal form and location
-        
+
         -- Supplier Address
         SUPPLIER_PARTY_STREET_NAME NVARCHAR(255),
         SUPPLIER_PARTY_ADDITIONAL_STREET_NAME NVARCHAR(255),
@@ -41,13 +42,13 @@ def train_for_remote_db(vanna_manager):
         SUPPLIER_PARTY_CITY NVARCHAR(100),           -- City name (e.g., 'Stockholm', 'Solna')
         SUPPLIER_PARTY_COUNTRY NVARCHAR(2),          -- Country code (e.g., 'SE')
         SUPPLIER_PARTY_ADDRESS_LINE NVARCHAR(500),
-        
+
         -- Supplier Contact Information
         SUPPLIER_PARTY_CONTACT_NAME NVARCHAR(255),
         SUPPLIER_PARTY_CONTACT_EMAIL NVARCHAR(255),
         SUPPLIER_PARTY_CONTACT_PHONE NVARCHAR(50),
         SUPPLIER_PARTY_ENDPOINT_ID NVARCHAR(100),
-        
+
         -- Customer Party Information (Region Västerbotten)
         CUSTOMER_PARTY_ID NVARCHAR(50),
         CUSTOMER_PARTY_ID_SCHEME_ID NVARCHAR(50),
@@ -56,17 +57,17 @@ def train_for_remote_db(vanna_manager):
         CUSTOMER_PARTY_NAME NVARCHAR(255),                    -- Often care unit or dept (e.g., 'Region Västerbotten | REF 1050103')
         CUSTOMER_PARTY_LEGAL_ENTITY_REG_NAME NVARCHAR(255),
         CUSTOMER_PARTY_LEGAL_ENTITY_COMPANY_ID NVARCHAR(50),
-        
+
         -- Customer Address
         CUSTOMER_PARTY_STREET_NAME NVARCHAR(255),
         CUSTOMER_PARTY_POSTAL_ZONE NVARCHAR(20),
         CUSTOMER_PARTY_COUNTRY NVARCHAR(2),          -- Usually 'SE', but can be 'NO' or 'FI'
-        
+
         -- Customer Contact Information
         CUSTOMER_PARTY_CONTACT_NAME NVARCHAR(255),
         CUSTOMER_PARTY_CONTACT_EMAIL NVARCHAR(255),
         CUSTOMER_PARTY_CONTACT_PHONE NVARCHAR(50),
-        
+
         -- Delivery Information
         DELIVERY_LOCATION_STREET_NAME NVARCHAR(255),
         DELIVERY_LOCATION_ADDITIONAL_STREET_NAME NVARCHAR(255),
@@ -75,39 +76,39 @@ def train_for_remote_db(vanna_manager):
         DELIVERY_LOCATION_ADDRESS_LINE NVARCHAR(500),
         DELIVERY_LOCATION_COUNTRY NVARCHAR(2),
         DELIVERY_PARTY_NAME NVARCHAR(255),
-        
+
         -- Currency
         DOCUMENT_CURRENCY_CODE NVARCHAR(3),          -- Usually 'SEK'
-        
+
         -- Tax Information
         TAX_AMOUNT_CURRENCY NVARCHAR(3),             -- Usually 'SEK'
         TAX_AMOUNT DECIMAL(18,3),
-        
+
         -- Legal Monetary Totals
         LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT_CURRENCY NVARCHAR(3),
         LEGAL_MONETARY_TOTAL_LINE_EXT_AMOUNT DECIMAL(18,3),           -- Sum of line items before tax
-        
+
         LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT_CURRENCY NVARCHAR(3),
         LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT DECIMAL(18,3),           -- Total excluding tax
-        
+
         LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT_CURRENCY NVARCHAR(3),
         LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT DECIMAL(18,3),           -- Total including tax
-        
+
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT_CURRENCY NVARCHAR(3),
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT DECIMAL(18,3),            -- Final amount to be paid
-        
+
         LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT_CURRENCY NVARCHAR(3),
         LEGAL_MONETARY_TOTAL_ALLOWANCE_TOTAL_AMOUNT DECIMAL(18,3),    -- Discounts/reductions
-        
+
         LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT_CURRENCY NVARCHAR(3),
         LEGAL_MONETARY_TOTAL_CHARGE_TOTAL_AMOUNT DECIMAL(18,3),       -- Additional charges
-        
+
         LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT_CURRENCY NVARCHAR(3),
         LEGAL_MONETARY_TOTAL_PAYABLE_ROUNDING_AMOUNT DECIMAL(18,3),   -- Rounding adjustment
-        
+
         LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT_CURRENCY NVARCHAR(3),
         LEGAL_MONETARY_TOTAL_PREPAID_AMOUNT DECIMAL(18,3),            -- Prepaid amount
-        
+
         -- Reference Information
         BUYER_REFERENCE NVARCHAR(100),               -- Internal reference from region
         PROJECT_REFERENCE_ID NVARCHAR(100),          -- Project identifier
@@ -116,13 +117,13 @@ def train_for_remote_db(vanna_manager):
         BILLING_REFERENCE_INVOICE_DOCUMENT_REF_ID NVARCHAR(100),
         CONTRACT_DOCUMENT_REFERENCE_ID NVARCHAR(100),
         DESPATCH_DOCUMENT_REFERENCE_ID NVARCHAR(100),
-        
+
         -- Invoice Type and Notes
         INVOICE_TYPE_CODE NVARCHAR(10),              -- 380=standard, 381=credit note, 383=prepayment
         NOTE NVARCHAR(MAX),                          -- Free-text notes from supplier
         ACCOUNTING_COST NVARCHAR(100),               -- Cost center/accounting code
         PAYMENT_TERMS_NOTE NVARCHAR(MAX),            -- Payment terms description
-        
+
         -- ETL Metadata
         ETL_LOAD_TS NVARCHAR(30)                     -- Timestamp when loaded to warehouse
     )
@@ -131,7 +132,6 @@ def train_for_remote_db(vanna_manager):
 
     else:
         print("❌ Failed to train Invoice DDL")
-
 
     # Train Vanna with DDL and documentation
     print("\n📚 Training Vanna with DDL and documentation...")
@@ -144,45 +144,45 @@ def train_for_remote_db(vanna_manager):
         INVOICE_ID NVARCHAR(50) NOT NULL,            -- Links to LLM_OnPrem_Invoice_kb.INVOICE_ID
         INVOICE_LINE_ID NVARCHAR(50) NOT NULL,       -- Unique line identifier within invoice
         PRIMARY KEY (INVOICE_ID, INVOICE_LINE_ID),
-        
+
         -- Date Information
         ISSUE_DATE NVARCHAR(10) NOT NULL,            -- Format: YYYY-MM-DD (e.g., '2025-12-31')
         INVOICE_PERIOD_START_DATE NVARCHAR(10),      -- Format: YYYY-MM-DD
         INVOICE_PERIOD_END_DATE NVARCHAR(10),        -- Format: YYYY-MM-DD
-        
+
         -- Supplier Reference
         SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID NVARCHAR(50) NOT NULL,  -- Swedish org number (e.g., '5590081294')
-        
+
         -- Line Item References
         ORDER_LINE_REFERENCE_LINE_ID NVARCHAR(50),   -- Reference to purchase order line
         ACCOUNTING_COST NVARCHAR(100),               -- Cost center code for this line
         INVOICE_LINE_DOCUMENT_REFERENCE_ID NVARCHAR(100),       -- Related document reference
         INVOICE_LINE_DOCUMENT_REFERENCE_DOCUMENT_TYPE_CODE NVARCHAR(10),  -- 130=Delivery note, 751=Work order
-        
+
         -- Quantity and Amount Information
         INVOICED_QUANTITY DECIMAL(18,3),             -- Quantity invoiced (e.g., 27.680)
         INVOICED_QUANTITY_UNIT_CODE NVARCHAR(10),    -- Unit of measure (e.g., 'EA', 'HUR', 'XHG')
         INVOICED_LINE_EXTENSION_AMOUNT DECIMAL(18,3),           -- Line total excluding tax
         INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID NVARCHAR(3), -- Usually 'SEK'
-        
+
         -- Item Description
         ITEM_NAME NVARCHAR(500),                     -- Short item name/title
         ITEM_DESCRIPTION NVARCHAR(MAX),              -- Detailed description of goods/services
         INVOICE_LINE_NOTE NVARCHAR(MAX),             -- Additional line-level notes
-        
+
         -- Tax Information
         ITEM_TAXCAT_ID NVARCHAR(10),                 -- Tax category (e.g., 'S' for standard rate)
         ITEM_TAXCAT_PERCENT DECIMAL(18,3),           -- Tax percentage (typically 25.000 for Swedish VAT)
-        
+
         -- Item Identifiers
         ITEM_BUYERS_ID NVARCHAR(100),                -- Region's internal article number
         ITEM_SELLERS_ITEM_ID NVARCHAR(100),          -- Supplier's article number
         ITEM_STANDARD_ITEM_ID NVARCHAR(100),         -- Global identifier (GTIN/EAN)
-        
+
         -- Item Classification
         ITEM_COMMODITYCLASS_CLASSIFICATION NVARCHAR(100),        -- Classification code (CPV, UNSPSC)
         ITEM_COMMODITYCLASS_CLASSIFICATION_LIST_ID NVARCHAR(50), -- Classification system ('MP', 'STI')
-        
+
         -- Pricing Information
         PRICE_AMOUNT DECIMAL(18,3),                  -- Unit price excluding tax
         PRICE_AMOUNT_CURRENCY_ID NVARCHAR(3),        -- Usually 'SEK'
@@ -190,7 +190,7 @@ def train_for_remote_db(vanna_manager):
         PRICE_BASE_QUANTITY_UNIT_CODE NVARCHAR(10),  -- Unit for base quantity
         PRICE_ALLOWANCE_CHARGE_AMOUNT DECIMAL(18,3), -- Discount or charge amount
         PRICE_ALLOWANCE_CHARGE_INDICATOR BIT,        -- false=allowance/discount, true=charge
-        
+
         -- ETL Metadata
         ETL_LOAD_TS NVARCHAR(30)                     -- Timestamp when loaded (e.g., '2025-10-12 14:35:42.123')
     )
@@ -199,7 +199,6 @@ def train_for_remote_db(vanna_manager):
 
     else:
         print("❌ Failed to train Invoice_Line DDL")
-
 
     if vanna_manager.train(ddl="""
     -- Relationship between Invoice and InvoiceLine tables
@@ -219,7 +218,6 @@ def train_for_remote_db(vanna_manager):
 
     else:
         print("❌ Failed to train Table Relationship")
-
 
     if vanna_manager.train(ddl="""
     -- Always use column aliases for aggregate functions:
@@ -249,9 +247,9 @@ def train_for_remote_db(vanna_manager):
     print("   - Table relationships and join patterns")
     print("   - Important query patterns and data formats")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("POST-DDL TRAINING: Character Encoding")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     if vanna_manager.train(documentation="""
     CRITICAL: CHARACTER ENCODING IN SQL QUERIES
@@ -295,16 +293,16 @@ def train_for_remote_db(vanna_manager):
         ON i.INVOICE_ID = il.INVOICE_ID
     WHERE ITEM_NAME LIKE '%övertid%'
     OR ITEM_DESCRIPTION LIKE '%Göteborg%'
-    OR CUSTOMER_PARTY_CITY LIKE '%Västerås%'
+    OR CUSTOMER_PARTY_CITY = 'Västerås'
     """
-    ):
+                           ):
         print("✅ SQL Example: Swedish characters in LIKE clauses")
     else:
         print("❌ SQL Example: Failed")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("✅ POST-DDL CHARACTER ENCODING TRAINING COMPLETE")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     # ================================================================
     # CRITICAL: SEARCH PATTERN RULES
@@ -348,8 +346,8 @@ def train_for_remote_db(vanna_manager):
     Always use wildcards on BOTH sides: '%searchterm%'
     This matches partial text anywhere in the field.
 
-    EXCEPTIONS 
-    NO EXCEPTIONS. Always use LIKE '%value%' instead of = 'value'
+    EXCEPTIONS
+    No Exceptions. Always use LIKE '%value%' instead of = 'value'
 
     DEFAULT BEHAVIOR:
     Always, use LIKE '%value%' instead of = 'value'
@@ -373,8 +371,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Find contact person Peter",
-        sql="""
+            question="Find contact person Peter",
+            sql="""
     SELECT DISTINCT
         CUSTOMER_PARTY_CONTACT_NAME,
         CUSTOMER_PARTY_NAME,
@@ -390,8 +388,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Example: Failed")
 
     if vanna_manager.train(
-        question="Show me invoices from Instrumenta",
-        sql="""
+            question="Show me invoices from Instrumenta",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -407,8 +405,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Example: Failed")
 
     if vanna_manager.train(
-        question="Find items with catheter",
-        sql="""
+            question="Find items with catheter",
+            sql="""
     SELECT 
         ITEM_NAME,
         ITEM_DESCRIPTION,
@@ -425,8 +423,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Example: Failed")
 
     if vanna_manager.train(
-        question="Suppliers in Stockholm",
-        sql="""
+            question="Suppliers in Stockholm",
+            sql="""
     SELECT DISTINCT
         SUPPLIER_PARTY_NAME,
         SUPPLIER_PARTY_CITY,
@@ -442,8 +440,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Example: Failed")
 
     if vanna_manager.train(
-        question="Search for Anna in contact names",
-        sql="""
+            question="Search for Anna in contact names",
+            sql="""
     SELECT DISTINCT
         CUSTOMER_PARTY_CONTACT_NAME,
         COUNT(*) AS invoice_count
@@ -458,8 +456,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Example: Failed")
 
     if vanna_manager.train(
-        question="Find invoices with reference 12345",
-        sql="""
+            question="Find invoices with reference 12345",
+            sql="""
     SELECT 
         INVOICE_ID,
         ORDER_REFERENCE_ID,
@@ -475,8 +473,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Example: Failed")
 
     if vanna_manager.train(
-        question="Show me invoices to Umeå",
-        sql="""
+            question="Show me invoices to Umeå",
+            sql="""
     SELECT 
         INVOICE_ID,
         DELIVERY_LOCATION_CITY_NAME,
@@ -493,8 +491,8 @@ def train_for_remote_db(vanna_manager):
 
     # Exception example - when to use equals
     if vanna_manager.train(
-        question="Find invoice with ID 0000470520",
-        sql="""
+            question="Find invoice with ID 0000470520",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -508,18 +506,18 @@ def train_for_remote_db(vanna_manager):
     else:
         print("❌ Example: Failed")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("✅ LIKE SEARCH PATTERN TRAINING COMPLETE")
-    print("="*80)
+    print("=" * 80)
     print("📊 Training Summary:")
     print("   - Documentation: ALWAYS use LIKE for text searches")
     print("   - 7 Examples: Various LIKE patterns across different columns")
     print("   - 1 Exception: When to use = (IDs, codes)")
-    print("="*80)
+    print("=" * 80)
     print("\n💡 Effect: All text searches will now use LIKE '%value%'")
     print("   User: 'contact person Peter'")
     print("   SQL:  WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Peter%'")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     # ================================================================
     # PHASE 2: DOCUMENTATION TRAINING FOR VANNA AI
@@ -860,7 +858,7 @@ def train_for_remote_db(vanna_manager):
     NOTES:
     - NOTE: Free-text field for supplier comments
     Often contains contact person names, dates, special instructions
-    
+
     - PAYMENT_TERMS_NOTE: Description of payment terms
     Examples: 'Net 30 days', '30 dagar netto', 'Betalningsvillkor: 30 dagar'
     """):
@@ -880,14 +878,14 @@ def train_for_remote_db(vanna_manager):
     LINE IDENTIFICATION:
     - INVOICE_LINE_ID: Unique identifier for the line within the invoice
     Format: Often sequential numbers ('1', '2', '3') or codes ('10517')
-    
+
     - ORDER_LINE_REFERENCE_LINE_ID: Links to specific line on the purchase order
     Connects invoice line back to what was originally ordered
 
     QUANTITY AND UNITS:
     - INVOICED_QUANTITY: Quantity of goods or services on this line
     Format: DECIMAL(18,3) allows for fractional quantities (e.g., 27.680)
-    
+
     - INVOICED_QUANTITY_UNIT_CODE: Unit of measure  
     Common codes:
     * 'EA' = Each (individual items)  
@@ -912,7 +910,7 @@ def train_for_remote_db(vanna_manager):
     LINE AMOUNTS:
     - INVOICED_LINE_EXTENSION_AMOUNT: Total for this line EXCLUDING tax
     Calculation: INVOICED_QUANTITY × PRICE_AMOUNT (after discounts)
-    
+
     - INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID: Currency code (usually 'SEK')
     """):
         print("✅ Successfully trained Tech Requirements")
@@ -927,11 +925,11 @@ def train_for_remote_db(vanna_manager):
     * Medical: 'SAX METZENBAUM NOIR VÅGSLIPN.KRÖKT 200MM'
     * Generic: 'Ert ordernr: 3308-3309'
     * Service: 'Ambulanstransport'
-    
+
     - ITEM_DESCRIPTION: Detailed description of goods or services
     Medical supplies example: '[61-4005] H/S Elliptosphere kateter (5 Fr) Art: 61-4005 10/fp'
     Transport example: '19690518-8196 / Karlsson, Albin körd från Kyrkogatan 12, Malå till Malå Vårdcentral 939 31 MALÅ, 1.0km'
-    
+
     Often includes:
     * Article numbers
     * Patient identifiers (anonymized)
@@ -959,10 +957,10 @@ def train_for_remote_db(vanna_manager):
     ITEM IDENTIFIERS:
     - ITEM_BUYERS_ID: Region Västerbotten's internal article/item number
     Format: 'REG-ITEM-00123' or similar internal codes
-    
+
     - ITEM_SELLERS_ITEM_ID: Supplier's own article/SKU number
     Format: 'SUP-ITEM-789', manufacturer part numbers
-    
+
     - ITEM_STANDARD_ITEM_ID: Global standardized identifier
     Format: GTIN (Global Trade Item Number) or EAN (European Article Number)
     Example: '7311234567890' (13-digit barcode number)
@@ -971,7 +969,7 @@ def train_for_remote_db(vanna_manager):
     - ITEM_COMMODITYCLASS_CLASSIFICATION: Classification code
     Format: Numeric codes like '50532300'
     Used for categorizing types of products/services
-    
+
     - ITEM_COMMODITYCLASS_CLASSIFICATION_LIST_ID: Classification system identifier
     Common values:
     * 'MP' = UNSPSC (United Nations Standard Products and Services Code)
@@ -990,21 +988,21 @@ def train_for_remote_db(vanna_manager):
     UNIT PRICE:
     - PRICE_AMOUNT: Unit price of the item EXCLUDING tax and before allowances
     Format: DECIMAL(18,3) - e.g., 1250.000 SEK per unit
-    
+
     - PRICE_AMOUNT_CURRENCY_ID: Currency for the price (usually 'SEK')
 
     BASE QUANTITY FOR PRICING:
     - PRICE_BASE_QUANTITY: Quantity used as basis for the unit price
     Usually 1.0000 (price per single unit)
     Sometimes other values for bulk pricing (e.g., price per 10 units)
-    
+
     - PRICE_BASE_QUANTITY_UNIT_CODE: Unit of measure for base quantity
     Examples: 'EA', 'HUR', 'KGM'
 
     DISCOUNTS AND CHARGES:
     - PRICE_ALLOWANCE_CHARGE_AMOUNT: Amount of discount or additional charge
     Format: DECIMAL(18,3) - e.g., 50.000 for 50 SEK discount
-    
+
     - PRICE_ALLOWANCE_CHARGE_INDICATOR: Type of adjustment
     * false (0) = Allowance/Discount (reduces price)
     * true (1) = Charge (increases price)
@@ -1029,7 +1027,7 @@ def train_for_remote_db(vanna_manager):
 
     - INVOICE_LINE_DOCUMENT_REFERENCE_ID: Reference ID for related document
     Examples: 'DN-1000456', 'WO-2024-5678'
-    
+
     - INVOICE_LINE_DOCUMENT_REFERENCE_DOCUMENT_TYPE_CODE: Type of referenced document
     Common UNCL 1001 codes:
     * '130' = Delivery note / Goods receipt
@@ -1086,7 +1084,7 @@ def train_for_remote_db(vanna_manager):
     - ETL_LOAD_TS: Timestamp when the record was loaded into the data warehouse
     Format: 'YYYY-MM-DD HH:MM:SS.mmm'
     Example: '2025-10-12 14:35:42.123'
-    
+
     This field tracks when the data was inserted/updated in the Nodinite database.
     It does NOT represent when the invoice was created (use ISSUE_DATE for that).
 
@@ -1282,7 +1280,6 @@ def train_for_remote_db(vanna_manager):
     print("   - Best practices")
     print("   - Geographic context")
     print("   - Swedish language terms")
-
 
     # ================================================================
     # PHASE 3: COMMON SQL QUERIES TRAINING
@@ -1534,9 +1531,9 @@ def train_for_remote_db(vanna_manager):
     SELECT 
         INVOICE_TYPE_CODE,
         CASE 
-            WHEN INVOICE_TYPE_CODE LIKE '%380%' THEN 'Standard Invoice'
-            WHEN INVOICE_TYPE_CODE LIKE '%381%' THEN 'Credit Note'
-            WHEN INVOICE_TYPE_CODE LIKE '%383%' THEN 'Prepayment Invoice'
+            WHEN INVOICE_TYPE_CODE = '380' THEN 'Standard Invoice'
+            WHEN INVOICE_TYPE_CODE = '381' THEN 'Credit Note'
+            WHEN INVOICE_TYPE_CODE = '383' THEN 'Prepayment Invoice'
             ELSE 'Other'
         END AS invoice_type_description,
         COUNT(*) AS invoice_count,
@@ -1638,7 +1635,7 @@ def train_for_remote_db(vanna_manager):
         i.NOTE
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
     WHERE i.SUPPLIER_PARTY_NAME LIKE '%Instrumenta%'
-    OR i.SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID LIKE '%5560466137%'
+    OR i.SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID = '5560466137'
     ORDER BY i.ISSUE_DATE DESC
     """):
         print("✅ Successfully trained: Search invoices by supplier name or ID")
@@ -1674,7 +1671,7 @@ def train_for_remote_db(vanna_manager):
         i.LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT,
         i.ORDER_REFERENCE_ID
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
-    WHERE i.ORDER_REFERENCE_ID LIKE '%7051810%'
+    WHERE i.ORDER_REFERENCE_ID = '7051810'
     ORDER BY i.ISSUE_DATE DESC
     """):
         print("✅ Successfully trained: Find invoices by order reference")
@@ -1718,9 +1715,9 @@ def train_for_remote_db(vanna_manager):
     else:
         print("❌ Failed to train: Monthly recurring service costs by supplier")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("✅ PHASE 3: COMMON SQL QUERIES TRAINING COMPLETE!")
-    print("="*80)
+    print("=" * 80)
     print("📊 Training Summary:")
     print("   - Section 1: Basic Supplier Analysis (3 queries)")
     print("   - Section 2: Time-Based Analysis (3 queries)")
@@ -1731,8 +1728,7 @@ def train_for_remote_db(vanna_manager):
     print("   - Section 7: Search & Filter (3 queries)")
     print("   - Section 8: Period-Based & Recurring Services (2 queries)")
     print("   TOTAL: 23 SQL query patterns trained")
-    print("="*80)
-
+    print("=" * 80)
 
     # ================================================================
     # PHASE 4: QUESTION-SQL PAIRS TRAINING
@@ -1744,8 +1740,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="How many invoices were issued in 2025?",
-        sql="""
+            question="How many invoices were issued in 2025?",
+            sql="""
     SELECT COUNT(*) AS invoice_count
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
     WHERE ISSUE_DATE >= '2025-01-01' AND ISSUE_DATE < '2026-01-01'
@@ -1756,8 +1752,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: How many invoices in 2025")
 
     if vanna_manager.train(
-        question="What is the total amount payable across all invoices?",
-        sql="""
+            question="What is the total amount payable across all invoices?",
+            sql="""
     SELECT 
         SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS total_payable,
         COUNT(*) AS invoice_count
@@ -1770,8 +1766,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Total amount payable")
 
     if vanna_manager.train(
-        question="How many invoices do we have from each supplier?",
-        sql="""
+            question="How many invoices do we have from each supplier?",
+            sql="""
     SELECT 
         SUPPLIER_PARTY_NAME,
         COUNT(*) AS invoice_count
@@ -1785,8 +1781,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Invoice count by supplier")
 
     if vanna_manager.train(
-        question="What is the average invoice amount?",
-        sql="""
+            question="What is the average invoice amount?",
+            sql="""
     SELECT 
         AVG(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS avg_invoice_amount,
         MIN(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS min_amount,
@@ -1804,8 +1800,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Which suppliers have sent the most invoices?",
-        sql="""
+            question="Which suppliers have sent the most invoices?",
+            sql="""
     SELECT TOP 10
         SUPPLIER_PARTY_NAME,
         COUNT(*) AS invoice_count,
@@ -1820,8 +1816,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Top suppliers by invoice count")
 
     if vanna_manager.train(
-        question="Who are our top 10 suppliers by total spending?",
-        sql="""
+            question="Who are our top 10 suppliers by total spending?",
+            sql="""
     SELECT TOP 10
         SUPPLIER_PARTY_NAME,
         SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID,
@@ -1837,8 +1833,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Top suppliers by spending")
 
     if vanna_manager.train(
-        question="Show me all invoices from Instrumenta",
-        sql="""
+            question="Show me all invoices from Instrumenta",
+            sql="""
     SELECT 
         INVOICE_ID,
         ISSUE_DATE,
@@ -1856,15 +1852,15 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Invoices from specific supplier")
 
     if vanna_manager.train(
-        question="Which suppliers are based in Stockholm?",
-        sql="""
+            question="Which suppliers are based in Stockholm?",
+            sql="""
     SELECT 
         SUPPLIER_PARTY_NAME,
         SUPPLIER_PARTY_STREET_NAME,
         SUPPLIER_PARTY_POSTAL_ZONE,
         COUNT(*) AS invoice_count
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
-    WHERE SUPPLIER_PARTY_CITY LIKE '%Stockholm%'
+    WHERE SUPPLIER_PARTY_CITY = 'Stockholm'
     GROUP BY SUPPLIER_PARTY_NAME, SUPPLIER_PARTY_STREET_NAME, SUPPLIER_PARTY_POSTAL_ZONE
     ORDER BY invoice_count DESC
     """
@@ -1874,8 +1870,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Suppliers by city")
 
     if vanna_manager.train(
-        question="What is the average invoice amount per supplier?",
-        sql="""
+            question="What is the average invoice amount per supplier?",
+            sql="""
     SELECT 
         SUPPLIER_PARTY_NAME,
         COUNT(*) AS invoice_count,
@@ -1896,8 +1892,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Show me invoices from last month",
-        sql="""
+            question="Show me invoices from last month",
+            sql="""
     SELECT 
         INVOICE_ID,
         ISSUE_DATE,
@@ -1914,8 +1910,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Invoices from last month")
 
     if vanna_manager.train(
-        question="What is our monthly spending trend for 2025?",
-        sql="""
+            question="What is our monthly spending trend for 2025?",
+            sql="""
     SELECT 
         LEFT(ISSUE_DATE, 7) AS year_month,
         COUNT(*) AS invoice_count,
@@ -1931,8 +1927,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Monthly spending trend")
 
     if vanna_manager.train(
-        question="Which invoices are overdue?",
-        sql="""
+            question="Which invoices are overdue?",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -1951,8 +1947,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Overdue invoices")
 
     if vanna_manager.train(
-        question="Show me invoices due this month",
-        sql="""
+            question="Show me invoices due this month",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -1970,8 +1966,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Invoices due this month")
 
     if vanna_manager.train(
-        question="What was our quarterly spending in 2024?",
-        sql="""
+            question="What was our quarterly spending in 2024?",
+            sql="""
     SELECT 
         DATEPART(QUARTER, CAST(ISSUE_DATE AS DATE)) AS quarter,
         COUNT(*) AS invoice_count,
@@ -1991,8 +1987,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="What are the most frequently ordered items?",
-        sql="""
+            question="What are the most frequently ordered items?",
+            sql="""
     SELECT TOP 20
         ITEM_NAME,
         COUNT(*) AS order_count,
@@ -2009,8 +2005,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Most frequently ordered items")
 
     if vanna_manager.train(
-        question="Show me all invoices that include catheters",
-        sql="""
+            question="Show me all invoices that include catheters",
+            sql="""
     SELECT 
         i.INVOICE_ID,
         i.ISSUE_DATE,
@@ -2034,8 +2030,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Search for specific medical items")
 
     if vanna_manager.train(
-        question="What items did we purchase from a specific supplier?",
-        sql="""
+            question="What items did we purchase from a specific supplier?",
+            sql="""
     SELECT 
         i.SUPPLIER_PARTY_NAME,
         il.ITEM_NAME,
@@ -2057,8 +2053,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Items from specific supplier")
 
     if vanna_manager.train(
-        question="Which items have the highest total spending?",
-        sql="""
+            question="Which items have the highest total spending?",
+            sql="""
     SELECT TOP 50
         ITEM_NAME,
         COUNT(*) AS order_count,
@@ -2076,8 +2072,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Highest spending items")
 
     if vanna_manager.train(
-        question="Show me price history for a specific item",
-        sql="""
+            question="Show me price history for a specific item",
+            sql="""
     SELECT 
         i.ISSUE_DATE,
         i.SUPPLIER_PARTY_NAME,
@@ -2101,8 +2097,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Which Region Västerbotten departments have the highest spending?",
-        sql="""
+            question="Which Region Västerbotten departments have the highest spending?",
+            sql="""
     SELECT TOP 10
         CUSTOMER_PARTY_NAME,
         COUNT(*) AS invoice_count,
@@ -2118,8 +2114,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Department spending ranking")
 
     if vanna_manager.train(
-        question="Show me spending by cost center",
-        sql="""
+            question="Show me spending by cost center",
+            sql="""
     SELECT 
         ACCOUNTING_COST,
         COUNT(*) AS invoice_count,
@@ -2136,8 +2132,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Spending by cost center")
 
     if vanna_manager.train(
-        question="Which cities receive the most deliveries?",
-        sql="""
+            question="Which cities receive the most deliveries?",
+            sql="""
     SELECT 
         DELIVERY_LOCATION_CITY_NAME,
         COUNT(*) AS delivery_count,
@@ -2154,8 +2150,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Deliveries by city")
 
     if vanna_manager.train(
-        question="Show me all invoices for a specific department",
-        sql="""
+            question="Show me all invoices for a specific department",
+            sql="""
     SELECT 
         INVOICE_ID,
         ISSUE_DATE,
@@ -2176,8 +2172,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="What is the total tax amount paid?",
-        sql="""
+            question="What is the total tax amount paid?",
+            sql="""
     SELECT 
         SUM(TAX_AMOUNT) AS total_tax_paid,
         SUM(LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT) AS total_excl_tax,
@@ -2191,8 +2187,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Total tax paid")
 
     if vanna_manager.train(
-        question="Show me monthly tax totals for 2025",
-        sql="""
+            question="Show me monthly tax totals for 2025",
+            sql="""
     SELECT 
         LEFT(ISSUE_DATE, 7) AS year_month,
         SUM(TAX_AMOUNT) AS monthly_tax,
@@ -2209,14 +2205,14 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Monthly tax totals")
 
     if vanna_manager.train(
-        question="How many credit notes do we have?",
-        sql="""
+            question="How many credit notes do we have?",
+            sql="""
     SELECT 
         INVOICE_TYPE_CODE,
         COUNT(*) AS count,
         SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS total_amount
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
-    WHERE INVOICE_TYPE_CODE LIKE '%381%'
+    WHERE INVOICE_TYPE_CODE = '381'
     GROUP BY INVOICE_TYPE_CODE
     """
     ):
@@ -2225,14 +2221,14 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Credit notes count")
 
     if vanna_manager.train(
-        question="Show me breakdown of invoice types",
-        sql="""
+            question="Show me breakdown of invoice types",
+            sql="""
     SELECT 
         INVOICE_TYPE_CODE,
         CASE 
-            WHEN INVOICE_TYPE_CODE LIKE '%380%' THEN 'Standard Invoice'
-            WHEN INVOICE_TYPE_CODE LIKE '%381%' THEN 'Credit Note'
-            WHEN INVOICE_TYPE_CODE LIKE '%383%' THEN 'Prepayment Invoice'
+            WHEN INVOICE_TYPE_CODE = '380' THEN 'Standard Invoice'
+            WHEN INVOICE_TYPE_CODE = '381' THEN 'Credit Note'
+            WHEN INVOICE_TYPE_CODE = '383' THEN 'Prepayment Invoice'
             ELSE 'Other'
         END AS invoice_type,
         COUNT(*) AS invoice_count,
@@ -2247,8 +2243,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Invoice type breakdown")
 
     if vanna_manager.train(
-        question="What is the average tax rate on our purchases?",
-        sql="""
+            question="What is the average tax rate on our purchases?",
+            sql="""
     SELECT 
         AVG(CASE 
             WHEN LEGAL_MONETARY_TOTAL_TAX_EXCL_AMOUNT > 0 
@@ -2278,8 +2274,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Show me details for a specific invoice",
-        sql="""
+            question="Show me details for a specific invoice",
+            sql="""
     SELECT 
         i.*
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
@@ -2291,8 +2287,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Specific invoice details")
 
     if vanna_manager.train(
-        question="Show me all line items for a specific invoice",
-        sql="""
+            question="Show me all line items for a specific invoice",
+            sql="""
     SELECT 
         il.INVOICE_LINE_ID,
         il.ITEM_NAME,
@@ -2311,8 +2307,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Line items for invoice")
 
     if vanna_manager.train(
-        question="Show me invoices with more than 10 line items",
-        sql="""
+            question="Show me invoices with more than 10 line items",
+            sql="""
     SELECT 
         i.INVOICE_ID,
         i.SUPPLIER_PARTY_NAME,
@@ -2332,8 +2328,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Complex invoices with many lines")
 
     if vanna_manager.train(
-        question="What is the average number of line items per invoice?",
-        sql="""
+            question="What is the average number of line items per invoice?",
+            sql="""
     SELECT 
         AVG(CAST(line_count AS FLOAT)) AS avg_lines_per_invoice,
         MIN(line_count) AS min_lines,
@@ -2356,8 +2352,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Find invoices by order reference number",
-        sql="""
+            question="Find invoices by order reference number",
+            sql="""
     SELECT 
         INVOICE_ID,
         ISSUE_DATE,
@@ -2365,7 +2361,7 @@ def train_for_remote_db(vanna_manager):
         ORDER_REFERENCE_ID,
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
-    WHERE ORDER_REFERENCE_ID LIKE '%12345%'
+    WHERE ORDER_REFERENCE_ID = '12345'
     ORDER BY ISSUE_DATE DESC
     """
     ):
@@ -2374,8 +2370,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Find by order reference")
 
     if vanna_manager.train(
-        question="Search for invoices with specific keywords in notes",
-        sql="""
+            question="Search for invoices with specific keywords in notes",
+            sql="""
     SELECT 
         INVOICE_ID,
         ISSUE_DATE,
@@ -2393,8 +2389,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Search notes for keywords")
 
     if vanna_manager.train(
-        question="Show me invoices above a certain amount",
-        sql="""
+            question="Show me invoices above a certain amount",
+            sql="""
     SELECT 
         INVOICE_ID,
         ISSUE_DATE,
@@ -2411,8 +2407,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: High-value invoices")
 
     if vanna_manager.train(
-        question="Find invoices by supplier organization number",
-        sql="""
+            question="Find invoices by supplier organization number",
+            sql="""
     SELECT 
         INVOICE_ID,
         ISSUE_DATE,
@@ -2420,7 +2416,7 @@ def train_for_remote_db(vanna_manager):
         SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID,
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
-    WHERE SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID LIKE '%5560466137%'
+    WHERE SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID = '5560466137'
     ORDER BY ISSUE_DATE DESC
     """
     ):
@@ -2433,8 +2429,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Compare spending between two suppliers",
-        sql="""
+            question="Compare spending between two suppliers",
+            sql="""
     SELECT 
         SUPPLIER_PARTY_NAME,
         COUNT(*) AS invoice_count,
@@ -2450,8 +2446,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Compare suppliers")
 
     if vanna_manager.train(
-        question="Compare this year's spending to last year",
-        sql="""
+            question="Compare this year's spending to last year",
+            sql="""
     SELECT 
         CASE 
             WHEN ISSUE_DATE >= '2025-01-01' THEN '2025'
@@ -2472,10 +2468,9 @@ def train_for_remote_db(vanna_manager):
     else:
         print("❌ Failed to train: Year-over-year comparison")
 
-
     if vanna_manager.train(
-        question="Which supplier has the fastest payment terms?",
-        sql="""
+            question="Which supplier has the fastest payment terms?",
+            sql="""
     SELECT 
         SUPPLIER_PARTY_NAME,
         AVG(DATEDIFF(DAY, CAST(ISSUE_DATE AS DATE), CAST(DUE_DATE AS DATE))) AS avg_payment_days,
@@ -2492,8 +2487,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Payment terms analysis")
 
     if vanna_manager.train(
-        question="Show me spending trends by month for each supplier",
-        sql="""
+            question="Show me spending trends by month for each supplier",
+            sql="""
     SELECT 
         SUPPLIER_PARTY_NAME,
         LEFT(ISSUE_DATE, 7) AS year_month,
@@ -2514,8 +2509,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Which invoices are for recurring services?",
-        sql="""
+            question="Which invoices are for recurring services?",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -2534,8 +2529,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Recurring service invoices")
 
     if vanna_manager.train(
-        question="What are our monthly recurring costs?",
-        sql="""
+            question="What are our monthly recurring costs?",
+            sql="""
     SELECT 
         SUPPLIER_PARTY_NAME,
         LEFT(PERIOD_START_DATE, 7) AS billing_month,
@@ -2554,8 +2549,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Monthly recurring costs breakdown")
 
     if vanna_manager.train(
-        question="Show me subscription services by supplier",
-        sql="""
+            question="Show me subscription services by supplier",
+            sql="""
     SELECT 
         SUPPLIER_PARTY_NAME,
         COUNT(DISTINCT INVOICE_ID) AS subscription_invoice_count,
@@ -2577,8 +2572,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Show me invoices from suppliers in specific cities",
-        sql="""
+            question="Show me invoices from suppliers in specific cities",
+            sql="""
     SELECT 
         SUPPLIER_PARTY_NAME,
         SUPPLIER_PARTY_CITY,
@@ -2595,8 +2590,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Filter by supplier cities")
 
     if vanna_manager.train(
-        question="Find invoices with discounts or allowances",
-        sql="""
+            question="Find invoices with discounts or allowances",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -2613,8 +2608,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Invoices with discounts")
 
     if vanna_manager.train(
-        question="Show me invoices with additional charges",
-        sql="""
+            question="Show me invoices with additional charges",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -2631,8 +2626,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Invoices with additional charges")
 
     if vanna_manager.train(
-        question="Find invoices that reference a contract",
-        sql="""
+            question="Find invoices that reference a contract",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -2650,8 +2645,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Invoices with contract references")
 
     if vanna_manager.train(
-        question="Show me invoices with prepaid amounts",
-        sql="""
+            question="Show me invoices with prepaid amounts",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -2673,8 +2668,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="What are the most common units of measure used?",
-        sql="""
+            question="What are the most common units of measure used?",
+            sql="""
     SELECT 
         INVOICED_QUANTITY_UNIT_CODE,
         COUNT(*) AS usage_count,
@@ -2691,8 +2686,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Common units of measure")
 
     if vanna_manager.train(
-        question="Show me items purchased by the hour",
-        sql="""
+            question="Show me items purchased by the hour",
+            sql="""
     SELECT 
         i.SUPPLIER_PARTY_NAME,
         il.ITEM_NAME,
@@ -2703,7 +2698,7 @@ def train_for_remote_db(vanna_manager):
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
     INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] il 
         ON i.INVOICE_ID = il.INVOICE_ID
-    WHERE il.INVOICED_QUANTITY_UNIT_CODE LIKE '%HUR%'
+    WHERE il.INVOICED_QUANTITY_UNIT_CODE = 'HUR'
     GROUP BY i.SUPPLIER_PARTY_NAME, il.ITEM_NAME
     ORDER BY total_cost DESC
     """
@@ -2713,8 +2708,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Hourly-based purchases")
 
     if vanna_manager.train(
-        question="What is the total quantity ordered for each item?",
-        sql="""
+            question="What is the total quantity ordered for each item?",
+            sql="""
     SELECT 
         ITEM_NAME,
         INVOICED_QUANTITY_UNIT_CODE,
@@ -2736,8 +2731,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Show me supplier contact information",
-        sql="""
+            question="Show me supplier contact information",
+            sql="""
     SELECT DISTINCT
         SUPPLIER_PARTY_NAME,
         SUPPLIER_PARTY_CONTACT_NAME,
@@ -2756,8 +2751,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Supplier contact information")
 
     if vanna_manager.train(
-        question="Which suppliers have email contacts?",
-        sql="""
+            question="Which suppliers have email contacts?",
+            sql="""
     SELECT DISTINCT
         SUPPLIER_PARTY_NAME,
         SUPPLIER_PARTY_CONTACT_EMAIL,
@@ -2774,8 +2769,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Suppliers with email contacts")
 
     if vanna_manager.train(
-        question="Show me customer contact details for our departments",
-        sql="""
+            question="Show me customer contact details for our departments",
+            sql="""
     SELECT DISTINCT
         CUSTOMER_PARTY_NAME,
         CUSTOMER_PARTY_CONTACT_NAME,
@@ -2796,8 +2791,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Which cities receive the most medical deliveries?",
-        sql="""
+            question="Which cities receive the most medical deliveries?",
+            sql="""
     SELECT 
         DELIVERY_LOCATION_CITY_NAME,
         COUNT(*) AS delivery_count,
@@ -2814,8 +2809,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Deliveries by city")
 
     if vanna_manager.train(
-        question="Show me delivery locations in Umeå",
-        sql="""
+            question="Show me delivery locations in Umeå",
+            sql="""
     SELECT 
         DELIVERY_LOCATION_STREET_NAME,
         DELIVERY_LOCATION_ADDRESS_LINE,
@@ -2823,7 +2818,7 @@ def train_for_remote_db(vanna_manager):
         COUNT(*) AS delivery_count,
         SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS total_value
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
-    WHERE DELIVERY_LOCATION_CITY_NAME LIKE '%Umeå%'
+    WHERE DELIVERY_LOCATION_CITY_NAME = 'Umeå'
     GROUP BY DELIVERY_LOCATION_STREET_NAME, DELIVERY_LOCATION_ADDRESS_LINE, DELIVERY_PARTY_NAME
     ORDER BY delivery_count DESC
     """
@@ -2833,8 +2828,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Delivery locations in specific city")
 
     if vanna_manager.train(
-        question="What is the average delivery time from invoice date?",
-        sql="""
+            question="What is the average delivery time from invoice date?",
+            sql="""
     SELECT 
         AVG(DATEDIFF(DAY, CAST(ISSUE_DATE AS DATE), CAST(ACTUAL_DELIVERY_DATE AS DATE))) AS avg_delivery_days,
         MIN(DATEDIFF(DAY, CAST(ISSUE_DATE AS DATE), CAST(ACTUAL_DELIVERY_DATE AS DATE))) AS min_delivery_days,
@@ -2855,8 +2850,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Give me a summary of invoice activity",
-        sql="""
+            question="Give me a summary of invoice activity",
+            sql="""
     SELECT 
         COUNT(*) AS total_invoices,
         COUNT(DISTINCT SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID) AS unique_suppliers,
@@ -2872,8 +2867,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Overall invoice summary")
 
     if vanna_manager.train(
-        question="Show me key metrics for this month",
-        sql="""
+            question="Show me key metrics for this month",
+            sql="""
     SELECT 
         COUNT(*) AS invoice_count,
         COUNT(DISTINCT SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID) AS supplier_count,
@@ -2890,8 +2885,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Current month metrics")
 
     if vanna_manager.train(
-        question="What are the top 5 expense categories by cost center?",
-        sql="""
+            question="What are the top 5 expense categories by cost center?",
+            sql="""
     SELECT TOP 5
         ACCOUNTING_COST,
         COUNT(*) AS invoice_count,
@@ -2908,8 +2903,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Failed to train: Top expense categories")
 
     if vanna_manager.train(
-        question="Show me year-to-date spending summary",
-        sql="""
+            question="Show me year-to-date spending summary",
+            sql="""
     SELECT 
         DATEPART(YEAR, CAST(ISSUE_DATE AS DATE)) AS year,
         COUNT(*) AS invoice_count,
@@ -2925,9 +2920,9 @@ def train_for_remote_db(vanna_manager):
     else:
         print("❌ Failed to train: Year-to-date summary")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("✅ PHASE 4: QUESTION-SQL PAIRS TRAINING COMPLETE!")
-    print("="*80)
+    print("=" * 80)
     print("📊 Training Summary:")
     print("   - Section 1: Basic Counting & Totaling (4 Q&A pairs)")
     print("   - Section 2: Supplier-Focused Questions (5 Q&A pairs)")
@@ -2945,20 +2940,63 @@ def train_for_remote_db(vanna_manager):
     print("   - Section 14: Delivery & Logistics (3 Q&A pairs)")
     print("   - Section 15: Summary & Dashboard (4 Q&A pairs)")
     print("   TOTAL: 60 Question-SQL pairs trained")
-    print("="*80)
+    print("=" * 80)
     print("\n🎉 ALL TRAINING PHASES COMPLETE!")
-    print("="*80)
+    print("=" * 80)
     print("✅ Phase 1: DDL Training")
     print("✅ Phase 2: Documentation Training (17 sections)")
     print("✅ Phase 3: Common SQL Queries (23 queries)")
     print("✅ Phase 4: Question-SQL Pairs (60 pairs)")
-    print("="*80)
+    print("=" * 80)
     print("\n🚀 Your Vanna model is now fully trained and ready to use!")
     print("💡 Next steps:")
     print("   1. Test with: vanna_manager.ask('Your question here')")
     print("   2. Review results and add more training as needed")
     print("   3. Use auto_train=True to continuously improve")
-    print("="*80)
+    print("=" * 80)
+
+    # print("Training with Invoice documentation (first 5 rows)...")
+    # if vanna_manager.train(documentation=invoice_doc):
+    #     print("✅ Successfully trained Invoice documentation")
+
+    # else:
+    #     print("❌ Failed to train Invoice documentation")
+
+    # print("Training with Invoice_Line documentation (first 5 rows)...")
+    # if vanna_manager.train(documentation=invoice_line_doc):
+    #     print("✅ Successfully trained Invoice_Line documentation")
+
+    # else:
+    #     print("❌ Failed to train Invoice_Line documentation")
+
+    # print("Training with synonym handling instructions...")
+    # if vanna_manager.train(documentation=synonym_instructions):
+    #     print("✅ Successfully trained synonym handling instructions")
+
+    # else:
+    #     print("❌ Failed to train synonym handling instructions")
+
+    # # Train with question-SQL pairs
+    # print("Training with question-SQL pairs...")
+
+    # successful_pairs = 0
+    # total_pairs = len(training_pairs)
+
+    # for i, pair in enumerate(training_pairs, 1):
+    #     question = pair["question"]
+    #     sql = pair["sql"]
+    #     print(f"Training pair {i}/{total_pairs}: {question[:50]}...")
+
+    #     try:
+    #         if vanna_manager.train(question=question, sql=sql):
+    #             successful_pairs += 1
+    #             print(f"✅ Successfully trained pair {i}")
+    #         else:
+    #             print(f"❌ Failed to train pair {i}")
+    #     except Exception as e:
+    #         print(f"❌ Error training pair {i}: {e}")
+
+    # print(f"📊 Question-SQL training completed: {successful_pairs}/{total_pairs} pairs successful")
 
     # ================================================================
     # SECTION 5: CUSTOMER PARTY INFORMATION (REGION VÄSTERBOTTEN)
@@ -3085,7 +3123,7 @@ def train_for_remote_db(vanna_manager):
     3. TAX_AMOUNT: Total tax/VAT amount applied to the invoice
     Currency: TAX_AMOUNT_CURRENCY (always 'SEK')
     Examples: 636.430, 3005.500, 1821.500
-    
+
     4. LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT: Total INCLUDING tax
     Currency: LEGAL_MONETARY_TOTAL_TAX_INCL_AMOUNT_CURRENCY (always 'SEK')
     Calculation: TAX_EXCL_AMOUNT + TAX_AMOUNT
@@ -3192,7 +3230,7 @@ def train_for_remote_db(vanna_manager):
     * 'Maria Eriksson', 'Jonas Sörlin' (contact names)
     * Numeric codes: '8723013495', '8723013818', '8723013927'
     * NULL for many invoices
-    
+
     Examples from Visma:
     * 'Daniel Strömberg', 'Johnny Lundström' (contact names)
 
@@ -3205,7 +3243,7 @@ def train_for_remote_db(vanna_manager):
     * 'DEJA01' (department code)
     * Numeric codes: '1035030', '1035040', '1052216', '1037067', '1037200', '3031', '3022', '3027'
     * NULL for Visma invoices
-    
+
     - ACCOUNTING_COST: Usually NULL in this dataset
 
     DOCUMENT REFERENCES:
@@ -3225,7 +3263,7 @@ def train_for_remote_db(vanna_manager):
     * '230516 JJ' (Abbott)
     * 'Stående Leverans v23 2023' (Abbott standing delivery)
     * NULL for many invoices
-    
+
     - PAYMENT_TERMS_NOTE: Payment terms description
     Common patterns:
     * '30 | Dröjsmålsränta %.' (30 days | Late payment interest %)
@@ -3250,7 +3288,7 @@ def train_for_remote_db(vanna_manager):
     Format: '1', '2', '3', '4', etc.
     Abbott invoices can have many lines (e.g., up to 20 lines per invoice)
     Visma invoices typically have 1 line per invoice
-    
+
     - ORDER_LINE_REFERENCE_LINE_ID: Links to purchase order line
     Examples:
     * 'Daniel Strömberg' (Visma)
@@ -3260,7 +3298,7 @@ def train_for_remote_db(vanna_manager):
     QUANTITY AND UNITS:
     - INVOICED_QUANTITY: Quantity of goods or services
     Format: DECIMAL(18,3) - e.g., 6.000, 1.000, 26.000, 443.000
-    
+
     - INVOICED_QUANTITY_UNIT_CODE: Unit of measure
     Values in dataset:
     * 'EA' = Each (individual items) - most common for Abbott medical supplies
@@ -3269,7 +3307,7 @@ def train_for_remote_db(vanna_manager):
     LINE AMOUNTS:
     - INVOICED_LINE_EXTENSION_AMOUNT: Total for this line EXCLUDING tax
     Format: DECIMAL(18,3) - e.g., 5303.580, 12022.010, 1723.540
-    
+
     - INVOICED_LINE_EXTENSION_AMOUNT_CURRENCY_ID: Always 'SEK' in this dataset
     """):
         print("✅ Successfully trained Line Item Basics")
@@ -3320,12 +3358,12 @@ def train_for_remote_db(vanna_manager):
 
     ITEM IDENTIFIERS:
     - ITEM_BUYERS_ID: Usually NULL in this dataset
-    
+
     - ITEM_SELLERS_ITEM_ID: Supplier's article/SKU number
     Hotel (JA Hotel): '6000'
     Visma: 'HRKOMEXP' (HR Expert), 'PREXP' (Privacy Expert)
     Abbott: Various codes like '2R2897', '7P8797', '7P8997', '8P0697', '9K1202', '3P8725', etc.
-    
+
     - ITEM_STANDARD_ITEM_ID: Usually NULL in this dataset
 
     ITEM CLASSIFICATION:
@@ -3349,7 +3387,7 @@ def train_for_remote_db(vanna_manager):
     * Visma HR Expert: 12022.010 SEK per year
     * Visma Privacy Expert: 7286.000 SEK per year
     * Abbott products: varying prices (66.290, 19.510, 5500.000, 875.000, etc.)
-    
+
     - PRICE_AMOUNT_CURRENCY_ID: Always 'SEK' in this dataset
 
     BASE QUANTITY FOR PRICING:
@@ -3371,10 +3409,10 @@ def train_for_remote_db(vanna_manager):
     PERIOD INFORMATION (for subscription services):
     - INVOICE_PERIOD_START_DATE: Service period start
     Examples: 2024-04-05, 2024-09-16 (Visma subscriptions)
-    
+
     - INVOICE_PERIOD_END_DATE: Service period end
     Examples: 2025-04-04, 2025-09-15 (Visma subscriptions - 1 year)
-    
+
     Usually NULL for one-time purchases (Abbott medical supplies, hotel stays)
 
     ACCOUNTING:
@@ -3411,10 +3449,10 @@ def train_for_remote_db(vanna_manager):
     ALWAYS use regular string literals with the actual characters, NOT Unicode escape sequences.
 
     CORRECT APPROACH:
-    - WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Örjan Larsson'
-    - WHERE SUPPLIER_PARTY_NAME = 'Göteborg AB'
-    - WHERE CUSTOMER_PARTY_CITY = 'Västerås'
-    - WHERE DELIVERY_LOCATION_CITY_NAME = 'Skellefteå'
+    - WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Örjan Larsson%'
+    - WHERE SUPPLIER_PARTY_NAME LIKE '%Göteborg AB%'
+    - WHERE CUSTOMER_PARTY_CITY LIKE '%Västerås%'
+    - WHERE DELIVERY_LOCATION_CITY_NAME LIKE '%Skellefteå%'
     - WHERE SUPPLIER_PARTY_NAME LIKE '%Malmö%'
 
     INCORRECT APPROACH (NEVER USE):
@@ -3497,10 +3535,10 @@ def train_for_remote_db(vanna_manager):
     - Järvinen, Säterberg, Blomkvist
 
     Example queries:
-    WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Örjan Larsson'
-    WHERE CUSTOMER_PARTY_CONTACT_NAME = 'Åsa Andersson'
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Örjan Larsson%'
+    WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Åsa Andersson%'
     WHERE CUSTOMER_PARTY_CONTACT_NAME LIKE '%Björn%'
-    WHERE SUPPLIER_PARTY_CONTACT_NAME = 'Göran Svensson'
+    WHERE SUPPLIER_PARTY_CONTACT_NAME LIKE '%Göran Svensson%'
     """):
         print("✅ Part 1: Swedish names documentation trained")
     else:
@@ -3539,7 +3577,7 @@ def train_for_remote_db(vanna_manager):
         SUPPLIER_PARTY_STREET_NAME,
         SUPPLIER_PARTY_POSTAL_ZONE
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
-    WHERE SUPPLIER_PARTY_CITY LIKE '%Göteborg%'
+    WHERE SUPPLIER_PARTY_CITY = 'Göteborg'
     ORDER BY SUPPLIER_PARTY_NAME
     """
     ):
@@ -3558,7 +3596,7 @@ def train_for_remote_db(vanna_manager):
         DELIVERY_LOCATION_CITY_NAME,
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
-    WHERE DELIVERY_LOCATION_CITY_NAME LIKE '%Västerås%'
+    WHERE DELIVERY_LOCATION_CITY_NAME = 'Västerås'
     ORDER BY ISSUE_DATE DESC
     """
     ):
@@ -3594,7 +3632,7 @@ def train_for_remote_db(vanna_manager):
         COUNT(*) AS delivery_count,
         SUM(LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT) AS total_value
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
-    WHERE DELIVERY_LOCATION_CITY_NAME LIKE '%Skellefteå%'
+    WHERE DELIVERY_LOCATION_CITY_NAME = 'Skellefteå'
     GROUP BY DELIVERY_LOCATION_CITY_NAME
     """
     ):
@@ -3629,7 +3667,7 @@ def train_for_remote_db(vanna_manager):
         SUPPLIER_PARTY_STREET_NAME,
         COUNT(*) AS invoice_count
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] 
-    WHERE SUPPLIER_PARTY_CITY LIKE '%Jönköping%
+    WHERE SUPPLIER_PARTY_CITY = 'Jönköping'
     GROUP BY SUPPLIER_PARTY_NAME, SUPPLIER_PARTY_STREET_NAME
     ORDER BY invoice_count DESC
     """
@@ -3753,17 +3791,17 @@ def train_for_remote_db(vanna_manager):
     # OVERTIME SPENDING TRAINING
     # ================================================================
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("TRAINING: Overtime Spending Queries")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     # ================================================================
     # APPROACH 1: Search for "overtime" keywords in item descriptions
     # ================================================================
 
     if vanna_manager.train(
-        question="How much did we spend on overtime in 2024?",
-        sql="""
+            question="How much did we spend on overtime in 2024?",
+            sql="""
     SELECT 
         SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_overtime_cost,
         COUNT(*) AS overtime_line_items,
@@ -3792,8 +3830,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="What did we spend on hourly services in 2024?",
-        sql="""
+            question="What did we spend on hourly services in 2024?",
+            sql="""
     SELECT 
         SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS total_hourly_cost,
         COUNT(*) AS hourly_line_items,
@@ -3804,7 +3842,7 @@ def train_for_remote_db(vanna_manager):
         ON i.INVOICE_ID = il.INVOICE_ID
     WHERE i.ISSUE_DATE >= '2024-01-01' 
     AND i.ISSUE_DATE < '2025-01-01'
-    AND il.INVOICED_QUANTITY_UNIT_CODE LIKE '%HUR%'
+    AND il.INVOICED_QUANTITY_UNIT_CODE = 'HUR'
     """
     ):
         print("✅ Approach 2: All hourly services (unit code HUR)")
@@ -3816,8 +3854,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Show me overtime costs by supplier for 2024",
-        sql="""
+            question="Show me overtime costs by supplier for 2024",
+            sql="""
     SELECT 
         i.SUPPLIER_PARTY_NAME,
         COUNT(DISTINCT i.INVOICE_ID) AS invoice_count,
@@ -3852,8 +3890,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="What was the monthly overtime spending trend in 2024?",
-        sql="""
+            question="What was the monthly overtime spending trend in 2024?",
+            sql="""
     SELECT 
         LEFT(i.ISSUE_DATE, 7) AS year_month,
         SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS monthly_overtime_cost,
@@ -3885,8 +3923,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="Which departments spent the most on overtime in 2024?",
-        sql="""
+            question="Which departments spent the most on overtime in 2024?",
+            sql="""
     SELECT 
         i.CUSTOMER_PARTY_NAME AS department,
         SUM(il.INVOICED_LINE_EXTENSION_AMOUNT) AS overtime_cost,
@@ -3952,9 +3990,9 @@ def train_for_remote_db(vanna_manager):
     else:
         print("❌ Documentation: Failed")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("✅ OVERTIME TRAINING COMPLETE!")
-    print("="*80)
+    print("=" * 80)
     print("📊 Training Summary:")
     print("   - Approach 1: Keyword search (övertid, overtime, OB)")
     print("   - Approach 2: All hourly services (HUR)")
@@ -3962,20 +4000,20 @@ def train_for_remote_db(vanna_manager):
     print("   - Approach 4: Monthly overtime trends")
     print("   - Approach 5: Overtime by department")
     print("   - Documentation: Swedish overtime terminology")
-    print("="*80)
+    print("=" * 80)
     print("\n💡 Key Search Terms:")
     print("   🇸🇪 Swedish: övertid, OB, jour, beredskap")
     print("   🇬🇧 English: overtime")
     print("   📊 Unit Code: HUR (hours)")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     # ================================================================
     # TRAINING: "COST" TERMINOLOGY CLARIFICATION
     # ================================================================
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("TRAINING: Cost Terminology")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     # ================================================================
     # DOCUMENTATION: Define what "cost" means
@@ -4013,8 +4051,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="What is the cost of invoice 0000470520?",
-        sql="""
+            question="What is the cost of invoice 0000470520?",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -4030,8 +4068,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Example 1: Failed")
 
     if vanna_manager.train(
-        question="How much did invoice INV-2024-12345 cost?",
-        sql="""
+            question="How much did invoice INV-2024-12345 cost?",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -4046,8 +4084,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Example 2: Failed")
 
     if vanna_manager.train(
-        question="Show me the cost and details of invoice 0000470520",
-        sql="""
+            question="Show me the cost and details of invoice 0000470520",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -4066,8 +4104,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Example 3: Failed")
 
     if vanna_manager.train(
-        question="What did we pay for invoice 0000470520?",
-        sql="""
+            question="What did we pay for invoice 0000470520?",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
@@ -4082,8 +4120,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Example 4: Failed")
 
     if vanna_manager.train(
-        question="Get the amount for invoice 0000470520",
-        sql="""
+            question="Get the amount for invoice 0000470520",
+            sql="""
     SELECT 
         INVOICE_ID,
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT AS invoice_amount,
@@ -4097,8 +4135,8 @@ def train_for_remote_db(vanna_manager):
         print("❌ Example 5: Failed")
 
     if vanna_manager.train(
-        question="Total cost of invoice 0000470520",
-        sql="""
+            question="Total cost of invoice 0000470520",
+            sql="""
     SELECT 
         INVOICE_ID,
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT AS total_cost
@@ -4115,8 +4153,8 @@ def train_for_remote_db(vanna_manager):
     # ================================================================
 
     if vanna_manager.train(
-        question="What is the cost center for invoice 0000470520?",
-        sql="""
+            question="What is the cost center for invoice 0000470520?",
+            sql="""
     SELECT 
         INVOICE_ID,
         ACCOUNTING_COST AS cost_center,
@@ -4130,15 +4168,15 @@ def train_for_remote_db(vanna_manager):
         print("❌ Example 7: Failed")
 
     if vanna_manager.train(
-        question="Show me invoices with cost center 6354538",
-        sql="""
+            question="Show me invoices with cost center 6354538",
+            sql="""
     SELECT 
         INVOICE_ID,
         SUPPLIER_PARTY_NAME,
         ACCOUNTING_COST AS cost_center,
         LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
     FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb]
-    WHERE ACCOUNTING_COST LIKE '%6354538%'
+    WHERE ACCOUNTING_COST = '6354538'
     ORDER BY ISSUE_DATE DESC
     """
     ):
@@ -4146,19 +4184,18 @@ def train_for_remote_db(vanna_manager):
     else:
         print("❌ Example 8: Failed")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("✅ COST TERMINOLOGY TRAINING COMPLETE!")
-    print("="*80)
+    print("=" * 80)
     print("📊 Training Summary:")
     print("   - Documentation: Cost = LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT")
     print("   - Example 1-6: Various ways to ask about invoice cost")
     print("   - Example 7-8: Cost center contrast (ACCOUNTING_COST)")
-    print("="*80)
+    print("=" * 80)
     print("\n💡 Now Vanna knows:")
     print("   'cost of invoice' → LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT")
     print("   'cost center' → ACCOUNTING_COST")
-    print("="*80 + "\n")
-
+    print("=" * 80 + "\n")
 
     # Return the manager
     return vanna_manager
