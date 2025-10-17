@@ -517,7 +517,13 @@ async def mcp_tools_list():
         ),
         MCPTool(
             name="query_sql_database",
-            description="TRIGGER: SQL, SQL database, query database, invoice database, invoice queries, supplier information, customer data, payment tracking, financial reports, invoice amounts, due dates, supplier analysis, customer analysis, invoice lines, item details, tax information, payment terms | ACTION: Query invoice SQL database with AI-generated SQL from natural language | RETURNS: Structured invoice data with the generated SQL query",
+            description="""TRIGGER: SQL, SQL database, query database, invoice database, invoice queries, supplier information, customer data, payment tracking, financial reports, invoice amounts, due dates, supplier analysis, customer analysis, invoice lines, item details, tax information, payment terms
+
+        SCOPE: Use this tool for invoice, payment, supplier, purchase, or expense-related questions. Handles financial transaction data including amounts, dates, items, vendors, and deliveries.
+
+        ACTION: Converts natural language questions to SQL and queries the invoice database
+
+        RETURNS: Structured invoice data with the generated SQL query""",
             inputSchema={
                 "type": "object",
                 "properties": {
