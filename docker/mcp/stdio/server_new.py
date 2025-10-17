@@ -2707,10 +2707,12 @@ async def mcp_tools_list():
         MCPTool(
             name="ticket_open",
             description=(
-                "Initialize a new ticket when an issue is reported for the FIRST time. "
+                "SCOPE: Use this tool when a user first reports a NEW problem, issue, or incident. Handles initial problem intake for any type of issue (technical, facility, equipment, or service-related).\n\n"
+                "TRIGGER: new issue, report problem, something broken, not working, need help, create ticket, open ticket, start ticket\n\n"
+                "ACTION: Initialize a new ticket when an issue is reported for the FIRST time. "
                 "Creates a new ticket record and returns comprehensive ticket information with guidance, "
-                "progress tracking, diagnostic question tracking, and next steps. "
-                "The issue must be completely unique and unrelated to other issues"
+                "progress tracking, diagnostic question tracking, and next steps.\n\n"
+                "INSTRUCTION: The issue must be completely unique and unrelated to other existing issues."
             ),
             inputSchema={
                 "type": "object",
@@ -2740,7 +2742,14 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ticket_submit",
-            description="TRIGGER: submit ticket, create JIRA ticket, finalize ticket, send to support, ready to submit | ACTION: Submit completed ticket to JIRA ticketing system | INSTRUCTION: Validates all required fields (description, category, priority) are filled before submission. Cannot submit tickets that are already submitted or completed | RETURNS: JIRA ticket key (for tracking in JIRA), submission confirmation, and final ticket status",
+            description=(
+                "SCOPE: Use this tool when a ticket investigation is complete and ready for formal submission. Handles finalization of tickets with all required information gathered.\n\n"
+                "TRIGGER: submit ticket, create JIRA ticket, finalize ticket, send to support, ready to submit, escalate to team\n\n"
+                "ACTION: Submit completed ticket.\n\n"
+                "INSTRUCTION: Validates all required fields (description, category, priority, etc...) are filled before submission. "
+                "Cannot submit tickets that are already submitted or completed.\n\n"
+                "RETURNS: JIRA ticket key (for tracking in JIRA), submission confirmation, and final ticket status"
+            ),
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -2796,7 +2805,12 @@ async def mcp_tools_list():
 
         MCPTool(
             name="ticket_cancel",
-            description="TRIGGER: cancel ticket, close ticket, abort ticket, discard ticket, delete ticket | ACTION: Cancel an existing ticket (changes status to cancelled) | RETURNS: Cancelled ticket confirmation with updated status",
+            description=(
+                "SCOPE: Use this tool when a user wants to stop or remove an existing ticket. Handles ticket cancellation for resolved, duplicate, or unwanted issues.\n\n"
+                "TRIGGER: cancel ticket, close ticket, abort ticket, discard ticket, delete ticket, remove ticket, nevermind, false alarm\n\n"
+                "ACTION: Cancel an existing ticket (changes status to cancelled).\n\n"
+                "RETURNS: Cancelled ticket confirmation with updated status"
+            ),
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -2833,6 +2847,29 @@ def process_questions_generic(answered_questions: dict[str, str], must_ask_quest
         "questions_remaining": remaining_questions,
         "auto_extracted_info": {}  # You can expand this later if needed
     }
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    try:
+        # Removed all database checks and related info
+
+        return {
+            "status": "healthy",
+            "service": "Invoice MCP Server",
+            "timestamp": datetime.now().isoformat(),
+            "llm_providers": ["openai", "ollama", "mistral"],
+            "endpoints": {
+                "greet": "/greet",
+                "query_sql_database": "/query_sql_database",
+                "query_sql_database_stream": "/query_sql_database_stream",
+                "health": "/health"
+            }
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Health check failed: {str(e)}")
 
 
 @app.post("/mcp/tools/call", response_model=MCPToolCallResponse)

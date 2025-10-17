@@ -2,18 +2,19 @@ services:
   open-webui:
     build:
       context: .
+      dockerfile: Dockerfile
       args:
         OLLAMA_BASE_URL: '/ollama'
-      dockerfile: Dockerfile
     container_name: open-webui
     volumes:
       - open-webui:/app/backend/data
     depends_on:
-      - mcpo
+      mcp_server:
+        condition: service_healthy
     ports:
       - ${OPEN_WEBUI_PORT-3000}:8080
     environment:
-      - 'OLLAMA_BASE_URL=http://ollama:11434'
+      - 'OLLAMA_BASE_URL=http://vs2153.vll.se:11434'
       - 'WEBUI_SECRET_KEY=ae8c0b7e4f3a1c9efc83d4a7b59c193f7e194baf55f06e3cc5824c1e9f79b1d7'
       - 'OPENAI_API_KEY=${OPENAI_API_KEY}'
       - 'ENV=dev'
@@ -28,7 +29,8 @@ services:
   mcp_server:
     build:
       context: ./docker
-      dockerfile: DockerFIle.mcp
+      dockerfile: DockerFile.mcp
+    container_name: mcp_server
     ports:
       - "8009:8009"
     environment:
@@ -52,6 +54,7 @@ services:
 
   mcpo:
     image: ghcr.io/open-webui/mcpo:main
+    container_name: mcpo
     ports:
       - "8000:8000"
     command: >
@@ -61,7 +64,7 @@ services:
       mcp_server:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:8009/health" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -79,13 +82,16 @@ services:
     volumes:
       - qdrant_storage:/qdrant/storage
     restart: unless-stopped
-    labels:
-      compose.service: qdrant
     networks:
       - mcp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/ready"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
 volumes:
-  ollama: {}
   open-webui: {}
   qdrant_storage: {}
 
