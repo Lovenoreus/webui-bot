@@ -13,12 +13,13 @@ def create_jira_ticket(
         priority: str = "",
         department: str = "",
         name: str = "",
-        category: str = ""
-) -> str:
+        category: str = "",
+        escalated_to: str = "",  # NEW
+        escalated_to_email: str = ""  # NEW
+) -> dict:  # Changed return type from str to dict
     """
     Creates a support ticket in Jira using the provided details.
 
-    print(f'📋 Using stored fields: {stored_fields.model_dump()}')
     Args:
         conversation_id (str): Thread identifier to get stored fields
         conversation_topic (str): Short summary of the issue.
@@ -29,9 +30,11 @@ def create_jira_ticket(
         department (str): The user's department.
         name (str): Name of the person reporting.
         category (str): Ticket category.
+        escalated_to (str): Name of escalator if ticket was escalated.  # NEW
+        escalated_to_email (str): Email of escalator if ticket was escalated.  # NEW
 
     Returns:
-        str: User-friendly status message.
+        dict: Response with ticket key and status.
     """
 
     # Use provided values or fall back to stored values
@@ -43,17 +46,12 @@ def create_jira_ticket(
         'priority': priority,
         'department': department,
         'name': name,
-        'category': category
+        'category': category,
+        'escalated_to': escalated_to,  # NEW
+        'escalated_to_email': escalated_to_email  # NEW
     }
 
     print(f'📩 Creating Jira ticket for topic: "{final_values["conversation_topic"]}"')
-
-    # # Validate required fields
-    # if not final_values['conversation_topic']:
-    #     return "❌ Cannot create ticket: Missing conversation topic"
-
-    # if not final_values['description']:
-    #     return "❌ Cannot create ticket: Missing description"
 
     # Load config
     JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN")
@@ -65,7 +63,7 @@ def create_jira_ticket(
     if not all([JIRA_API_TOKEN, JIRA_EMAIL, JIRA_DOMAIN]):
         msg = "❌ Jira configuration is incomplete. Please set environment variables properly."
         print(msg)
-        return msg
+        return {"success": False, "error": msg}
 
     PROJECT_KEY = "HEAL"
     ISSUE_TYPE = "Task"
@@ -82,6 +80,31 @@ def create_jira_ticket(
 
     cleaned_description = final_values['description'].replace("Problem Analysis: ", "", 1) if final_values[
         'description'] else "No description provided"
+
+    # Add escalation notice at the top if escalated  # NEW
+    if final_values['escalated_to']:
+        content_blocks.extend([
+            {
+                "type": "paragraph",
+                "content": [
+                    {"type": "text", "text": "⚠️ ESCALATED TICKET", "marks": [{"type": "strong"}, {"type": "em"}]}
+                ]
+            },
+            {
+                "type": "paragraph",
+                "content": [
+                    {"type": "text",
+                     "text": f"This ticket was created by {final_values['name']} but requires review and approval by "},
+                    {"type": "text", "text": f"{final_values['escalated_to']}", "marks": [{"type": "strong"}]},
+                    {"type": "text", "text": f" ({final_values['escalated_to_email']}) "},
+                    {"type": "text", "text": "due to insufficient permissions."}
+                ]
+            },
+            {
+                "type": "rule"  # Horizontal line separator
+            }
+        ])
+
     content_blocks.extend([
         {
             "type": "paragraph",
@@ -119,6 +142,12 @@ def create_jira_ticket(
         "content": [{"type": "text", "text": "Call Ended", "marks": [{"type": "strong"}]}]
     })
 
+    # Build labels - add escalation label if escalated  # NEW
+    labels = ["Tickets"]
+    if final_values['escalated_to']:
+        labels.append("Escalated")
+        labels.append("Pending-Approval")
+
     payload = {
         "fields": {
             "project": {"key": PROJECT_KEY},
@@ -129,7 +158,7 @@ def create_jira_ticket(
                 "content": content_blocks
             },
             "issuetype": {"name": ISSUE_TYPE},
-            "labels": ["Tickets"],
+            "labels": labels,  # Updated
             "components": [{"name": "Tickets"}]
         }
     }
@@ -160,11 +189,25 @@ def create_jira_ticket(
             else:
                 print(f"⚠️ Created ticket, but transition failed: {transition_response.json()}")
 
-            return f"✅ Ticket {issue_key} has been created successfully!"
+            # Return structured response  # NEW
+            return {
+                "success": True,
+                "key": issue_key,
+                "jira_key": issue_key,
+                "message": f"✅ Ticket {issue_key} has been created successfully!",
+                "escalated": bool(final_values['escalated_to']),
+                "escalated_to": final_values['escalated_to'] if final_values['escalated_to'] else None
+            }
 
         else:
             error_msg = response.json() if response.content else "Unknown error"
-            return f"❌ Failed to create ticket: {error_msg}"
+            return {
+                "success": False,
+                "error": f"Failed to create ticket: {error_msg}"
+            }
 
     except Exception as e:
-        return f"❌ Exception occurred: {e}"
+        return {
+            "success": False,
+            "error": f"Exception occurred: {str(e)}"
+        }

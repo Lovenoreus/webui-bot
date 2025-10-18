@@ -53,6 +53,8 @@ from models import (
     CreateTicketRequest,
     UpdateTicketRequest,
     SubmitTicketRequest,
+    SubmitTicketResponse,
+    EscalatorInfo,
     TicketResponse,
     InitializeTicketRequest,
     # MCPServerInfo
@@ -1604,341 +1606,36 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
 
 # ==================== TICKET OPERATION ====================
 
-@app.get("/tickets/{ticket_id}", response_model=TicketResponse)
-async def get_ticket_endpoint(ticket_id: str):
-    """Get ticket by ID"""
-    try:
-        ticket = await ticket_manager.get_ticket(ticket_id)
-        if not ticket:
-            raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found")
-
-        return TicketResponse(**ticket)
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        if DEBUG:
-            print(f"[API] Error getting ticket: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/threads/{conversation_id}/tickets")
-async def list_thread_tickets_endpoint(conversation_id: str):
-    """List all tickets for a thread"""
-    try:
-        tickets = await ticket_manager.list_tickets_for_thread(conversation_id)
-        return {
-            "conversation_id": conversation_id,
-            "count": len(tickets),
-            "tickets": tickets
-        }
-
-    except Exception as e:
-        if DEBUG:
-            print(f"[API] Error listing tickets: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/threads/{conversation_id}/active-ticket")
-async def get_active_ticket_endpoint(conversation_id: str):
-    """Get active ticket for thread"""
-    try:
-        ticket = await ticket_manager.get_active_ticket_for_thread(conversation_id)
-
-        if not ticket:
-            return {
-                "has_active_ticket": False,
-                "message": "No active ticket found for this thread"
-            }
-
-        return {
-            "has_active_ticket": True,
-            "ticket": TicketResponse(**ticket)
-        }
-
-    except Exception as e:
-        if DEBUG:
-            print(f"[API] Error getting active ticket: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.patch("/tickets/{ticket_id}")
-async def update_ticket_endpoint(ticket_id: str, conversation_id: str, request: UpdateTicketRequest):
+@app.post("/tickets/{ticket_id}/submit", response_model=SubmitTicketResponse)
+async def submit_ticket_endpoint(
+        ticket_id: str,
+        request: SubmitTicketRequest,
+        ad: FastActiveDirectory = Depends(get_ad)
+) -> SubmitTicketResponse:
     """
-    Update ticket fields with intelligent validation and rich contextual feedback.
+    Submit ticket to JIRA with permission check and escalation.
+
+    Flow:
+    1. Validates ticket completeness
+    2. Checks if user has permission to create tickets (member of "Ticket Creators" group)
+    3. If no permission: finds appropriate escalator from shared groups
+    4. Creates JIRA ticket (with escalation info if applicable)
+    5. Returns appropriate message to user
+
+    Args:
+        ticket_id: Unique ticket identifier
+        request: Ticket submission details
+        ad: Active Directory client (injected dependency)
+
+    Returns:
+        SubmitTicketResponse with ticket info, JIRA result, and escalation details
     """
-    try:
-        if DEBUG:
-            print(f"[TICKET_UPDATE] Updating ticket {ticket_id} with fields: {list(request.fields.keys())}")
-
-        # Get current ticket state
-        ticket = await ticket_manager.get_ticket(ticket_id)
-        if not ticket:
-            raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found")
-
-        if DEBUG:
-            print(f"[TICKET_UPDATE] Thread ID: {conversation_id}")
-
-        # Check if ticket is already submitted/completed
-        if ticket['status'] in [TicketStatus.SUBMITTED, TicketStatus.COMPLETED]:
-            return {
-                "success": False,
-                "error": f"Cannot update ticket in {ticket['status']} status",
-                "ticket_id": ticket_id,
-                "conversation_id": conversation_id,  # ADDED
-                "message": f"Ticket {ticket_id} has already been {ticket['status']}. Create a new ticket for additional issues.",
-                "next_step": "create_new_ticket",
-                "suggested_actions": [
-                    {
-                        "action": "view_ticket",
-                        "description": "View the submitted ticket details",
-                        "priority": 1
-                    },
-                    {
-                        "action": "create_new_ticket",
-                        "description": "Create a new ticket for a different issue",
-                        "priority": 2
-                    }
-                ],
-                "ticket_status": {
-                    "ticket_id": ticket_id,
-                    "conversation_id": conversation_id,  # ADDED
-                    "status": ticket['status'],
-                    "jira_key": ticket.get('jira_key')
-                }
-            }
-
-        # Store pre-update state
-        pre_update_fields = {k: ticket.get(k) for k in request.fields.keys()}
-        pre_update_missing = ticket.get("missing_fields", [])
-        pre_update_complete = ticket.get("is_complete", False)
-
-        # Perform update
-        updated_ticket = await ticket_manager.update_fields(ticket_id, request.fields)
-
-        # Analyze what changed
-        fields_updated = []
-        fields_unchanged = []
-        validation_errors = []
-        auto_actions = []
-
-        for field_name, new_value in request.fields.items():
-            old_value = pre_update_fields.get(field_name)
-            if old_value != new_value:
-                fields_updated.append(field_name)
-
-                if field_name == "category" and updated_ticket.get("queue"):
-                    auto_actions.append({
-                        "action": "auto_routed",
-                        "field": "queue",
-                        "value": updated_ticket.get("queue"),
-                        "reason": f"Based on category: {new_value}"
-                    })
-            else:
-                fields_unchanged.append(field_name)
-
-        # Validation status
-        priority_valid = (
-            updated_ticket.get("priority") in TicketManager.VALID_PRIORITIES
-            if updated_ticket.get("priority") else None
-        )
-        category_valid = (
-            updated_ticket.get("category")
-        )
-
-        # Calculate progress
-        post_update_missing = updated_ticket.get("missing_fields", [])
-        post_update_complete = updated_ticket.get("is_complete", False)
-        progress_made = len(pre_update_missing) - len(post_update_missing)
-
-        # Generate contextual message
-        if post_update_complete and not pre_update_complete:
-            message = f"Excellent! All required information has been collected for ticket {ticket_id}. The ticket is ready to submit."
-            next_step = "ready_to_submit"
-        elif progress_made > 0:
-            if len(post_update_missing) == 0:
-                message = f"Updated {', '.join(fields_updated)}. Ticket {ticket_id} is now complete!"
-                next_step = "ready_to_submit"
-            elif len(post_update_missing) == 1:
-                message = f"Updated {', '.join(fields_updated)}. Just need {post_update_missing[0]} and we're done!"
-                next_step = "collect_final_field"
-            else:
-                message = f"Updated {', '.join(fields_updated)}. Still need: {', '.join(post_update_missing)}."
-                next_step = "collect_remaining_fields"
-        elif len(fields_updated) > 0:
-            message = f"Updated {', '.join(fields_updated)} for ticket {ticket_id}."
-            next_step = "continue_collection"
-        else:
-            message = f"No changes made to ticket {ticket_id}. The provided values were the same as existing ones."
-            next_step = "no_changes"
-
-        # Generate diagnostic questions
-        must_ask_diagnostic_questions = []
-        if post_update_missing:
-            for missing_field in post_update_missing[:3]:
-                if missing_field == "priority":
-                    must_ask_diagnostic_questions.append(
-                        "How urgent is this issue? (High: major disruption, Medium: standard issue, Low: minor inconvenience)"
-                    )
-                elif missing_field == "category":
-                    must_ask_diagnostic_questions.append(
-                        "What type of issue is this? (Hardware, Software, Network, Facility, Medical Equipment, or Other)"
-                    )
-                elif missing_field == "location":
-                    must_ask_diagnostic_questions.append(
-                        "Where is this issue occurring? (Building, floor, room number, or department)"
-                    )
-                elif missing_field == "description":
-                    must_ask_diagnostic_questions.append(
-                        "Can you provide more details about what's happening?"
-                    )
-                else:
-                    must_ask_diagnostic_questions.append(f"Can you provide the {missing_field}?")
-
-        # Build suggested actions
-        suggested_actions = []
-
-        if post_update_complete:
-            suggested_actions.append({
-                "action": "submit_ticket",
-                "description": "Submit the completed ticket to JIRA",
-                "priority": 1,
-                "can_proceed": True
-            })
-            suggested_actions.append({
-                "action": "review_before_submit",
-                "description": "Review all ticket details before submission",
-                "priority": 2,
-                "can_proceed": True
-            })
-        elif len(post_update_missing) > 0:
-            suggested_actions.append({
-                "action": "answer_remaining_questions",
-                "description": f"Provide {len(post_update_missing)} more field(s): {', '.join(post_update_missing)}",
-                "priority": 1,
-                "can_proceed": False
-            })
-
-        # Get recent changes
-        recent_changes = updated_ticket.get("history", [])[-5:] if updated_ticket.get("history") else []
-
-        # Build comprehensive response
-        response = {
-            "success": True,
-            "ticket_id": ticket_id,
-            "conversation_id": conversation_id,  # CRITICAL: Always include
-
-            # Conversation context
-            "conversation": {
-                "conversation_id": conversation_id,  # ADDED for emphasis
-                "active_ticket": ticket_id,
-                "can_create_new": False  # False because this ticket is still active
-            },
-
-            # What changed
-            "changes": {
-                "fields_updated": fields_updated,
-                "fields_unchanged": fields_unchanged,
-                "auto_actions": auto_actions,
-                "progress_made": progress_made > 0
-            },
-
-            # Conversation guidance
-            "message": message,
-            "next_step": next_step,
-            "must_ask_diagnostic_questions": must_ask_diagnostic_questions,
-
-            # Progress tracking
-            "progress": {
-                "before": {
-                    "complete": pre_update_complete,
-                    "missing_count": len(pre_update_missing),
-                    "missing_fields": pre_update_missing
-                },
-                "after": {
-                    "complete": post_update_complete,
-                    "missing_count": len(post_update_missing),
-                    "missing_fields": post_update_missing
-                },
-                "improvement": progress_made,
-                "percent": updated_ticket.get("progress", {}).get("percent", 0)
-            },
-
-            # Validation status
-            "validation": {
-                "all_valid": priority_valid != False and category_valid != False,
-                "priority_valid": priority_valid,
-                "category_valid": category_valid,
-                "can_submit": post_update_complete,
-                "issues": validation_errors
-            },
-
-            # Current ticket state
-            "ticket_status": {
-                "ticket_id": ticket_id,
-                "conversation_id": conversation_id,  # ADDED
-                "status": updated_ticket.get("status"),
-                "is_complete": post_update_complete,
-                "missing_fields": post_update_missing,
-                "fields": updated_ticket.get("fields", {})
-            },
-
-            # Recommended actions
-            "suggested_actions": suggested_actions,
-
-            # Recent activity
-            "recent_changes": [
-                {
-                    "field": change.get("field_name"),
-                    "from": change.get("old_value"),
-                    "to": change.get("new_value"),
-                    "when": change.get("timestamp"),
-                    "action": change.get("action")
-                }
-                for change in recent_changes
-            ],
-
-            # Metadata
-            "metadata": {
-                "sla_deadline": updated_ticket.get("sla_deadline"),
-                "auto_routed_queue": updated_ticket.get("queue") if "category" in fields_updated else None,
-                # "estimated_resolution": ticket_manager._estimate_resolution_time(
-                #     updated_ticket) if post_update_complete else None
-            }
-        }
-
-        # Add field suggestions if still incomplete
-        # if not post_update_complete and len(post_update_missing) > 0:
-        #     response["suggestions"] = ticket_manager._generate_field_suggestions(updated_ticket, post_update_missing)
-
-        return response
-
-    except ValueError as e:
-        if DEBUG:
-            print(f"[TICKET_UPDATE] Validation error: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
-
-    except HTTPException:
-        raise
-
-    except Exception as e:
-        if DEBUG:
-            print(f"[TICKET_UPDATE] Error: {e}")
-            import traceback
-            traceback.print_exc()
-
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/tickets/{ticket_id}/submit")
-async def submit_ticket_endpoint(ticket_id: str, request: SubmitTicketRequest):
-    """Submit ticket to JIRA"""
     try:
         if DEBUG:
             print(f"[DEBUG] Received request to submit ticket: {ticket_id}")
             print(f"[DEBUG] Request payload: {request.model_dump()}")
 
-        # Get current ticket
+        # ==================== GET AND VALIDATE TICKET ====================
         ticket = await ticket_manager.get_ticket(ticket_id)
         if DEBUG:
             print(f"[DEBUG] Fetched ticket: {ticket}")
@@ -1953,11 +1650,14 @@ async def submit_ticket_endpoint(ticket_id: str, request: SubmitTicketRequest):
             if DEBUG:
                 print(f"[DEBUG] Ticket already in status: {ticket['status']}")
 
-            return {
-                "success": False,
-                "error": f"Ticket already {ticket['status']}",
-                "ticket": TicketResponse(**ticket).model_dump()
-            }
+            return SubmitTicketResponse(
+                success=False,
+                ticket=TicketResponse(**ticket),
+                jira_result={"error": f"Ticket already {ticket['status']}"},
+                ticket_escalator=None,
+                escalated=False,
+                message=f"Ticket already {ticket['status']}"
+            )
 
         # Update all fields from request
         if DEBUG:
@@ -1974,10 +1674,174 @@ async def submit_ticket_endpoint(ticket_id: str, request: SubmitTicketRequest):
                 print(f"[DEBUG] Ticket incomplete: missing fields {ticket['missing_fields']}")
             raise HTTPException(
                 status_code=400,
-                detail=f"Ticket incomplete. Missing: {ticket['missing_fields']}"
+                detail=f"Ticket incomplete. Missing: {', '.join(ticket['missing_fields'])}"
             )
 
-        # Create JIRA ticket
+        # ==================== PERMISSION CHECK & ESCALATION LOGIC ====================
+        ticket_escalator = None
+        escalation_message = None
+        escalated_to_name = ""
+        escalated_to_email = ""
+        user_identifier = request.reporter_name  # You can also use email if available
+
+        if DEBUG:
+            print(f"[DEBUG] ==================== PERMISSION CHECK START ====================")
+            print(f"[DEBUG] Checking permissions for user: {user_identifier}")
+
+        try:
+            # Check if user belongs to "Ticket Creators" group
+            is_ticket_creator = await ad.check_user_membership(
+                user_identifier=user_identifier,
+                group_identifier="Ticket Creators"
+            )
+
+            if DEBUG:
+                print(f"[DEBUG] User '{user_identifier}' is ticket creator: {is_ticket_creator}")
+
+            if not is_ticket_creator:
+                if DEBUG:
+                    print(f"[DEBUG] ⚠️  User lacks permission - initiating escalation process")
+
+                # Step 1: Get user's groups
+                if DEBUG:
+                    print(f"[DEBUG] Fetching user's group memberships...")
+
+                user_groups = await ad.get_user_groups_smart(
+                    user_identifier=user_identifier,
+                    transitive=False
+                )
+
+                if DEBUG:
+                    print(f"[DEBUG] User belongs to {len(user_groups)} groups:")
+                    for g in user_groups[:5]:  # Log first 5 groups
+                        print(f"[DEBUG]   - {g.get('displayName')} (ID: {g.get('id')})")
+
+                # Step 2: Get members of "Ticket Creators" group
+                if DEBUG:
+                    print(f"[DEBUG] Fetching members of 'Ticket Creators' group...")
+
+                ticket_creators = await ad.get_group_members_smart(
+                    group_identifier="Ticket Creators"
+                )
+
+                if DEBUG:
+                    print(f"[DEBUG] Found {len(ticket_creators)} ticket creators:")
+                    for tc in ticket_creators[:5]:  # Log first 5
+                        print(f"[DEBUG]   - {tc.get('displayName')} ({tc.get('userPrincipalName')})")
+
+                if not ticket_creators:
+                    error_msg = "No ticket creators found in the system. Please contact IT support."
+                    if DEBUG:
+                        print(f"[ERROR] {error_msg}")
+                    raise HTTPException(status_code=500, detail=error_msg)
+
+                # Step 3: Find escalator - someone who shares a group with the user
+                if DEBUG:
+                    print(f"[DEBUG] Finding best escalator (someone who shares groups with user)...")
+
+                user_group_ids = {g['id'] for g in user_groups}
+                potential_escalators = []
+
+                for creator in ticket_creators:
+                    if DEBUG:
+                        print(f"[DEBUG] Checking creator: {creator.get('displayName')}")
+
+                    try:
+                        creator_groups = await ad.get_user_groups_smart(
+                            user_identifier=creator['id'],
+                            transitive=False
+                        )
+                        creator_group_ids = {g['id'] for g in creator_groups}
+
+                        # Check for common groups
+                        common_groups = user_group_ids.intersection(creator_group_ids)
+
+                        if common_groups:
+                            potential_escalators.append({
+                                'user': creator,
+                                'common_groups_count': len(common_groups),
+                                'common_groups': common_groups
+                            })
+                            if DEBUG:
+                                print(f"[DEBUG]   ✓ {creator.get('displayName')} shares {len(common_groups)} group(s)")
+                        else:
+                            if DEBUG:
+                                print(f"[DEBUG]   ✗ {creator.get('displayName')} shares no groups")
+
+                    except Exception as e:
+                        if DEBUG:
+                            print(f"[DEBUG]   ✗ Error checking {creator.get('displayName')}: {e}")
+                        continue
+
+                if DEBUG:
+                    print(f"[DEBUG] Found {len(potential_escalators)} potential escalators with shared groups")
+
+                # Step 4: Select the best escalator
+                if potential_escalators:
+                    # Sort by most common groups (better match = more shared context)
+                    potential_escalators.sort(
+                        key=lambda x: x['common_groups_count'],
+                        reverse=True
+                    )
+                    escalator = potential_escalators[0]['user']
+                    if DEBUG:
+                        print(f"[DEBUG] ✓ Selected escalator: {escalator.get('displayName')} "
+                              f"(shares {potential_escalators[0]['common_groups_count']} groups)")
+                else:
+                    # Fallback: just use first ticket creator
+                    escalator = ticket_creators[0]
+                    if DEBUG:
+                        print(f"[DEBUG] ⚠️  No shared groups found. Using fallback: {escalator.get('displayName')}")
+
+                # Build escalator info
+                ticket_escalator = EscalatorInfo(
+                    id=escalator['id'],
+                    displayName=escalator.get('displayName', 'Unknown'),
+                    userPrincipalName=escalator.get('userPrincipalName', ''),
+                    email=escalator.get('userPrincipalName', '')
+                )
+
+                escalated_to_name = ticket_escalator.displayName
+                escalated_to_email = ticket_escalator.email
+
+                escalation_message = (
+                    f"Your ticket has been successfully sent to {ticket_escalator.displayName} "
+                    f"({ticket_escalator.email}), who is responsible for creating tickets. "
+                    f"Don't worry - they will review your ticket and create it on your behalf. "
+                    f"You will receive additional information once the ticket is processed."
+                )
+
+                if DEBUG:
+                    print(f"[DEBUG] ✓ Escalation complete:")
+                    print(f"[DEBUG]   Escalator: {ticket_escalator.displayName}")
+                    print(f"[DEBUG]   Email: {ticket_escalator.email}")
+                    print(f"[DEBUG] ==================== PERMISSION CHECK END ====================")
+
+            else:
+                if DEBUG:
+                    print(f"[DEBUG] ✓ User has permission to create tickets directly")
+                    print(f"[DEBUG] ==================== PERMISSION CHECK END ====================")
+
+        except HTTPException:
+            # Re-raise HTTP exceptions (like 500 for no ticket creators)
+            raise
+
+        except Exception as e:
+            if DEBUG:
+                print(f"[ERROR] ==================== PERMISSION CHECK FAILED ====================")
+                print(f"[ERROR] Permission check error: {e}")
+                import traceback
+                traceback.print_exc()
+                print(f"[ERROR] Continuing with ticket creation (degraded mode)")
+                print(f"[ERROR] ==================== PERMISSION CHECK END ====================")
+
+            # Continue with ticket creation even if permission check fails
+            # This ensures system resilience - better to create ticket than fail completely
+
+        # ==================== CREATE JIRA TICKET ====================
+        if DEBUG:
+            print(f"[DEBUG] ==================== JIRA CREATION START ====================")
+
         jira_payload = {
             "conversation_id": ticket['conversation_id'],
             "conversation_topic": request.conversation_topic,
@@ -1987,49 +1851,94 @@ async def submit_ticket_endpoint(ticket_id: str, request: SubmitTicketRequest):
             "priority": request.priority,
             "department": request.department,
             "name": request.reporter_name,
-            "category": request.category
+            "category": request.category,
+            "escalated_to": escalated_to_name,
+            "escalated_to_email": escalated_to_email
         }
+
         if DEBUG:
-            print(f"[DEBUG] Sending payload to JIRA: {jira_payload}")
+            print(f"[DEBUG] JIRA Payload:")
+            print(f"[DEBUG]   Topic: {jira_payload['conversation_topic']}")
+            print(f"[DEBUG]   Location: {jira_payload['location']}")
+            print(f"[DEBUG]   Queue: {jira_payload['queue']}")
+            print(f"[DEBUG]   Priority: {jira_payload['priority']}")
+            print(f"[DEBUG]   Category: {jira_payload['category']}")
+            print(f"[DEBUG]   Reporter: {jira_payload['name']}")
+            if escalated_to_name:
+                print(f"[DEBUG]   ⚠️  ESCALATED TO: {escalated_to_name} ({escalated_to_email})")
 
         jira_result = await asyncio.to_thread(create_jira_ticket, **jira_payload)
+
         if DEBUG:
-            print(f"[DEBUG] JIRA result: {jira_result}")
+            print(f"[DEBUG] JIRA Result: {jira_result}")
+            print(f"[DEBUG] ==================== JIRA CREATION END ====================")
 
         # Extract JIRA key
         jira_key = None
         if isinstance(jira_result, dict):
             jira_key = jira_result.get('key') or jira_result.get('jira_key')
+
         if DEBUG:
             print(f"[DEBUG] Extracted JIRA key: {jira_key}")
 
-        # Update status to submitted
+        # Check if JIRA creation was successful
+        if isinstance(jira_result, dict) and not jira_result.get('success', True):
+            if DEBUG:
+                print(f"[ERROR] JIRA creation failed: {jira_result.get('error')}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to create JIRA ticket: {jira_result.get('error', 'Unknown error')}"
+            )
+
+        # ==================== UPDATE TICKET STATUS ====================
         if DEBUG:
             print(f"[DEBUG] Updating ticket status to SUBMITTED")
+
         ticket = await ticket_manager.update_status(
             ticket_id,
             TicketStatus.SUBMITTED,
             jira_key=jira_key
         )
+
         if DEBUG:
             print(f"[DEBUG] Final ticket data: {ticket}")
 
-        return {
-            "success": True,
-            "ticket": TicketResponse(**ticket).model_dump(),
-            "jira_result": jira_result
-        }
+        # ==================== BUILD RESPONSE ====================
+        response_message = escalation_message if escalation_message else "Ticket successfully created in JIRA"
+
+        if DEBUG:
+            print(f"[DEBUG] ==================== RESPONSE SUMMARY ====================")
+            print(f"[DEBUG] Success: True")
+            print(f"[DEBUG] Ticket ID: {ticket_id}")
+            print(f"[DEBUG] JIRA Key: {jira_key}")
+            print(f"[DEBUG] Escalated: {bool(ticket_escalator)}")
+            if ticket_escalator:
+                print(f"[DEBUG] Escalator: {ticket_escalator.displayName} ({ticket_escalator.email})")
+            print(f"[DEBUG] Message: {response_message}")
+            print(f"[DEBUG] ==================== REQUEST COMPLETE ====================")
+
+        return SubmitTicketResponse(
+            success=True,
+            ticket=TicketResponse(**ticket),
+            jira_result=jira_result,
+            ticket_escalator=ticket_escalator,
+            escalated=bool(ticket_escalator),
+            message=response_message
+        )
 
     except HTTPException:
+        # Re-raise HTTP exceptions as-is
         raise
 
     except Exception as e:
         if DEBUG:
+            print(f"[ERROR] ==================== FATAL ERROR ====================")
             print(f"[ERROR] Exception while submitting ticket: {e}")
             import traceback
             traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+            print(f"[ERROR] ==================== ERROR END ====================")
 
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/tickets/{ticket_id}/cancel")
@@ -2045,79 +1954,6 @@ async def cancel_ticket_endpoint(ticket_id: str):
         if DEBUG:
             print(f"[API] Error cancelling ticket: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/tickets/search")
-async def search_tickets_endpoint(
-        status: Optional[str] = None,
-        priority: Optional[str] = None,
-        category: Optional[str] = None,
-        jira_key: Optional[str] = None,
-        limit: int = 50
-):
-    """Search tickets"""
-    try:
-        tickets = await ticket_manager.search_tickets(
-            status=status,
-            priority=priority,
-            category=category,
-            jira_key=jira_key,
-            limit=limit
-        )
-
-        return {
-            "count": len(tickets),
-            "tickets": tickets
-        }
-
-    except Exception as e:
-        if DEBUG:
-            print(f"[API] Error searching tickets: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/tickets/stats")
-async def get_ticket_stats():
-    """Get ticket statistics by priority and category"""
-    data = await storage.load()
-
-    stats = {
-        "by_priority": {},
-        "by_category": {},
-        "by_status": {},
-        "total_tickets": len(data["tickets"])
-    }
-
-    for ticket in data["tickets"].values():
-        # Count by priority
-        priority = ticket.get("priority", "Unknown")
-        stats["by_priority"][priority] = stats["by_priority"].get(priority, 0) + 1
-
-        # Count by category
-        category = ticket.get("category", "Unknown")
-        stats["by_category"][category] = stats["by_category"].get(category, 0) + 1
-
-        # Count by status
-        status = ticket.get("status", "Unknown")
-        stats["by_status"][status] = stats["by_status"].get(status, 0) + 1
-
-    return stats
-
-
-@app.post("/storage/backup")
-async def backup_storage_endpoint():
-    """Create a backup of the storage file"""
-    try:
-        await storage.backup()
-        return {
-            "success": True,
-            "message": "Backup created successfully"
-        }
-    except Exception as e:
-        if DEBUG:
-            print(f"[API] Error creating backup: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
 
 # ==================== MCP TOOLS ====================
 

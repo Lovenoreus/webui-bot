@@ -1,0 +1,102 @@
+{
+  "tickets": {
+    "TKT-EFD5EB21": {
+      "ticket_id": "TKT-EFD5EB21",
+      "conversation_id": "00001",
+      "status": "submitted",
+      "created_at": "2025-10-17T13:40:00.047635",
+      "updated_at": "2025-10-17T13:42:10.141703",
+      "reporter_name": "",
+      "reporter_email": "",
+      "jira_key": null,
+      "conversation_topic": "Missing Computer Monitor from Room 3",
+      "description": "A computer monitor is missing from room 3, which may affect operations or patient care. Confirmed it was previously in room 3 and last seen yesterday morning.",
+      "location": "Room 3",
+      "queue": "General Support",
+      "priority": "Medium",
+      "department": "Facilities",
+      "category": "Equipment Issue",
+      "knowledge_base_result": "{\"success\": true, \"analysis\": {\"source\": \"generated\", \"protocol_id\": null, \"confidence_score\": 0.0, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The user is reporting that a computer monitor is missing from room 3, which may affect operations or patient care.\"}, \"guidance\": {\"message\": \"We have identified that there is no existing protocol for missing equipment. We recommend escalating this issue to ensure it is addressed promptly.\", \"next_step\": \"immediate_escalation\", \"reasoning\": \"The absence of a computer monitor could hinder operations, and immediate action is necessary to resolve the issue.\"}, \"must_ask_diagnostic_questions\": [\"Can you confirm if the monitor was previously in room 3?\", \"When was the monitor last seen in the room?\", \"Is there any ongoing work or maintenance in room 3 that might have affected the monitor's location?\"], \"troubleshooting_steps\": null, \"suggestions\": {\"category\": \"Hardware\", \"queue\": \"Maintenance Department\", \"priority\": \"High\", \"reasoning\": \"The missing monitor is a hardware issue that requires immediate attention from the maintenance team to ensure operational continuity.\"}, \"metadata\": {\"estimated_resolution_time\": \"2 hours\", \"similar_issues_found\": 0, \"escalation_recommended\": true}}",
+      "history": [
+        {
+          "timestamp": "2025-10-17T13:42:08.591615",
+          "field_name": "conversation_topic",
+          "old_value": null,
+          "new_value": "Missing Computer Monitor from Room 3",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-17T13:42:08.591615",
+          "field_name": "description",
+          "old_value": "Missing computer monitor in room 3",
+          "new_value": "A computer monitor is missing from room 3, which may affect operations or patient care. Confirmed it was previously in room 3 and last seen yesterday morning.",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-17T13:42:08.591615",
+          "field_name": "location",
+          "old_value": null,
+          "new_value": "Room 3",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-17T13:42:08.591615",
+          "field_name": "queue",
+          "old_value": "queue",
+          "new_value": "Operations",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-17T13:42:08.591615",
+          "field_name": "priority",
+          "old_value": null,
+          "new_value": "Medium",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-17T13:42:08.591615",
+          "field_name": "department",
+          "old_value": null,
+          "new_value": "Facilities",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-17T13:42:08.591615",
+          "field_name": "reporter_name",
+          "old_value": "",
+          "new_value": "",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-17T13:42:08.591615",
+          "field_name": "queue",
+          "old_value": null,
+          "new_value": "General Support",
+          "action": "auto_route"
+        },
+        {
+          "timestamp": "2025-10-17T13:42:08.591615",
+          "field_name": "category",
+          "old_value": null,
+          "new_value": "Equipment Issue",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-17T13:42:10.141703",
+          "field_name": "status",
+          "old_value": "draft",
+          "new_value": "submitted",
+          "action": "status_change"
+        }
+      ]
+    }
+  },
+  "thread_index": {
+    "00001": [
+      "TKT-EFD5EB21"
+    ]
+  },
+  "metadata": {
+    "created_at": "2025-10-17T13:40:00.047603"
+  }
+}
