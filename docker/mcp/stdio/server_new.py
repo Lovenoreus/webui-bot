@@ -1605,7 +1605,6 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
 
 
 # ==================== TICKET OPERATION ====================
-
 @app.post("/tickets/{ticket_id}/submit", response_model=SubmitTicketResponse)
 async def submit_ticket_endpoint(
         ticket_id: str,
@@ -1682,7 +1681,7 @@ async def submit_ticket_endpoint(
         escalation_message = None
         escalated_to_name = ""
         escalated_to_email = ""
-        user_identifier = request.reporter_name  # You can also use email if available
+        user_identifier = request.reporter_name
 
         if DEBUG:
             print(f"[DEBUG] ==================== PERMISSION CHECK START ====================")
@@ -1735,7 +1734,7 @@ async def submit_ticket_endpoint(
                         print(f"[ERROR] {error_msg}")
                     raise HTTPException(status_code=500, detail=error_msg)
 
-                # Step 3: Find escalator - someone who shares a group with the user
+                # Step 3: Find escalator - someone who is in Ticket Creators AND shares a group with the user
                 if DEBUG:
                     print(f"[DEBUG] Finding best escalator (someone who shares groups with user)...")
 
@@ -3194,13 +3193,23 @@ async def mcp_tools_call(request: MCPToolCallRequest):
                     isError=True
                 )
 
+
         elif tool_name == "ticket_submit":
             ticket_id = arguments["ticket_id"]
             submit_data = {k: v for k, v in arguments.items() if k != "ticket_id"}
             submit_request = SubmitTicketRequest(**submit_data)
-            result = await submit_ticket_endpoint(ticket_id, submit_request)
+
+            # Create AD instance and pass it to the endpoint - same pattern as ad_create_user
+            async with FastActiveDirectory(max_concurrent=20) as ad:
+                result = await submit_ticket_endpoint(ticket_id, submit_request, ad)
+
+            # Convert result to dict if needed
+            result_dict = result.model_dump() if hasattr(result, 'model_dump') else result
+
             return MCPToolCallResponse(
-                content=[MCPContent(type="text", text=json.dumps(result, indent=2))]
+                content=[MCPContent(type="text", text=json.dumps(result_dict, indent=2))],
+                isError=not result_dict.get("success", False)
+
             )
 
         elif tool_name == "ticket_cancel":

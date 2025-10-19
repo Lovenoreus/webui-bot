@@ -89,11 +89,284 @@
           "action": "status_change"
         }
       ]
+    },
+    "TKT-9C1F3FBA": {
+      "ticket_id": "TKT-9C1F3FBA",
+      "conversation_id": "00001",
+      "status": "draft",
+      "created_at": "2025-10-19T11:45:29.769661",
+      "updated_at": "2025-10-19T12:06:18.953656",
+      "reporter_name": "John",
+      "reporter_email": "",
+      "jira_key": null,
+      "conversation_topic": "MRI machine malfunction in room 10",
+      "description": "The MRI machine in room 10 is not functioning, but no specific error messages are displayed.",
+      "location": "Room 10",
+      "queue": "Biomedical Engineering",
+      "priority": "High",
+      "department": "Medical Equipment",
+      "category": "Medical Equipment",
+      "knowledge_base_result": "{\"success\": true, \"analysis\": {\"source\": \"protocol\", \"protocol_id\": null, \"confidence_score\": 0.52, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The MRI machine in room 10 is not functioning, but no specific error messages are displayed.\"}, \"guidance\": {\"message\": \"The MRI machine issue has been identified as critical, and we need more information to proceed with troubleshooting.\", \"next_step\": \"collect_info\", \"reasoning\": \"Gathering specific details about the MRI machine will help in diagnosing the problem effectively.\"}, \"must_ask_diagnostic_questions\": [\"What is the model and serial number of the MRI scanner?\", \"What specific issue are you experiencing (e.g., noise, image quality, cooling failure)?\", \"Is patient imaging currently being delayed or canceled due to this problem?\", \"When was the scanner last used without any issues?\", \"Have any error codes or system alerts been displayed on the console?\"], \"troubleshooting_steps\": null, \"suggestions\": {\"category\": \"Medical Equipment\", \"queue\": \"2nd line\", \"priority\": \"High\", \"reasoning\": \"The MRI machine is critical for patient imaging, and its malfunction directly impacts patient care.\"}, \"metadata\": {\"estimated_resolution_time\": null, \"similar_issues_found\": 0, \"escalation_recommended\": true}}",
+      "history": [
+        {
+          "timestamp": "2025-10-19T11:45:59.545834",
+          "field_name": "conversation_topic",
+          "old_value": null,
+          "new_value": "MRI machine issue in room 10",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:45:59.545834",
+          "field_name": "description",
+          "old_value": "The MRI machine in room 10 is busted. I don\u2019t know the model or tag number. There are no error messages seen.",
+          "new_value": "The MRI machine in room 10 is not functioning, but no specific error messages are displayed.",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:45:59.545834",
+          "field_name": "location",
+          "old_value": null,
+          "new_value": "Room 10",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:45:59.545834",
+          "field_name": "queue",
+          "old_value": "queue",
+          "new_value": "2nd line",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:45:59.545834",
+          "field_name": "priority",
+          "old_value": null,
+          "new_value": "High",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:45:59.545834",
+          "field_name": "department",
+          "old_value": null,
+          "new_value": "Medical Equipment",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:45:59.545834",
+          "field_name": "reporter_name",
+          "old_value": "",
+          "new_value": "",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:45:59.545834",
+          "field_name": "queue",
+          "old_value": null,
+          "new_value": "Biomedical Engineering",
+          "action": "auto_route"
+        },
+        {
+          "timestamp": "2025-10-19T11:45:59.545834",
+          "field_name": "category",
+          "old_value": null,
+          "new_value": "Medical Equipment",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:52:41.693498",
+          "field_name": "conversation_topic",
+          "old_value": "MRI machine issue in room 10",
+          "new_value": "Submission of MRI machine issue",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:52:41.693498",
+          "field_name": "description",
+          "old_value": "The MRI machine in room 10 is not functioning, but no specific error messages are displayed.",
+          "new_value": "The MRI machine in room 10 is not functioning, but no specific error messages are displayed.",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:52:41.693498",
+          "field_name": "location",
+          "old_value": "Room 10",
+          "new_value": "Room 10",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:52:41.693498",
+          "field_name": "queue",
+          "old_value": "Biomedical Engineering",
+          "new_value": "2nd line",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:52:41.693498",
+          "field_name": "priority",
+          "old_value": "High",
+          "new_value": "High",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:52:41.693498",
+          "field_name": "department",
+          "old_value": "Medical Equipment",
+          "new_value": "Medical Equipment",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:52:41.693498",
+          "field_name": "reporter_name",
+          "old_value": "",
+          "new_value": "John",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:52:41.693498",
+          "field_name": "queue",
+          "old_value": null,
+          "new_value": "Biomedical Engineering",
+          "action": "auto_route"
+        },
+        {
+          "timestamp": "2025-10-19T11:52:41.693498",
+          "field_name": "category",
+          "old_value": "Medical Equipment",
+          "new_value": "Medical Equipment",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:56:30.277589",
+          "field_name": "conversation_topic",
+          "old_value": "Submission of MRI machine issue",
+          "new_value": "MRI Machine Not Functioning",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:56:30.277589",
+          "field_name": "description",
+          "old_value": "The MRI machine in room 10 is not functioning, but no specific error messages are displayed.",
+          "new_value": "The MRI machine in room 10 is not functioning, but no specific error messages are displayed.",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:56:30.277589",
+          "field_name": "location",
+          "old_value": "Room 10",
+          "new_value": "",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:56:30.277589",
+          "field_name": "queue",
+          "old_value": "Biomedical Engineering",
+          "new_value": "2nd line",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:56:30.277589",
+          "field_name": "priority",
+          "old_value": "High",
+          "new_value": "High",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:56:30.277589",
+          "field_name": "department",
+          "old_value": "Medical Equipment",
+          "new_value": "",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:56:30.277589",
+          "field_name": "reporter_name",
+          "old_value": "John",
+          "new_value": "John",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T11:56:30.277589",
+          "field_name": "queue",
+          "old_value": null,
+          "new_value": "Biomedical Engineering",
+          "action": "auto_route"
+        },
+        {
+          "timestamp": "2025-10-19T11:56:30.277589",
+          "field_name": "category",
+          "old_value": "Medical Equipment",
+          "new_value": "Medical Equipment",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T12:06:18.953656",
+          "field_name": "conversation_topic",
+          "old_value": "MRI Machine Not Functioning",
+          "new_value": "MRI machine malfunction in room 10",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T12:06:18.953656",
+          "field_name": "description",
+          "old_value": "The MRI machine in room 10 is not functioning, but no specific error messages are displayed.",
+          "new_value": "The MRI machine in room 10 is not functioning, but no specific error messages are displayed.",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T12:06:18.953656",
+          "field_name": "location",
+          "old_value": "",
+          "new_value": "Room 10",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T12:06:18.953656",
+          "field_name": "queue",
+          "old_value": "Biomedical Engineering",
+          "new_value": "2nd line",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T12:06:18.953656",
+          "field_name": "priority",
+          "old_value": "High",
+          "new_value": "High",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T12:06:18.953656",
+          "field_name": "department",
+          "old_value": "",
+          "new_value": "Medical Equipment",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T12:06:18.953656",
+          "field_name": "reporter_name",
+          "old_value": "John",
+          "new_value": "John",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-19T12:06:18.953656",
+          "field_name": "queue",
+          "old_value": null,
+          "new_value": "Biomedical Engineering",
+          "action": "auto_route"
+        },
+        {
+          "timestamp": "2025-10-19T12:06:18.953656",
+          "field_name": "category",
+          "old_value": "Medical Equipment",
+          "new_value": "Medical Equipment",
+          "action": "continue"
+        }
+      ]
     }
   },
   "thread_index": {
     "00001": [
-      "TKT-EFD5EB21"
+      "TKT-EFD5EB21",
+      "TKT-9C1F3FBA"
     ]
   },
   "metadata": {
