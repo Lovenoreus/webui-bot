@@ -14,9 +14,9 @@ def create_jira_ticket(
         department: str = "",
         name: str = "",
         category: str = "",
-        escalated_to: str = "",  # NEW
-        escalated_to_email: str = ""  # NEW
-) -> dict:  # Changed return type from str to dict
+        escalated_to: str = "",
+        escalated_to_email: str = ""
+) -> dict:
     """
     Creates a support ticket in Jira using the provided details.
 
@@ -30,8 +30,8 @@ def create_jira_ticket(
         department (str): The user's department.
         name (str): Name of the person reporting.
         category (str): Ticket category.
-        escalated_to (str): Name of escalator if ticket was escalated.  # NEW
-        escalated_to_email (str): Email of escalator if ticket was escalated.  # NEW
+        escalated_to (str): Name of escalator if ticket was escalated.
+        escalated_to_email (str): Email of escalator if ticket was escalated.
 
     Returns:
         dict: Response with ticket key and status.
@@ -47,8 +47,8 @@ def create_jira_ticket(
         'department': department,
         'name': name,
         'category': category,
-        'escalated_to': escalated_to,  # NEW
-        'escalated_to_email': escalated_to_email  # NEW
+        'escalated_to': escalated_to,
+        'escalated_to_email': escalated_to_email
     }
 
     print(f'📩 Creating Jira ticket for topic: "{final_values["conversation_topic"]}"')
@@ -81,7 +81,7 @@ def create_jira_ticket(
     cleaned_description = final_values['description'].replace("Problem Analysis: ", "", 1) if final_values[
         'description'] else "No description provided"
 
-    # Add escalation notice at the top if escalated  # NEW
+    # Add escalation notice at the top if escalated
     if final_values['escalated_to']:
         content_blocks.extend([
             {
@@ -137,33 +137,46 @@ def create_jira_ticket(
     add_block("Category", final_values['category'])
     add_block("Conversation Topic", final_values['conversation_topic'])
 
+    # Add escalation information to the description body
+    if final_values['escalated_to']:
+        add_block("Escalated To", final_values['escalated_to'])
+        add_block("Escalated To Email", final_values['escalated_to_email'])
+        add_block("Original Reporter", final_values['name'])
+
     content_blocks.append({
         "type": "paragraph",
         "content": [{"type": "text", "text": "Call Ended", "marks": [{"type": "strong"}]}]
     })
 
-    # Build labels - add escalation label if escalated  # NEW
+    # Build labels - add escalation label if escalated
     labels = ["Tickets"]
     if final_values['escalated_to']:
         labels.append("Escalated")
         labels.append("Pending-Approval")
 
+    # Build the summary to include escalation info if present
+    summary = final_values['conversation_topic']
+    if final_values['escalated_to']:
+        summary = f"[ESCALATED] {summary}"
+
     payload = {
         "fields": {
             "project": {"key": PROJECT_KEY},
-            "summary": final_values['conversation_topic'],
+            "summary": summary,
             "description": {
                 "type": "doc",
                 "version": 1,
                 "content": content_blocks
             },
             "issuetype": {"name": ISSUE_TYPE},
-            "labels": labels,  # Updated
-            "components": [{"name": "Tickets"}]
+            "labels": labels
         }
     }
 
     try:
+        print(f"[DEBUG] Sending payload to Jira...")
+        print(
+            f"[DEBUG] Escalation info - To: {final_values['escalated_to']}, Email: {final_values['escalated_to_email']}")
         response = requests.post(
             CREATE_ISSUE_URL,
             headers=HEADERS,
@@ -171,42 +184,60 @@ def create_jira_ticket(
             json=payload
         )
 
+        print(f"[DEBUG] Jira response status: {response.status_code}")
+
         if response.status_code == 201:
             issue_key = response.json()["key"]
             print(f"✅ Ticket {issue_key} successfully created!")
 
-            # Transition the ticket
-            transition_payload = {"transition": {"id": 51}}
-            transition_response = requests.post(
-                TRANSITION_URL.format(issue_key),
-                headers=HEADERS,
-                auth=(JIRA_EMAIL, JIRA_API_TOKEN),
-                json=transition_payload
-            )
+            # Transition the ticket - fixed to use string ID
+            try:
+                transition_payload = {"transition": {"id": "51"}}
+                transition_response = requests.post(
+                    TRANSITION_URL.format(issue_key),
+                    headers=HEADERS,
+                    auth=(JIRA_EMAIL, JIRA_API_TOKEN),
+                    json=transition_payload
+                )
 
-            if transition_response.status_code == 204:
-                print(f"✅ Ticket {issue_key} transitioned to 'Tickets'.")
-            else:
-                print(f"⚠️ Created ticket, but transition failed: {transition_response.json()}")
+                if transition_response.status_code == 204:
+                    print(f"✅ Ticket {issue_key} transitioned to 'Tickets'.")
+                else:
+                    print(
+                        f"⚠️ Created ticket, but transition failed (status {transition_response.status_code}): {transition_response.text}")
 
-            # Return structured response  # NEW
+            except Exception as transition_error:
+                print(f"⚠️ Ticket created but transition failed: {str(transition_error)}")
+
+            # Return structured response with full escalation info
             return {
                 "success": True,
                 "key": issue_key,
                 "jira_key": issue_key,
-                "message": f"✅ Ticket {issue_key} has been created successfully!",
+                "message": f"✅ Ticket {issue_key} has been created successfully!" +
+                           (
+                               f" This ticket has been escalated to {final_values['escalated_to']} ({final_values['escalated_to_email']}) for approval." if
+                               final_values['escalated_to'] else ""),
                 "escalated": bool(final_values['escalated_to']),
-                "escalated_to": final_values['escalated_to'] if final_values['escalated_to'] else None
+                "escalated_to": final_values['escalated_to'] if final_values['escalated_to'] else None,
+                "escalated_to_email": final_values['escalated_to_email'] if final_values[
+                    'escalated_to_email'] else None,
+                "original_reporter": final_values['name']
             }
 
         else:
             error_msg = response.json() if response.content else "Unknown error"
+            print(f"❌ Failed to create ticket: {error_msg}")
             return {
                 "success": False,
                 "error": f"Failed to create ticket: {error_msg}"
             }
 
     except Exception as e:
+        print(f"❌ Exception occurred: {str(e)}")
+        if 'response' in locals():
+            print(f"❌ Response status: {response.status_code}")
+            print(f"❌ Response content: {response.text}")
         return {
             "success": False,
             "error": f"Exception occurred: {str(e)}"

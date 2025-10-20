@@ -1238,6 +1238,13 @@ ticket_manager = TicketManager(storage)
 # ==================== API ENDPOINTS ====================
 @app.post("/tickets/initialize")
 async def initialize_ticket_endpoint(request: InitializeTicketRequest):
+
+    try:
+        print(request.chat_id)
+
+    except:
+        print('No chat id!')
+
     """
     Open a ticket with knowledge base search, LLM analysis, and intelligent routing.
     Returns comprehensive contextual information for natural conversation flow.
@@ -2539,6 +2546,41 @@ async def mcp_tools_list():
         ),
 
         # ==================== TICKET SYSTEM TOOLS ====================
+        # MCPTool(
+        #     name="ticket_open",
+        #     description=(
+        #         "SCOPE: Use this tool when a user first reports a NEW problem, issue, or incident. Handles initial problem intake for any type of issue (technical, facility, equipment, or service-related).\n\n"
+        #         "TRIGGER: new issue, report problem, something broken, not working, need help, create ticket, open ticket, start ticket\n\n"
+        #         "ACTION: Initialize a new ticket when an issue is reported for the FIRST time. "
+        #         "Creates a new ticket record and returns comprehensive ticket information with guidance, "
+        #         "progress tracking, diagnostic question tracking, and next steps.\n\n"
+        #         "INSTRUCTION: The issue must be completely unique and unrelated to other existing issues."
+        #     ),
+        #     inputSchema={
+        #         "type": "object",
+        #         "properties": {
+        #             "conversation_id": {
+        #                 "type": "string",
+        #                 "description": "Conversation thread ID (e.g. 00001) for tracking tickets within the session"
+        #             },
+        #             "query": {
+        #                 "type": "string",
+        #                 "description": "Description of the problem/issue (REQUIRED for initialization)"
+        #             },
+        #             "reporter_name": {
+        #                 "type": "string",
+        #                 "description": "Name of person reporting issue (optional)",
+        #                 "default": ""
+        #             },
+        #             "reporter_email": {
+        #                 "type": "string",
+        #                 "description": "Email of person reporting issue (optional)",
+        #                 "default": ""
+        #             }
+        #         },
+        #         "required": ["conversation_id", "query"]
+        #     }
+        # ),
         MCPTool(
             name="ticket_open",
             description=(
@@ -2547,7 +2589,12 @@ async def mcp_tools_list():
                 "ACTION: Initialize a new ticket when an issue is reported for the FIRST time. "
                 "Creates a new ticket record and returns comprehensive ticket information with guidance, "
                 "progress tracking, diagnostic question tracking, and next steps.\n\n"
-                "INSTRUCTION: The issue must be completely unique and unrelated to other existing issues."
+                "INSTRUCTION: The issue must be completely unique and unrelated to other existing issues.\n\n"
+                "SYSTEM ROUTING OPTIONS:\n"
+                "- Technical: For IT/computer/software/network equipment issues. Examples: desktop computers, laptops, printers, phones, software applications, network connectivity, servers\n"
+                "- Service Desk: For administrative tasks, account access, password resets, general inquiries, and unclear routing situations (DEFAULT)\n"
+                "- Facilities: For BUILDING INFRASTRUCTURE only - walls, floors, ceilings, doors, windows, HVAC, plumbing, electrical wiring, lighting, locks, painting, structural repairs. NOT for medical or office equipment\n"
+                "- Incident Report: For CRITICAL MEDICAL EQUIPMENT failures or major operational disruptions that impact patient care delivery. Examples: MRI scanners, CT scanners, X-ray machines, ventilators, surgical equipment, lab analyzers, patient monitoring systems. Use when equipment failure disrupts hospital operations or patient treatment"
             ),
             inputSchema={
                 "type": "object",
@@ -2560,18 +2607,34 @@ async def mcp_tools_list():
                         "type": "string",
                         "description": "Description of the problem/issue (REQUIRED for initialization)"
                     },
+                    "systems": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["Technical", "Service Desk", "Facilities", "Incident Report"]
+                        },
+                        "description": (
+                            "One or more systems to route this ticket to:\n"
+                            "• Technical - IT equipment only: computers, laptops, printers, phones, software, networks, servers\n"
+                            "• Service Desk - Administrative tasks, account issues, password resets, general inquiries (DEFAULT when unclear)\n"
+                            "• Facilities - BUILDING INFRASTRUCTURE ONLY: walls, floors, HVAC, plumbing, electrical wiring, doors, windows, locks. NOT for equipment or devices\n"
+                            "• Incident Report - CRITICAL MEDICAL EQUIPMENT failures affecting patient care: MRI/CT/X-ray machines, ventilators, surgical equipment, lab analyzers, patient monitors, dialysis machines"
+                        ),
+                        "default": ["Service Desk"],
+                        "minItems": 1
+                    },
                     "reporter_name": {
                         "type": "string",
                         "description": "Name of person reporting issue (optional)",
-                        "default": ""
+                        "default": "Godlove"
                     },
                     "reporter_email": {
                         "type": "string",
                         "description": "Email of person reporting issue (optional)",
-                        "default": ""
+                        "default": "godlove@lovenoreusgmail.onmicrosoft.com"
                     }
                 },
-                "required": ["conversation_id", "query"]
+                "required": ["conversation_id", "query", "systems"]
             }
         ),
 
