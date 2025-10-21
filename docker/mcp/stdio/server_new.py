@@ -870,6 +870,7 @@ class TicketManager:
             query: str,
             conversation_id: str,
             ticket_id: str,
+            systems: Optional[str] = None,
             reporter_name: Optional[str] = "Mathew Pattel",
             reporter_email: Optional[str] = "mathewp@gmail.com",
             knowledge_base_result: Optional[str] = None,
@@ -883,6 +884,7 @@ class TicketManager:
 
         ticket = {
             "ticket_id": ticket_id,
+            "systems": systems,
             "conversation_id": conversation_id,
             "status": TicketStatus.DRAFT,
             "created_at": now,
@@ -1241,16 +1243,26 @@ ticket_manager = TicketManager(storage)
 # ==================== API ENDPOINTS ====================
 @app.post("/tickets/initialize")
 async def initialize_ticket_endpoint(request: InitializeTicketRequest):
+    """
+    Open a ticket with knowledge base search, LLM analysis, and intelligent routing.
+    Returns comprehensive contextual information for natural conversation flow.
+    """
+
     try:
         print(request.chat_id)
 
     except:
         print('No chat id!')
 
-    """
-    Open a ticket with knowledge base search, LLM analysis, and intelligent routing.
-    Returns comprehensive contextual information for natural conversation flow.
-    """
+
+    try:
+        print(request.system)
+        systems = request.systems
+
+    except:
+        print('No systems!')
+        systems = None
+
     try:
         conversation_id = request.conversation_id
 
@@ -1292,6 +1304,7 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
 
             for field in required_fields:
                 value = active_ticket.get(field)
+
                 # Check if field is missing or empty (including whitespace-only strings)
                 if not value or (isinstance(value, str) and not value.strip()):
                     missing_fields.append(field)
@@ -1560,6 +1573,7 @@ CRITICAL: Return ONLY valid JSON with a FLAT structure. No nested objects for "a
 
         ticket = await ticket_manager.create_ticket(
             query=request.query,
+            systems=systems,
             conversation_id=conversation_id,
             ticket_id=ticket_id,
             reporter_name=request.reporter_name,
