@@ -872,7 +872,10 @@ class TicketManager:
             ticket_id: str,
             reporter_name: Optional[str] = "Mathew Pattel",
             reporter_email: Optional[str] = "mathewp@gmail.com",
-            knowledge_base_result: Optional[str] = None
+            knowledge_base_result: Optional[str] = None,
+            category: Optional[str] = None,
+            priority: Optional[str] = None,
+            queue: Optional[str] = None
     ) -> Dict[str, Any]:
         """Create a new ticket"""
         data = await self.storage.load()
@@ -892,10 +895,10 @@ class TicketManager:
             "conversation_topic": None,
             "description": query,
             "location": None,
-            "queue": "queue",
-            "priority": None,
+            "queue": queue if queue else "queue",
+            "priority": priority,
             "department": None,
-            "category": None,
+            "category": category,
 
             # Metadata
             "knowledge_base_result": knowledge_base_result,
@@ -1238,7 +1241,6 @@ ticket_manager = TicketManager(storage)
 # ==================== API ENDPOINTS ====================
 @app.post("/tickets/initialize")
 async def initialize_ticket_endpoint(request: InitializeTicketRequest):
-
     try:
         print(request.chat_id)
 
@@ -1262,33 +1264,107 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
             if DEBUG:
                 print(f"[INITIALIZE_TICKET] Found existing ticket: {active_ticket['ticket_id']}")
 
+            # Parse the knowledge_base_result from the stored ticket
+            kb_data = {}
+            if active_ticket.get("knowledge_base_result"):
+                try:
+                    kb_data = json.loads(active_ticket["knowledge_base_result"])
+                except:
+                    kb_data = {}
+
+            # Extract data from knowledge base result (if it exists)
+            analysis = kb_data.get("analysis", {}) if isinstance(kb_data.get("analysis"), dict) else {}
+            guidance = kb_data.get("guidance", {}) if isinstance(kb_data.get("guidance"), dict) else {}
+            suggestions = kb_data.get("suggestions", {}) if isinstance(kb_data.get("suggestions"), dict) else {}
+            metadata = kb_data.get("metadata", {}) if isinstance(kb_data.get("metadata"), dict) else {}
+
+            # For flat structure (new format)
+            if not analysis and not guidance:
+                # Data is already flat
+                analysis = kb_data
+                guidance = kb_data
+                suggestions = kb_data
+                metadata = kb_data
+
+            # DYNAMICALLY CALCULATE MISSING FIELDS
+            required_fields = ["description", "category", "priority"]
+            missing_fields = []
+
+            for field in required_fields:
+                value = active_ticket.get(field)
+                # Check if field is missing or empty (including whitespace-only strings)
+                if not value or (isinstance(value, str) and not value.strip()):
+                    missing_fields.append(field)
+
+            if DEBUG:
+                print(f"[INITIALIZE_TICKET] Dynamically calculated missing fields: {missing_fields}")
+
             return {
                 "success": True,
                 "has_existing_ticket": True,
                 "ticket_id": active_ticket["ticket_id"],
                 "conversation_id": conversation_id,
                 "is_new_ticket": False,
+                "status": active_ticket.get("status", "draft"),
 
-                # Clear message about existing ticket
-                "message": f"You already have an active ticket ({active_ticket['ticket_id']}) in this conversation. Let's continue with that one.",
-                "next_step": "continue_existing",
+                # ACTUAL DATA FROM JSON - NO GUESSING
+                "description": active_ticket.get("description", None),
+                "category": active_ticket.get("category", None),
+                "priority": active_ticket.get("priority", None),
+                "queue": active_ticket.get("queue", None),
+                "location": active_ticket.get("location", None),
+                "department": active_ticket.get("department", None),
+                "conversation_topic": active_ticket.get("conversation_topic", None),
+                "reporter_name": active_ticket.get("reporter_name", None),
+                "reporter_email": active_ticket.get("reporter_email", None),
 
-                "must_ask_diagnostic_questions": [
+                # KNOWLEDGE BASE FIELDS - From stored data with fallbacks
+                "source": analysis.get("source", "unknown"),
+                "protocol_id": analysis.get("protocol_id", None),
+                "confidence_score": analysis.get("confidence_score", 0.0),
+                "has_known_solution": analysis.get("has_known_solution", False),
+                "solution_available": analysis.get("solution_available", False),
+                "issue_interpretation": analysis.get("issue_interpretation",
+                                                     active_ticket.get("description", "Issue details unavailable")),
+                "troubleshooting_steps": kb_data.get("troubleshooting_steps", None),
+                "similar_issues_count": metadata.get("similar_issues_found", 0),
+
+                # GUIDANCE FIELDS - From stored data with fallbacks
+                "message": guidance.get("message",
+                                        f"Continuing with ticket {active_ticket['ticket_id']}. Please provide any additional information needed."),
+                "reasoning": guidance.get("reasoning", "Collecting additional information to complete the ticket"),
+                "next_step": guidance.get("next_step", "collect_info"),
+
+                # DIAGNOSTIC QUESTIONS - From stored data with fallbacks
+                "must_ask_diagnostic_questions": kb_data.get("must_ask_diagnostic_questions", [
                     "Would you like to add more details to your existing ticket?",
                     "Is this a different issue that needs a separate ticket?",
                     "Would you like to review what information we've collected so far?"
-                ],
+                ]),
 
-                # Current ticket state
+                # TICKET STATUS - Based on actual JSON data with DYNAMIC missing fields
                 "ticket_status": {
                     "ticket_id": active_ticket["ticket_id"],
-                    "status": active_ticket["status"],
-                    "progress_percent": active_ticket.get("progress", {}).get("percent", 0),
+                    "status": active_ticket.get("status", "draft"),
                     "is_complete": active_ticket.get("is_complete", False),
-                    "missing_fields": active_ticket.get("missing_fields", []),
-                    "fields_filled": active_ticket.get("fields", {})
+                    "missing_fields": missing_fields,  # DYNAMICALLY CALCULATED
+                    "fields_filled": {k: v for k, v in {
+                        "description": active_ticket.get("description"),
+                        "category": active_ticket.get("category"),
+                        "priority": active_ticket.get("priority"),
+                        "queue": active_ticket.get("queue"),
+                        "location": active_ticket.get("location"),
+                        "department": active_ticket.get("department"),
+                        "conversation_topic": active_ticket.get("conversation_topic"),
+                        "reporter_name": active_ticket.get("reporter_name")
+                    }.items() if v is not None}
                 },
-                "knowledge_base": None
+
+                # METADATA - From stored data with fallbacks
+                "estimated_resolution_time": metadata.get("estimated_resolution_time", None),
+                "escalation_recommended": metadata.get("escalation_recommended", False),
+
+                "should_use_ticket_continue": True
             }
 
         # Step 2: Query knowledge base for similar issues and solutions
@@ -1347,7 +1423,7 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
             'Management Department', 'Maintenance Department', 'Logistics Department', 'IT Department'
         ]
 
-        # Step 4: Prepare enhanced LLM prompt for intelligent analysis
+        # Step 4: Prepare enhanced LLM prompt for intelligent analysis with FLAT structure
         system_prompt = """
 You are an expert hospital support system analyzer. Analyze user queries and provide intelligent ticket initialization with actionable guidance.
 
@@ -1359,7 +1435,7 @@ INPUT:
 ANALYSIS TASK:
 1. Evaluate knowledge base protocols for relevance to user query
 2. Determine if there's a known issue available
-   - If there is, get all the information about the know issue
+   - If there is, get all the information about the known issue
    - If there isn't, generate yours
 3. Suggest appropriate routing (category, queue, priority)
 4. Provide clear guidance on next steps
@@ -1370,43 +1446,33 @@ EVALUATION CRITERIA:
 - Assess clinical domain and issue category alignment
 - Evaluate if troubleshooting steps are available
 
-RESPONSE STRUCTURE:
+RESPONSE STRUCTURE (FLAT - NO NESTED OBJECTS):
 {{
   "success": true,
-  "analysis": {{
-    "source": "protocol" | "generated",
-    "protocol_id": "ID from knowledge base or null",
-    "confidence_score": 0.0 to 1.0,
-    "has_known_solution": boolean,
-    "solution_available": boolean,
-    "issue_interpretation": "your understanding of the user's issue"
-  }},
-  "guidance": {{
-    "message": "clear, helpful message to user about what was found",
-    "next_step": "try_solution" | "follow_troubleshooting" | "collect_info" | "immediate_escalation",
-    "reasoning": "brief explanation of why this next step"
-  }},
+  "source": "protocol" | "generated",
+  "protocol_id": "ID from knowledge base or null",
+  "confidence_score": 0.0 to 1.0,
+  "has_known_solution": boolean,
+  "solution_available": boolean,
+  "issue_interpretation": "your understanding of the user's issue",
+  "message": "clear, helpful message to user about what was found",
+  "next_step": "try_solution" | "follow_troubleshooting" | "collect_info" | "immediate_escalation",
+  "reasoning": "brief explanation of why this next step",
   "must_ask_diagnostic_questions": [
     "specific, actionable question 1",
     "specific, actionable question 2", 
-    "specific, actionable question 3",
-    ...
+    "specific, actionable question 3"
   ],
   "troubleshooting_steps": [
     "step 1",
     "step 2"
   ] or null,
-  "suggestions": {{
-    "category": "Hardware" | "Software" | "Network" | "Facility" | "Medical Equipment" | "Other",
-    "queue": "queue name from available list",
-    "priority": "High" | "Medium" | "Low",
-    "reasoning": "why these suggestions"
-  }},
-  "metadata": {{
-    "estimated_resolution_time": "time estimate or null",
-    "similar_issues_found": number,
-    "escalation_recommended": boolean
-  }}
+  "category": "Hardware" | "Software" | "Network" | "Facility" | "Medical Equipment" | "Other",
+  "queue": "queue name from available list",
+  "priority": "High" | "Medium" | "Low",
+  "estimated_resolution_time": "time estimate or null",
+  "similar_issues_found": number,
+  "escalation_recommended": boolean
 }}
 
 PRIORITY GUIDELINES:
@@ -1422,7 +1488,7 @@ CATEGORY GUIDELINES:
 - Facility: Building, rooms, physical environment
 - Other: Doesn't fit above categories
 
-CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no explanations outside the JSON structure.
+CRITICAL: Return ONLY valid JSON with a FLAT structure. No nested objects for "analysis", "guidance", "suggestions", or "metadata". All fields should be at the top level of the JSON object. No markdown formatting, no code blocks, no explanations outside the JSON structure.
 """
 
         messages = [
@@ -1482,29 +1548,55 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
         # Step 7: Create ticket with analysis results
         ticket_id = f"TKT-{uuid.uuid4().hex[:8].upper()}"
 
+        # Extract fields from LLM analysis to pass to create_ticket
+        category = None
+        priority = None
+        queue = None
+
+        if llm_analysis and llm_analysis.get("success"):
+            category = llm_analysis.get("category")
+            priority = llm_analysis.get("priority")
+            queue = llm_analysis.get("queue")
+
         ticket = await ticket_manager.create_ticket(
             query=request.query,
             conversation_id=conversation_id,
             ticket_id=ticket_id,
             reporter_name=request.reporter_name,
             reporter_email=request.reporter_email,
-            knowledge_base_result=json.dumps(llm_analysis) if llm_analysis else json.dumps(kb_result)
+            knowledge_base_result=json.dumps(llm_analysis) if llm_analysis else json.dumps(kb_result),
+            category=category,  # Pass extracted category
+            priority=priority,  # Pass extracted priority
+            queue=queue  # Pass extracted queue
         )
 
-        print(f'This is the knowledge_base_result: {json.dumps(llm_analysis) if llm_analysis else json.dumps(kb_result)}')
+        print(
+            f'This is the knowledge_base_result: {json.dumps(llm_analysis) if llm_analysis else json.dumps(kb_result)}')
 
         if DEBUG:
             print(f"[INITIALIZE_TICKET] Created ticket: {ticket_id}")
+            print(f"[INITIALIZE_TICKET] Pre-populated with category={category}, priority={priority}, queue={queue}")
 
-        # Step 8: Build comprehensive response
+        # Step 7.5: DYNAMICALLY CALCULATE MISSING FIELDS for new ticket
+        required_fields = ["description", "category", "priority"]
+        new_ticket_missing_fields = []
+
+        # Get the enriched ticket data to check completeness
+        enriched_ticket = await ticket_manager.get_ticket(ticket_id)
+
+        for field in required_fields:
+            value = enriched_ticket.get(field)
+            # Check if field is missing or empty (including whitespace-only strings)
+            if not value or (isinstance(value, str) and not value.strip()):
+                new_ticket_missing_fields.append(field)
+
+        if DEBUG:
+            print(
+                f"[INITIALIZE_TICKET] Dynamically calculated missing fields for new ticket: {new_ticket_missing_fields}")
+
+        # Step 8: Build comprehensive response with FLAT structure
         if llm_analysis and llm_analysis.get("success"):
             print(f'[Success Analysis]: LLM Response: {llm_analysis}')
-
-            # Use LLM analysis for rich response
-            analysis = llm_analysis.get("analysis", {})
-            guidance = llm_analysis.get("guidance", {})
-            suggestions = llm_analysis.get("suggestions", {})
-            metadata = llm_analysis.get("metadata", {})
 
             response = {
                 "success": True,
@@ -1513,42 +1605,43 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 "is_new_ticket": True,
                 "data_collection_started": True,
 
-                # Knowledge base analysis
-                "knowledge_base": {
-                    "source": analysis.get("source", "unknown"),
-                    "protocol_id": analysis.get("protocol_id"),
-                    "confidence_score": analysis.get("confidence_score", 0),
-                    "has_known_solution": analysis.get("has_known_solution", False),
-                    "solution_available": analysis.get("solution_available", False),
-                    "issue_interpretation": analysis.get("issue_interpretation", request.query),
-                    "troubleshooting_steps": llm_analysis.get("troubleshooting_steps"),
-                    "similar_issues_count": metadata.get("similar_issues_found", 0)
-                },
+                # KNOWLEDGE BASE FIELDS - Direct from LLM (FLAT)
+                "source": llm_analysis.get("source", "unknown"),
+                "protocol_id": llm_analysis.get("protocol_id", None),
+                "confidence_score": llm_analysis.get("confidence_score", 0.0),
+                "has_known_solution": llm_analysis.get("has_known_solution", False),
+                "solution_available": llm_analysis.get("solution_available", False),
+                "issue_interpretation": llm_analysis.get("issue_interpretation", request.query),
+                "troubleshooting_steps": llm_analysis.get("troubleshooting_steps", None),
+                "similar_issues_count": llm_analysis.get("similar_issues_found", 0),
 
-                # Conversation guidance
+                # ROUTING FIELDS - Direct from LLM (FLAT, NO "suggestions" wrapper)
+                "category": llm_analysis.get("category", None),
+                "queue": llm_analysis.get("queue", None),
+                "priority": llm_analysis.get("priority", None),
+
+                # CONVERSATION GUIDANCE - Direct from LLM (FLAT)
                 "message": f"""Your ticket with ID: {ticket_id} is now OPEN with status 'active'. 
                 Save the ticket id because it is very important. You will need it when submitting the ticket. 
-                Now, move immediately to collecting 
-                information. Make sure to complete active ticket""",
-                "reasoning": guidance.get("reasoning", "Need more information to proceed"),
+                Now, move immediately to collecting information. Make sure to complete active ticket""",
+                "reasoning": llm_analysis.get("reasoning", "Need more information to proceed"),
+                "next_step": llm_analysis.get("next_step", "collect_info"),
 
-                # Diagnostic questions for information gathering
-                "must_ask_diagnostic_questions": llm_analysis.get("must_ask_diagnostic_questions"),
+                # DIAGNOSTIC QUESTIONS - Direct from LLM
+                "must_ask_diagnostic_questions": llm_analysis.get("must_ask_diagnostic_questions", []),
 
-                # Intelligent suggestions for pre-filling
-                "suggestions": {
-                    "category": suggestions.get("category"),
-                    "queue": suggestions.get("queue"),
-                    "priority": suggestions.get("priority"),
-                    "reasoning": suggestions.get("reasoning", "Based on initial analysis")
-                },
+                # METADATA - Direct from LLM (FLAT)
+                "estimated_resolution_time": llm_analysis.get("estimated_resolution_time", None),
+                "escalation_recommended": llm_analysis.get("escalation_recommended", False),
 
-                # Ticket status
+                # TICKET STATUS with DYNAMIC missing fields
                 "ticket_status": {
                     "status": "active",
                     "is_complete": False,
-                    "missing_fields": ticket.get("missing_fields", ["category", "priority"]),
+                    "missing_fields": new_ticket_missing_fields,  # DYNAMICALLY CALCULATED
                 },
+
+                "should_use_ticket_continue": True
             }
 
             print(f"This is the original response: {response}")
@@ -1564,32 +1657,45 @@ CRITICAL: Return ONLY valid JSON. No markdown formatting, no code blocks, no exp
                 "conversation_id": conversation_id,
                 "is_new_ticket": True,
 
-                # Minimal knowledge base info
-                "knowledge_base": {
-                    "source": "fallback",
-                    "has_known_solution": False,
-                    "issue_interpretation": request.query,
-                    "error": "Could not complete full analysis"
-                },
+                # KNOWLEDGE BASE FIELDS - Fallback values
+                "source": "fallback",
+                "protocol_id": None,
+                "confidence_score": 0.0,
+                "has_known_solution": False,
+                "solution_available": False,
+                "issue_interpretation": request.query,
+                "troubleshooting_steps": None,
+                "similar_issues_count": 0,
 
-                # Basic guidance
+                # ROUTING FIELDS - No suggestions in fallback
+                "category": None,
+                "queue": None,
+                "priority": None,
+
+                # CONVERSATION GUIDANCE - Fallback messages
                 "message": f"Support Ticket {ticket_id} initialized. I'll help you provide the information needed to resolve this issue.",
-                "next_step": "collect all necessary information from user based on questions to ask",
+                "next_step": "collect_info",
                 "reasoning": "Gathering information to understand the issue",
 
-                # Generic diagnostic questions
+                # DIAGNOSTIC QUESTIONS - Generic fallback
                 "must_ask_diagnostic_questions": [
                     "What type of issue are you experiencing? (Hardware, Software, Network, Facility, Medical Equipment)",
                     "How urgent is this issue?",
                     "Can you describe what's happening in more detail?"
                 ],
 
-                # Ticket status
+                # METADATA - Fallback values
+                "estimated_resolution_time": None,
+                "escalation_recommended": False,
+
+                # TICKET STATUS with DYNAMIC missing fields
                 "ticket_status": {
                     "status": "active",
                     "is_complete": False,
-                    "missing_fields": ["category", "description"],
-                }
+                    "missing_fields": new_ticket_missing_fields,  # DYNAMICALLY CALCULATED
+                },
+
+                "should_use_ticket_continue": True
             }
 
             print(f"This is the fallback response: {response}")
