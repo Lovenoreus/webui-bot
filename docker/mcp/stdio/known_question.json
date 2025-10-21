@@ -172,7 +172,7 @@
     ],
     "queue": "Technical Support",
     "issue_category": "IV pump and infusion device malfunction",
-    "urgency_level": "critical",
+    "urgency_level": "high",
     "description": "Covers IV pumps, infusion pumps, syringe pumps, and other medication delivery devices experiencing malfunctions, error messages, alarm conditions, or delivery inaccuracies that could impact patient safety and medication administration.",
     "questions_to_ask": [
       "What is the make, model, and asset number of the IV pump?",
@@ -451,7 +451,7 @@
     ],
     "queue": "2nd line",
     "issue_category": "MRI scanner issue",
-    "urgency_level": "critical",
+    "urgency_level": "high",
     "description": "Covers issues related to MRI scanners including abnormal noises, image artifacts, gradient or RF coil malfunctions, cooling system failures, patient table errors, door interlock problems, power interruptions, and software or firmware glitches.",
     "questions_to_ask": [
       "What is the model and serial number of the MRI scanner?",
@@ -497,7 +497,7 @@
     ],
     "queue": "2nd line",
     "issue_category": "CT scanner and X-ray equipment malfunction",
-    "urgency_level": "critical",
+    "urgency_level": "high",
     "description": "Covers CT scanners and X-ray equipment experiencing malfunctions, image quality issues, positioning errors, software problems, or calibration failures that impact diagnostic imaging capabilities and patient care scheduling.",
     "questions_to_ask": [
       "What type of imaging equipment is affected (CT scanner, X-ray machine, portable unit)?",
@@ -588,7 +588,7 @@
     ],
     "queue": "Technical Support",
     "issue_category": "Patient care system malfunction",
-    "urgency_level": "critical",
+    "urgency_level": "high",
     "description": "Covers nurse call systems, patient monitoring equipment, bedside communication devices, call buttons, and patient alarms that are essential for patient safety, care coordination, and emergency response capabilities.",
     "questions_to_ask": [
       "What specific patient care system is not functioning (nurse call, monitors, telemetry)?",

@@ -207,25 +207,25 @@ async def llm_intelligent_metadata_filter_hospital(query: str) -> Optional[rest.
 
     prompt = f"""You are a metadata filter generator for a hospital support system that handles technical issues, equipment problems, and facility maintenance.
 
-Analyze this support query and determine the most relevant metadata filters:
+    Analyze this support query and determine the most relevant metadata filters:
 
-Query: "{query}"
+    Query: "{query}"
 
-Available metadata fields:
-- queue: ["IT Department", "Radiology and Maintenance Departments", "Maintenance Department", "Security or Maintenance Department", "Logistics Department", "Biomedical Engineering and Laboratory", "Biomedical Engineering"]
-- issue_category: ["MRI Scanner Issues", "Software Problems", "Facilities Issues", "HVAC Issues", "Safety and Security", "Supply Issues", "Laboratory Equipment", "Patient Care Equipment"]
-- urgency_level: ["high", "medium", "low", "critical"]
-- keywords: Generate relevant technical terms and equipment names based on the query
+    Available metadata fields:
+    - queue: ["Technical Support", "Servicedesk", "2nd line", "Cambio JIRA", "Cosmic", "Billing Payments", "Account Management", "Product Inquiries", "Feature Requests", "Bug Reports", "Security Department", "Compliance Legal", "Service Outages", "Onboarding Setup", "API Integration", "Data Migration", "Accessibility", "Training Education", "General Inquiries", "Permissions Access", "Management Department", "Maintenance Department", "Logistics Department", "IT Department"]
+    - issue_category: ["Hardware", "Software", "Facility", "Network", "Medical Equipment", "Other"]
+    - urgency_level: ["High", "Medium", "Low"]
+    - keywords: Generate relevant technical terms and equipment names based on the query
 
-Examples:
-- Query: "MRI scanner not working" → {{"queue": ["Radiology and Maintenance Departments"], "keywords": ["MRI", "scanner", "imaging", "radiology"], "urgency_level": ["high", "critical"]}}
-- Query: "software keeps crashing" → {{"queue": ["IT Department"], "keywords": ["software", "crashes", "error", "application"], "urgency_level": ["medium", "high"]}}
-- Query: "toilet is leaking" → {{"queue": ["Maintenance Department"], "keywords": ["leak", "toilet", "plumbing", "facilities"], "urgency_level": ["medium"]}}
+    Examples:
+    - Query: "MRI scanner not working" → {{"queue": ["Technical Support"], "issue_category": ["Medical Equipment"], "keywords": ["MRI", "scanner", "imaging", "radiology"], "urgency_level": ["High"]}}
+    - Query: "software keeps crashing" → {{"queue": ["IT Department", "Technical Support"], "issue_category": ["Software"], "keywords": ["software", "crashes", "error", "application"], "urgency_level": ["Medium", "High"]}}
+    - Query: "toilet is leaking" → {{"queue": ["Maintenance Department"], "issue_category": ["Facility"], "keywords": ["leak", "toilet", "plumbing", "facilities"], "urgency_level": ["Medium"]}}
 
-Now analyze: "{query}"
+    Now analyze: "{query}"
 
-Return ONLY valid JSON with the metadata filters, no other text. Include only fields that are relevant to the query.
-"""
+    Return ONLY valid JSON with the metadata filters, no other text. Include only fields that are relevant to the query.
+    """
 
     try:
         # Use your existing provider logic
