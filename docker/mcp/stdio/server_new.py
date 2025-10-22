@@ -1264,7 +1264,9 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
         systems = None
 
     try:
-        conversation_id = request.conversation_id
+        # TODO: CHANGE BACK FROM STATIC.
+        # conversation_id = request.conversation_id
+        conversation_id = "000001"
 
         if DEBUG:
             print(f"[INITIALIZE_TICKET] Processing query for thread: {conversation_id}")
@@ -1474,7 +1476,8 @@ RESPONSE STRUCTURE (FLAT - NO NESTED OBJECTS):
   "must_ask_diagnostic_questions": [
     "specific, actionable question 1",
     "specific, actionable question 2", 
-    "specific, actionable question 3"
+    "specific, actionable question 3",
+    ...
   ],
   "troubleshooting_steps": [
     "step 1",
@@ -2666,41 +2669,6 @@ async def mcp_tools_list():
         ),
 
         # ==================== TICKET SYSTEM TOOLS ====================
-        # MCPTool(
-        #     name="ticket_open",
-        #     description=(
-        #         "SCOPE: Use this tool when a user first reports a NEW problem, issue, or incident. Handles initial problem intake for any type of issue (technical, facility, equipment, or service-related).\n\n"
-        #         "TRIGGER: new issue, report problem, something broken, not working, need help, create ticket, open ticket, start ticket\n\n"
-        #         "ACTION: Initialize a new ticket when an issue is reported for the FIRST time. "
-        #         "Creates a new ticket record and returns comprehensive ticket information with guidance, "
-        #         "progress tracking, diagnostic question tracking, and next steps.\n\n"
-        #         "INSTRUCTION: The issue must be completely unique and unrelated to other existing issues."
-        #     ),
-        #     inputSchema={
-        #         "type": "object",
-        #         "properties": {
-        #             "conversation_id": {
-        #                 "type": "string",
-        #                 "description": "Conversation thread ID (e.g. 00001) for tracking tickets within the session"
-        #             },
-        #             "query": {
-        #                 "type": "string",
-        #                 "description": "Description of the problem/issue (REQUIRED for initialization)"
-        #             },
-        #             "reporter_name": {
-        #                 "type": "string",
-        #                 "description": "Name of person reporting issue (optional)",
-        #                 "default": ""
-        #             },
-        #             "reporter_email": {
-        #                 "type": "string",
-        #                 "description": "Email of person reporting issue (optional)",
-        #                 "default": ""
-        #             }
-        #         },
-        #         "required": ["conversation_id", "query"]
-        #     }
-        # ),
         MCPTool(
             name="ticket_open",
             description=(
