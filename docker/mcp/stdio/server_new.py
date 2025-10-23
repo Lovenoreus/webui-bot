@@ -2725,10 +2725,23 @@ async def mcp_tools_list():
         MCPTool(
             name="ticket_submit",
             description=(
-                "SCOPE: Use this tool when a ticket investigation is complete and ready for formal submission. Handles finalization of tickets with all required information gathered.\n\n"
-                "TRIGGER: submit ticket, create JIRA ticket, finalize ticket, send to support, ready to submit, escalate to team\n\n"
-                "ACTION: Submit completed ticket.\n\n"
-                "INSTRUCTION: Validates all required fields (description, category, priority, etc...) are filled before submission. "
+                "SCOPE: Use this tool ONLY after the user has explicitly confirmed they want to submit the ticket. "
+                "This tool performs the final submission of a complete ticket to JIRA after user verification and approval.\n\n"
+                "TRIGGER: User explicitly confirms submission after being asked. Examples of confirmation phrases:\n"
+                "  - 'yes' or 'yes submit'\n"
+                "  - 'submit it' or 'submit the ticket'\n"
+                "  - 'go ahead' or 'proceed'\n"
+                "  - 'confirm' or 'confirmed'\n"
+                "  - 'please submit'\n"
+                "DO NOT trigger on: ticket being complete, all questions answered, or ticket being 'ready'. "
+                "Wait for explicit user confirmation.\n\n"
+                "ACTION: Submit the completed ticket to JIRA with all gathered information.\n\n"
+                "INSTRUCTION: This tool should only be called after:\n"
+                "  1. All required information has been collected\n"
+                "  2. User has been shown a complete summary of the ticket information\n"
+                "  3. User has been asked 'Would you like me to submit this ticket?'\n"
+                "  4. User has explicitly confirmed they want to submit\n"
+                "Validates all required fields (description, category, priority, etc.) are filled before submission. "
                 "Cannot submit tickets that are already submitted or completed.\n\n"
                 "RETURNS: JIRA ticket key (for tracking in JIRA), submission confirmation, and final ticket status"
             ),
@@ -2778,10 +2791,15 @@ async def mcp_tools_list():
                         "enum": ["Hardware", "Software", "Facility", "Network", "Medical Equipment", "Other"],
                         "description": "Category for JIRA ticket",
                         "default": "Other"
+                    },
+                    "user_submitting": {
+                        "type": "boolean",
+                        "description": "User explicitly stating or agreeing that the ticket should be submitted. If not True, do not (NEVER) attempt to submit ticket.",
+                        "default": False,
                     }
                 },
                 "required": ["ticket_id", "conversation_topic", "description", "location", "queue", "priority",
-                             "department", "reporter_name", "category"]
+                             "department", "reporter_name", "category", "user_submitting"]
             }
         ),
 
@@ -3343,8 +3361,23 @@ async def mcp_tools_call(request: MCPToolCallRequest):
 
 
         elif tool_name == "ticket_submit":
+            print(arguments.get("user_submitting"))
+
+            if not arguments.get("user_submitting", False):
+                return MCPToolCallResponse(
+                    content=[MCPContent(
+                        type="text",
+                        text=json.dumps({
+                            "success": False,
+                            "error": str(e),
+                            "message": "User does not want to submit ticket. Continue asking all questions or ask what user wants"
+                        }, indent=2)
+                    )],
+                    isError=True
+                )
+
             ticket_id = arguments["ticket_id"]
-            submit_data = {k: v for k, v in arguments.items() if k != "ticket_id"}
+            submit_data = {k: v for k, v in arguments.items() if k != "ticket_id" and k != "user_submitting"}
             submit_request = SubmitTicketRequest(**submit_data)
 
             # Create AD instance and pass it to the endpoint - same pattern as ad_create_user
