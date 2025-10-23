@@ -64,21 +64,92 @@
       "ticket_id": "TKT-A326E053",
       "systems": null,
       "conversation_id": "d68736a1-21c8-465f-aa48-88bc6fc53419",
-      "status": "draft",
+      "status": "submitted",
       "created_at": "2025-10-23T14:48:37.089664",
-      "updated_at": "2025-10-23T14:48:37.089664",
+      "updated_at": "2025-10-23T15:15:55.671326",
       "reporter_name": "Jean Gray",
       "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
-      "jira_key": null,
-      "conversation_topic": null,
-      "description": "malfunction in our oxygen flow meter that has unresponsive controls and might be affecting patient care",
-      "location": null,
-      "queue": "Technical Support",
+      "jira_key": "HEAL-1127",
+      "conversation_topic": "Oxygen Flow Meter Issue",
+      "description": "The oxygen flow meter, model OX-2000 with serial number 12345, has been showing intermittent error codes and fluctuating readings since yesterday, no patient care has been affected so far, and it was last functioning correctly two days ago. The equipment has not been moved recently or experienced any physical impact.",
+      "location": "Neurology department",
+      "queue": "Biomedical Engineering",
       "priority": "High",
-      "department": null,
+      "department": "Neurology",
       "category": "Medical Equipment",
       "knowledge_base_result": "{\"success\": true, \"source\": \"protocol\", \"protocol_id\": null, \"confidence_score\": 0.533, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The user is reporting a malfunction in an oxygen flow meter that has unresponsive controls, which may be affecting patient care.\", \"message\": \"We have identified that your issue falls under the category of medical equipment malfunction, specifically related to oxygen flow meters. This is a high urgency situation as it may impact patient care.\", \"next_step\": \"collect_info\", \"reasoning\": \"Gathering more specific information will help in diagnosing the issue accurately and determining the best course of action.\", \"must_ask_diagnostic_questions\": [\"Do you know the exact model and serial number of the equipment?\", \"What specific symptoms or errors is the equipment displaying?\", \"Is any patient care being delayed or compromised due to this issue?\", \"When was the equipment last functioning correctly?\", \"Has the equipment been moved recently or experienced any physical impact?\"], \"troubleshooting_steps\": null, \"category\": \"Medical Equipment\", \"queue\": \"Technical Support\", \"priority\": \"High\", \"estimated_resolution_time\": null, \"similar_issues_found\": 0, \"escalation_recommended\": true}",
-      "history": []
+      "history": [
+        {
+          "timestamp": "2025-10-23T15:15:49.380410",
+          "field_name": "conversation_topic",
+          "old_value": null,
+          "new_value": "Oxygen Flow Meter Issue",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T15:15:49.380410",
+          "field_name": "description",
+          "old_value": "malfunction in our oxygen flow meter that has unresponsive controls and might be affecting patient care",
+          "new_value": "The oxygen flow meter, model OX-2000 with serial number 12345, has been showing intermittent error codes and fluctuating readings since yesterday, no patient care has been affected so far, and it was last functioning correctly two days ago. The equipment has not been moved recently or experienced any physical impact.",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T15:15:49.380410",
+          "field_name": "location",
+          "old_value": null,
+          "new_value": "Neurology department",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T15:15:49.380410",
+          "field_name": "queue",
+          "old_value": "Technical Support",
+          "new_value": "Technical Support",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T15:15:49.380410",
+          "field_name": "priority",
+          "old_value": "High",
+          "new_value": "High",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T15:15:49.380410",
+          "field_name": "department",
+          "old_value": null,
+          "new_value": "Neurology",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T15:15:49.380410",
+          "field_name": "reporter_name",
+          "old_value": "Jean Gray",
+          "new_value": "Jean Gray",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T15:15:49.380410",
+          "field_name": "queue",
+          "old_value": null,
+          "new_value": "Biomedical Engineering",
+          "action": "auto_route"
+        },
+        {
+          "timestamp": "2025-10-23T15:15:49.380410",
+          "field_name": "category",
+          "old_value": "Medical Equipment",
+          "new_value": "Medical Equipment",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T15:15:55.671326",
+          "field_name": "status",
+          "old_value": "draft",
+          "new_value": "submitted",
+          "action": "status_change"
+        }
+      ]
     }
   },
   "thread_index": {
