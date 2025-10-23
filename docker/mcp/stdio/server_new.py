@@ -1265,8 +1265,7 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
 
     try:
         # TODO: CHANGE BACK FROM STATIC.
-        # conversation_id = request.conversation_id
-        conversation_id = "000001"
+        conversation_id = request.conversation_id
 
         if DEBUG:
             print(f"[INITIALIZE_TICKET] Processing query for thread: {conversation_id}")
@@ -2097,7 +2096,8 @@ async def mcp_tools_list():
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "name": {"type": "string", "description": "User's name", "default": ""}
+                    "name": {"type": "string", "description": "User's name", "default": ""},
+                    "chat_id": {"type": "string", "description": "Conversation ID", "default": ""}
                 },
                 "required": ["name"]
             }
@@ -2716,6 +2716,12 @@ async def mcp_tools_list():
                         "type": "string",
                         "description": "Email of person reporting issue (optional)",
                         "default": "jeangray@lovenoreusgmail.onmicrosoft.com"
+                    },
+                    "chat_id": {
+                        "type": "string",
+                        "description":
+                            "Conversation ID",
+                        "default": ""
                     }
                 },
                 "required": ["query", "systems"]
@@ -2796,6 +2802,12 @@ async def mcp_tools_list():
                         "type": "boolean",
                         "description": "User explicitly stating or agreeing that the ticket should be submitted. If not True, do not (NEVER) attempt to submit ticket.",
                         "default": False,
+                    },
+                    "chat_id": {
+                        "type": "string",
+                        "description":
+                        "Conversation ID",
+                        "default": ""
                     }
                 },
                 "required": ["ticket_id", "conversation_topic", "description", "location", "queue", "priority",
@@ -2817,6 +2829,12 @@ async def mcp_tools_list():
                     "ticket_id": {
                         "type": "string",
                         "description": "Ticket ID to cancel"
+                    },
+                    "chat_id": {
+                        "type": "string",
+                        "description":
+                            "Conversation ID",
+                        "default": ""
                     }
                 },
                 "required": ["ticket_id"]
@@ -3251,9 +3269,10 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         # ==================== TICKET SYSTEM TOOLS ====================
         elif tool_name == "ticket_open":
             try:
-                # conversation_id = arguments.get("conversation_id", "")
-                conversation_id = "000001"
+                conversation_id = arguments.get("chat_id", "")
                 query = arguments.get("query", "")
+
+                print(f'The conversation id: {conversation_id}')
 
                 if not conversation_id:
                     return MCPToolCallResponse(
@@ -3424,6 +3443,9 @@ async def mcp_streamable_http_endpoint(request: Request):
         body = await request.json()
         method = body.get("method")
         request_id = body.get("id")
+        chat_id = body.get("params", {}).get("chat_id")
+        if chat_id:
+            print(f"Received chat_id: {chat_id}")
 
         if DEBUG:
             print(f"[STREAMABLE HTTP] Received method: {method}")

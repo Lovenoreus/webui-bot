@@ -200,10 +200,14 @@ async def chat_completion_tools_handler(
 
         try:
             content = content[content.find("{") : content.rfind("}") + 1]
+
             if not content:
                 raise Exception("No JSON object found in the response")
 
             result = json.loads(content)
+
+            print(f'This is what we were looking for: {result}')
+            print(f'This is the metadata: {metadata}')
 
             async def tool_call_handler(tool_call):
                 nonlocal skip_files
@@ -211,6 +215,7 @@ async def chat_completion_tools_handler(
                 log.debug(f"{tool_call=}")
 
                 tool_function_name = tool_call.get("name", None)
+
                 if tool_function_name not in tools:
                     return body, {}
 
@@ -220,9 +225,11 @@ async def chat_completion_tools_handler(
                     tool = tools[tool_function_name]
 
                     spec = tool.get("spec", {})
+
                     allowed_params = (
                         spec.get("parameters", {}).get("properties", {}).keys()
                     )
+
                     tool_function_params = {
                         k: v
                         for k, v in tool_function_params.items()
@@ -230,6 +237,8 @@ async def chat_completion_tools_handler(
                     }
 
                     if tool.get("direct", False):
+                        print(f"This is a direct tool call: {tool}")
+
                         tool_result = await event_caller(
                             {
                                 "type": "execute:tool",
@@ -239,9 +248,13 @@ async def chat_completion_tools_handler(
                                     "params": tool_function_params,
                                     "server": tool.get("server", {}),
                                     "session_id": metadata.get("session_id", None),
+                                    "chat_id": metadata.get("chat_id", None),
                                 },
                             }
                         )
+
+                        print(f"Tool Results: {tool_result}")
+
                     else:
                         tool_function = tool["callable"]
                         tool_result = await tool_function(**tool_function_params)
@@ -299,11 +312,36 @@ async def chat_completion_tools_handler(
                     ):
                         skip_files = True
 
-            # check if "tool_calls" in result
+            # # check if "tool_calls" in result
+            # if result.get("tool_calls"):
+            #     for tool_call in result.get("tool_calls"):
+            #         await tool_call_handler(tool_call)
+            # else:
+            #     await tool_call_handler(result)
+
+            # Inject chat_id into the tool calls before handling them
+            # Get the chat_id from the metadata object
+            chat_id = metadata.get("chat_id")
+
+            if chat_id:
+                print(f"Injecting chat_id into tool calls: {chat_id}")
+
+            # Inject for all tool calls.
             if result.get("tool_calls"):
                 for tool_call in result.get("tool_calls"):
+                    # Make sure parameters exist
+                    tool_call.setdefault("parameters", {})
+
+                    # Add chat_id
+                    tool_call["parameters"]["chat_id"] = chat_id
                     await tool_call_handler(tool_call)
+
+            # If not a tool call, still inject. Might be important.
             else:
+                result.setdefault("parameters", {})
+
+                # Add the chat_id
+                result["parameters"]["chat_id"] = chat_id
                 await tool_call_handler(result)
 
         except Exception as e:
@@ -857,8 +895,10 @@ async def process_chat_payload(request, form_data, user, metadata, model):
     # Folder "Project" handling
     # Check if the request has chat_id and is inside of a folder
     chat_id = metadata.get("chat_id", None)
+
     if chat_id and user:
         chat = Chats.get_chat_by_id_and_user_id(chat_id, user.id)
+
         if chat and chat.folder_id:
             folder = Folders.get_folder_by_id_and_user_id(chat.folder_id, user.id)
 
@@ -2389,6 +2429,9 @@ async def process_chat_response(
                                                 "session_id": metadata.get(
                                                     "session_id", None
                                                 ),
+                                                "chat_id": metadata.get(
+                                                    "chat_id", None
+                                                ),
                                             },
                                         }
                                     )
@@ -2533,6 +2576,9 @@ async def process_chat_response(
                                                 "code": code,
                                                 "session_id": metadata.get(
                                                     "session_id", None
+                                                ),
+                                                "chat_id": metadata.get(
+                                                    "chat_id", None
                                                 ),
                                             },
                                         }

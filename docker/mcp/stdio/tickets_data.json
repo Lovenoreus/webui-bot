@@ -1,0 +1,101 @@
+{
+  "tickets": {
+    "TKT-A7AA758D": {
+      "ticket_id": "TKT-A7AA758D",
+      "systems": null,
+      "conversation_id": "7e524a38-ff72-44f3-9f4d-ee9acb2ba418",
+      "status": "draft",
+      "created_at": "2025-10-23T14:42:16.511846",
+      "updated_at": "2025-10-23T14:42:16.511846",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "The MRI machine is broken",
+      "location": null,
+      "queue": "2nd line",
+      "priority": "High",
+      "department": null,
+      "category": "Medical Equipment",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"protocol\", \"protocol_id\": null, \"confidence_score\": 0.522, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The MRI machine is not functioning properly, which may affect patient imaging.\", \"message\": \"The MRI machine is reported as broken. This is a high urgency issue that needs immediate attention.\", \"next_step\": \"collect_info\", \"reasoning\": \"We need more specific information about the issue to proceed with troubleshooting or escalation.\", \"must_ask_diagnostic_questions\": [\"What is the model and serial number of the MRI scanner?\", \"What specific issue are you experiencing (e.g., noise, image quality, cooling failure)?\", \"Is patient imaging currently being delayed or canceled due to this problem?\", \"When was the scanner last used without any issues?\", \"Have any error codes or system alerts been displayed on the console?\"], \"troubleshooting_steps\": null, \"category\": \"Medical Equipment\", \"queue\": \"2nd line\", \"priority\": \"High\", \"estimated_resolution_time\": null, \"similar_issues_found\": 0, \"escalation_recommended\": true}",
+      "history": []
+    },
+    "TKT-40520379": {
+      "ticket_id": "TKT-40520379",
+      "systems": null,
+      "conversation_id": "4e96fd83-8b85-4ff2-ae6a-93451ed53db8",
+      "status": "draft",
+      "created_at": "2025-10-23T14:42:58.814579",
+      "updated_at": "2025-10-23T14:42:58.814579",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "There\u2019s a broken computer monitor in room 5",
+      "location": null,
+      "queue": "Maintenance Department",
+      "priority": "High",
+      "department": null,
+      "category": "Hardware",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"generated\", \"protocol_id\": null, \"confidence_score\": 0.0, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"A computer monitor in room 5 is broken and needs repair or replacement.\", \"message\": \"We have identified that there is a broken computer monitor in room 5. Unfortunately, there are no existing support protocols for this issue.\", \"next_step\": \"collect_info\", \"reasoning\": \"We need more specific details about the monitor issue to proceed with the appropriate support.\", \"must_ask_diagnostic_questions\": [\"What specific issue are you experiencing with the monitor (e.g., no display, physical damage)?\", \"Is the monitor connected to a computer, and if so, is the computer functioning properly?\", \"Have you tried any troubleshooting steps, such as checking the power supply or cables?\"], \"troubleshooting_steps\": null, \"category\": \"Hardware\", \"queue\": \"Maintenance Department\", \"priority\": \"High\", \"estimated_resolution_time\": \"2 hours\", \"similar_issues_found\": 0, \"escalation_recommended\": true}",
+      "history": []
+    },
+    "TKT-BFB5E7C7": {
+      "ticket_id": "TKT-BFB5E7C7",
+      "systems": null,
+      "conversation_id": "543d7fb1-1ab8-43d4-81c6-0328dff48afb",
+      "status": "draft",
+      "created_at": "2025-10-23T14:46:03.172939",
+      "updated_at": "2025-10-23T14:46:03.172939",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "The patient\u2019s monitor in room 3 is broken",
+      "location": null,
+      "queue": "Technical Support",
+      "priority": "High",
+      "department": null,
+      "category": "Medical Equipment",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"generated\", \"protocol_id\": null, \"confidence_score\": 0.0, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The patient's monitor in room 3 is not functioning properly.\", \"message\": \"We have identified that the patient's monitor in room 3 is broken. Unfortunately, there are no existing protocols for this issue, so we will need to gather more information to assist you effectively.\", \"next_step\": \"collect_info\", \"reasoning\": \"Collecting more information will help us understand the specific nature of the problem and determine the best course of action.\", \"must_ask_diagnostic_questions\": [\"What specific issues are you experiencing with the monitor?\", \"Is there any error message displayed on the monitor?\", \"Has the monitor been checked for power supply or connection issues?\"], \"troubleshooting_steps\": null, \"category\": \"Medical Equipment\", \"queue\": \"Technical Support\", \"priority\": \"High\", \"estimated_resolution_time\": null, \"similar_issues_found\": 0, \"escalation_recommended\": true}",
+      "history": []
+    },
+    "TKT-A326E053": {
+      "ticket_id": "TKT-A326E053",
+      "systems": null,
+      "conversation_id": "d68736a1-21c8-465f-aa48-88bc6fc53419",
+      "status": "draft",
+      "created_at": "2025-10-23T14:48:37.089664",
+      "updated_at": "2025-10-23T14:48:37.089664",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "malfunction in our oxygen flow meter that has unresponsive controls and might be affecting patient care",
+      "location": null,
+      "queue": "Technical Support",
+      "priority": "High",
+      "department": null,
+      "category": "Medical Equipment",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"protocol\", \"protocol_id\": null, \"confidence_score\": 0.533, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The user is reporting a malfunction in an oxygen flow meter that has unresponsive controls, which may be affecting patient care.\", \"message\": \"We have identified that your issue falls under the category of medical equipment malfunction, specifically related to oxygen flow meters. This is a high urgency situation as it may impact patient care.\", \"next_step\": \"collect_info\", \"reasoning\": \"Gathering more specific information will help in diagnosing the issue accurately and determining the best course of action.\", \"must_ask_diagnostic_questions\": [\"Do you know the exact model and serial number of the equipment?\", \"What specific symptoms or errors is the equipment displaying?\", \"Is any patient care being delayed or compromised due to this issue?\", \"When was the equipment last functioning correctly?\", \"Has the equipment been moved recently or experienced any physical impact?\"], \"troubleshooting_steps\": null, \"category\": \"Medical Equipment\", \"queue\": \"Technical Support\", \"priority\": \"High\", \"estimated_resolution_time\": null, \"similar_issues_found\": 0, \"escalation_recommended\": true}",
+      "history": []
+    }
+  },
+  "thread_index": {
+    "7e524a38-ff72-44f3-9f4d-ee9acb2ba418": [
+      "TKT-A7AA758D"
+    ],
+    "4e96fd83-8b85-4ff2-ae6a-93451ed53db8": [
+      "TKT-40520379"
+    ],
+    "543d7fb1-1ab8-43d4-81c6-0328dff48afb": [
+      "TKT-BFB5E7C7"
+    ],
+    "d68736a1-21c8-465f-aa48-88bc6fc53419": [
+      "TKT-A326E053"
+    ]
+  },
+  "metadata": {
+    "created_at": "2025-10-23T14:42:16.511826"
+  }
+}
