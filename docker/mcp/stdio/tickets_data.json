@@ -150,6 +150,217 @@
           "action": "status_change"
         }
       ]
+    },
+    "TKT-5D5F9995": {
+      "ticket_id": "TKT-5D5F9995",
+      "systems": null,
+      "conversation_id": "7a33d616-94ae-465e-aab8-14811c36fd27",
+      "status": "draft",
+      "created_at": "2025-10-23T17:13:15.446889",
+      "updated_at": "2025-10-23T17:13:15.446889",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "The faucet in Room 302 is leaking badly",
+      "location": null,
+      "queue": "Maintenance Department",
+      "priority": "High",
+      "department": null,
+      "category": "Facility",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"generated\", \"protocol_id\": null, \"confidence_score\": 0.0, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The faucet in Room 302 is leaking, which may cause water damage and inconvenience.\", \"message\": \"We have identified that the faucet in Room 302 is leaking. This issue requires immediate attention to prevent further damage.\", \"next_step\": \"immediate_escalation\", \"reasoning\": \"The leak could lead to significant water damage and operational issues, necessitating urgent action.\", \"must_ask_diagnostic_questions\": [\"Is the leak constant or does it occur intermittently?\", \"Have there been any recent repairs or maintenance done on the faucet?\", \"Is there any visible damage to the surrounding area due to the leak?\"], \"troubleshooting_steps\": null, \"category\": \"Facility\", \"queue\": \"Maintenance Department\", \"priority\": \"High\", \"estimated_resolution_time\": \"1-2 hours\", \"similar_issues_found\": 0, \"escalation_recommended\": true}",
+      "history": []
+    },
+    "TKT-C21007DA": {
+      "ticket_id": "TKT-C21007DA",
+      "systems": null,
+      "conversation_id": "50365971-203c-4497-85cb-4aeef59498d5",
+      "status": "draft",
+      "created_at": "2025-10-23T17:30:02.002073",
+      "updated_at": "2025-10-23T17:30:02.002073",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "The faucet in Room 302 is leaking badly",
+      "location": null,
+      "queue": "Maintenance Department",
+      "priority": "High",
+      "department": null,
+      "category": "Facility",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"generated\", \"protocol_id\": null, \"confidence_score\": 0.0, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The faucet in Room 302 is leaking, which may cause water damage and inconvenience.\", \"message\": \"We have identified that the faucet in Room 302 is leaking. This is a facility-related issue that requires immediate attention.\", \"next_step\": \"immediate_escalation\", \"reasoning\": \"The leaking faucet could lead to further damage and should be addressed promptly by the maintenance team.\", \"must_ask_diagnostic_questions\": [\"Is the leak constant or does it occur intermittently?\", \"Have you noticed any water pooling around the faucet?\", \"Is there any visible damage to the faucet or surrounding area?\"], \"troubleshooting_steps\": null, \"category\": \"Facility\", \"queue\": \"Maintenance Department\", \"priority\": \"High\", \"estimated_resolution_time\": \"1-2 hours\", \"similar_issues_found\": 0, \"escalation_recommended\": true}",
+      "history": []
+    },
+    "TKT-9A61C678": {
+      "ticket_id": "TKT-9A61C678",
+      "systems": null,
+      "conversation_id": "50651b8c-878d-4f09-881f-543cc960e14b",
+      "status": "draft",
+      "created_at": "2025-10-23T17:32:23.892225",
+      "updated_at": "2025-10-23T17:32:23.892225",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "The faucet in Room 302 is leaking badly",
+      "location": null,
+      "queue": "Maintenance Department",
+      "priority": "High",
+      "department": null,
+      "category": "Facility",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"generated\", \"protocol_id\": null, \"confidence_score\": 0.0, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The faucet in Room 302 is leaking, which may cause water damage and inconvenience.\", \"message\": \"We have identified that the faucet in Room 302 is leaking. This is a facility-related issue that requires immediate attention.\", \"next_step\": \"immediate_escalation\", \"reasoning\": \"The leak could lead to further damage and should be addressed by the maintenance team as soon as possible.\", \"must_ask_diagnostic_questions\": [\"Is the leak constant or does it occur intermittently?\", \"Have you noticed any water pooling around the faucet?\", \"Is there any visible damage to the faucet or surrounding area?\"], \"troubleshooting_steps\": null, \"category\": \"Facility\", \"queue\": \"Maintenance Department\", \"priority\": \"High\", \"estimated_resolution_time\": \"1-2 hours\", \"similar_issues_found\": 0, \"escalation_recommended\": true}",
+      "history": []
+    },
+    "TKT-809FD9A2": {
+      "ticket_id": "TKT-809FD9A2",
+      "systems": null,
+      "conversation_id": "7bda0db1-b97f-4a47-9cab-4c28d375c436",
+      "status": "draft",
+      "created_at": "2025-10-23T17:35:24.248601",
+      "updated_at": "2025-10-23T17:35:24.248601",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "The faucet in Room 302 is leaking badly",
+      "location": null,
+      "queue": "Maintenance Department",
+      "priority": "High",
+      "department": null,
+      "category": "Facility",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"generated\", \"protocol_id\": null, \"confidence_score\": 0.0, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The faucet in Room 302 is leaking, which may cause water damage and inconvenience.\", \"message\": \"We have identified that the faucet in Room 302 is leaking. This is a facility-related issue that requires immediate attention.\", \"next_step\": \"immediate_escalation\", \"reasoning\": \"The leak could lead to further damage and should be addressed by the maintenance team as soon as possible.\", \"must_ask_diagnostic_questions\": [\"Is the leak constant or does it occur intermittently?\", \"Have you noticed any water pooling around the faucet?\", \"Is there any visible damage to the faucet or surrounding area?\"], \"troubleshooting_steps\": null, \"category\": \"Facility\", \"queue\": \"Maintenance Department\", \"priority\": \"High\", \"estimated_resolution_time\": \"1-2 hours\", \"similar_issues_found\": 0, \"escalation_recommended\": true}",
+      "history": []
+    },
+    "TKT-A16A15F8": {
+      "ticket_id": "TKT-A16A15F8",
+      "systems": null,
+      "conversation_id": "6a3458a9-c0be-4eff-a4a1-1a6a1e36e8a8",
+      "status": "draft",
+      "created_at": "2025-10-23T17:36:35.910942",
+      "updated_at": "2025-10-23T17:36:35.910942",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "The faucet in Room 302 is leaking badly",
+      "location": null,
+      "queue": "Maintenance Department",
+      "priority": "High",
+      "department": null,
+      "category": "Facility",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"generated\", \"protocol_id\": null, \"confidence_score\": 0.0, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The faucet in Room 302 is leaking, which may cause water damage and inconvenience.\", \"message\": \"We have identified that the faucet in Room 302 is leaking. This issue requires immediate attention to prevent further damage.\", \"next_step\": \"immediate_escalation\", \"reasoning\": \"The leaking faucet poses a potential risk for water damage and needs urgent repair.\", \"must_ask_diagnostic_questions\": [\"Is the leak constant or does it occur intermittently?\", \"Have you noticed any water pooling around the faucet?\", \"Is there any visible damage to the faucet or surrounding area?\"], \"troubleshooting_steps\": null, \"category\": \"Facility\", \"queue\": \"Maintenance Department\", \"priority\": \"High\", \"estimated_resolution_time\": \"1-2 hours\", \"similar_issues_found\": 0, \"escalation_recommended\": true}",
+      "history": []
+    },
+    "TKT-4091D94F": {
+      "ticket_id": "TKT-4091D94F",
+      "systems": null,
+      "conversation_id": "13edd9d7-1d35-490a-9894-bedce226d3eb",
+      "status": "draft",
+      "created_at": "2025-10-23T17:38:04.271067",
+      "updated_at": "2025-10-23T17:38:04.271067",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "The faucet in Room 302 is leaking badly",
+      "location": null,
+      "queue": "Maintenance Department",
+      "priority": "High",
+      "department": null,
+      "category": "Facility",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"generated\", \"protocol_id\": null, \"confidence_score\": 0.0, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The faucet in Room 302 is leaking, which may cause water damage and inconvenience.\", \"message\": \"We have identified that the faucet in Room 302 is leaking. This is a facility-related issue that requires immediate attention.\", \"next_step\": \"collect_info\", \"reasoning\": \"We need more specific details about the leak to properly address the issue and escalate it to the maintenance team.\", \"must_ask_diagnostic_questions\": [\"Is the leak constant or does it occur intermittently?\", \"Can you describe the severity of the leak (e.g., drip, steady stream)?\", \"Have you noticed any water pooling or damage in the surrounding area?\"], \"troubleshooting_steps\": null, \"category\": \"Facility\", \"queue\": \"Maintenance Department\", \"priority\": \"High\", \"estimated_resolution_time\": \"1-2 hours\", \"similar_issues_found\": 0, \"escalation_recommended\": true}",
+      "history": []
+    },
+    "TKT-860E594E": {
+      "ticket_id": "TKT-860E594E",
+      "systems": null,
+      "conversation_id": "e02d7b08-5f73-4edb-8781-ae8309d0fa05",
+      "status": "submitted",
+      "created_at": "2025-10-23T17:41:44.813252",
+      "updated_at": "2025-10-23T17:44:19.344973",
+      "reporter_name": "[Your Name]",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": "HEAL-1128",
+      "conversation_topic": "Leaking Faucet in Room 302",
+      "description": "The faucet in Room 302 is leaking badly. Noticed the problem this morning. It's spilling right up to the main hall. The leak has worsened since this morning.",
+      "location": "Room 302",
+      "queue": "Facilities Management",
+      "priority": "High",
+      "department": "Maintenance",
+      "category": "Facility",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"protocol\", \"protocol_id\": null, \"confidence_score\": 0.483, \"has_known_solution\": false, \"solution_available\": false, \"issue_interpretation\": \"The faucet in Room 302 is leaking, which is a facilities issue that may affect patient care or staff operations.\", \"message\": \"The faucet in Room 302 is leaking badly, which falls under facilities malfunction. We need to gather more information to address this issue effectively.\", \"next_step\": \"collect_info\", \"reasoning\": \"Collecting additional information will help us understand the severity and impact of the leak before escalating to maintenance.\", \"must_ask_diagnostic_questions\": [\"When did you first notice the problem?\", \"Is anyone's care or work being significantly affected by this issue?\", \"Have you noticed any changes in the issue either worsening or improving since it began?\"], \"troubleshooting_steps\": null, \"category\": \"Facility\", \"queue\": \"Maintenance Department\", \"priority\": \"Medium\", \"estimated_resolution_time\": null, \"similar_issues_found\": 0, \"escalation_recommended\": false}",
+      "history": [
+        {
+          "timestamp": "2025-10-23T17:44:14.435116",
+          "field_name": "conversation_topic",
+          "old_value": null,
+          "new_value": "Leaking Faucet in Room 302",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T17:44:14.435116",
+          "field_name": "description",
+          "old_value": "The faucet in Room 302 is leaking badly",
+          "new_value": "The faucet in Room 302 is leaking badly. Noticed the problem this morning. It's spilling right up to the main hall. The leak has worsened since this morning.",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T17:44:14.435116",
+          "field_name": "location",
+          "old_value": null,
+          "new_value": "Room 302",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T17:44:14.435116",
+          "field_name": "queue",
+          "old_value": "Maintenance Department",
+          "new_value": "Facility",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T17:44:14.435116",
+          "field_name": "priority",
+          "old_value": "Medium",
+          "new_value": "High",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T17:44:14.435116",
+          "field_name": "department",
+          "old_value": null,
+          "new_value": "Maintenance",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T17:44:14.435116",
+          "field_name": "reporter_name",
+          "old_value": "Jean Gray",
+          "new_value": "[Your Name]",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T17:44:14.435116",
+          "field_name": "queue",
+          "old_value": null,
+          "new_value": "Facilities Management",
+          "action": "auto_route"
+        },
+        {
+          "timestamp": "2025-10-23T17:44:14.435116",
+          "field_name": "category",
+          "old_value": "Facility",
+          "new_value": "Facility",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-23T17:44:19.344973",
+          "field_name": "status",
+          "old_value": "draft",
+          "new_value": "submitted",
+          "action": "status_change"
+        }
+      ]
     }
   },
   "thread_index": {
@@ -164,6 +375,27 @@
     ],
     "d68736a1-21c8-465f-aa48-88bc6fc53419": [
       "TKT-A326E053"
+    ],
+    "7a33d616-94ae-465e-aab8-14811c36fd27": [
+      "TKT-5D5F9995"
+    ],
+    "50365971-203c-4497-85cb-4aeef59498d5": [
+      "TKT-C21007DA"
+    ],
+    "50651b8c-878d-4f09-881f-543cc960e14b": [
+      "TKT-9A61C678"
+    ],
+    "7bda0db1-b97f-4a47-9cab-4c28d375c436": [
+      "TKT-809FD9A2"
+    ],
+    "6a3458a9-c0be-4eff-a4a1-1a6a1e36e8a8": [
+      "TKT-A16A15F8"
+    ],
+    "13edd9d7-1d35-490a-9894-bedce226d3eb": [
+      "TKT-4091D94F"
+    ],
+    "e02d7b08-5f73-4edb-8781-ae8309d0fa05": [
+      "TKT-860E594E"
     ]
   },
   "metadata": {

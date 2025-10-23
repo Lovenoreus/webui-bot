@@ -203,24 +203,45 @@ def intelligent_metadata_filter(query: str) -> Optional[rest.Filter]:
 
 
 async def llm_intelligent_metadata_filter_hospital(query: str) -> Optional[rest.Filter]:
-    """Use LLM to generate intelligent metadata filters for hospital support queries"""
+    """Use LLM to generate intelligent metadata filters for hospital support queries, emulating rule-based logic with dynamic flexibility."""
 
-    prompt = f"""You are a metadata filter generator for a hospital support system that handles technical issues, equipment problems, and facility maintenance.
+    prompt = f"""You are a metadata filter generator for a hospital support system handling technical issues, equipment problems, and facility maintenance.
 
-    Analyze this support query and determine the most relevant metadata filters:
+    Analyze this support query and generate metadata filters that align with the hospital's issue patterns:
 
     Query: "{query}"
 
     Available metadata fields:
     - queue: ["Technical Support", "Servicedesk", "2nd line", "Cambio JIRA", "Cosmic", "Billing Payments", "Account Management", "Product Inquiries", "Feature Requests", "Bug Reports", "Security Department", "Compliance Legal", "Service Outages", "Onboarding Setup", "API Integration", "Data Migration", "Accessibility", "Training Education", "General Inquiries", "Permissions Access", "Management Department", "Maintenance Department", "Logistics Department", "IT Department"]
-    - issue_category: ["Hardware", "Software", "Facility", "Network", "Medical Equipment", "Other"]
-    - urgency_level: ["High", "Medium", "Low"]
-    - keywords: Generate relevant technical terms and equipment names based on the query
+    - issue_category: ["Facilities or Fixtures malfunction", "HVAC and climate control issues", "Medical equipment malfunction", "IV pump and infusion device malfunction", "Environmental or structural issue", "IT or device malfunction", "Software installation and functionality issues", "Safety or security concern", "Supply or logistics issue", "MRI scanner issue", "CT scanner and X-ray equipment malfunction", "Laboratory equipment malfunction", "Patient care system malfunction", "Housekeeping and environmental services issue"]
+    - urgency_level: ["high", "medium", "low"]
+    - keywords: Generate relevant technical terms and equipment names based on the query. Do NOT include specific locations (e.g., room numbers like "Room 302") or overly specific phrases; focus on general terms relevant to the issue type.
+    - description: Generate a text string for full-text search, including key terms from the query (excluding location-specific terms).
+
+    Issue Patterns for Guidance:
+    - MRI: indicators=["mri", "scanner", "magnetic resonance", "imaging"], queue="2nd line", issue_category="MRI scanner issue", keywords=["MRI scanner", "MRI", "scanner", "imaging", "radiology"], urgency_level="high"
+    - Software: indicators=["software", "application", "program", "install", "crash", "error"], queue=["IT Department", "Technical Support"], issue_category="Software installation and functionality issues", keywords=["software", "installation", "crashes", "error messages"], urgency_level=["medium", "high"]
+    - Facilities: indicators=["leak", "faucet", "toilet", "light", "door", "fixture", "plumbing"], queue="Maintenance Department", issue_category="Facilities or Fixtures malfunction", keywords=["facilities", "fixtures", "faucets", "toilets", "lighting", "leaks", "plumbing"], urgency_level="medium" (or "high" if severity indicated)
+    - HVAC: indicators=["temperature", "hot", "cold", "air conditioning", "heating", "hvac"], queue="Maintenance Department", issue_category="HVAC and climate control issues", keywords=["HVAC", "temperature", "heating", "cooling", "climate"], urgency_level="medium"
+    - Safety: indicators=["safety", "security", "emergency", "lock", "alarm", "hazard"], queue="Security Department", issue_category="Safety or security concern", keywords=["safety", "security", "emergency", "locks"], urgency_level="high"
+    - Supply: indicators=["supply", "shortage", "missing", "stock", "ppe", "supplies"], queue="Logistics Department", issue_category="Supply or logistics issue", keywords=["supply", "shortage", "logistics", "PPE", "medical supplies"], urgency_level="medium"
+    - Lab: indicators=["lab", "laboratory", "analyzer", "centrifuge", "microscope", "blood"], queue="Technical Support", issue_category="Laboratory equipment malfunction", keywords=["laboratory", "lab equipment", "analyzers", "centrifuges"], urgency_level="high"
+    - Patient Care: indicators=["nurse call", "patient monitor", "call button", "bedside", "telemetry"], queue="Technical Support", issue_category="Patient care system malfunction", keywords=["nurse call", "patient monitoring", "call buttons", "bedside"], urgency_level="high"
+
+    Guidelines:
+    - Match queue, issue_category, and keywords exactly to the issue patterns when indicators are present in the query.
+    - For urgency_level:
+      - Use "high" if the query contains severity indicators (e.g., "badly", "urgent", "emergency", "critical") or impacts patient safety.
+      - Use "medium" for standard maintenance or operational issues.
+      - Use "low" for minor, non-impacting issues.
+    - For keywords, include only general terms from the issue pattern and query (e.g., "faucet", "leak", "plumbing" for facilities issues). Exclude specific locations (e.g., "Room 302").
+    - For description, generate a space-separated string of key terms from the query (e.g., "faucet leaking badly" for "The faucet in Room 302 is leaking badly").
 
     Examples:
-    - Query: "MRI scanner not working" → {{"queue": ["Technical Support"], "issue_category": ["Medical Equipment"], "keywords": ["MRI", "scanner", "imaging", "radiology"], "urgency_level": ["High"]}}
-    - Query: "software keeps crashing" → {{"queue": ["IT Department", "Technical Support"], "issue_category": ["Software"], "keywords": ["software", "crashes", "error", "application"], "urgency_level": ["Medium", "High"]}}
-    - Query: "toilet is leaking" → {{"queue": ["Maintenance Department"], "issue_category": ["Facility"], "keywords": ["leak", "toilet", "plumbing", "facilities"], "urgency_level": ["Medium"]}}
+    - Query: "MRI scanner not working" → {{"queue": ["2nd line"], "issue_category": ["MRI scanner issue"], "keywords": ["MRI", "scanner", "imaging", "radiology"], "urgency_level": ["high"], "description": "MRI scanner not working"}}
+    - Query: "software keeps crashing" → {{"queue": ["IT Department", "Technical Support"], "issue_category": ["Software installation and functionality issues"], "keywords": ["software", "crashes", "error", "application"], "urgency_level": ["medium", "high"], "description": "software crashing"}}
+    - Query: "toilet is leaking" → {{"queue": ["Maintenance Department"], "issue_category": ["Facilities or Fixtures malfunction"], "keywords": ["facilities", "fixtures", "toilets", "leaks", "plumbing"], "urgency_level": ["medium"], "description": "toilet leaking"}}
+    - Query: "The faucet in Room 302 is leaking badly" → {{"queue": ["Maintenance Department"], "issue_category": ["Facilities or Fixtures malfunction"], "keywords": ["facilities", "fixtures", "faucets", "leaks", "plumbing"], "urgency_level": ["high"], "description": "faucet leaking badly"}}
 
     Now analyze: "{query}"
 
@@ -228,7 +249,7 @@ async def llm_intelligent_metadata_filter_hospital(query: str) -> Optional[rest.
     """
 
     try:
-        # Use your existing provider logic
+        # Use existing provider logic
         if hasattr(config, 'MCP_PROVIDER_OLLAMA') and config.MCP_PROVIDER_OLLAMA:
             llm = ChatOllama(
                 model=config.MCP_AGENT_MODEL_NAME,
@@ -256,7 +277,8 @@ async def llm_intelligent_metadata_filter_hospital(query: str) -> Optional[rest.
 
         messages = [
             SystemMessage(
-                content="You are a metadata filter generator for hospital support. Return only valid JSON."),
+                content="You are a metadata filter generator for hospital support. Return only valid JSON."
+            ),
             HumanMessage(content=prompt)
         ]
 
@@ -376,7 +398,7 @@ async def enhanced_multi_strategy_retrieval(
                 # Use LLM filter or fallback to rule-based
                 if use_llm_filter:
                     metadata_filter = await llm_intelligent_metadata_filter_hospital(query)
-                    
+
                 else:
                     metadata_filter = intelligent_metadata_filter(query)
 
@@ -431,6 +453,8 @@ async def enhanced_multi_strategy_retrieval(
             broad_fallback_search(),
             return_exceptions=True
         )
+
+        print(f'Qdrant Search Results: {results}')
 
         # Process results with first success termination
         all_hits = []
@@ -517,7 +541,8 @@ async def hospital_support_questions_tool(query: str, use_llm_filter: bool = Tru
             collection_name=collection_name,
             qdrant_client=qdrant_client,
             k=3,
-            min_score=0.5,
+            # min_score=0.5,
+            min_score=0.2,
             use_llm_filter=use_llm_filter
         )
 
