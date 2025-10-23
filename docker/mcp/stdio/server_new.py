@@ -2687,10 +2687,6 @@ async def mcp_tools_list():
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "conversation_id": {
-                        "type": "string",
-                        "description": "Conversation thread ID (e.g. 00001) for tracking tickets within the session"
-                    },
                     "query": {
                         "type": "string",
                         "description": "Description of the problem/issue (REQUIRED for initialization)"
@@ -2714,15 +2710,15 @@ async def mcp_tools_list():
                     "reporter_name": {
                         "type": "string",
                         "description": "Name of person reporting issue (optional)",
-                        "default": "Godlove"
+                        "default": "Jean Gray"
                     },
                     "reporter_email": {
                         "type": "string",
                         "description": "Email of person reporting issue (optional)",
-                        "default": "godlove@lovenoreusgmail.onmicrosoft.com"
+                        "default": "jeangray@lovenoreusgmail.onmicrosoft.com"
                     }
                 },
-                "required": ["conversation_id", "query", "systems"]
+                "required": ["query", "systems"]
             }
         ),
 
@@ -3237,7 +3233,8 @@ async def mcp_tools_call(request: MCPToolCallRequest):
         # ==================== TICKET SYSTEM TOOLS ====================
         elif tool_name == "ticket_open":
             try:
-                conversation_id = arguments.get("conversation_id", "")
+                # conversation_id = arguments.get("conversation_id", "")
+                conversation_id = "000001"
                 query = arguments.get("query", "")
 
                 if not conversation_id:
