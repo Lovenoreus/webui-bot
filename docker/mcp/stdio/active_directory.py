@@ -1220,6 +1220,7 @@ class FastActiveDirectory:
 
             await self.graph_api_request("GET", endpoint, token)
             return True
+
         except:
             return False
 

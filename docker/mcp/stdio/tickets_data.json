@@ -361,6 +361,137 @@
           "action": "status_change"
         }
       ]
+    },
+    "TKT-71883C82": {
+      "ticket_id": "TKT-71883C82",
+      "systems": null,
+      "conversation_id": "3dd1fbff-59ef-41ba-8ca9-b7de23dfb38e",
+      "status": "draft",
+      "created_at": "2025-10-24T10:04:16.044034",
+      "updated_at": "2025-10-24T10:04:16.044034",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "The MRI scanner is malfunctioning",
+      "location": null,
+      "queue": "2nd line",
+      "priority": "High",
+      "department": null,
+      "category": "Medical Equipment",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"protocol\", \"protocol_id\": null, \"confidence_score\": 0.613, \"has_known_solution\": true, \"solution_available\": true, \"issue_interpretation\": \"The MRI scanner is experiencing a malfunction, which may involve various issues such as abnormal noises, image quality problems, or system alerts.\", \"message\": \"The MRI scanner is reported to be malfunctioning. Please provide more details to assist in resolving the issue.\", \"next_step\": \"collect_info\", \"reasoning\": \"Collecting specific information about the MRI scanner will help in diagnosing the issue accurately and determining the next steps for resolution.\", \"must_ask_diagnostic_questions\": [\"What is the model and serial number of the MRI scanner?\", \"What specific issue are you experiencing (e.g., noise, image quality, cooling failure)?\", \"Is patient imaging currently being delayed or canceled due to this problem?\", \"When was the scanner last used without any issues?\", \"Have any error codes or system alerts been displayed on the console?\"], \"troubleshooting_steps\": null, \"category\": \"Medical Equipment\", \"queue\": \"2nd line\", \"priority\": \"High\", \"estimated_resolution_time\": null, \"similar_issues_found\": 1, \"escalation_recommended\": true}",
+      "history": []
+    },
+    "TKT-60ADE44A": {
+      "ticket_id": "TKT-60ADE44A",
+      "systems": null,
+      "conversation_id": "1f2cf15d-f681-4fb8-b581-ce74b980bac7",
+      "status": "draft",
+      "created_at": "2025-10-24T10:08:12.063646",
+      "updated_at": "2025-10-24T10:08:12.063646",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": null,
+      "conversation_topic": null,
+      "description": "The MRI scanner is malfunctioning",
+      "location": null,
+      "queue": "2nd line",
+      "priority": "High",
+      "department": null,
+      "category": "Medical Equipment",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"protocol\", \"protocol_id\": null, \"confidence_score\": 0.613, \"has_known_solution\": true, \"solution_available\": true, \"issue_interpretation\": \"The MRI scanner is experiencing a malfunction, which may include issues like abnormal noises, image quality problems, or other operational failures.\", \"message\": \"The MRI scanner is reported to be malfunctioning. This is a high urgency issue that requires immediate attention. Please provide more details to assist in troubleshooting.\", \"next_step\": \"collect_info\", \"reasoning\": \"Collecting specific information about the MRI scanner will help in diagnosing the issue accurately and expedite the resolution process.\", \"must_ask_diagnostic_questions\": [\"What is the model and serial number of the MRI scanner?\", \"What specific issue are you experiencing (e.g., noise, image quality, cooling failure)?\", \"Is patient imaging currently being delayed or canceled due to this problem?\", \"When was the scanner last used without any issues?\", \"Have any error codes or system alerts been displayed on the console?\"], \"troubleshooting_steps\": null, \"category\": \"Medical Equipment\", \"queue\": \"2nd line\", \"priority\": \"High\", \"estimated_resolution_time\": null, \"similar_issues_found\": 1, \"escalation_recommended\": true}",
+      "history": []
+    },
+    "TKT-440FEA43": {
+      "ticket_id": "TKT-440FEA43",
+      "systems": null,
+      "conversation_id": "89dab6fe-98ff-4805-b256-27f9b87ca325",
+      "status": "submitted",
+      "created_at": "2025-10-24T10:10:17.582152",
+      "updated_at": "2025-10-24T10:40:16.459326",
+      "reporter_name": "Jean Gray",
+      "reporter_email": "jeangray@lovenoreusgmail.onmicrosoft.com",
+      "jira_key": "HEAL-1129",
+      "conversation_topic": "MRI Scanner Malfunction",
+      "description": "The MRI scanner is malfunctioning. The MRI scanner is a Siemens Magnetom Aera with serial number 74382. Patient imaging has been delayed due to the error code E142: Gradient System Fault.",
+      "location": "MRI Suite",
+      "queue": "General Support",
+      "priority": "High",
+      "department": "Radiology",
+      "category": "Medical Equipment Failure",
+      "knowledge_base_result": "{\"success\": true, \"source\": \"protocol\", \"protocol_id\": null, \"confidence_score\": 0.613, \"has_known_solution\": true, \"solution_available\": true, \"issue_interpretation\": \"The MRI scanner is experiencing a malfunction, which may include issues like abnormal noises, image quality problems, or other operational failures.\", \"message\": \"The MRI scanner is reported to be malfunctioning, which falls under a high urgency category. Please provide more details to assist in resolving the issue.\", \"next_step\": \"collect_info\", \"reasoning\": \"Collecting specific information about the MRI scanner will help in diagnosing the issue accurately and expedite the resolution process.\", \"must_ask_diagnostic_questions\": [\"What is the model and serial number of the MRI scanner?\", \"What specific issue are you experiencing (e.g., noise, image quality, cooling failure)?\", \"Is patient imaging currently being delayed or canceled due to this problem?\", \"When was the scanner last used without any issues?\", \"Have any error codes or system alerts been displayed on the console?\"], \"troubleshooting_steps\": null, \"category\": \"Medical Equipment\", \"queue\": \"2nd line\", \"priority\": \"High\", \"estimated_resolution_time\": null, \"similar_issues_found\": 1, \"escalation_recommended\": true}",
+      "history": [
+        {
+          "timestamp": "2025-10-24T10:40:00.982181",
+          "field_name": "conversation_topic",
+          "old_value": null,
+          "new_value": "MRI Scanner Malfunction",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-24T10:40:00.982181",
+          "field_name": "description",
+          "old_value": "The MRI scanner is malfunctioning",
+          "new_value": "The MRI scanner is malfunctioning. The MRI scanner is a Siemens Magnetom Aera with serial number 74382. Patient imaging has been delayed due to the error code E142: Gradient System Fault.",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-24T10:40:00.982181",
+          "field_name": "location",
+          "old_value": null,
+          "new_value": "MRI Suite",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-24T10:40:00.982181",
+          "field_name": "queue",
+          "old_value": "2nd line",
+          "new_value": "Incident Report",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-24T10:40:00.982181",
+          "field_name": "priority",
+          "old_value": "High",
+          "new_value": "High",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-24T10:40:00.982181",
+          "field_name": "department",
+          "old_value": null,
+          "new_value": "Radiology",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-24T10:40:00.982181",
+          "field_name": "reporter_name",
+          "old_value": "Jean Gray",
+          "new_value": "Jean Gray",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-24T10:40:00.982181",
+          "field_name": "queue",
+          "old_value": null,
+          "new_value": "General Support",
+          "action": "auto_route"
+        },
+        {
+          "timestamp": "2025-10-24T10:40:00.982181",
+          "field_name": "category",
+          "old_value": "Medical Equipment",
+          "new_value": "Medical Equipment Failure",
+          "action": "continue"
+        },
+        {
+          "timestamp": "2025-10-24T10:40:16.459326",
+          "field_name": "status",
+          "old_value": "draft",
+          "new_value": "submitted",
+          "action": "status_change"
+        }
+      ]
     }
   },
   "thread_index": {
@@ -396,6 +527,15 @@
     ],
     "e02d7b08-5f73-4edb-8781-ae8309d0fa05": [
       "TKT-860E594E"
+    ],
+    "3dd1fbff-59ef-41ba-8ca9-b7de23dfb38e": [
+      "TKT-71883C82"
+    ],
+    "1f2cf15d-f681-4fb8-b581-ce74b980bac7": [
+      "TKT-60ADE44A"
+    ],
+    "89dab6fe-98ff-4805-b256-27f9b87ca325": [
+      "TKT-440FEA43"
     ]
   },
   "metadata": {

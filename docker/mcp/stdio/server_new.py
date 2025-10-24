@@ -1247,14 +1247,6 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
     Open a ticket with knowledge base search, LLM analysis, and intelligent routing.
     Returns comprehensive contextual information for natural conversation flow.
     """
-
-    try:
-        print(request.chat_id)
-
-    except:
-        print('No chat id!')
-
-
     try:
         print(request.system)
         systems = request.systems
@@ -1434,77 +1426,80 @@ async def initialize_ticket_endpoint(request: InitializeTicketRequest):
             'Bug Reports', 'Security Department', 'Compliance Legal', 'Service Outages',
             'Onboarding Setup', 'API Integration', 'Data Migration', 'Accessibility',
             'Training Education', 'General Inquiries', 'Permissions Access',
-            'Management Department', 'Maintenance Department', 'Logistics Department', 'IT Department'
+            'Management Department', 'Maintenance Department', 'Logistics Department',
+            'IT Department'
         ]
 
         # Step 4: Prepare enhanced LLM prompt for intelligent analysis with FLAT structure
         system_prompt = """
-You are an expert hospital support system analyzer. Analyze user queries and provide intelligent ticket initialization with actionable guidance.
-
-INPUT:
-- User Query: {user_query}
-- Knowledge Base Results: {qdrant_response}
-- Available Queues: {queue_choices}
-
-ANALYSIS TASK:
-1. Evaluate knowledge base protocols for relevance to user query
-2. Determine if there's a known issue available
-   - If there is, get all the information about the known issue
-   - If there isn't, generate yours
-3. Suggest appropriate routing (category, queue, priority)
-4. Provide clear guidance on next steps
-
-EVALUATION CRITERIA:
-- Match query keywords with protocol keywords and descriptions
-- Consider protocol confidence/match scores
-- Assess clinical domain and issue category alignment
-- Evaluate if troubleshooting steps are available
-
-RESPONSE STRUCTURE (FLAT - NO NESTED OBJECTS):
-{{
-  "success": true,
-  "source": "protocol" | "generated",
-  "protocol_id": "ID from knowledge base or null",
-  "confidence_score": 0.0 to 1.0,
-  "has_known_solution": boolean,
-  "solution_available": boolean,
-  "issue_interpretation": "your understanding of the user's issue",
-  "message": "clear, helpful message to user about what was found",
-  "next_step": "try_solution" | "follow_troubleshooting" | "collect_info" | "immediate_escalation",
-  "reasoning": "brief explanation of why this next step",
-  "must_ask_diagnostic_questions": [
-    "specific, actionable question 1",
-    "specific, actionable question 2", 
-    "specific, actionable question 3",
-    ...
-  ],
-  "troubleshooting_steps": [
-    "step 1",
-    "step 2"
-  ] or null,
-  "category": "Hardware" | "Software" | "Network" | "Facility" | "Medical Equipment" | "Other",
-  "queue": "queue name from available list",
-  "priority": "High" | "Medium" | "Low",
-  "estimated_resolution_time": "time estimate or null",
-  "similar_issues_found": number,
-  "escalation_recommended": boolean
-}}
-
-PRIORITY GUIDELINES:
-- High: Major functionality broken, significant operational impact, System down, patient care directly impacted, safety issue
-- Medium: Standard issues, workarounds available
-- Low: Minor inconveniences, feature requests
-
-CATEGORY GUIDELINES:
-- Hardware: Physical equipment, devices, peripherals
-- Software: Applications, systems, programs
-- Network: Connectivity, internet, infrastructure
-- Medical Equipment: Clinical devices, diagnostic tools
-- Facility: Building, rooms, physical environment
-- Other: Doesn't fit above categories
-
-CRITICAL: Return ONLY valid JSON with a FLAT structure. No nested objects for "analysis", "guidance", "suggestions", or "metadata". All fields should be at the top level of the JSON object. No markdown formatting, no code blocks, no explanations outside the JSON structure.
-"""
+            You are an expert hospital support system analyzer. Analyze user queries and provide intelligent ticket initialization with actionable guidance.
+            
+            INPUT:
+            - User Query: {user_query}
+            - Knowledge Base Results: {qdrant_response}
+            - Available Queues: {queue_choices}
+            
+            ANALYSIS TASK:
+            1. Evaluate knowledge base protocols for relevance to user query
+            2. Determine if there's a known issue available
+               - If there is, get all the information about the known issue
+               - If there isn't, generate yours
+            3. Suggest appropriate routing (category, queue, priority)
+            4. Provide clear guidance on next steps
+            
+            EVALUATION CRITERIA:
+            - Match query keywords with protocol keywords and descriptions
+            - Consider protocol confidence/match scores
+            - Assess clinical domain and issue category alignment
+            - Evaluate if troubleshooting steps are available
+            
+            RESPONSE STRUCTURE (FLAT - NO NESTED OBJECTS):
+            {{
+              "success": true,
+              "source": "protocol" | "generated",
+              "protocol_id": "ID from knowledge base or null",
+              "confidence_score": 0.0 to 1.0,
+              "has_known_solution": boolean,
+              "solution_available": boolean,
+              "issue_interpretation": "your understanding of the user's issue",
+              "message": "clear, helpful message to user about what was found",
+              "next_step": "try_solution" | "follow_troubleshooting" | "collect_info" | "immediate_escalation",
+              "reasoning": "brief explanation of why this next step",
+              "must_ask_diagnostic_questions": [
+                "specific, actionable question 1",
+                "specific, actionable question 2", 
+                "specific, actionable question 3",
+                "specific, actionable question 4",
+                "specific, actionable question 5",
+                ...
+              ],
+              "troubleshooting_steps": [
+                "step 1",
+                "step 2"
+              ] or null,
+              "category": "Hardware" | "Software" | "Network" | "Facility" | "Medical Equipment" | "Other",
+              "queue": "queue name from available list",
+              "priority": "High" | "Medium" | "Low",
+              "estimated_resolution_time": "time estimate or null",
+              "similar_issues_found": number,
+              "escalation_recommended": boolean
+            }}
+            
+            PRIORITY GUIDELINES:
+            - High: Major functionality broken, significant operational impact, System down, patient care directly impacted, safety issue
+            - Medium: Standard issues, workarounds available
+            - Low: Minor inconveniences, feature requests
+            
+            CATEGORY GUIDELINES:
+            - Hardware: Physical equipment, devices, peripherals
+            - Software: Applications, systems, programs
+            - Network: Connectivity, internet, infrastructure
+            - Medical Equipment: Clinical devices, diagnostic tools
+            - Facility: Building, rooms, physical environment
+            - Other: Doesn't fit above categories
+            
+            CRITICAL: Return ONLY valid JSON with a FLAT structure. No nested objects for "analysis", "guidance", "suggestions", or "metadata". All fields should be at the top level of the JSON object. No markdown formatting, no code blocks, no explanations outside the JSON structure.
+        """
 
         messages = [
             SystemMessage(content=system_prompt.format(
@@ -1581,9 +1576,9 @@ CRITICAL: Return ONLY valid JSON with a FLAT structure. No nested objects for "a
             reporter_name=request.reporter_name,
             reporter_email=request.reporter_email,
             knowledge_base_result=json.dumps(llm_analysis) if llm_analysis else json.dumps(kb_result),
-            category=category,  # Pass extracted category
-            priority=priority,  # Pass extracted priority
-            queue=queue  # Pass extracted queue
+            category=category,
+            priority=priority,
+            queue=queue
         )
 
         print(
@@ -1820,7 +1815,7 @@ async def submit_ticket_endpoint(
             # Check if user belongs to "Ticket Creators" group
             is_ticket_creator = await ad.check_user_membership(
                 user_identifier=user_identifier,
-                group_identifier="Ticket Creators"
+                group_identifier="Ticket Creator" # The Ticket Creator Group
             )
 
             if DEBUG:
@@ -1849,18 +1844,21 @@ async def submit_ticket_endpoint(
                     print(f"[DEBUG] Fetching members of 'Ticket Creators' group...")
 
                 ticket_creators = await ad.get_group_members_smart(
-                    group_identifier="Ticket Creators"
+                    group_identifier="Ticket Creator"
                 )
 
                 if DEBUG:
                     print(f"[DEBUG] Found {len(ticket_creators)} ticket creators:")
+
                     for tc in ticket_creators[:5]:  # Log first 5
                         print(f"[DEBUG]   - {tc.get('displayName')} ({tc.get('userPrincipalName')})")
 
                 if not ticket_creators:
                     error_msg = "No ticket creators found in the system. Please contact IT support."
+
                     if DEBUG:
                         print(f"[ERROR] {error_msg}")
+
                     raise HTTPException(status_code=500, detail=error_msg)
 
                 # Step 3: Find escalator - someone who is in Ticket Creators AND shares a group with the user
@@ -1879,6 +1877,7 @@ async def submit_ticket_endpoint(
                             user_identifier=creator['id'],
                             transitive=False
                         )
+
                         creator_group_ids = {g['id'] for g in creator_groups}
 
                         # Check for common groups
@@ -1890,8 +1889,10 @@ async def submit_ticket_endpoint(
                                 'common_groups_count': len(common_groups),
                                 'common_groups': common_groups
                             })
+
                             if DEBUG:
                                 print(f"[DEBUG]   ✓ {creator.get('displayName')} shares {len(common_groups)} group(s)")
+
                         else:
                             if DEBUG:
                                 print(f"[DEBUG]   ✗ {creator.get('displayName')} shares no groups")
@@ -1911,13 +1912,17 @@ async def submit_ticket_endpoint(
                         key=lambda x: x['common_groups_count'],
                         reverse=True
                     )
+
                     escalator = potential_escalators[0]['user']
+
                     if DEBUG:
                         print(f"[DEBUG] ✓ Selected escalator: {escalator.get('displayName')} "
                               f"(shares {potential_escalators[0]['common_groups_count']} groups)")
+
                 else:
                     # Fallback: just use first ticket creator
                     escalator = ticket_creators[0]
+
                     if DEBUG:
                         print(f"[DEBUG] ⚠️  No shared groups found. Using fallback: {escalator.get('displayName')}")
 
@@ -3326,15 +3331,37 @@ async def mcp_tools_call(request: MCPToolCallRequest):
 
                 result = await initialize_ticket_endpoint(init_request)
 
-                # Process diagnostic tracking for initialization
-                must_ask_questions = result.get("must_ask_diagnostic_questions", [])
-                answered = {}  # No answers yet for initialization
-                diagnostic_tracking = process_questions_generic(answered, must_ask_questions)
+                # TODO: GET SYSTEM AND SEARCH FOR INCIDENT RESPONSE.
+                try:
+                    systems = arguments.get("systems", [])
+                    print(systems)
+
+                except:
+                    print('No systems!')
+                    systems = []
+
+                if "Incident Report" in systems:
+                    # TODO: INCIDENT QUESTIONS.
+                    incident_questions = [
+                        "Were any of the following factors involved? (Medical device, Assistive device, Radiation/Hospital physics, IT, Telephony, Materials/other equipment, Medication)",
+                        "Date and time of the event",
+                        "What injury occurred or could have occurred?",
+                        "What happened or could have happened? (Do not include any sensitive or confidential information, such as personal identity numbers.)",
+                        "Was a patient affected? (Search for the person here.)",
+                        "Why did the event occur? Describe the likely cause of the incident.",
+                        "What actions do you think should be taken? Please suggest measures to prevent recurrence of the incident.",
+                        "What actions have been taken? Describe any immediate actions taken directly in connection with the incident."
+                    ]
+
+                    # Process diagnostic tracking for initialization
+                    must_ask_questions = result.get("must_ask_diagnostic_questions", []).extend(incident_questions)
+
+                else:
+                    must_ask_questions = result.get("must_ask_diagnostic_questions", [])
 
                 result.update({
                     "should_use_ticket_continue": True,
-                    "diagnostic_tracking": diagnostic_tracking,
-                    "must_ask_diagnostic_questions": diagnostic_tracking["questions_remaining"]
+                    "must_ask_diagnostic_questions": must_ask_questions
                 })
 
                 return MCPToolCallResponse(
