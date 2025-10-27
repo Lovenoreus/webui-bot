@@ -101,6 +101,11 @@ OLLAMA_HOST = get_nested(config, ["ollama", "host"], "http://localhost")
 OLLAMA_PORT = to_int(get_nested(config, ["ollama", "port"], 11434), default=11434)
 OLLAMA_BASE_URL = f"{OLLAMA_HOST}:{OLLAMA_PORT}"
 
+# QUERY REPHRASER
+QUERY_REPHRASER_MODEL = get_nested(config, ["ollama", "query_rephraser_model"], "phi4:latest")
+QUERY_REPHRASER_TEMPERATURE = 0.3
+QUERY_REPHRASER_PRELOAD = to_bool(get_nested(config, ["ollama", "query_rephraser_preload"], False), default=False)
+
 # --- 6) OpenAI settings ---
 USE_OPENAI = to_bool(get_nested(config, ["openai", "enabled"], False), default=False)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -115,6 +120,13 @@ if USE_OLLAMA:
     VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA = True
     VANNA_OLLAMA_VERBOSE = True
 
+    # Query rephraser.
+    QUERY_REPHRASER_CLIENT = ChatOllama(
+        model="phi4:latest",
+        temperature=0.3,
+        base_url=OLLAMA_BASE_URL
+    )
+
 
 if USE_OPENAI:
     AGENT_MODEL_NAME = get_nested(config, ["openai", "agent_model_name"], "gpt-4o-mini")
@@ -126,6 +138,13 @@ if USE_OPENAI:
     VANNA_OPENAI_ALLOW_LLM_TO_SEE_DATA = True  # Allow LLM to access training data
     VANNA_OPENAI_VERBOSE = True  # Enable verbose output for debugging
 
+    # ADD THIS NEW CLIENT ⬇️
+    QUERY_REPHRASER_CLIENT = ChatOpenAI(
+        model="gpt-4o-mini",
+        temperature=0.3,
+        api_key=OPENAI_API_KEY
+    )
+
 USE_MISTRAL = to_bool(get_nested(config, ["mistral", "enabled"], False), default=False)
 
 if USE_MISTRAL:
@@ -134,6 +153,15 @@ if USE_MISTRAL:
     MISTRAL_BASE_URL = get_nested(config, ["mistral", "base_url"], "https://api.mistral.ai/v1")
     MISTRAL_CHAT_COMPLETION_ENDPOINT = get_nested(config, ["mistral", "chat_completion_endpoint"], "/chat/completions")
     EMBEDDINGS_MODEL_NAME = get_nested(config, ["mistral", "embeddings_model_name"], "text-embedding-3-large")
+
+    # ADD THIS NEW CLIENT ⬇️
+    QUERY_REPHRASER_CLIENT = init_chat_model(
+        model="mistral-small-latest",
+        model_provider="mistralai",
+        base_url=MISTRAL_BASE_URL,
+        api_key=MISTRAL_API_KEY,
+        temperature=0.3
+    )
 
 # --- 7) Qdrant settings ---
 QDRANT_HOST = get_nested(config, ["qdrant", "host"], "localhost")
