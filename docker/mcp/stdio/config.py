@@ -8,7 +8,7 @@ from langchain_ollama import ChatOllama
 
 from langchain_openai import ChatOpenAI
 
-global_config_path = '/.omnigate/config.json'
+global_config_path = '/.example/config.json'
 script_dir = os.path.dirname(os.path.abspath(__file__))
 local_config_path = os.path.join(script_dir, 'config.json')
 

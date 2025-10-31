@@ -565,31 +565,31 @@ Output:"""
         return f"Error: {e}", []
 
 
-if __name__ == "__main__":
-    # Test queries
-    test_queries = [
-        "Show invoices from Abbott in 2024",
-        "Which suppliers billed us more than 5000 for consulting?",
-        "Visa fakturor utan beskrivningar",
-        "Lista tyska eller svenska leverantörer med fakturor över 2000 under Q1"
-    ]
+# if __name__ == "__main__":
+#     # Test queries
+#     test_queries = [
+#         "Show invoices from Abbott in 2024",
+#         "Which suppliers billed us more than 5000 for consulting?",
+#         "Visa fakturor utan beskrivningar",
+#         "Lista tyska eller svenska leverantörer med fakturor över 2000 under Q1"
+#     ]
     
-    print("=" * 60)
-    print("QUERY REPHRASER TEST")
-    print("=" * 60)
-    print()
+#     print("=" * 60)
+#     print("QUERY REPHRASER TEST")
+#     print("=" * 60)
+#     print()
     
-    for query in test_queries:
-        print("-" * 60)
-        rephrased = rephrase_query(query)
-        print()
+#     for query in test_queries:
+#         print("-" * 60)
+#         rephrased = rephrase_query(query)
+#         print()
     
-    print("=" * 60)
-    print("SIMPLE VERSION TEST")
-    print("=" * 60)
-    print()
+#     print("=" * 60)
+#     print("SIMPLE VERSION TEST")
+#     print("=" * 60)
+#     print()
     
-    query = "Show invoices from Abbott in 2024"
-    rephrased, targets = rephrase_query_simple(query)
-    print(f"Rephrased: {rephrased}")
-    print(f"Targets: {targets}")
+#     query = "Show invoices from Abbott in 2024"
+#     rephrased, targets = rephrase_query_simple(query)
+#     print(f"Rephrased: {rephrased}")
+#     print(f"Targets: {targets}")

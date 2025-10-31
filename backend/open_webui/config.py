@@ -939,7 +939,6 @@ ENABLE_OLLAMA_API = PersistentConfig(
 
 OLLAMA_API_BASE_URL = os.environ.get(
     "OLLAMA_API_BASE_URL", "http://localhost:11434/api"
-    print("Fallback detected")
 )
 
 OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "")
