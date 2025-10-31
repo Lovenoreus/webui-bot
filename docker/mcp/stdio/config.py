@@ -167,33 +167,6 @@ if USE_MISTRAL:
         temperature=0.3
     )
 
-# --- 7) Qdrant settings ---
-QDRANT_HOST = get_nested(config, ["qdrant", "host"], "localhost")
-QDRANT_PORT = to_int(get_nested(config, ["qdrant", "port"], 6333), default=6333)
-QDRANT_RESULT_LIMIT = to_int(get_nested(config, ["qdrant", "result_limit"], 2), default=2)
-CHUNKING_STRATEGY = get_nested(config, ["qdrant", "chunking_strategy"], "by_section_id")
-
-COSMIC_DATABASE_COLLECTION = get_nested(config, ["cosmic_database", "collection_name"], "cosmic_documents")
-COSMIC_DATABASE_DOCUMENT_PATH = get_nested(config, ["cosmic_database", "document_path"], "cosmic_documents")
-
-COSMIC_DATABASE_COLLECTION_NAME = f"{COSMIC_DATABASE_COLLECTION}-{EMBEDDINGS_MODEL_NAME}"
-print(f"Using cosmic database collection name: {COSMIC_DATABASE_COLLECTION_NAME}")
-COSMIC_DATABASE_COLLECTION_NAME = COSMIC_DATABASE_COLLECTION_NAME.replace(':', '-').replace('/', '-')
-
-# --- 8) Grafana logging settings ---
-GRAFANA_ENABLED = to_bool(get_nested(config, ["grafana", "enabled"], False), default=False)
-GRAFANA_LEVEL = get_nested(config, ["grafana", "level"], "info")
-GRAFANA_LOG_TO_FILE = to_bool(get_nested(config, ["grafana", "log_to_file"], False), default=False)
-
-# --- 9) Feature flags (default to False if missing) ---
-FEATURE_COSMIC_AGENT = to_bool(get_nested(config, ["features", "cosmic_agent"], False), default=False)
-FEATURE_CREATE_TICKET = to_bool(get_nested(config, ["features", "create_ticket"], False), default=False)
-FEATURE_WHO_AM_I = to_bool(get_nested(config, ["features", "who_am_i"], False), default=False)
-
-# --- 10) LangSmith settings ---
-LANGSMITH_ENABLED = to_bool(get_nested(config, ["langsmith", "enabled"], False), default=False)
-LANGSMITH_TRACING = to_bool(get_nested(config, ["langsmith", "tracing"], False), default=False)
-
 # 11) Database configuration
 
 DATABASE_CHOICE = get_nested(config, ["mcp", "database_choice"], "local")  # "local" or "remote"
@@ -211,8 +184,6 @@ print(f"SQL_SERVER_HOST: {SQL_SERVER_HOST}")
 print(f"SQL_SERVER_DATABASE: {SQL_SERVER_DATABASE}")
 print(f"SQL_SERVER_DRIVER: {SQL_SERVER_DRIVER}")
 print(f"SQL_SERVER_USE_WINDOWS_AUTH: {SQL_SERVER_USE_WINDOWS_AUTH}")
-# print(f"SQL_SERVER_USERNAME: {SQL_SERVER_USERNAME}")
-# print(f"SQL_SERVER_PASSWORD: {'*' * len(SQL_SERVER_PASSWORD) if SQL_SERVER_PASSWORD else None}")
 
 MCP_DATABASE_PATH = get_nested(config, ["mcp", "database_path"], "sqlite_invoices_full.db")
 MCP_DOCKER_DATABASE_PATH = get_nested(config, ["mcp", "docker_database_path"],
@@ -295,15 +266,6 @@ elif USE_MISTRAL:
 else:
     assert False, "USE_OLLAMA or USE_OPENAI must be enabled in the config"
 
-#  Jira configuration
-JIRA_API_TOKEN = os.getenv("JIRA_API_TOKEN")
-JIRA_EMAIL = os.getenv("JIRA_EMAIL")
-JIRA_DOMAIN = os.getenv("JIRA_DOMAIN")
-JIRA_PROJECT_KEY = get_nested(config, ["jira", "project_key"], "HEAL")
-JIRA_ISSUE_TYPE = get_nested(config, ["jira", "issue_type"], "Task")
-CREATE_ISSUE_URL = f"https://{JIRA_DOMAIN}/rest/api/3/issue"
-TRANSITION_URL = f"https://{JIRA_DOMAIN}/rest/api/3/issue/{{}}/transitions"
-
 # Headers for API requests
 HEADERS = {
     "Accept": "application/json",
@@ -324,7 +286,3 @@ def summarize():
     print(f"using embeddings model: {EMBEDDINGS_MODEL_NAME}")
     if USE_OLLAMA:
         print(f"using OLLAMA_BASE_URL: {OLLAMA_BASE_URL}")
-
-    print(f"using cosmic database collection: {COSMIC_DATABASE_COLLECTION_NAME}")
-
-# summarize()
