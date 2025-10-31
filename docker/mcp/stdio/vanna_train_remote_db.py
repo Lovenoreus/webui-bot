@@ -239,6 +239,101 @@ def train_for_remote_db(vanna_manager):
     else:
         print("❌ Failed to train Query Patterns")
 
+    # ================================================================
+    # TABLE 3: Supplier Party Accounting Table (Accounting Entries)
+    # ================================================================
+
+    print("\nTraining with SupplierPartyAccounting DDL...")
+    if vanna_manager.train(ddl="""
+    CREATE TABLE [Nodinite].[dbo].[SupplierPartyAccounting] (
+        -- Primary Key
+        Id INT NOT NULL PRIMARY KEY,
+        
+        -- Verification Information
+        VerificationNumber NVARCHAR(50),              -- Voucher/verification number from accounting system
+        VerificationName NVARCHAR(255),               -- Supplier or voucher name
+        VerificationType NVARCHAR(50),                -- Type of verification
+        
+        -- Invoice Reference
+        InvoiceId NVARCHAR(50),                       -- External invoice identifier (CRITICAL: preserve leading zeros, treat as text)
+        SupplierPartyOrgNr NVARCHAR(50),              -- Swedish organization number of supplier
+        
+        -- Accounting Dimensions
+        AccountingType NVARCHAR(50),                  -- Type of accounting entry
+        Account NVARCHAR(50),                         -- General Ledger account number
+        CostCenter NVARCHAR(50),                      -- Cost center code
+        Project NVARCHAR(100),                        -- Project or internal tracking code
+        Activity NVARCHAR(50),                        -- Activity code for internal accounting
+        Operation NVARCHAR(50),                       -- Operation code
+        Counterpart NVARCHAR(50),                     -- Counterpart account
+        Freecode NVARCHAR(50),                        -- Free code field
+        
+        -- Amount Information
+        TotalAmount DECIMAL(18,3),                    -- Posting line amount (can be positive or negative)
+        
+        -- Tax Information
+        TaxCode NVARCHAR(20),                         -- Tax code for the entry
+        
+        -- Date and Period Information
+        VerificationDate NVARCHAR(10),                -- Date voucher was registered, Format: YYYY-MM-DD
+        Period NVARCHAR(6),                           -- Accounting period in YYYYMM format (e.g., '202501' for January 2025)
+        
+        -- Line Information
+        SequenceNumber INT,                           -- Line number within the verification
+        
+        -- Notes
+        Note1 NVARCHAR(MAX),                          -- Additional notes field 1
+        Note2 NVARCHAR(MAX),                          -- Additional notes field 2
+        
+        -- Employee Information
+        EmployeeCategory NVARCHAR(50),                -- Employee category if applicable
+        
+        -- ETL Metadata
+        CreatedDateTime DATETIME                      -- Timestamp when record was created
+    )
+    """):
+        print("✅ Successfully trained SupplierPartyAccounting DDL")
+    else:
+        print("❌ Failed to train SupplierPartyAccounting DDL")
+
+    # ================================================================
+    # TABLE RELATIONSHIPS: SupplierPartyAccounting
+    # ================================================================
+
+    if vanna_manager.train(ddl="""
+    -- Relationship between SupplierPartyAccounting and Invoice tables:
+    -- [Nodinite].[dbo].[SupplierPartyAccounting].InvoiceId links to [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb].INVOICE_ID
+    -- [Nodinite].[dbo].[SupplierPartyAccounting].SupplierPartyOrgNr links to [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb].SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID
+
+    -- IMPORTANT: One InvoiceId can have MULTIPLE accounting entries (posting lines)
+    -- To get total accounting amount for an invoice, you must SUM(TotalAmount) grouped by InvoiceId
+
+    -- Example JOIN pattern:
+    SELECT 
+        i.INVOICE_ID,
+        i.SUPPLIER_PARTY_NAME,
+        spa.VerificationNumber,
+        spa.Account,
+        spa.CostCenter,
+        spa.TotalAmount
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[SupplierPartyAccounting] spa 
+        ON i.INVOICE_ID = spa.InvoiceId
+    WHERE i.ISSUE_DATE >= '2025-01-01'
+    """):
+        print("✅ Successfully trained SupplierPartyAccounting relationships")
+    else:
+        print("❌ Failed to train SupplierPartyAccounting relationships")
+
+    print("\n✅ SupplierPartyAccounting Training Complete!")
+    print("📊 Trained on:")
+    print("   - Complete SupplierPartyAccounting table schema (23 columns)")
+    print("   - Relationships with Invoice tables")
+    print("   - Period formatting and filtering patterns")
+    print("   - Amount aggregation rules")
+    print("   - InvoiceId text handling rules")
+    print("   - Common accounting dimension queries")
+
     print("✅ DDL Training Complete!")
     print("📊 Trained on:")
     print("   - Database dialect and naming conventions")
@@ -282,6 +377,499 @@ def train_for_remote_db(vanna_manager):
         print("✅ Documentation: Unicode handling rules")
     else:
         print("❌ Documentation: Failed")
+
+    # ================================================================
+    # QUERY PATTERNS: SupplierPartyAccounting
+    # ================================================================
+
+    if vanna_manager.train(documentation="""
+    CRITICAL PATTERNS FOR SupplierPartyAccounting TABLE:
+
+    1. INVOICEID HANDLING:
+    - InvoiceId is stored as NVARCHAR to preserve leading zeros
+    - ALWAYS treat as text, never convert to numeric
+    - Use LIKE for searching: WHERE InvoiceId LIKE '%12345%'
+    - When joining to Invoice table, use direct equality: ON i.INVOICE_ID = spa.InvoiceId
+
+    2. PERIOD FILTERING:
+    - Period format: YYYYMM (e.g., '202501' for January 2025, '202412' for December 2024)
+    - For single month: WHERE Period = '202501'
+    - For year: WHERE Period LIKE '2025%'
+    - For date range: WHERE Period >= '202501' AND Period <= '202512'
+
+    3. AGGREGATING AMOUNTS:
+    - One invoice can have MULTIPLE posting lines
+    - To get total for invoice: SUM(TotalAmount) GROUP BY InvoiceId
+    - TotalAmount can be negative (credit entries) or positive (debit entries)
+    - Always use column alias: SUM(TotalAmount) AS total_accounting_amount
+
+    4. COMMON DIMENSIONS FOR GROUPING:
+    - By Account: GROUP BY Account
+    - By Cost Center: GROUP BY CostCenter
+    - By Project: GROUP BY Project
+    - By Period: GROUP BY Period
+    - By Supplier: GROUP BY SupplierPartyOrgNr
+
+    5. TEXT SEARCH RULES (same as other tables):
+    - ALWAYS use LIKE '%value%' for text columns
+    - Applies to: VerificationName, Account, CostCenter, Project, Activity, Note1, Note2
+    """):
+        print("✅ Successfully trained SupplierPartyAccounting query patterns")
+    else:
+        print("❌ Failed to train SupplierPartyAccounting query patterns")
+
+
+    # ================================================================
+    # SQL TRAINING: Cost Center Joins - Question & Answer Pairs
+    # ================================================================
+
+    print("\n" + "=" * 80)
+    print("TRAINING: Cost Center Join Patterns - Q&A Examples")
+    print("=" * 80 + "\n")
+
+    # ================================================================
+    # Example 1: Item names by cost center
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Give me 5 examples of item names associated with invoices that are placed in cost center 35040",
+        sql="""
+    SELECT DISTINCT TOP 5 
+        line.ITEM_NAME 
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] AS line 
+    JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] AS inv 
+        ON line.INVOICE_ID = inv.INVOICE_ID 
+    JOIN [Nodinite].[dbo].[SupplierPartyAccounting] AS spa 
+        ON inv.INVOICE_ID = spa.InvoiceId 
+    WHERE spa.CostCenter LIKE '%35040%' 
+        AND line.ITEM_NAME IS NOT NULL 
+    ORDER BY line.ITEM_NAME
+    """
+    ):
+        print("✅ Q&A 1: Item names by cost center")
+    else:
+        print("❌ Q&A 1: Failed")
+
+    # ================================================================
+    # Example 2: Item descriptions with cost center
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Show me item descriptions for products in cost center 35040",
+        sql="""
+    SELECT DISTINCT TOP 10
+        line.ITEM_NAME,
+        line.ITEM_DESCRIPTION,
+        spa.CostCenter,
+        inv.SUPPLIER_PARTY_NAME
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] AS line 
+    JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] AS inv 
+        ON line.INVOICE_ID = inv.INVOICE_ID 
+    JOIN [Nodinite].[dbo].[SupplierPartyAccounting] AS spa 
+        ON inv.INVOICE_ID = spa.InvoiceId 
+    WHERE spa.CostCenter LIKE '%35040%' 
+        AND line.ITEM_DESCRIPTION IS NOT NULL
+    """
+    ):
+        print("✅ Q&A 2: Item descriptions by cost center")
+    else:
+        print("❌ Q&A 2: Failed")
+
+    # ================================================================
+    # Example 3: Total amounts by item and cost center
+    # ================================================================
+
+    if vanna_manager.train(
+        question="What are the total amounts for each item in cost center 35040?",
+        sql="""
+    SELECT 
+        line.ITEM_NAME,
+        spa.CostCenter,
+        COUNT(*) AS line_count,
+        SUM(line.INVOICED_LINE_EXTENSION_AMOUNT) AS total_line_amount,
+        SUM(spa.TotalAmount) AS total_accounting_amount
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] AS line 
+    JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] AS inv 
+        ON line.INVOICE_ID = inv.INVOICE_ID 
+    JOIN [Nodinite].[dbo].[SupplierPartyAccounting] AS spa 
+        ON inv.INVOICE_ID = spa.InvoiceId 
+    WHERE spa.CostCenter LIKE '%35040%' 
+        AND line.ITEM_NAME IS NOT NULL
+    GROUP BY line.ITEM_NAME, spa.CostCenter
+    ORDER BY total_accounting_amount DESC
+    """
+    ):
+        print("✅ Q&A 3: Total amounts by item and cost center")
+    else:
+        print("❌ Q&A 3: Failed")
+
+    # ================================================================
+    # Example 4: Suppliers and items by cost center
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Which suppliers provide items to cost center 35040 and what are those items?",
+        sql="""
+    SELECT DISTINCT
+        inv.SUPPLIER_PARTY_NAME,
+        line.ITEM_NAME,
+        spa.CostCenter,
+        COUNT(*) AS occurrence_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] AS line 
+    JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] AS inv 
+        ON line.INVOICE_ID = inv.INVOICE_ID 
+    JOIN [Nodinite].[dbo].[SupplierPartyAccounting] AS spa 
+        ON inv.INVOICE_ID = spa.InvoiceId 
+    WHERE spa.CostCenter LIKE '%35040%'
+    GROUP BY inv.SUPPLIER_PARTY_NAME, line.ITEM_NAME, spa.CostCenter
+    ORDER BY occurrence_count DESC
+    """
+    ):
+        print("✅ Q&A 4: Suppliers and items by cost center")
+    else:
+        print("❌ Q&A 4: Failed")
+
+    # ================================================================
+    # Example 5: Items by multiple cost centers
+    # ================================================================
+
+    if vanna_manager.train(
+        question="List items that appear in both cost center 35040 and 35041",
+        sql="""
+    SELECT DISTINCT
+        line.ITEM_NAME,
+        COUNT(DISTINCT spa.CostCenter) AS cost_center_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] AS line 
+    JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] AS inv 
+        ON line.INVOICE_ID = inv.INVOICE_ID 
+    JOIN [Nodinite].[dbo].[SupplierPartyAccounting] AS spa 
+        ON inv.INVOICE_ID = spa.InvoiceId 
+    WHERE (spa.CostCenter LIKE '%35040%' OR spa.CostCenter LIKE '%35041%')
+        AND line.ITEM_NAME IS NOT NULL
+    GROUP BY line.ITEM_NAME
+    HAVING COUNT(DISTINCT spa.CostCenter) >= 2
+    ORDER BY line.ITEM_NAME
+    """
+    ):
+        print("✅ Q&A 5: Items in multiple cost centers")
+    else:
+        print("❌ Q&A 5: Failed")
+
+    # ================================================================
+    # Example 6: Cost center with date filtering
+    # ================================================================
+
+    if vanna_manager.train(
+        question="What items were purchased for cost center 35040 in January 2025?",
+        sql="""
+    SELECT DISTINCT
+        line.ITEM_NAME,
+        inv.ISSUE_DATE,
+        spa.CostCenter,
+        spa.Period,
+        line.INVOICED_LINE_EXTENSION_AMOUNT
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] AS line 
+    JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] AS inv 
+        ON line.INVOICE_ID = inv.INVOICE_ID 
+    JOIN [Nodinite].[dbo].[SupplierPartyAccounting] AS spa 
+        ON inv.INVOICE_ID = spa.InvoiceId 
+    WHERE spa.CostCenter LIKE '%35040%' 
+        AND spa.Period = '202501'
+        AND line.ITEM_NAME IS NOT NULL
+    ORDER BY inv.ISSUE_DATE
+    """
+    ):
+        print("✅ Q&A 6: Items by cost center and date")
+    else:
+        print("❌ Q&A 6: Failed")
+
+    # ================================================================
+    # Example 7: Item quantities by cost center
+    # ================================================================
+
+    if vanna_manager.train(
+        question="How many units of each item were ordered for cost center 35040?",
+        sql="""
+    SELECT 
+        line.ITEM_NAME,
+        line.INVOICED_QUANTITY_UNIT_CODE,
+        spa.CostCenter,
+        SUM(line.INVOICED_QUANTITY) AS total_quantity,
+        COUNT(DISTINCT inv.INVOICE_ID) AS invoice_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] AS line 
+    JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] AS inv 
+        ON line.INVOICE_ID = inv.INVOICE_ID 
+    JOIN [Nodinite].[dbo].[SupplierPartyAccounting] AS spa 
+        ON inv.INVOICE_ID = spa.InvoiceId 
+    WHERE spa.CostCenter LIKE '%35040%' 
+        AND line.ITEM_NAME IS NOT NULL
+        AND line.INVOICED_QUANTITY IS NOT NULL
+    GROUP BY line.ITEM_NAME, line.INVOICED_QUANTITY_UNIT_CODE, spa.CostCenter
+    ORDER BY total_quantity DESC
+    """
+    ):
+        print("✅ Q&A 7: Item quantities by cost center")
+    else:
+        print("❌ Q&A 7: Failed")
+
+    # ================================================================
+    # Example 8: Top items by cost center and amount
+    # ================================================================
+
+    if vanna_manager.train(
+        question="What are the top 10 most expensive items in cost center 35040?",
+        sql="""
+    SELECT TOP 10
+        line.ITEM_NAME,
+        spa.CostCenter,
+        SUM(line.INVOICED_LINE_EXTENSION_AMOUNT) AS total_amount,
+        COUNT(*) AS line_count,
+        AVG(line.INVOICED_LINE_EXTENSION_AMOUNT) AS avg_amount
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] AS line 
+    JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] AS inv 
+        ON line.INVOICE_ID = inv.INVOICE_ID 
+    JOIN [Nodinite].[dbo].[SupplierPartyAccounting] AS spa 
+        ON inv.INVOICE_ID = spa.InvoiceId 
+    WHERE spa.CostCenter LIKE '%35040%' 
+        AND line.ITEM_NAME IS NOT NULL
+    GROUP BY line.ITEM_NAME, spa.CostCenter
+    ORDER BY total_amount DESC
+    """
+    ):
+        print("✅ Q&A 8: Top items by cost center and amount")
+    else:
+        print("❌ Q&A 8: Failed")
+
+    # ================================================================
+    # Example 9: Items with project and cost center
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Show me items for cost center 35040 grouped by project",
+        sql="""
+    SELECT 
+        spa.Project,
+        spa.CostCenter,
+        line.ITEM_NAME,
+        COUNT(DISTINCT inv.INVOICE_ID) AS invoice_count,
+        SUM(spa.TotalAmount) AS total_accounting_amount
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] AS line 
+    JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] AS inv 
+        ON line.INVOICE_ID = inv.INVOICE_ID 
+    JOIN [Nodinite].[dbo].[SupplierPartyAccounting] AS spa 
+        ON inv.INVOICE_ID = spa.InvoiceId 
+    WHERE spa.CostCenter LIKE '%35040%' 
+        AND spa.Project IS NOT NULL
+        AND line.ITEM_NAME IS NOT NULL
+    GROUP BY spa.Project, spa.CostCenter, line.ITEM_NAME
+    ORDER BY total_accounting_amount DESC
+    """
+    ):
+        print("✅ Q&A 9: Items by cost center and project")
+    else:
+        print("❌ Q&A 9: Failed")
+
+    # ================================================================
+    # Example 10: Cost center spending summary with items
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Give me a spending summary for cost center 35040 showing suppliers and their items",
+        sql="""
+    SELECT 
+        spa.CostCenter,
+        inv.SUPPLIER_PARTY_NAME,
+        line.ITEM_NAME,
+        COUNT(DISTINCT inv.INVOICE_ID) AS invoice_count,
+        SUM(line.INVOICED_QUANTITY) AS total_quantity,
+        SUM(line.INVOICED_LINE_EXTENSION_AMOUNT) AS total_line_amount,
+        SUM(spa.TotalAmount) AS total_accounting_amount
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] AS line 
+    JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] AS inv 
+        ON line.INVOICE_ID = inv.INVOICE_ID 
+    JOIN [Nodinite].[dbo].[SupplierPartyAccounting] AS spa 
+        ON inv.INVOICE_ID = spa.InvoiceId 
+    WHERE spa.CostCenter LIKE '%35040%' 
+        AND line.ITEM_NAME IS NOT NULL
+    GROUP BY spa.CostCenter, inv.SUPPLIER_PARTY_NAME, line.ITEM_NAME
+    ORDER BY total_accounting_amount DESC
+    """
+    ):
+        print("✅ Q&A 10: Cost center spending summary")
+    else:
+        print("❌ Q&A 10: Failed")
+
+    # ================================================================
+    # Example 11: Items across all cost centers comparison
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Which items appear in the most cost centers?",
+        sql="""
+    SELECT 
+        line.ITEM_NAME,
+        COUNT(DISTINCT spa.CostCenter) AS cost_center_count,
+        COUNT(DISTINCT inv.INVOICE_ID) AS invoice_count,
+        SUM(spa.TotalAmount) AS total_amount
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] AS line 
+    JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] AS inv 
+        ON line.INVOICE_ID = inv.INVOICE_ID 
+    JOIN [Nodinite].[dbo].[SupplierPartyAccounting] AS spa 
+        ON inv.INVOICE_ID = spa.InvoiceId 
+    WHERE line.ITEM_NAME IS NOT NULL
+        AND spa.CostCenter IS NOT NULL
+    GROUP BY line.ITEM_NAME
+    HAVING COUNT(DISTINCT spa.CostCenter) > 1
+    ORDER BY cost_center_count DESC, total_amount DESC
+    """
+    ):
+        print("✅ Q&A 11: Items across multiple cost centers")
+    else:
+        print("❌ Q&A 11: Failed")
+
+    # ================================================================
+    # Example 12: Cost center with GL account
+    # ================================================================
+
+    if vanna_manager.train(
+        question="What items in cost center 35040 are posted to GL account 4000?",
+        sql="""
+    SELECT DISTINCT
+        line.ITEM_NAME,
+        spa.CostCenter,
+        spa.Account,
+        SUM(spa.TotalAmount) AS total_amount,
+        COUNT(*) AS posting_count
+    FROM [Nodinite].[dbo].[LLM_OnPrem_InvoiceLine_kb] AS line 
+    JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] AS inv 
+        ON line.INVOICE_ID = inv.INVOICE_ID 
+    JOIN [Nodinite].[dbo].[SupplierPartyAccounting] AS spa 
+        ON inv.INVOICE_ID = spa.InvoiceId 
+    WHERE spa.CostCenter LIKE '%35040%' 
+        AND spa.Account LIKE '%4000%'
+        AND line.ITEM_NAME IS NOT NULL
+    GROUP BY line.ITEM_NAME, spa.CostCenter, spa.Account
+    ORDER BY total_amount DESC
+    """
+    ):
+        print("✅ Q&A 12: Items by cost center and GL account")
+    else:
+        print("❌ Q&A 12: Failed")
+
+    print("\n" + "=" * 80)
+    print("✅ COST CENTER JOIN TRAINING COMPLETE!")
+    print("=" * 80)
+    print("\n📊 Trained 12 comprehensive Q&A pairs covering:")
+    print("   - Basic item lookups by cost center")
+    print("   - Amount aggregations")
+    print("   - Supplier analysis")
+    print("   - Multi-cost center queries")
+    print("   - Date/period filtering")
+    print("   - Quantity analysis")
+    print("   - Project dimensions")
+    print("   - GL account combinations")
+    print("   - Cross-cost center comparisons")
+    print("\n🎯 All queries properly join:")
+    print("   [LLM_OnPrem_InvoiceLine_kb] ← [LLM_OnPrem_Invoice_kb] ← [SupplierPartyAccounting]")
+    print("   Using spa.CostCenter (not AccountingCost!)")
+    print("=" * 80 + "\n")
+
+    # ================================================================
+    # EXAMPLE QUERIES: SupplierPartyAccounting
+    # ================================================================
+
+    if vanna_manager.train(
+        question="Show me total accounting amounts by cost center for January 2025",
+        sql="""
+    SELECT 
+        CostCenter,
+        COUNT(DISTINCT InvoiceId) AS invoice_count,
+        COUNT(*) AS posting_line_count,
+        SUM(TotalAmount) AS total_amount
+    FROM [Nodinite].[dbo].[SupplierPartyAccounting]
+    WHERE Period = '202501'
+        AND CostCenter IS NOT NULL
+    GROUP BY CostCenter
+    ORDER BY total_amount DESC
+    """
+    ):
+        print("✅ Example: Aggregate by cost center and period")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Find all accounting entries for invoice INV-2025-001",
+        sql="""
+    SELECT 
+        Id,
+        VerificationNumber,
+        VerificationName,
+        InvoiceId,
+        Account,
+        CostCenter,
+        Project,
+        TotalAmount,
+        VerificationDate,
+        Period,
+        SequenceNumber
+    FROM [Nodinite].[dbo].[SupplierPartyAccounting]
+    WHERE InvoiceId LIKE '%INV-2025-001%'
+    ORDER BY SequenceNumber
+    """
+    ):
+        print("✅ Example: Search by InvoiceId using LIKE")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Compare invoice total vs accounting total for each invoice",
+        sql="""
+    SELECT 
+        i.INVOICE_ID,
+        i.SUPPLIER_PARTY_NAME,
+        i.ISSUE_DATE,
+        i.LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT AS invoice_total,
+        SUM(spa.TotalAmount) AS accounting_total,
+        i.LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT - SUM(spa.TotalAmount) AS difference
+    FROM [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i
+    INNER JOIN [Nodinite].[dbo].[SupplierPartyAccounting] spa 
+        ON i.INVOICE_ID = spa.InvoiceId
+    WHERE i.ISSUE_DATE >= '2025-01-01'
+    GROUP BY 
+        i.INVOICE_ID,
+        i.SUPPLIER_PARTY_NAME,
+        i.ISSUE_DATE,
+        i.LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT
+    HAVING ABS(i.LEGAL_MONETARY_TOTAL_PAYABLE_AMOUNT - SUM(spa.TotalAmount)) > 0.01
+    ORDER BY difference DESC
+    """
+    ):
+        print("✅ Example: Compare invoice vs accounting totals")
+    else:
+        print("❌ Example: Failed")
+
+    if vanna_manager.train(
+        question="Show accounting breakdown by project for supplier with org number 5560466137",
+        sql="""
+    SELECT 
+        spa.Project,
+        spa.CostCenter,
+        COUNT(DISTINCT spa.InvoiceId) AS invoice_count,
+        SUM(spa.TotalAmount) AS total_amount,
+        MIN(spa.VerificationDate) AS earliest_date,
+        MAX(spa.VerificationDate) AS latest_date
+    FROM [Nodinite].[dbo].[SupplierPartyAccounting] spa
+    INNER JOIN [Nodinite].[dbo].[LLM_OnPrem_Invoice_kb] i 
+        ON spa.InvoiceId = i.INVOICE_ID
+    WHERE i.SUPPLIER_PARTY_LEGAL_ENTITY_COMPANY_ID LIKE '%5560466137%'
+        AND spa.Project IS NOT NULL
+    GROUP BY spa.Project, spa.CostCenter
+    ORDER BY total_amount DESC
+    """
+    ):
+        print("✅ Example: Supplier accounting by project")
+    else:
+        print("❌ Example: Failed")
 
     if vanna_manager.train(sql="""
     SELECT 

@@ -12,6 +12,11 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 import httpx
 import re
 import traceback
+import time
+from contextlib import contextmanager
+import json
+from datetime import datetime
+from pathlib import Path as FilePath
 
 load_dotenv(find_dotenv())
 
@@ -24,10 +29,164 @@ os.environ["OPENAI_VERIFY_SSL"] = "false"
 os.environ["HF_HUB_DISABLE_SSL_VERIFY"] = "1"
 
 
+# ============================================================================
+# TIMING UTILITIES
+# ============================================================================
+
+@contextmanager
+def timer(operation_name: str, timings_dict: dict = None):
+    """
+    Context manager for timing operations
+    
+    Args:
+        operation_name: Name of the operation being timed
+        timings_dict: Optional dictionary to store timing results
+    
+    Usage:
+        with timer("SQL Generation", timings):
+            # code to time
+            pass
+    """
+    start_time = time.perf_counter()
+    print(f"[TIMING] ⏱️  Starting: {operation_name}")
+    
+    try:
+        yield
+    finally:
+        elapsed = time.perf_counter() - start_time
+        print(f"[TIMING] ✅ Completed: {operation_name} - {elapsed:.4f}s ({elapsed*1000:.2f}ms)")
+        
+        if timings_dict is not None:
+            timings_dict[operation_name] = {
+                "duration_seconds": round(elapsed, 4),
+                "duration_ms": round(elapsed * 1000, 2)
+            }
+
+
+class TimingTracker:
+    """
+    Class to track and report timing information for various operations
+    """
+    def __init__(self, json_log_path: str = "vanna_timing.json"):
+        self.timings = {}
+        self.start_time = None
+        self.json_log_path = json_log_path
+        self.current_operation_metadata = {}  # Store metadata for current operation
+        
+    def start(self):
+        """Start tracking total time"""
+        self.start_time = time.perf_counter()
+        self.timings = {}
+        self.current_operation_metadata = {}
+        
+    def record(self, operation_name: str, duration: float):
+        """Record a timing manually"""
+        self.timings[operation_name] = {
+            "duration_seconds": round(duration, 4),
+            "duration_ms": round(duration * 1000, 2)
+        }
+        
+    def set_metadata(self, **kwargs):
+        """Set metadata for the current operation (provider, model, etc.)"""
+        self.current_operation_metadata.update(kwargs)
+        
+    def log_to_json(self, operation: str, elapsed_time: float, status: str = "success", **extra_metadata):
+        """
+        Log timing data to JSON file in the required format
+        
+        Args:
+            operation: Name of the operation (e.g., "initialize_vanna", "generate_sql")
+            elapsed_time: Time taken in seconds
+            status: Operation status ("success" or "error")
+            **extra_metadata: Additional metadata to include in the log
+        """
+        try:
+            # Combine stored metadata with extra metadata
+            metadata = {**self.current_operation_metadata, **extra_metadata}
+            
+            # Create log entry
+            log_entry = {
+                "timestamp": datetime.now().isoformat(),
+                "module": "vanna_engine",
+                "operation": operation,
+                "elapsed_time_seconds": round(elapsed_time, 4),
+                "status": status
+            }
+            
+            # Add all metadata fields
+            log_entry.update(metadata)
+            
+            # Read existing logs
+            log_file = FilePath(self.json_log_path)
+            if log_file.exists():
+                try:
+                    with open(log_file, 'r') as f:
+                        logs = json.load(f)
+                except json.JSONDecodeError:
+                    logs = []
+            else:
+                logs = []
+            
+            # Append new entry
+            logs.append(log_entry)
+            
+            # Write back to file
+            with open(log_file, 'w') as f:
+                json.dump(logs, f, indent=2)
+                
+            print(f"[TIMING] 💾 Logged to {self.json_log_path}: {operation} ({elapsed_time:.4f}s)")
+            
+        except Exception as e:
+            print(f"[TIMING] ⚠️  Failed to log to JSON: {e}")
+        
+    def get_total_time(self) -> float:
+        """Get total elapsed time since start()"""
+        if self.start_time is None:
+            return 0.0
+        return time.perf_counter() - self.start_time
+        
+    def get_summary(self) -> dict:
+        """Get a summary of all timings"""
+        total_time = self.get_total_time()
+        return {
+            "total_time_seconds": round(total_time, 4),
+            "total_time_ms": round(total_time * 1000, 2),
+            "operations": self.timings,
+            "operation_count": len(self.timings)
+        }
+        
+    def print_summary(self):
+        """Print a formatted summary of all timings"""
+        summary = self.get_summary()
+        
+        print("\n" + "="*80)
+        print("[TIMING SUMMARY] 📊 Performance Report")
+        print("="*80)
+        print(f"Total Time: {summary['total_time_seconds']:.4f}s ({summary['total_time_ms']:.2f}ms)")
+        print(f"Operations Tracked: {summary['operation_count']}")
+        print("-"*80)
+        
+        if self.timings:
+            # Sort by duration (longest first)
+            sorted_ops = sorted(
+                self.timings.items(), 
+                key=lambda x: x[1]['duration_seconds'], 
+                reverse=True
+            )
+            
+            for op_name, timing in sorted_ops:
+                percentage = (timing['duration_seconds'] / summary['total_time_seconds'] * 100) if summary['total_time_seconds'] > 0 else 0
+                print(f"  • {op_name:.<50} {timing['duration_seconds']:>8.4f}s ({percentage:>5.1f}%)")
+        
+        print("="*80 + "\n")
+
+# ============================================================================
+
+
 class VannaModelManager:
     """Manager class to handle Vanna with LLM providers for SQL generation"""
 
-    def __init__(self, chroma_path: Optional[str] = None, clear_existing: bool = False):
+    def __init__(self, chroma_path: Optional[str] = None, clear_existing: bool = False, timing_log_path: str = "vanna_timing.json"):
         """
         Initialize VannaModelManager
 
@@ -36,9 +195,12 @@ class VannaModelManager:
                         Defaults to './chroma_db' if not specified.
             clear_existing: If True, clears existing ChromaDB data before initialization.
                            Defaults to False.
+            timing_log_path: Path to JSON file for logging timing data.
+                           Defaults to 'vanna_timing.json'.
         """
         self.current_provider = self._get_active_provider()
         self.vanna_client = None
+        self.timing_tracker = TimingTracker(json_log_path=timing_log_path)  # Initialize timing tracker with log path
 
         # Set up ChromaDB storage path
         self.chroma_path = chroma_path or getattr(config, 'CHROMA_DB_PATH', './chroma_db')
@@ -255,16 +417,22 @@ class VannaModelManager:
             before Vanna's internal logic can replace it with error messages
             """
             print(f"[VANNA DEBUG] 🤖 Submitting prompt to LLM...")
+            llm_start = time.perf_counter()
             
             try:
                 # Get raw LLM response
                 llm_response = original_submit_prompt(prompt, **kwargs)
+                llm_elapsed = time.perf_counter() - llm_start
+                self.timing_tracker.record("LLM API Call", llm_elapsed)
                 
                 print(f"[VANNA DEBUG] 📥 Raw LLM Response received ({len(llm_response)} chars)")
                 print(f"LLM Response: {llm_response}")
                 
                 # Extract SQL immediately using our patched extract_sql
+                extract_start = time.perf_counter()
                 sql = self.vanna_client.extract_sql(llm_response)
+                extract_elapsed = time.perf_counter() - extract_start
+                self.timing_tracker.record("SQL Extraction from LLM Response", extract_elapsed)
                 
                 # Store it so generate_sql can return it
                 if sql:
@@ -304,10 +472,18 @@ class VannaModelManager:
             self.vanna_client.run_sql = mock_run_sql
             
             try:
+                context_start = time.perf_counter()
+                
                 # Call original generate_sql
                 # This will trigger our patched_submit_prompt which captures SQL
                 # Force allow_llm_to_see_data to False to prevent execution logic
                 result = original_generate_sql(question=question, allow_llm_to_see_data=False)
+                
+                context_elapsed = time.perf_counter() - context_start
+                # This includes context retrieval + LLM call (LLM timing is captured separately in patched_submit_prompt)
+                retrieval_time = context_elapsed - self.timing_tracker.timings.get("LLM API Call", {}).get("duration_seconds", 0)
+                if retrieval_time > 0:
+                    self.timing_tracker.record("Context Retrieval & Prompt Building", retrieval_time)
                 
                 # Priority 1: Return captured SQL from LLM response
                 if captured_sql['value']:
@@ -348,20 +524,57 @@ class VannaModelManager:
 
     def initialize_vanna(self, provider: Optional[str] = None):
         """Initialize Vanna with specified provider or use config default"""
+        init_start = time.perf_counter()
+        
         target_provider = provider or self.current_provider
 
-        if target_provider == "openai":
-            self._init_openai_vanna()
-        elif target_provider == "ollama":
-            self._init_ollama_vanna()
-        else:
-            raise ValueError(f"Unsupported provider: {target_provider}")
+        try:
+            if target_provider == "openai":
+                self._init_openai_vanna()
+            elif target_provider == "ollama":
+                self._init_ollama_vanna()
+            else:
+                raise ValueError(f"Unsupported provider: {target_provider}")
 
-        print(f"[VANNA DEBUG] ✅ Vanna initialized with provider: {target_provider}")
-        return self.vanna_client
+            init_elapsed = time.perf_counter() - init_start
+            
+            # Set metadata for JSON logging
+            model = config.VANNA_OPENAI_MODEL if target_provider == "openai" else config.VANNA_OLLAMA_MODEL
+            self.timing_tracker.set_metadata(
+                provider=target_provider,
+                model=model,
+                chroma_path=os.path.abspath(self.chroma_path)
+            )
+            
+            # Log to JSON file
+            self.timing_tracker.log_to_json(
+                operation="initialize_vanna",
+                elapsed_time=init_elapsed,
+                status="success"
+            )
+            
+            # Also record in timing tracker for summary
+            self.timing_tracker.record("Initialize Vanna", init_elapsed)
+            
+            print(f"[VANNA DEBUG] ✅ Vanna initialized with provider: {target_provider}")
+            return self.vanna_client
+            
+        except Exception as e:
+            init_elapsed = time.perf_counter() - init_start
+            
+            # Log error to JSON
+            self.timing_tracker.log_to_json(
+                operation="initialize_vanna",
+                elapsed_time=init_elapsed,
+                status="error",
+                error=str(e)
+            )
+            raise
 
     def _init_openai_vanna(self):
         """Initialize Vanna with OpenAI"""
+        start_time = time.perf_counter()
+        
         if not config.OPENAI_API_KEY:
             raise ValueError("OPENAI_API_KEY not found in environment")
 
@@ -389,10 +602,15 @@ class VannaModelManager:
         
         self.current_provider = "openai"
         
+        elapsed = time.perf_counter() - start_time
+        self.timing_tracker.record("OpenAI Client Setup", elapsed)
+        
         print(f"[VANNA DEBUG] ✅ OpenAI Vanna initialized successfully")
 
     def _init_ollama_vanna(self):
         """Initialize Vanna with Ollama"""
+        start_time = time.perf_counter()
+        
         print(f"[VANNA DEBUG] 🔧 Initializing Ollama Vanna...")
         print(f"[VANNA DEBUG] Model: {config.VANNA_OLLAMA_MODEL}")
         print(f"[VANNA DEBUG] Host: {config.VANNA_OLLAMA_BASE_URL}")
@@ -415,6 +633,9 @@ class VannaModelManager:
         
         self.current_provider = "ollama"
         
+        elapsed = time.perf_counter() - start_time
+        self.timing_tracker.record("Ollama Client Setup", elapsed)
+        
         print(f"[VANNA DEBUG] ✅ Ollama Vanna initialized successfully")
 
     def train(
@@ -436,15 +657,19 @@ class VannaModelManager:
         Returns:
             bool: True if all training succeeded, False otherwise
         """
+        train_start = time.perf_counter()
+        
         if not self.vanna_client:
             print(f"[VANNA DEBUG] Vanna client not initialized, initializing now...")
             self.initialize_vanna()
 
         def _safe_train(train_func, data, data_type):
             """Helper to safely train with error handling"""
+            item_start = time.perf_counter()
             try:
                 train_func(data)
-                print(f"[VANNA DEBUG] ✅ Successfully trained {data_type}")
+                item_elapsed = time.perf_counter() - item_start
+                print(f"[VANNA DEBUG] ✅ Successfully trained {data_type} ({item_elapsed:.3f}s)")
                 return True
             except Exception as e:
                 print(f"[VANNA DEBUG] ❌ Error training {data_type}: {e}")
@@ -477,6 +702,29 @@ class VannaModelManager:
         if not any([ddl, documentation, sql, (question and sql)]):
             raise ValueError("Must provide at least one training data type")
 
+        train_elapsed = time.perf_counter() - train_start
+        self.timing_tracker.record("Training Data Ingestion", train_elapsed)
+        
+        # Determine what was trained
+        data_types = []
+        if ddl:
+            data_types.append("ddl")
+        if documentation:
+            data_types.append("documentation")
+        if question and sql:
+            data_types.append("question_sql_pair")
+        elif sql:
+            data_types.append("sql")
+        
+        # Log to JSON
+        self.timing_tracker.log_to_json(
+            operation="train",
+            elapsed_time=train_elapsed,
+            status="success" if success else "partial_failure",
+            data_types=",".join(data_types),
+            item_count=len(data_types)
+        )
+
         return success
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
@@ -490,6 +738,10 @@ class VannaModelManager:
         Returns:
             str: Generated SQL query, or None if generation failed
         """
+        # Start timing for the entire SQL generation process
+        total_start = time.perf_counter()
+        self.timing_tracker.start()  # Reset timing tracker for this query
+        
         if not self.vanna_client:
             raise ValueError("Vanna client must be initialized before generating SQL")
 
@@ -500,26 +752,86 @@ class VannaModelManager:
 
         try:
             # Generate SQL (patched version handles everything with hybrid approach)
+            # The timing for LLM call will be captured in the patched methods
+            gen_start = time.perf_counter()
             sql = self.vanna_client.generate_sql(query, allow_llm_to_see_data=False)
+            gen_elapsed = time.perf_counter() - gen_start
+            self.timing_tracker.record("Vanna generate_sql() call", gen_elapsed)
 
             if not sql:
+                total_elapsed = time.perf_counter() - total_start
+                
+                # Log failure to JSON
+                self.timing_tracker.log_to_json(
+                    operation="generate_sql",
+                    elapsed_time=total_elapsed,
+                    status="error",
+                    error="SQL generation returned None/empty",
+                    question=query
+                )
+                
                 print(f"[VANNA DEBUG] ⚠️ Warning: SQL generation returned None/empty")
                 return None
 
             # Double-check it's not an error message
             if isinstance(sql, str) and (sql.startswith("Error") or "not allowed" in sql.lower()[:100]):
+                total_elapsed = time.perf_counter() - total_start
+                
+                # Log error to JSON
+                self.timing_tracker.log_to_json(
+                    operation="generate_sql",
+                    elapsed_time=total_elapsed,
+                    status="error",
+                    error="Error message returned instead of SQL",
+                    question=query
+                )
+                
                 print(f"[VANNA DEBUG] ❌ Error message returned instead of SQL: {sql[:100]}")
                 return None
+
+            total_elapsed = time.perf_counter() - total_start
+            self.timing_tracker.record("Total SQL Generation", total_elapsed)
+
+            # Get timing breakdown
+            llm_time = self.timing_tracker.timings.get("LLM API Call", {}).get("duration_seconds", 0)
+            context_time = self.timing_tracker.timings.get("Context Retrieval & Prompt Building", {}).get("duration_seconds", 0)
+            extraction_time = self.timing_tracker.timings.get("SQL Extraction from LLM Response", {}).get("duration_seconds", 0)
+            
+            # Log success to JSON with detailed breakdown
+            self.timing_tracker.log_to_json(
+                operation="generate_sql",
+                elapsed_time=total_elapsed,
+                status="success",
+                question=query,
+                sql_length=len(sql),
+                llm_time_seconds=llm_time,
+                context_retrieval_seconds=context_time,
+                sql_extraction_seconds=extraction_time
+            )
 
             print(f"[VANNA DEBUG] " + "="*80)
             print(f"[VANNA DEBUG] ✅ SQL GENERATION SUCCESSFUL")
             print(f"[VANNA DEBUG] Generated SQL Length: {len(sql)} characters")
             print(f"[VANNA DEBUG] Full SQL: {sql}")
             print(f"[VANNA DEBUG] " + "="*80)
+            
+            # Print timing summary
+            self.timing_tracker.print_summary()
 
             return sql
 
         except Exception as e:
+            total_elapsed = time.perf_counter() - total_start
+            
+            # Log exception to JSON
+            self.timing_tracker.log_to_json(
+                operation="generate_sql",
+                elapsed_time=total_elapsed,
+                status="error",
+                error=str(e),
+                question=query
+            )
+            
             print(f"[VANNA DEBUG] ❌ Error generating SQL: {e}")
             traceback.print_exc()
             return None
@@ -665,6 +977,40 @@ class VannaModelManager:
             print(f"[VANNA DEBUG] ❌ Error getting similar training data: {e}")
             traceback.print_exc()
             return {"error": str(e)}
+
+    def get_timing_summary(self) -> dict:
+        """
+        Get a summary of timing information from the last operation
+        
+        Returns:
+            dict: Dictionary containing timing information with structure:
+                  {
+                      "total_time_seconds": float,
+                      "total_time_ms": float,
+                      "operations": {
+                          "operation_name": {
+                              "duration_seconds": float,
+                              "duration_ms": float
+                          },
+                          ...
+                      },
+                      "operation_count": int
+                  }
+        """
+        return self.timing_tracker.get_summary()
+    
+    def print_timing_summary(self):
+        """
+        Print a formatted summary of timing information from the last operation
+        """
+        self.timing_tracker.print_summary()
+    
+    def reset_timing(self):
+        """
+        Reset the timing tracker
+        """
+        self.timing_tracker = TimingTracker()
+        print("[VANNA DEBUG] ⏱️  Timing tracker reset")
 
 
 # ## What This Hybrid Approach Does

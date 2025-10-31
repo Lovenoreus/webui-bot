@@ -26,6 +26,95 @@ def get_model_name(client):
     return "unknown"
 
 
+def normalize_date_target(target: str) -> list[str]:
+    """
+    Convert natural language date expressions to SQL-friendly formats.
+    Returns a list of possible SQL date patterns.
+    
+    The LLM should provide month names with years (e.g., "January 2025").
+    If month is provided without year, keep as text - let LLM handle context.
+    
+    Examples:
+        "March 2025" -> ["2025-03"]
+        "January 2024" -> ["2024-01"]
+        "2024" -> ["2024"]
+        "January" -> ["January"] (LLM should have added year)
+        "Abbott" -> ["Abbott"] (not a date)
+        "5000" -> ["5000"] (not a date)
+    """
+    target = target.strip()
+    patterns = []
+    
+    # Month names mapping
+    months = {
+        'january': '01', 'jan': '01',
+        'february': '02', 'feb': '02',
+        'march': '03', 'mar': '03',
+        'april': '04', 'apr': '04',
+        'may': '05',
+        'june': '06', 'jun': '06',
+        'july': '07', 'jul': '07',
+        'august': '08', 'aug': '08',
+        'september': '09', 'sep': '09', 'sept': '09',
+        'october': '10', 'oct': '10',
+        'november': '11', 'nov': '11',
+        'december': '12', 'dec': '12'
+    }
+    
+    # Swedish month names
+    swedish_months = {
+        'januari': '01',
+        'februari': '02',
+        'mars': '03',
+        'april': '04',
+        'maj': '05',
+        'juni': '06',
+        'juli': '07',
+        'augusti': '08',
+        'september': '09',
+        'oktober': '10',
+        'november': '11',
+        'december': '12'
+    }
+    
+    target_lower = target.lower()
+    
+    # Check for "Month YYYY" pattern (e.g., "March 2025", "January 2024")
+    for month_name, month_num in {**months, **swedish_months}.items():
+        if month_name in target_lower:
+            # Extract year if present
+            import re
+            year_match = re.search(r'\b(20\d{2})\b', target)
+            if year_match:
+                year = year_match.group(1)
+                patterns.append(f"{year}-{month_num}")  # 2025-03
+                return patterns
+            else:
+                # Month without year - LLM should have provided year in context
+                # Keep as-is and let it be handled as text
+                return [target]
+    
+    # Check for year-only pattern (e.g., "2024", "2025")
+    import re
+    if re.match(r'^20\d{2}$', target):
+        patterns.append(f"{target}")  # Just the year
+        return patterns
+    
+    # Not a date pattern, return as-is
+    return [target]
+
+
+def normalize_targets(targets: list[str]) -> list[str]:
+    """
+    Normalize all targets, expanding date expressions into SQL-friendly formats.
+    """
+    normalized = []
+    for target in targets:
+        date_patterns = normalize_date_target(target)
+        normalized.extend(date_patterns)
+    return normalized
+
+
 def load_timing_data():
     """Load existing timing data from JSON file with error recovery"""
     if not Path(TIMING_LOG_FILE).exists():
@@ -185,8 +274,10 @@ Rules for identifying targets:
 - Targets are specific constraint values that should be searched using LIKE
 - Include: company names, dates, amounts, status values, descriptions, keywords
 - Include: numeric thresholds (e.g., "5000", "30 days")
-- Include: time periods (e.g., "2024", "January", "Q1")
 - Include: specific terms the user mentions (e.g., "consulting", "hardware")
+- For time periods: ALWAYS include the year with month names (e.g., "January 2025" not just "January")
+- For time periods: If user says just "January", infer the year from context (usually current year)
+- Year-only is fine (e.g., "2024")
 - Do NOT include: table names, column names, SQL keywords, generic terms like "invoice" or "supplier"
 
 Examples:
@@ -195,7 +286,10 @@ Input: "Show invoices from Abbott in 2024"
 Output: {{"rephrased_query": "List the invoices from Abbott in 2024", "targets": ["Abbott", "2024"]}}
 
 Input: "Which suppliers billed us more than 5000 for consulting between January and June 2024?"
-Output: {{"rephrased_query": "List the suppliers that billed more than 5000 in total for consulting services between January and June 2024", "targets": ["5000", "consulting", "January", "June", "2024"]}}
+Output: {{"rephrased_query": "List the suppliers that billed more than 5000 in total for consulting services between January and June 2024", "targets": ["5000", "consulting", "January 2024", "June 2024", "2024"]}}
+
+Input: "Show invoices from January"
+Output: {{"rephrased_query": "List the invoices from January 2025", "targets": ["January 2025"]}}
 
 Input: "Show invoices without descriptions"
 Output: {{"rephrased_query": "List the invoices where description field is empty or null", "targets": []}}
@@ -248,15 +342,19 @@ Output:"""
             rephrased_query = result.get("rephrased_query", "")
             targets = result.get("targets", [])
             
+            # Normalize targets (convert dates to SQL-friendly format)
+            normalized_targets = normalize_targets(targets)
+            
             # Add LIKE instructions if there are targets
-            if targets:
-                like_instructions = ", ".join([f'LIKE "%{target}%"' for target in targets])
+            if normalized_targets:
+                like_instructions = ", ".join([f'LIKE "%{target}%"' for target in normalized_targets])
                 final_query = f"{rephrased_query}\nSuggestions: Use {like_instructions}"
             else:
                 final_query = rephrased_query
             
             print(f"Rephrased query: {final_query}")
-            print(f"Identified targets: {targets}")
+            print(f"Original targets: {targets}")
+            print(f"Normalized targets: {normalized_targets}")
             
             # Log timing data for successful call
             timing_entry = {
@@ -271,8 +369,10 @@ Output:"""
                 "input_length": len(user_query),
                 "output_length": len(final_query),
                 "targets_count": len(targets),
+                "normalized_targets_count": len(normalized_targets),
                 "has_targets": len(targets) > 0,
-                "targets": targets
+                "targets": targets,
+                "normalized_targets": normalized_targets
             }
             save_timing_data(timing_entry)
             
@@ -330,14 +430,15 @@ def rephrase_query_simple(user_query: str) -> tuple[str, list[str]]:
     """
     print(f"User query: {user_query}")
 
-    prompt = f"""You are a query rephrasing assistant. Your job is to:
+    prompt = f"""
+You are a query rephrasing assistant. Your job is to:
 1. Rephrase the user's query into a clear, explicit natural language query suitable for SQL generation
 2. Identify specific target values that should be searched for using SQL LIKE operators
 3. Return ONLY a JSON object with two fields: "rephrased_query" and "targets"
 
 Rules for rephrasing:
 - Keep domain-specific words and proper nouns (e.g., "Abbott", "Siemens", "invoice")
-- Add missing details like year if implied from context (e.g., "January" → "January 2025")
+- Add missing details like year if implied from context (e.g., "January" → "January 2024")
 - Be explicit about what is being requested (e.g., "Show me" → "List the invoices")
 - Translate to English if the query is in another language, but preserve proper nouns
 - Do NOT generate SQL code - only natural language
@@ -345,18 +446,13 @@ Rules for rephrasing:
 
 Rules for identifying targets:
 - Targets are specific constraint values that should be searched using LIKE
-- Include: company names, amounts, status values, descriptions, keywords
+- Include: company names, dates, amounts, status values, descriptions, keywords
 - Include: numeric thresholds (e.g., "5000", "30 days")
 - Include: specific terms the user mentions (e.g., "consulting", "hardware")
+- For time periods: ALWAYS include the year with month names (e.g., "January 2025" not just "January")
+- For time periods: If user says just "January", infer the year from context (usually current year)
+- Year-only is fine (e.g., "2024")
 - Do NOT include: table names, column names, SQL keywords, generic terms like "invoice" or "supplier"
-
-IMPORTANT - Date handling rules:
-- For date columns stored in YYYY-MM-DD format, convert month names to numeric format
-- Month names should be formatted as: "2025-03" for March 2025, "2025-01" for January 2025, etc.
-- For month queries, use the format "YYYY-MM" (e.g., "2025-03" for March 2025)
-- For year queries, use just "YYYY" (e.g., "2025")
-- For specific dates, use "YYYY-MM-DD" (e.g., "2025-03-15")
-- Quarter mappings: Q1 = months 01-03, Q2 = months 04-06, Q3 = months 07-09, Q4 = months 10-12
 
 Examples:
 
@@ -364,25 +460,10 @@ Input: "Show invoices from Abbott in 2024"
 Output: {{"rephrased_query": "List the invoices from Abbott in 2024", "targets": ["Abbott", "2024"]}}
 
 Input: "Which suppliers billed us more than 5000 for consulting between January and June 2024?"
-Output: {{"rephrased_query": "List the suppliers that billed more than 5000 in total for consulting services between January and June 2024", "targets": ["5000", "consulting", "2024-01", "2024-06"]}}
+Output: {{"rephrased_query": "List the suppliers that billed more than 5000 in total for consulting services between January and June 2024", "targets": ["5000", "consulting", "January 2024", "June 2024", "2024"]}}
 
-Input: "Show invoices from March 2025"
-Output: {{"rephrased_query": "List the invoices from March 2025", "targets": ["2025-03"]}}
-
-Input: "Show invoices without descriptions"
-Output: {{"rephrased_query": "List the invoices where description field is empty or null", "targets": []}}
-
-Input: "Hur mycket spenderade vi på övertid 2024?"
-Output: {{"rephrased_query": "Lista det totala fakturabeloppet för 2024 för beskrivningar som innehåller övertid", "targets": ["övertid", "2024"]}}
-
-Input: "Lista tyska eller svenska leverantörer med fakturor över 2000 under Q1"
-Output: {{"rephrased_query": "Lista leverantörerna från länder som innehåller tyska eller svenska med fakturor över 2000 under Q1 2025", "targets": ["tyska", "svenska", "2000", "2025-01", "2025-03"]}}
-
-Input: "Visa fakturor utan beskrivningar"
-Output: {{"rephrased_query": "Lista fakturorna där beskrivningsfältet är tomt eller null", "targets": []}}
-
-Input: "Show me February invoices"
-Output: {{"rephrased_query": "List the invoices from February 2025", "targets": ["2025-02"]}}
+Input: "Show invoices from January"
+Output: {{"rephrased_query": "List the invoices from January 2025", "targets": ["January 2025"]}}
 
 Now process this query:
 Input: "{user_query}"
@@ -417,8 +498,12 @@ Output:"""
             rephrased_query = result.get("rephrased_query", "")
             targets = result.get("targets", [])
             
+            # Normalize targets (convert dates to SQL-friendly format)
+            normalized_targets = normalize_targets(targets)
+            
             print(f"Rephrased query: {rephrased_query}")
-            print(f"Identified targets: {targets}")
+            print(f"Original targets: {targets}")
+            print(f"Normalized targets: {normalized_targets}")
             print(f"LLM call took: {elapsed_time:.4f} seconds")
             
             # Log timing data
@@ -432,12 +517,14 @@ Output:"""
                 "original_query": user_query,
                 "rephrased_query": rephrased_query,
                 "targets_count": len(targets),
+                "normalized_targets_count": len(normalized_targets),
                 "has_targets": len(targets) > 0,
-                "targets": targets
+                "targets": targets,
+                "normalized_targets": normalized_targets
             }
             save_timing_data(timing_entry)
             
-            return rephrased_query, targets
+            return rephrased_query, normalized_targets
             
         except json.JSONDecodeError as e:
             print(f"JSON parsing error: {e}")
@@ -478,31 +565,31 @@ Output:"""
         return f"Error: {e}", []
 
 
-# if __name__ == "__main__":
-#     # Test queries
-#     test_queries = [
-#         "Show invoices from Abbott in 2024",
-#         "Which suppliers billed us more than 5000 for consulting?",
-#         "Visa fakturor utan beskrivningar",
-#         "Lista tyska eller svenska leverantörer med fakturor över 2000 under Q1"
-#     ]
+if __name__ == "__main__":
+    # Test queries
+    test_queries = [
+        "Show invoices from Abbott in 2024",
+        "Which suppliers billed us more than 5000 for consulting?",
+        "Visa fakturor utan beskrivningar",
+        "Lista tyska eller svenska leverantörer med fakturor över 2000 under Q1"
+    ]
     
-#     print("=" * 60)
-#     print("QUERY REPHRASER TEST")
-#     print("=" * 60)
-#     print()
+    print("=" * 60)
+    print("QUERY REPHRASER TEST")
+    print("=" * 60)
+    print()
     
-#     for query in test_queries:
-#         print("-" * 60)
-#         rephrased = rephrase_query(query)
-#         print()
+    for query in test_queries:
+        print("-" * 60)
+        rephrased = rephrase_query(query)
+        print()
     
-#     print("=" * 60)
-#     print("SIMPLE VERSION TEST")
-#     print("=" * 60)
-#     print()
+    print("=" * 60)
+    print("SIMPLE VERSION TEST")
+    print("=" * 60)
+    print()
     
-#     query = "Show invoices from Abbott in 2024"
-#     rephrased, targets = rephrase_query_simple(query)
-#     print(f"Rephrased: {rephrased}")
-#     print(f"Targets: {targets}")
+    query = "Show invoices from Abbott in 2024"
+    rephrased, targets = rephrase_query_simple(query)
+    print(f"Rephrased: {rephrased}")
+    print(f"Targets: {targets}")

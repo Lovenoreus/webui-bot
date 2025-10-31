@@ -3,7 +3,9 @@ from dotenv import load_dotenv, find_dotenv
 import json
 from typing import Any, Dict, List
 from langchain.chat_models.base import init_chat_model
-from langchain_community.chat_models import ChatOllama
+# from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
+
 from langchain_openai import ChatOpenAI
 
 global_config_path = '/.omnigate/config.json'
@@ -116,6 +118,8 @@ if USE_OLLAMA:
                                        "jeffh/intfloat-multilingual-e5-large:q8_0")
     USE_VANNA_OLLAMA = True  # Disable Ollama provider
     VANNA_OLLAMA_MODEL = "gpt-oss:20b"
+    # VANNA_OLLAMA_MODEL = "qwen2.5-coder:7b"
+
     VANNA_OLLAMA_BASE_URL = "http://vs2153.vll.se:11434"
     VANNA_OLLAMA_ALLOW_LLM_TO_SEE_DATA = True
     VANNA_OLLAMA_VERBOSE = True
