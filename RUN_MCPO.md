@@ -1,22 +1,13 @@
-# Guide on how to deploy the MCPO integrated version of the Test Bot.
-## WHAT IS LACKING.
-- Specific RAG improvements.
-- PGvector database.
-- List all tool. (MCPO probably blocks this by default. Need to do more research on this.)
+# Guide on how to deploy the MCPO integrated version of the webui-bot.
 
 ## WHAT CAN BE TESTED.
 - SQL DATABASE (No need to say from the database all the time. Sample questions can be found at the bottom of this .md)
 
-## WHAT CAN BE CONFIGURED.
-- RAG (Big chunks - cosmic_documents_clean). All you need is the collection on your qdrant running.
-  **Try with: use cosmic database tool to answer this. check results if cleaned and good.**
-  **Then, try with: Normal utterance, no use cosmic database tool utterances. check results if cleaned and good.**
-
 ## Deployment steps.
 - Git fetch.
-- Git checkout to regional_main branch.
+- Checkout to main branch.
 - docker compose down.
-- Destroy all current docker images.
+- Destroy all current docker images (if available).
 - navigate to webui root.
 - create ENV and fill it with the requested credentials
 - create a directory called: local-binaries in the root directory
@@ -205,19 +196,4 @@ Here are 10 questions with specific, verifiable answers based on the sample data
     - Keywords: `["supplier", "phone", "+46101992350"]`
     - Expected SQL: `SELECT DISTINCT SUPPLIER_PARTY_NAME, SUPPLIER_PARTY_CITY FROM Invoice WHERE SUPPLIER_PARTY_CONTACT_PHONE = '+46101992350'`
     - Expected result: Visma Draftit AB, Malmo
-
-# In-case of any deployment issues
-- Contact: **The one who shall not be named**
-
-
-# region_main: Regional Final (Nobody works on this branch)
-# external_main: External Final (Nobody works on this branch)
-# Main: ------ Latest Fork version of webui repo
-# Everybody pulls from main. and updates their repos
-
-# How can we get latest webui update? ---
-
-# RAG (Qdrant - rag/pg)
-# RAG (PGVECTor - latest branch)
-- vector database tool pg
 - ...
