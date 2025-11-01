@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 from typing import Optional
 import os
+import re
 
 # -------------------- External Libraries --------------------
 import aiohttp
@@ -14,11 +15,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # -------------------- User-defined Modules --------------------
 import config
-from query_engine import QueryEngine
-from instructions import SQLITE_INVOICE_PROMPT, SQLSERVER_INVOICE_PROMPT
 # from vanna_engine import initialize_vanna_engine, vanna_manager, generate_sql
 from vanna_engine import VannaModelManager
-from training import get_vanna_training, get_vanna_question_sql_pairs, normalize_for_comprehensive_search, get_comprehensive_search_instructions
 from models import (
     QueryDatabaseRequest,
     GreetRequest,
@@ -71,48 +69,17 @@ if USE_REMOTE:
 else:
     DATABASE_SERVER_URL = get_database_server_url()
 
-if DEBUG:
-    print(f"[MCP DEBUG] Database mode: {DATABASE_CHOICE}")
-    print(f"[MCP DEBUG] Database info: {DATABASE_SERVER_URL}")
-
-# Invoice-specific configuration
-INVOICE_TABLES = [
-    'Invoice',
-    'Invoice_Line'
-]
-
-INVOICE_TABLE_VARIATIONS = {
-    'invoice': ['invoice', 'bill', 'receipt', 'payment'],
-    'invoice_line': ['line', 'item', 'product', 'service']
-}
-
-
-if USE_REMOTE:
-    INVOICE_SYSTEM_PROMPT = SQLSERVER_INVOICE_PROMPT
-
-else:
-    INVOICE_SYSTEM_PROMPT = SQLITE_INVOICE_PROMPT
-
+# For docker database server
+DATABASE_SERVER_ENDPOINT = "http://database_server:8762"
 
 if DEBUG:
     print(f"[MCP DEBUG] Database mode: {DATABASE_CHOICE}")
     print(f"[MCP DEBUG] Using prompt: {'SQL Server' if USE_REMOTE else 'SQLite'}")
     print(f"[MCP DEBUG] Database info: {DATABASE_SERVER_URL}")
 
-
-# Initialize QueryEngine with invoice configuration
-query_engine = QueryEngine(
-    database_url="http://database_server:8762",
-    tables=INVOICE_TABLES,
-    table_variations=INVOICE_TABLE_VARIATIONS,
-    system_prompt=INVOICE_SYSTEM_PROMPT,
-    debug=DEBUG,
-    use_remote=USE_REMOTE
-)
-
-
 # Initialize Vanna Manager at module level
 print("Initializing Vanna Manager...")
+
 # Custom path
 vanna_manager = VannaModelManager(
     chroma_path=config.CHROMA_DB_PATH,
@@ -144,7 +111,7 @@ print(f"Remote choice for Vanna is: {USE_REMOTE}")
 # """):
 #     print("✅ Successfully trained Schema DDL")
 
-start_time=datetime.now()
+start_time = datetime.now()
 
 # Train depending on the database choice.
 if USE_REMOTE:
@@ -152,11 +119,12 @@ if USE_REMOTE:
 
 else:
     vanna_manager = train_for_local_db(vanna_manager)
-    
-print(f"🕒 Completed remote DB specific training in:", datetime.now()-start_time)
+
+print(f"🕒 Completed remote DB specific training in:", datetime.now() - start_time)
 
 # Added a strict syntax command.
-vanna_manager.train(documentation="#STRICT SYNTAX RULE: Your SQL should be on a single line with no line breaks. It should follow this exact syntax ```sql <command> ```. Do not add comments to the code you generate")
+vanna_manager.train(
+    documentation="#STRICT SYNTAX RULE: Your SQL should be on a single line with no line breaks. It should follow this exact syntax ```sql <command> ```. Do not add comments to the code you generate")
 
 # Add comprehensive plural/singular handling instructions
 # vanna_manager.train(documentation=get_comprehensive_search_instructions())
@@ -209,8 +177,7 @@ async def greet_endpoint(request: GreetRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-import re
-
+# Helper function
 def format_vanna_sql(vanna_sql: str) -> str:
     """
     Clean and format SQL:
@@ -231,92 +198,112 @@ def format_vanna_sql(vanna_sql: str) -> str:
     return sql_clean.strip()
 
 
-def singular_to_plural(word):
-    """
-    Convert a single word from singular to plural using English pluralization rules.
-    
-    Args:
-        word (str): The word to convert
-        
-    Returns:
-        str: The plural form of the word
-    """
-    if len(word) < 2:
-        return word
-    
-    word_lower = word.lower()
-    
-    # Handle irregular plurals
-    irregular_singulars = {
-        'child': 'children',
-        'foot': 'feet',
-        'goose': 'geese',
-        'man': 'men',
-        'woman': 'women',
-        'tooth': 'teeth',
-        'mouse': 'mice',
-        'person': 'people',
-        'ox': 'oxen',
-        'deer': 'deer',
-        'sheep': 'sheep',
-        'fish': 'fish',
-        'moose': 'moose',
-        'series': 'series',
-        'species': 'species',
-        'datum': 'data',
-        'medium': 'media',
-        'criterion': 'criteria',
-        'phenomenon': 'phenomena',
-        'bacterium': 'bacteria',
-        'alumnus': 'alumni',
-        'fungus': 'fungi',
-        'nucleus': 'nuclei',
-        'cactus': 'cacti',
-        'focus': 'foci',
-        'radius': 'radii',
-        'analysis': 'analyses',
-        'basis': 'bases',
-        'diagnosis': 'diagnoses',
-        'oasis': 'oases',
-        'thesis': 'theses',
-        'crisis': 'crises',
-        'axis': 'axes',
-        'matrix': 'matrices',
-        'vertex': 'vertices',
-        'index': 'indices',
-        'appendix': 'appendices'
-    }
-    
-    if word_lower in irregular_singulars:
-        # Preserve original case pattern
-        plural = irregular_singulars[word_lower]
-        if word.isupper():
-            return plural.upper()
-        elif word.istitle():
-            return plural.capitalize()
-        else:
-            return plural
-    
-    # Handle regular singular to plural patterns
-    
-    # Words ending in 'y' preceded by a consonant -> 'ies' (e.g., company -> companies, battery -> batteries)
-    if word_lower.endswith('y') and len(word) > 2 and word[-2].lower() not in 'aeiou':
-        return word[:-1] + 'ies'
-    
-    # Words ending in 'f' or 'fe' -> 'ves' (e.g., knife -> knives, shelf -> shelves)
-    if word_lower.endswith('f'):
-        return word[:-1] + 'ves'
-    elif word_lower.endswith('fe'):
-        return word[:-2] + 'ves'
-    
-    # Words ending in 's', 'ss', 'sh', 'ch', 'x', 'z' -> add 'es'
-    if word_lower.endswith(('s', 'ss', 'sh', 'ch', 'x', 'z')):
-        return word + 'es'
-    
-    # Words ending in 'o' preceded by a consonant -> 'oes' (e.g., tomato -> tomatoes, hero -> heroes)
-    if word_lower.endswith('o') and len(word) > 1 and word[-2].lower() not in 'aeiou':
-        return word + 'es'
-    
+# Helper function
+async def execute_query(self, query: str):
+    """Execute query via database API server (works for both local and remote)"""
+    try:
+        if self.debug:
+            print(f"[QueryEngine] Executing query via API: {query}")
+            print(f"[QueryEngine] Database Endpoint URL: {DATABASE_SERVER_ENDPOINT}")
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                    f"{DATABASE_SERVER_ENDPOINT}/query",
+                    json={"query": query},
+                    timeout=aiohttp.ClientTimeout(total=300)
+            ) as response:
+                result = await response.json()
+
+                if self.debug:
+                    print(f"[QueryEngine] Query result success: {result.get('success')}")
+                    if result.get('success'):
+                        print(f"[QueryEngine] Returned {len(result.get('data', []))} rows")
+
+                if result.get("success"):
+                    return result.get("data", [])
+                else:
+                    if self.debug:
+                        print(f"[QueryEngine] Database error: {result.get('error')}")
+                    return []
+
+    except Exception as e:
+        if self.debug:
+            print(f"[QueryEngine] Database connection error: {e}")
+        return []
+
+
+# Helper function
+async def execute_query_stream(self, query: str):
+    """Stream database results via API server (works for both local and remote)"""
+    try:
+        if self.debug:
+            print(f"[QueryEngine] Starting streaming query via API: {query}")
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                    f"{DATABASE_SERVER_ENDPOINT}/query_stream",
+                    json={"query": query},
+                    timeout=aiohttp.ClientTimeout(total=300)
+            ) as response:
+
+                if response.status != 200:
+                    if self.debug:
+                        print(f"[QueryEngine] Database connection failed, status: {response.status}")
+                    yield {"success": False, "error": "Database connection failed"}
+                    return
+
+                results = []
+                async for line in response.content:
+                    if line.strip():
+                        try:
+                            data = json.loads(line.decode())
+
+                            if self.debug:
+                                print(f"[QueryEngine] Streaming data type: {data.get('type')}")
+
+                            if data["type"] == "start":
+                                yield {
+                                    "success": True,
+                                    "sql_query": f"```sql {data['query']} ```",
+                                    "streaming": True,
+                                    "status": "started"
+                                }
+
+                            elif data["type"] == "row":
+                                results.append(data["data"])
+                                yield {
+                                    "success": True,
+                                    "type": "row",
+                                    "data": data["data"],
+                                    "index": data["index"],
+                                    "running_total": len(results)
+                                }
+
+                            elif data["type"] == "complete":
+                                yield {
+                                    "success": True,
+                                    "type": "complete",
+                                    "results": results,
+                                    "record_count": data["total_rows"],
+                                    "status": "finished"
+                                }
+
+                            elif data["type"] == "error":
+                                if self.debug:
+                                    print(f"[QueryEngine] Database error in stream: {data['error']}")
+                                yield {"success": False, "error": data["error"]}
+
+                        except json.JSONDecodeError:
+                            if self.debug:
+                                print(f"[QueryEngine] Failed to decode JSON line: {line}")
+                            continue
+
+    except Exception as e:
+        if self.debug:
+            print(f"[QueryEngine] Stream execution error: {e}")
+        yield {"success": False, "error": f"Database connection error: {str(e)}"}
+
+
 @app.post("/query_sql_database")
 async def query_sql_database_endpoint(request: QueryDatabaseRequest):
     """Query invoice database with natural language"""
@@ -338,14 +325,13 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
 
         # Enhance query to search for both singular and plural forms
         # enhanced_query = normalize_for_comprehensive_search(request.query)
-        
+
         # Add additional instructions for better SQL generation
         # enhanced_query = enhanced_query + "\nMake sure you use Like and Lower Keywords to compare the values if needed, to get better results."
         rephrased_query = rephrase_query(request.query)
 
         sql_query = vanna_manager.generate_sql(rephrased_query)
         # sql_query = vanna_manager.generate_sql(request.query)
-
 
         print(f"Vanna Generated SQL: {sql_query}")
 
@@ -354,9 +340,10 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
 
         if not sql_query:
             # return {"success": False, "error": "Failed to generate SQL", "original_query": request.query}
-            return {"success": False, "error": "Failed to generate SQL", "original_query": request.query, "rephrased_query": rephrased_query}
+            return {"success": False, "error": "Failed to generate SQL", "original_query": request.query,
+                    "rephrased_query": rephrased_query}
 
-        results = await query_engine.execute_query(sql_query)
+        results = await execute_query(sql_query)
 
         return {
             "success": True,
@@ -371,34 +358,35 @@ async def query_sql_database_endpoint(request: QueryDatabaseRequest):
         return {"success": False, "error": str(e), "original_query": request.query}
 
 
-@app.post("/query_sql_database_stream")
-async def query_sql_database_stream_endpoint(request: QueryDatabaseRequest):
-    """Stream invoice query results"""
-
-    async def generate_response():
-        try:
-            provider = "ollama" if config.MCP_PROVIDER_OLLAMA else "openai" if config.MCP_PROVIDER_OPENAI else "mistral"
-
-            sql_query = ""
-            async for sql_update in query_engine.generate_sql_stream(request.query, request.keywords, provider):
-                yield json.dumps(sql_update) + "\n"
-                if sql_update.get("status") == "sql_complete":
-                    sql_query = sql_update.get("sql_query", "")
-
-            if not sql_query:
-                yield json.dumps({"success": False, "error": "Failed to generate SQL"}) + "\n"
-                return
-
-            yield json.dumps({"status": "executing_query", "sql_query": f"```sql {sql_query} ```"}) + "\n"
-
-            async for db_result in query_engine.execute_query_stream(sql_query):
-                db_result["original_query"] = request.query
-                yield json.dumps(db_result) + "\n"
-
-        except Exception as e:
-            yield json.dumps({"success": False, "error": str(e)}) + "\n"
-
-    return StreamingResponse(generate_response(), media_type="application/x-ndjson")
+# TODO: NEEDS UPDATE TO VANNA INSTEAD OF QUERY ENGINE
+# @app.post("/query_sql_database_stream")
+# async def query_sql_database_stream_endpoint(request: QueryDatabaseRequest):
+#     """Stream invoice query results"""
+#
+#     async def generate_response():
+#         try:
+#             provider = "ollama" if config.MCP_PROVIDER_OLLAMA else "openai" if config.MCP_PROVIDER_OPENAI else "mistral"
+#
+#             sql_query = ""
+#             async for sql_update in query_engine.generate_sql_stream(request.query, request.keywords, provider):
+#                 yield json.dumps(sql_update) + "\n"
+#                 if sql_update.get("status") == "sql_complete":
+#                     sql_query = sql_update.get("sql_query", "")
+#
+#             if not sql_query:
+#                 yield json.dumps({"success": False, "error": "Failed to generate SQL"}) + "\n"
+#                 return
+#
+#             yield json.dumps({"status": "executing_query", "sql_query": f"```sql {sql_query} ```"}) + "\n"
+#
+#             async for db_result in execute_query_stream(sql_query):
+#                 db_result["original_query"] = request.query
+#                 yield json.dumps(db_result) + "\n"
+#
+#         except Exception as e:
+#             yield json.dumps({"success": False, "error": str(e)}) + "\n"
+#
+#     return StreamingResponse(generate_response(), media_type="application/x-ndjson")
 
 
 @app.get("/health")
@@ -417,7 +405,7 @@ async def health_check():
 
                 # lines_result =  await query_engine.execute_query("SELECT TOP 1 * FROM [Nodinite].[ods].[Invoice_Line]")
                 # line_count = lines_result[0]['line_count'] if lines_result else 0
-                
+
                 db_health = "connected"
 
                 return {
