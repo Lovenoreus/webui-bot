@@ -712,9 +712,7 @@ async def server_info():
         ],
 
         "database": {
-            "mode": DATABASE_CHOICE,
-            "tables": query_engine.all_tables,
-            "table_count": len(query_engine.all_tables)
+            "mode": DATABASE_CHOICE
         },
 
         "tools": [
