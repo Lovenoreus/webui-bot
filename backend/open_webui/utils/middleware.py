@@ -405,9 +405,15 @@ async def chat_completion_tools_handler(
                                     "params": tool_function_params,
                                     "server": tool.get("server", {}),
                                     "session_id": metadata.get("session_id", None),
+                                    "chat_id": metadata.get("chat_id", None),
+                                    "user": user,
                                 },
                             }
                         )
+
+                        # TODO: REMOVE NOT NEEDED.
+                        print(f"Tool Results: {tool_result}")
+
                     else:
                         tool_function = tool["callable"]
                         tool_result = await tool_function(**tool_function_params)
@@ -494,11 +500,38 @@ async def chat_completion_tools_handler(
                     ):
                         skip_files = True
 
-            # check if "tool_calls" in result
+            # # check if "tool_calls" in result
+            # if result.get("tool_calls"):
+            #     for tool_call in result.get("tool_calls"):
+            #         await tool_call_handler(tool_call)
+            # else:
+            #     await tool_call_handler(result)
+
+            # TODO: INJECTION CODE.
+            # Inject chat_id into the tool calls before handling them
+            # Get the chat_id from the metadata object
+            chat_id = metadata.get("chat_id")
+
+            if chat_id:
+                print(f"Injecting chat_id into tool calls: {chat_id}")
+
+            # Inject for all tool calls.
             if result.get("tool_calls"):
                 for tool_call in result.get("tool_calls"):
+                    # Make sure parameters exist
+                    tool_call.setdefault("parameters", {})
+
+                    # Add chat_id
+                    tool_call["parameters"]["chat_id"] = chat_id
+                    tool_call["parameters"]["user"] = user
                     await tool_call_handler(tool_call)
+
+            # If not a tool call, still inject. Might be important.
             else:
+                result.setdefault("parameters", {})
+
+                # Add the chat_id
+                result["parameters"]["chat_id"] = chat_id
                 await tool_call_handler(result)
 
         except Exception as e:
