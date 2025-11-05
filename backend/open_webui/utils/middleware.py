@@ -282,35 +282,198 @@ def process_tool_result(
     return tool_result, tool_result_files, tool_result_embeds
 
 
+import httpx
+from uuid import uuid4
+import json
+
+
 async def chat_completion_tools_handler(
-    request: Request, body: dict, extra_params: dict, user: UserModel, models, tools
+        request: Request, body: dict, extra_params: dict, user: UserModel, models, tools
 ) -> tuple[dict, dict]:
+    log.info(f"========== STARTING chat_completion_tools_handler ==========")
+
+    # ========== NEW HELPER FUNCTION ==========
+    async def get_mcpo_tool_mapping():
+        """
+        Fetch and parse OpenAPI spec to get tool endpoint mappings
+        Returns a dict like: {"greet": "/greet", "ticket_open": "/ticket_open"}
+        """
+        log.info(f"========== FETCHING MCPO TOOL MAPPING ==========")
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                log.info(f"Fetching OpenAPI spec from http://host.docker.internal:8000/openapi.json")
+                response = await client.get('http://host.docker.internal:8000/openapi.json')
+                response.raise_for_status()
+
+                spec = response.json()
+                log.info(f"OpenAPI spec fetched successfully")
+
+                # Build mapping from paths
+                # {"paths": {"/greet": {...}, "/ticket_open": {...}}}
+                mapping = {}
+                for path in spec.get("paths", {}).keys():
+                    # "/greet" → "greet"
+                    tool_name = path.lstrip("/")
+                    mapping[tool_name] = path
+                    log.info(f"Mapped tool: {tool_name} -> {path}")
+
+                log.info(f"Total tools mapped: {len(mapping)}")
+                return mapping
+
+        except Exception as e:
+            log.error(f"Error fetching MCPO tool mapping: {e}")
+            return {}
+
+    async def call_mcp_server_directly(tool_function_name: str, tool_function_params: dict):
+        """
+        Makes a direct REST API call to MCPO server.
+
+        Args:
+            tool_function_name: Name of the tool (e.g., "tool_greet_post")
+            tool_function_params: Dictionary of parameters to pass to the tool
+
+        Returns:
+            The response from the MCP server (typically a list with message dict and headers)
+        """
+        log.info(f"========== ENTERING call_mcp_server_directly ==========")
+        log.info(f"Tool function name: {tool_function_name}")
+        log.info(f"Tool function params: {tool_function_params}")
+
+        # Get the tool mapping from OpenAPI spec
+        log.info(f"Getting MCPO tool mapping...")
+        tool_mapping = await get_mcpo_tool_mapping()
+        log.info(f"Tool mapping: {tool_mapping}")
+
+        # Strip "tool_" prefix and "_post" suffix from tool name
+        # "tool_greet_post" -> "greet"
+        actual_tool_name = tool_function_name
+        if tool_function_name.startswith("tool_"):
+            actual_tool_name = tool_function_name[5:]  # Remove "tool_"
+            log.info(f"Stripped 'tool_' prefix: {actual_tool_name}")
+        if actual_tool_name.endswith("_post"):
+            actual_tool_name = actual_tool_name[:-5]  # Remove "_post"
+            log.info(f"Stripped '_post' suffix: {actual_tool_name}")
+
+        log.info(f"Final tool name after stripping: {actual_tool_name}")
+
+        # Look up the endpoint in the mapping
+        endpoint = tool_mapping.get(actual_tool_name)
+        log.info(f"Endpoint from mapping: {endpoint}")
+
+        if not endpoint:
+            log.error(f"Tool {actual_tool_name} not found in MCPO mapping")
+            log.error(f"Available tools: {list(tool_mapping.keys())}")
+            return [{"error": f"Tool {actual_tool_name} not available in MCPO"}, {}]
+
+        # Build the full URL
+        base_url = "http://host.docker.internal:8000"
+        full_url = f"{base_url}{endpoint}"
+        log.info(f"Full URL: {full_url}")
+
+        # Prepare headers with API key
+        headers = {
+            "Authorization": "Bearer yhrbthmsbjrki58yhsmjenckmru55",
+            "Content-Type": "application/json"
+        }
+        log.info(f"Headers: {headers}")
+        log.info(f"Request body (tool params): {tool_function_params}")
+
+        try:
+            log.info(f"Creating httpx AsyncClient with 30s timeout")
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                log.info(f"Making POST request to MCPO...")
+                response = await client.post(
+                    full_url,
+                    json=tool_function_params,
+                    headers=headers
+                )
+
+                log.info(f"Received response - Status code: {response.status_code}")
+                log.info(f"Response headers: {response.headers}")
+                log.info(f"Response body: {response.text}")
+
+                response.raise_for_status()
+
+                # Parse the response
+                result_data = response.json()
+                log.info(f"Parsed JSON response: {result_data}")
+
+                # Return in the same format as event_caller would
+                # Format: [{"message": "..."}, {"content-type": "application/json"}]
+                final_result = [
+                    result_data,
+                    {
+                        "content-type": "application/json",
+                        "content-length": str(len(response.text))
+                    }
+                ]
+                log.info(f"Returning formatted result: {final_result}")
+                return final_result
+
+        except httpx.ConnectError as e:
+            log.error(f"MCPO connection error: {e}")
+            return [{"error": f"Cannot connect to MCPO: {str(e)}"}, {}]
+        except httpx.TimeoutException as e:
+            log.error(f"MCPO timeout exception: {e}")
+            return [{"error": f"MCPO timeout: {str(e)}"}, {}]
+        except httpx.HTTPStatusError as e:
+            log.error(f"MCPO HTTP status error - Status: {e.response.status_code}")
+            log.error(f"Response body: {e.response.text}")
+            return [{"error": f"MCPO HTTP error {e.response.status_code}: {e.response.text}"}, {}]
+        except json.JSONDecodeError as e:
+            log.error(f"Failed to parse MCPO response as JSON: {e}")
+            log.error(f"Raw response: {response.text}")
+            return [{"error": f"Invalid JSON response from MCPO: {str(e)}"}, {}]
+        except Exception as e:
+            log.error(f"Unexpected error calling MCPO: {e}")
+            log.exception(f"Full traceback:")
+            return [{"error": f"Failed to call MCPO: {str(e)}"}, {}]
+
+    # ========== END OF NEW HELPER FUNCTIONS ==========
+
     async def get_content_from_response(response) -> Optional[str]:
+        log.info(f"========== ENTERING get_content_from_response ==========")
         content = None
         if hasattr(response, "body_iterator"):
+            log.info(f"Response has body_iterator, iterating through chunks...")
             async for chunk in response.body_iterator:
                 data = json.loads(chunk.decode("utf-8", "replace"))
                 content = data["choices"][0]["message"]["content"]
+                log.info(f"Extracted content from chunk: {content}")
 
             # Cleanup any remaining background tasks if necessary
             if response.background is not None:
+                log.info(f"Cleaning up background tasks...")
                 await response.background()
         else:
+            log.info(f"Response is direct dict, extracting content...")
             content = response["choices"][0]["message"]["content"]
+            log.info(f"Extracted content: {content}")
+
+        log.info(f"Returning content: {content}")
         return content
 
     def get_tools_function_calling_payload(messages, task_model_id, content):
+        log.info(f"========== ENTERING get_tools_function_calling_payload ==========")
+        log.info(f"Task model ID: {task_model_id}")
+
         user_message = get_last_user_message(messages)
+        log.info(f"User message: {user_message}")
 
         recent_messages = messages[-4:] if len(messages) > 4 else messages
+        log.info(f"Number of recent messages: {len(recent_messages)}")
+
         chat_history = "\n".join(
             f"{message['role'].upper()}: \"\"\"{get_content_from_message(message)}\"\"\""
             for message in recent_messages
         )
+        log.info(f"Chat history: {chat_history}")
 
         prompt = f"History:\n{chat_history}\nQuery: {user_message}"
+        log.info(f"Final prompt: {prompt}")
 
-        return {
+        payload = {
             "model": task_model_id,
             "messages": [
                 {"role": "system", "content": content},
@@ -319,186 +482,219 @@ async def chat_completion_tools_handler(
             "stream": False,
             "metadata": {"task": str(TASKS.FUNCTION_CALLING)},
         }
+        log.info(f"Returning payload: {payload}")
+        return payload
 
+    log.info(f"Extracting extra_params...")
     event_caller = extra_params["__event_call__"]
     event_emitter = extra_params["__event_emitter__"]
     metadata = extra_params["__metadata__"]
+    log.info(f"Metadata: {metadata}")
 
+    log.info(f"Getting task_model_id...")
     task_model_id = get_task_model_id(
         body["model"],
         request.app.state.config.TASK_MODEL,
         request.app.state.config.TASK_MODEL_EXTERNAL,
         models,
     )
+    log.info(f"Task model ID: {task_model_id}")
 
     skip_files = False
     sources = []
+    log.info(f"Initialized skip_files: {skip_files}, sources: {sources}")
 
+    log.info(f"Extracting tool specs...")
     specs = [tool["spec"] for tool in tools.values()]
     tools_specs = json.dumps(specs)
+    log.info(f"Tools specs: {tools_specs}")
 
+    log.info(f"Getting tools function calling prompt template...")
     if request.app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE != "":
         template = request.app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE
+        log.info(f"Using custom template")
     else:
         template = DEFAULT_TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE
+        log.info(f"Using default template")
 
+    log.info(f"Generating tools function calling prompt...")
     tools_function_calling_prompt = tools_function_calling_generation_template(
         template, tools_specs
     )
+    log.info(f"Tools function calling prompt: {tools_function_calling_prompt}")
+
+    log.info(f"Building payload...")
     payload = get_tools_function_calling_payload(
         body["messages"], task_model_id, tools_function_calling_prompt
     )
 
     try:
+        log.info(f"========== GENERATING CHAT COMPLETION ==========")
         response = await generate_chat_completion(request, form_data=payload, user=user)
-        log.debug(f"{response=}")
+        log.debug(f"Response: {response}")
+
+        log.info(f"Getting content from response...")
         content = await get_content_from_response(response)
-        log.debug(f"{content=}")
+        log.debug(f"Content: {content}")
 
         if not content:
+            log.warning(f"No content received, returning original body")
             return body, {}
 
         try:
-            content = content[content.find("{") : content.rfind("}") + 1]
+            log.info(f"Extracting JSON from content...")
+            content = content[content.find("{"): content.rfind("}") + 1]
+            log.info(f"Extracted JSON string: {content}")
+
             if not content:
                 raise Exception("No JSON object found in the response")
 
+            log.info(f"Parsing JSON content...")
             result = json.loads(content)
+            log.info(f"Json loaded Results: {result}")
 
             async def tool_call_handler(tool_call):
                 nonlocal skip_files
 
-                log.debug(f"{tool_call=}")
+                log.info(f"========== ENTERING tool_call_handler ==========")
+                # Log the raw tool call
+                log.info(f"Received tool_call: {tool_call}")
 
                 tool_function_name = tool_call.get("name", None)
+                log.info(f"Tool function name: {tool_function_name}")
+
                 if tool_function_name not in tools:
+                    log.warning(f"Tool {tool_function_name} not found in available tools.")
                     return body, {}
 
                 tool_function_params = tool_call.get("parameters", {})
+                log.info(f"Tool function params (raw): {tool_function_params}")
 
                 tool = None
                 tool_type = ""
                 direct_tool = False
 
                 try:
+                    log.info(f"Getting tool from tools dict...")
                     tool = tools[tool_function_name]
                     tool_type = tool.get("type", "")
                     direct_tool = tool.get("direct", False)
+                    log.info(f"Tool type: {tool_type}")
+                    log.info(f"Direct tool: {direct_tool}")
 
+                    log.info(f"Getting spec and filtering parameters...")
                     spec = tool.get("spec", {})
-                    allowed_params = (
-                        spec.get("parameters", {}).get("properties", {}).keys()
-                    )
+                    allowed_params = spec.get("parameters", {}).get("properties", {}).keys()
                     tool_function_params = {
-                        k: v
-                        for k, v in tool_function_params.items()
-                        if k in allowed_params
+                        k: v for k, v in tool_function_params.items() if k in allowed_params
                     }
 
-                    if tool.get("direct", False):
-                        tool_result = await event_caller(
-                            {
-                                "type": "execute:tool",
-                                "data": {
-                                    "id": str(uuid4()),
-                                    "name": tool_function_name,
-                                    "params": tool_function_params,
-                                    "server": tool.get("server", {}),
-                                    "session_id": metadata.get("session_id", None),
-                                    "chat_id": metadata.get("chat_id", None),
-                                    "user": user,
-                                },
-                            }
-                        )
+                    log.info(f"Prepared tool: {tool_function_name}, type: {tool_type}, direct: {direct_tool}")
+                    log.info(f"Allowed parameters for tool: {list(allowed_params)}")
+                    log.info(f"Filtered tool parameters: {tool_function_params}")
 
-                        # TODO: REMOVE NOT NEEDED.
-                        print(f"Tool Results: {tool_result}")
+                    if direct_tool:
+                        log.info(f"========== DIRECT TOOL CALL - BYPASSING event_caller ==========")
+
+                        # ========== MODIFIED SECTION - DIRECT MCPO REST API CALL ==========
+                        log.info(f"Calling MCPO directly via REST API instead of using event_caller")
+                        tool_result = await call_mcp_server_directly(
+                            tool_function_name=tool_function_name,
+                            tool_function_params=tool_function_params
+                        )
+                        log.info(f"Direct tool result from MCPO: {tool_result}")
+                        # ========== END MODIFIED SECTION ==========
+
+                        # ========== COMMENTED OUT OLD event_caller CODE ==========
+                        # log.info(f"Direct tool call using event_caller")
+                        # tool_result = await event_caller({
+                        #     "type": "execute:tool",
+                        #     "data": {
+                        #         "id": str(uuid4()),
+                        #         "name": tool_function_name,
+                        #         "params": tool_function_params,
+                        #         "server": tool.get("server", {}),
+                        #         "session_id": metadata.get("session_id"),
+                        #         "chat_id": metadata.get("chat_id"),
+                        #     },
+                        # })
+                        # log.info(f"Direct tool result: {tool_result}")
+                        # ========== END COMMENTED OUT CODE ==========
 
                     else:
+                        log.info(f"Callable tool, executing function...")
                         tool_function = tool["callable"]
                         tool_result = await tool_function(**tool_function_params)
+                        log.info(f"Callable tool result: {tool_result}")
 
                 except Exception as e:
                     tool_result = str(e)
+                    log.exception(f"Error calling tool {tool_function_name}: {tool_result}")
 
-                tool_result, tool_result_files, tool_result_embeds = (
-                    process_tool_result(
-                        request,
-                        tool_function_name,
-                        tool_result,
-                        tool_type,
-                        direct_tool,
-                        metadata,
-                        user,
-                    )
+                # Process results
+                log.info(f"Processing tool result...")
+                tool_result, tool_result_files, tool_result_embeds = process_tool_result(
+                    request, tool_function_name, tool_result, tool_type, direct_tool, metadata, user
                 )
 
-                if event_emitter:
-                    if tool_result_files:
-                        await event_emitter(
-                            {
-                                "type": "files",
-                                "data": {
-                                    "files": tool_result_files,
-                                },
-                            }
-                        )
+                log.info(f"Processed tool result: {tool_result}")
+                log.info(f"Tool result files: {tool_result_files}")
+                log.info(f"Tool result embeds: {tool_result_embeds}")
 
-                    if tool_result_embeds:
-                        await event_emitter(
-                            {
-                                "type": "embeds",
-                                "data": {
-                                    "embeds": tool_result_embeds,
-                                },
-                            }
-                        )
+                # ========== COMMENTED OUT EMITTER SECTION ==========
+                # Emit events
+                # if event_emitter:
+                #     if tool_result_files:
+                #         log.info(f"Emitting files: {tool_result_files}")
+                #         await event_emitter({"type": "files", "data": {"files": tool_result_files}})
+                #     if tool_result_embeds:
+                #         log.info(f"Emitting embeds: {tool_result_embeds}")
+                #         await event_emitter({"type": "embeds", "data": {"embeds": tool_result_embeds}})
+                # ========== END COMMENTED OUT EMITTER SECTION ==========
 
-                print(
-                    f"Tool {tool_function_name} result: {tool_result}",
-                    tool_result_files,
-                    tool_result_embeds,
-                )
+                log.info(f"Event emitter calls commented out - skipping file and embed emission")
 
+                # Log the safe user info before using it in sources
+                safe_user = user.model_dump(exclude={"profile_image_url", "settings"})
+                log.info(f"Safe user info: {safe_user}")
+
+                # Update body & sources
                 if tool_result:
-                    tool = tools[tool_function_name]
+                    log.info(f"Tool result exists, updating body and sources...")
                     tool_id = tool.get("tool_id", "")
+                    tool_name = f"{tool_id}/{tool_function_name}" if tool_id else tool_function_name
+                    log.info(f"Tool name for sources: {tool_name}")
 
-                    tool_name = (
-                        f"{tool_id}/{tool_function_name}"
-                        if tool_id
-                        else f"{tool_function_name}"
-                    )
+                    source_entry = {
+                        "source": {"name": tool_name},
+                        "document": [str(tool_result)],
+                        "metadata": [{"source": tool_name, "parameters": tool_function_params}],
+                        "tool_result": True,
+                    }
+                    sources.append(source_entry)
+                    log.info(f"Added source entry: {source_entry}")
 
-                    # Citation is enabled for this tool
-                    sources.append(
-                        {
-                            "source": {
-                                "name": (f"{tool_name}"),
-                            },
-                            "document": [str(tool_result)],
-                            "metadata": [
-                                {
-                                    "source": (f"{tool_name}"),
-                                    "parameters": tool_function_params,
-                                }
-                            ],
-                            "tool_result": True,
-                        }
-                    )
-
-                    # Citation is not enabled for this tool
+                    log.info(f"Adding tool output to user message...")
                     body["messages"] = add_or_update_user_message(
                         f"\nTool `{tool_name}` Output: {tool_result}",
                         body["messages"],
                     )
+                    log.info(f"Updated body messages")
 
-                    if (
-                        tools[tool_function_name]
-                        .get("metadata", {})
-                        .get("file_handler", False)
-                    ):
+                    if tool.get("metadata", {}).get("file_handler", False):
                         skip_files = True
+                        log.info(f"Tool is file_handler, setting skip_files to True")
+
+                log.info(
+                    f"========== FINAL tool_call_handler STATE ==========\n"
+                    f"tool_function_name={tool_function_name}\n"
+                    f"tool_result={tool_result}\n"
+                    f"tool_result_files={tool_result_files}\n"
+                    f"tool_result_embeds={tool_result_embeds}\n"
+                    f"skip_files={skip_files}\n"
+                    f"sources={sources}\n"
+                    f"body_messages={body['messages']}"
+                )
 
             # # check if "tool_calls" in result
             # if result.get("tool_calls"):
@@ -510,42 +706,79 @@ async def chat_completion_tools_handler(
             # TODO: INJECTION CODE.
             # Inject chat_id into the tool calls before handling them
             # Get the chat_id from the metadata object
+            log.info(f"========== INJECTING CHAT_ID AND USER NAME ==========")
             chat_id = metadata.get("chat_id")
+            log.info(f"Chat ID from metadata: {chat_id}")
+
+            safe_user_data = user.model_dump(
+                exclude={"profile_image_url", "bio", "settings"}
+            )
+            log.info(f"User info: {safe_user_data}")
+
+            reporter_name = safe_user_data["name"]
+            reporter_email = safe_user_data["email"]
+            log.info(f"Reporter name: {reporter_name}")
 
             if chat_id:
-                print(f"Injecting chat_id into tool calls: {chat_id}")
+                log.info(f"Injecting chat_id into tool calls: {chat_id}")
+            else:
+                log.warning(f"No chat_id found in metadata")
 
             # Inject for all tool calls.
+            # Inject for all tool calls.
             if result.get("tool_calls"):
-                for tool_call in result.get("tool_calls"):
+                log.info(f"Found multiple tool_calls in result, processing {len(result.get('tool_calls'))} calls...")
+                for idx, tool_call in enumerate(result.get("tool_calls")):
+                    log.info(f"Processing tool_call #{idx + 1}...")
                     # Make sure parameters exist
                     tool_call.setdefault("parameters", {})
 
                     # Add chat_id
                     tool_call["parameters"]["chat_id"] = chat_id
-                    tool_call["parameters"]["user"] = user
+
+                    # Add reporter name and email to THIS tool_call
+                    tool_call["parameters"]["reporter_name"] = reporter_name
+                    tool_call["parameters"]["reporter_email"] = reporter_email
+
+                    log.info(f"Tool Call #{idx + 1} after injection: {tool_call}")
+
+                    log.info(f"Calling tool_call_handler for tool_call #{idx + 1}...")
+
                     await tool_call_handler(tool_call)
 
             # If not a tool call, still inject. Might be important.
             else:
+                log.info(f"Single tool call found (not in tool_calls array)")
                 result.setdefault("parameters", {})
 
                 # Add the chat_id
                 result["parameters"]["chat_id"] = chat_id
+                # Add reporter name
+                result["parameters"]["reporter_name"] = reporter_name
+                result["parameters"]["reporter_email"] = reporter_email
+
+                log.info(f"Tool Call after injection: {result}")
+
+                log.info(f"Calling tool_call_handler for single tool call...")
                 await tool_call_handler(result)
 
         except Exception as e:
-            log.debug(f"Error: {e}")
+            log.error(f"Error processing tool calls: {e}")
+            log.exception(f"Full exception traceback:")
             content = None
     except Exception as e:
-        log.debug(f"Error: {e}")
+        log.error(f"Error in generate_chat_completion: {e}")
+        log.exception(f"Full exception traceback:")
         content = None
 
-    log.debug(f"tool_contexts: {sources}")
+    log.info(f"========== FINAL RESULTS ==========")
+    log.debug(f"tool_contexts (sources): {sources}")
 
     if skip_files and "files" in body.get("metadata", {}):
+        log.info(f"skip_files is True, removing files from body metadata")
         del body["metadata"]["files"]
 
+    log.info(f"Returning body with {len(sources)} sources")
     return body, {"sources": sources}
 
 
