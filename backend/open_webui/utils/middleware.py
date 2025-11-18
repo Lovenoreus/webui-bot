@@ -45,7 +45,6 @@ from open_webui.routers.retrieval import (
     SearchForm,
 )
 from open_webui.routers.images import (
-    load_b64_image_data,
     image_generations,
     GenerateImageForm,
     upload_image,
@@ -282,196 +281,225 @@ def process_tool_result(
     return tool_result, tool_result_files, tool_result_embeds
 
 
-import httpx
-from uuid import uuid4
+# ========== MODULE-LEVEL CACHE ==========
+# Place this at the top of your file, outside any function
+import asyncio
 import json
+import httpx
+from typing import Optional, Dict
+from uuid import uuid4
+
+# Cache for tool mapping to avoid fetching OpenAPI spec on every call
+_TOOL_MAPPING_CACHE = None
+_CACHE_LOCK = asyncio.Lock()
 
 
+# ========== OPTIMIZED HANDLER FUNCTION ==========
 async def chat_completion_tools_handler(
         request: Request, body: dict, extra_params: dict, user: UserModel, models, tools
 ) -> tuple[dict, dict]:
-    log.info(f"========== STARTING chat_completion_tools_handler ==========")
+    log.debug(f"Starting chat_completion_tools_handler")
 
-    # ========== NEW HELPER FUNCTION ==========
-    async def get_mcpo_tool_mapping():
+    # ========== OPTIMIZED HELPER FUNCTION WITH CACHING ==========
+    async def get_mcpo_tool_mapping() -> Dict[str, str]:
         """
-        Fetch and parse OpenAPI spec to get tool endpoint mappings
+        Fetch and parse OpenAPI spec to get tool endpoint mappings.
+        CACHED after first call for performance.
+
         Returns a dict like: {"greet": "/greet", "ticket_open": "/ticket_open"}
         """
-        log.info(f"========== FETCHING MCPO TOOL MAPPING ==========")
+        global _TOOL_MAPPING_CACHE
 
-        try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                log.info(f"Fetching OpenAPI spec from http://host.docker.internal:8000/openapi.json")
-                response = await client.get('http://host.docker.internal:8000/openapi.json')
-                response.raise_for_status()
+        # Return cached version if available (instant!)
+        if _TOOL_MAPPING_CACHE is not None:
+            log.debug(f"Using cached tool mapping ({len(_TOOL_MAPPING_CACHE)} tools)")
+            return _TOOL_MAPPING_CACHE
 
-                spec = response.json()
-                log.info(f"OpenAPI spec fetched successfully")
+        # Only fetch once with lock to prevent race conditions
+        async with _CACHE_LOCK:
+            # Double-check after acquiring lock
+            if _TOOL_MAPPING_CACHE is not None:
+                log.debug(f"Cache populated by another request")
+                return _TOOL_MAPPING_CACHE
 
-                # Build mapping from paths
-                # {"paths": {"/greet": {...}, "/ticket_open": {...}}}
-                mapping = {}
-                for path in spec.get("paths", {}).keys():
-                    # "/greet" → "greet"
-                    tool_name = path.lstrip("/")
-                    mapping[tool_name] = path
-                    log.info(f"Mapped tool: {tool_name} -> {path}")
+            log.info(f"Fetching OpenAPI spec (first time only)...")
 
-                log.info(f"Total tools mapped: {len(mapping)}")
-                return mapping
+            try:
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    response = await client.get('http://host.docker.internal:8101/openapi.json')
+                    response.raise_for_status()
 
-        except Exception as e:
-            log.error(f"Error fetching MCPO tool mapping: {e}")
-            return {}
+                    spec = response.json()
+
+                    # Build mapping from paths
+                    mapping = {}
+                    for path in spec.get("paths", {}).keys():
+                        # "/greet" → "greet"
+                        tool_name = path.lstrip("/")
+                        mapping[tool_name] = path
+
+                    # Cache it globally
+                    _TOOL_MAPPING_CACHE = mapping
+                    log.info(f"Tool mapping cached successfully: {len(mapping)} tools")
+                    return mapping
+
+            except Exception as e:
+                log.error(f"Error fetching MCPO tool mapping: {e}")
+                return {}
 
     async def call_mcp_server_directly(tool_function_name: str, tool_function_params: dict):
         """
-        Makes a direct REST API call to MCPO server.
+        Makes a direct call to the MCP server using the MCP protocol.
+        Bypasses MCPO proxy for better performance.
 
         Args:
-            tool_function_name: Name of the tool (e.g., "tool_greet_post")
+            tool_function_name: Name of the tool (e.g., "greet", "ticket_open")
             tool_function_params: Dictionary of parameters to pass to the tool
 
         Returns:
-            The response from the MCP server (typically a list with message dict and headers)
+            The response from the MCP server formatted as [result_data, headers]
         """
-        log.info(f"========== ENTERING call_mcp_server_directly ==========")
-        log.info(f"Tool function name: {tool_function_name}")
-        log.info(f"Tool function params: {tool_function_params}")
+        log.debug(f"Calling tool: {tool_function_name}")
 
-        # Get the tool mapping from OpenAPI spec
-        log.info(f"Getting MCPO tool mapping...")
-        tool_mapping = await get_mcpo_tool_mapping()
-        log.info(f"Tool mapping: {tool_mapping}")
-
-        # Strip "tool_" prefix and "_post" suffix from tool name
-        # "tool_greet_post" -> "greet"
+        # Clean up tool name (remove prefixes/suffixes if present)
         actual_tool_name = tool_function_name
         if tool_function_name.startswith("tool_"):
-            actual_tool_name = tool_function_name[5:]  # Remove "tool_"
-            log.info(f"Stripped 'tool_' prefix: {actual_tool_name}")
+            actual_tool_name = tool_function_name[5:]
         if actual_tool_name.endswith("_post"):
-            actual_tool_name = actual_tool_name[:-5]  # Remove "_post"
-            log.info(f"Stripped '_post' suffix: {actual_tool_name}")
+            actual_tool_name = actual_tool_name[:-5]
 
-        log.info(f"Final tool name after stripping: {actual_tool_name}")
+        log.debug(f"Cleaned tool name: {actual_tool_name}")
 
-        # Look up the endpoint in the mapping
-        endpoint = tool_mapping.get(actual_tool_name)
-        log.info(f"Endpoint from mapping: {endpoint}")
+        # Build MCP protocol request
+        mcp_request = {
+            "name": actual_tool_name,
+            "arguments": tool_function_params
+        }
 
-        if not endpoint:
-            log.error(f"Tool {actual_tool_name} not found in MCPO mapping")
-            log.error(f"Available tools: {list(tool_mapping.keys())}")
-            return [{"error": f"Tool {actual_tool_name} not available in MCPO"}, {}]
+        # Direct call to MCP server (bypassing MCPO proxy)
+        base_url = "http://host.docker.internal:8009"
+        full_url = f"{base_url}/mcp/tools/call"
 
-        # Build the full URL
-        base_url = "http://host.docker.internal:8000"
-        full_url = f"{base_url}{endpoint}"
-        log.info(f"Full URL: {full_url}")
-
-        # Prepare headers with API key
         headers = {
-            "Authorization": "Bearer yhrbthmsbjrki58yhsmjenckmru55",
             "Content-Type": "application/json"
         }
-        log.info(f"Headers: {headers}")
-        log.info(f"Request body (tool params): {tool_function_params}")
+
+        log.debug(f"POST {full_url}")
+        log.debug(f"Request body: {mcp_request}")
 
         try:
-            log.info(f"Creating httpx AsyncClient with 30s timeout")
             async with httpx.AsyncClient(timeout=30.0) as client:
-                log.info(f"Making POST request to MCPO...")
                 response = await client.post(
                     full_url,
-                    json=tool_function_params,
+                    json=mcp_request,
                     headers=headers
                 )
 
-                log.info(f"Received response - Status code: {response.status_code}")
-                log.info(f"Response headers: {response.headers}")
-                log.info(f"Response body: {response.text}")
+                log.debug(f"Response status: {response.status_code}")
 
                 response.raise_for_status()
 
-                # Parse the response
-                result_data = response.json()
-                log.info(f"Parsed JSON response: {result_data}")
+                # Parse the MCP response
+                result = response.json()
 
-                # Return in the same format as event_caller would
-                # Format: [{"message": "..."}, {"content-type": "application/json"}]
-                final_result = [
-                    result_data,
-                    {
-                        "content-type": "application/json",
-                        "content-length": str(len(response.text))
-                    }
-                ]
-                log.info(f"Returning formatted result: {final_result}")
-                return final_result
+                # MCP response format: {"content": [{"type": "text", "text": "..."}], "isError": false}
+                if result.get("content"):
+                    content_item = result["content"][0]
+                    text_content = content_item.get("text", "")
+
+                    # Try to parse as JSON if possible
+                    try:
+                        parsed_content = json.loads(text_content)
+                        log.debug(f"Parsed JSON response: {parsed_content}")
+                        return [
+                            parsed_content,
+                            {"content-type": "application/json"}
+                        ]
+                    except json.JSONDecodeError:
+                        # Return as plain text
+                        log.debug(f"Plain text response: {text_content}")
+                        return [
+                            {"message": text_content},
+                            {"content-type": "text/plain"}
+                        ]
+
+                # Fallback - return entire result
+                log.debug(f"Returning raw MCP result: {result}")
+                return [result, {"content-type": "application/json"}]
 
         except httpx.ConnectError as e:
-            log.error(f"MCPO connection error: {e}")
-            return [{"error": f"Cannot connect to MCPO: {str(e)}"}, {}]
+            log.error(f"Cannot connect to MCP server: {e}")
+            return [{"error": f"Cannot connect to MCP server: {str(e)}"}, {}]
         except httpx.TimeoutException as e:
-            log.error(f"MCPO timeout exception: {e}")
-            return [{"error": f"MCPO timeout: {str(e)}"}, {}]
+            log.error(f"MCP server timeout: {e}")
+            return [{"error": f"MCP server timeout: {str(e)}"}, {}]
         except httpx.HTTPStatusError as e:
-            log.error(f"MCPO HTTP status error - Status: {e.response.status_code}")
-            log.error(f"Response body: {e.response.text}")
-            return [{"error": f"MCPO HTTP error {e.response.status_code}: {e.response.text}"}, {}]
-        except json.JSONDecodeError as e:
-            log.error(f"Failed to parse MCPO response as JSON: {e}")
-            log.error(f"Raw response: {response.text}")
-            return [{"error": f"Invalid JSON response from MCPO: {str(e)}"}, {}]
+            log.error(f"MCP server error {e.response.status_code}: {e.response.text}")
+            return [{"error": f"MCP server error {e.response.status_code}: {e.response.text}"}, {}]
         except Exception as e:
-            log.error(f"Unexpected error calling MCPO: {e}")
-            log.exception(f"Full traceback:")
-            return [{"error": f"Failed to call MCPO: {str(e)}"}, {}]
+            log.error(f"Unexpected error calling MCP server: {e}")
+            log.exception("Full traceback:")
+            return [{"error": f"Failed to call MCP server: {str(e)}"}, {}]
 
-    # ========== END OF NEW HELPER FUNCTIONS ==========
+    # ========== END OF HELPER FUNCTIONS ==========
 
     async def get_content_from_response(response) -> Optional[str]:
-        log.info(f"========== ENTERING get_content_from_response ==========")
+        log.debug(f"Extracting content from response")
+        log.debug(f"Response type: {type(response)}")
+
         content = None
+
+        # Handle JSONResponse objects (from Starlette/FastAPI)
+        if hasattr(response, "body"):
+            log.debug(f"Response is JSONResponse, extracting body")
+            try:
+                # Get the response body as bytes and decode
+                response_body = response.body
+                if isinstance(response_body, bytes):
+                    response_data = json.loads(response_body.decode("utf-8"))
+                else:
+                    response_data = response_body
+
+                log.debug(f"Parsed response data: {response_data}")
+                content = response_data["choices"][0]["message"]["content"]
+                log.debug(f"Extracted content from JSONResponse")
+                return content
+            except Exception as e:
+                log.error(f"Error extracting from JSONResponse: {e}")
+                log.exception("Full traceback:")
+
+        # Handle streaming responses with body_iterator
         if hasattr(response, "body_iterator"):
-            log.info(f"Response has body_iterator, iterating through chunks...")
+            log.debug(f"Response has body_iterator, iterating through chunks...")
             async for chunk in response.body_iterator:
                 data = json.loads(chunk.decode("utf-8", "replace"))
                 content = data["choices"][0]["message"]["content"]
-                log.info(f"Extracted content from chunk: {content}")
 
             # Cleanup any remaining background tasks if necessary
             if response.background is not None:
-                log.info(f"Cleaning up background tasks...")
+                log.debug(f"Cleaning up background tasks...")
                 await response.background()
-        else:
-            log.info(f"Response is direct dict, extracting content...")
-            content = response["choices"][0]["message"]["content"]
-            log.info(f"Extracted content: {content}")
 
-        log.info(f"Returning content: {content}")
+        # Handle direct dict responses
+        elif isinstance(response, dict):
+            log.debug(f"Response is direct dict")
+            content = response["choices"][0]["message"]["content"]
+
+        log.debug(f"Extracted content length: {len(content) if content else 0}")
         return content
 
     def get_tools_function_calling_payload(messages, task_model_id, content):
-        log.info(f"========== ENTERING get_tools_function_calling_payload ==========")
-        log.info(f"Task model ID: {task_model_id}")
+        log.debug(f"Building function calling payload")
 
         user_message = get_last_user_message(messages)
-        log.info(f"User message: {user_message}")
-
         recent_messages = messages[-4:] if len(messages) > 4 else messages
-        log.info(f"Number of recent messages: {len(recent_messages)}")
 
         chat_history = "\n".join(
             f"{message['role'].upper()}: \"\"\"{get_content_from_message(message)}\"\"\""
             for message in recent_messages
         )
-        log.info(f"Chat history: {chat_history}")
 
         prompt = f"History:\n{chat_history}\nQuery: {user_message}"
-        log.info(f"Final prompt: {prompt}")
 
         payload = {
             "model": task_model_id,
@@ -482,188 +510,139 @@ async def chat_completion_tools_handler(
             "stream": False,
             "metadata": {"task": str(TASKS.FUNCTION_CALLING)},
         }
-        log.info(f"Returning payload: {payload}")
         return payload
 
-    log.info(f"Extracting extra_params...")
+    log.debug(f"Extracting extra_params...")
     event_caller = extra_params["__event_call__"]
     event_emitter = extra_params["__event_emitter__"]
     metadata = extra_params["__metadata__"]
-    log.info(f"Metadata: {metadata}")
 
-    log.info(f"Getting task_model_id...")
+    log.debug(f"Getting task_model_id...")
     task_model_id = get_task_model_id(
         body["model"],
         request.app.state.config.TASK_MODEL,
         request.app.state.config.TASK_MODEL_EXTERNAL,
         models,
     )
-    log.info(f"Task model ID: {task_model_id}")
 
     skip_files = False
     sources = []
-    log.info(f"Initialized skip_files: {skip_files}, sources: {sources}")
 
-    log.info(f"Extracting tool specs...")
+    log.debug(f"Extracting tool specs...")
     specs = [tool["spec"] for tool in tools.values()]
     tools_specs = json.dumps(specs)
-    log.info(f"Tools specs: {tools_specs}")
 
-    log.info(f"Getting tools function calling prompt template...")
+    log.debug(f"Getting tools function calling prompt template...")
     if request.app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE != "":
         template = request.app.state.config.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE
-        log.info(f"Using custom template")
     else:
         template = DEFAULT_TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE
-        log.info(f"Using default template")
 
-    log.info(f"Generating tools function calling prompt...")
+    log.debug(f"Generating tools function calling prompt...")
     tools_function_calling_prompt = tools_function_calling_generation_template(
         template, tools_specs
     )
-    log.info(f"Tools function calling prompt: {tools_function_calling_prompt}")
 
-    log.info(f"Building payload...")
+    log.debug(f"Building payload...")
     payload = get_tools_function_calling_payload(
         body["messages"], task_model_id, tools_function_calling_prompt
     )
 
     try:
-        log.info(f"========== GENERATING CHAT COMPLETION ==========")
+        log.info(f"Generating chat completion for function calling...")
         response = await generate_chat_completion(request, form_data=payload, user=user)
-        log.debug(f"Response: {response}")
 
-        log.info(f"Getting content from response...")
+        log.debug(f"Getting content from response...")
         content = await get_content_from_response(response)
-        log.debug(f"Content: {content}")
 
         if not content:
             log.warning(f"No content received, returning original body")
             return body, {}
 
         try:
-            log.info(f"Extracting JSON from content...")
+            log.debug(f"Extracting JSON from content...")
             content = content[content.find("{"): content.rfind("}") + 1]
-            log.info(f"Extracted JSON string: {content}")
 
             if not content:
                 raise Exception("No JSON object found in the response")
 
-            log.info(f"Parsing JSON content...")
+            log.debug(f"Parsing JSON content...")
             result = json.loads(content)
-            log.info(f"Json loaded Results: {result}")
+            log.info(
+                f"Function calling result: {result.get('name', 'unknown')} with {len(result.get('parameters', {}))} params")
 
             async def tool_call_handler(tool_call):
                 nonlocal skip_files
 
-                log.info(f"========== ENTERING tool_call_handler ==========")
-                # Log the raw tool call
-                log.info(f"Received tool_call: {tool_call}")
+                log.debug(f"Handling tool call: {tool_call.get('name')}")
 
                 tool_function_name = tool_call.get("name", None)
-                log.info(f"Tool function name: {tool_function_name}")
 
                 if tool_function_name not in tools:
                     log.warning(f"Tool {tool_function_name} not found in available tools.")
                     return body, {}
 
                 tool_function_params = tool_call.get("parameters", {})
-                log.info(f"Tool function params (raw): {tool_function_params}")
 
                 tool = None
                 tool_type = ""
                 direct_tool = False
 
                 try:
-                    log.info(f"Getting tool from tools dict...")
                     tool = tools[tool_function_name]
                     tool_type = tool.get("type", "")
                     direct_tool = tool.get("direct", False)
-                    log.info(f"Tool type: {tool_type}")
-                    log.info(f"Direct tool: {direct_tool}")
 
-                    log.info(f"Getting spec and filtering parameters...")
+                    log.debug(f"Tool: {tool_function_name}, Type: {tool_type}, Direct: {direct_tool}")
+
+                    # Filter parameters based on spec
                     spec = tool.get("spec", {})
                     allowed_params = spec.get("parameters", {}).get("properties", {}).keys()
                     tool_function_params = {
                         k: v for k, v in tool_function_params.items() if k in allowed_params
                     }
 
-                    log.info(f"Prepared tool: {tool_function_name}, type: {tool_type}, direct: {direct_tool}")
-                    log.info(f"Allowed parameters for tool: {list(allowed_params)}")
-                    log.info(f"Filtered tool parameters: {tool_function_params}")
+                    log.debug(f"Filtered parameters: {list(tool_function_params.keys())}")
 
                     if direct_tool:
-                        log.info(f"========== DIRECT TOOL CALL - BYPASSING event_caller ==========")
+                        log.info(f"Executing direct tool via MCP protocol: {tool_function_name}")
 
-                        # ========== MODIFIED SECTION - DIRECT MCPO REST API CALL ==========
-                        log.info(f"Calling MCPO directly via REST API instead of using event_caller")
+                        # Direct MCP server call (optimized)
                         tool_result = await call_mcp_server_directly(
                             tool_function_name=tool_function_name,
                             tool_function_params=tool_function_params
                         )
-                        log.info(f"Direct tool result from MCPO: {tool_result}")
-                        # ========== END MODIFIED SECTION ==========
-
-                        # ========== COMMENTED OUT OLD event_caller CODE ==========
-                        # log.info(f"Direct tool call using event_caller")
-                        # tool_result = await event_caller({
-                        #     "type": "execute:tool",
-                        #     "data": {
-                        #         "id": str(uuid4()),
-                        #         "name": tool_function_name,
-                        #         "params": tool_function_params,
-                        #         "server": tool.get("server", {}),
-                        #         "session_id": metadata.get("session_id"),
-                        #         "chat_id": metadata.get("chat_id"),
-                        #     },
-                        # })
-                        # log.info(f"Direct tool result: {tool_result}")
-                        # ========== END COMMENTED OUT CODE ==========
-
+                        log.debug(f"Direct tool result received")
                     else:
-                        log.info(f"Callable tool, executing function...")
+                        log.debug(f"Executing callable tool: {tool_function_name}")
                         tool_function = tool["callable"]
                         tool_result = await tool_function(**tool_function_params)
-                        log.info(f"Callable tool result: {tool_result}")
 
                 except Exception as e:
                     tool_result = str(e)
-                    log.exception(f"Error calling tool {tool_function_name}: {tool_result}")
+                    log.error(f"Error calling tool {tool_function_name}: {tool_result}")
+                    log.exception("Full traceback:")
 
                 # Process results
-                log.info(f"Processing tool result...")
+                log.debug(f"Processing tool result...")
                 tool_result, tool_result_files, tool_result_embeds = process_tool_result(
                     request, tool_function_name, tool_result, tool_type, direct_tool, metadata, user
                 )
 
-                log.info(f"Processed tool result: {tool_result}")
-                log.info(f"Tool result files: {tool_result_files}")
-                log.info(f"Tool result embeds: {tool_result_embeds}")
+                log.debug(
+                    f"Processed - Result length: {len(str(tool_result))}, Files: {len(tool_result_files)}, Embeds: {len(tool_result_embeds)}")
 
-                # ========== COMMENTED OUT EMITTER SECTION ==========
-                # Emit events
+                # Emit events (commented out in original)
                 # if event_emitter:
                 #     if tool_result_files:
-                #         log.info(f"Emitting files: {tool_result_files}")
                 #         await event_emitter({"type": "files", "data": {"files": tool_result_files}})
                 #     if tool_result_embeds:
-                #         log.info(f"Emitting embeds: {tool_result_embeds}")
                 #         await event_emitter({"type": "embeds", "data": {"embeds": tool_result_embeds}})
-                # ========== END COMMENTED OUT EMITTER SECTION ==========
-
-                log.info(f"Event emitter calls commented out - skipping file and embed emission")
-
-                # Log the safe user info before using it in sources
-                safe_user = user.model_dump(exclude={"profile_image_url", "settings"})
-                log.info(f"Safe user info: {safe_user}")
 
                 # Update body & sources
                 if tool_result:
-                    log.info(f"Tool result exists, updating body and sources...")
                     tool_id = tool.get("tool_id", "")
                     tool_name = f"{tool_id}/{tool_function_name}" if tool_id else tool_function_name
-                    log.info(f"Tool name for sources: {tool_name}")
 
                     source_entry = {
                         "source": {"name": tool_name},
@@ -672,113 +651,70 @@ async def chat_completion_tools_handler(
                         "tool_result": True,
                     }
                     sources.append(source_entry)
-                    log.info(f"Added source entry: {source_entry}")
+                    log.debug(f"Added source entry for: {tool_name}")
 
-                    log.info(f"Adding tool output to user message...")
                     body["messages"] = add_or_update_user_message(
                         f"\nTool `{tool_name}` Output: {tool_result}",
                         body["messages"],
                     )
-                    log.info(f"Updated body messages")
 
                     if tool.get("metadata", {}).get("file_handler", False):
                         skip_files = True
-                        log.info(f"Tool is file_handler, setting skip_files to True")
+                        log.debug(f"Tool is file_handler, setting skip_files=True")
 
-                log.info(
-                    f"========== FINAL tool_call_handler STATE ==========\n"
-                    f"tool_function_name={tool_function_name}\n"
-                    f"tool_result={tool_result}\n"
-                    f"tool_result_files={tool_result_files}\n"
-                    f"tool_result_embeds={tool_result_embeds}\n"
-                    f"skip_files={skip_files}\n"
-                    f"sources={sources}\n"
-                    f"body_messages={body['messages']}"
-                )
+                log.info(f"Tool call completed: {tool_function_name}")
 
-            # # check if "tool_calls" in result
-            # if result.get("tool_calls"):
-            #     for tool_call in result.get("tool_calls"):
-            #         await tool_call_handler(tool_call)
-            # else:
-            #     await tool_call_handler(result)
-
-            # TODO: INJECTION CODE.
-            # Inject chat_id into the tool calls before handling them
-            # Get the chat_id from the metadata object
-            log.info(f"========== INJECTING CHAT_ID AND USER NAME ==========")
+            # Inject chat_id and user info into tool calls
+            log.debug(f"Injecting chat_id and user info into tool calls")
             chat_id = metadata.get("chat_id")
-            log.info(f"Chat ID from metadata: {chat_id}")
 
             safe_user_data = user.model_dump(
                 exclude={"profile_image_url", "bio", "settings"}
             )
-            log.info(f"User info: {safe_user_data}")
 
-            reporter_name = safe_user_data["name"]
-            reporter_email = safe_user_data["email"]
-            log.info(f"Reporter name: {reporter_name}")
+            reporter_name = safe_user_data.get("name", "")
+            reporter_email = safe_user_data.get("email", "")
 
-            if chat_id:
-                log.info(f"Injecting chat_id into tool calls: {chat_id}")
-            else:
-                log.warning(f"No chat_id found in metadata")
+            log.debug(f"Chat ID: {chat_id}, Reporter: {reporter_name}")
 
-            # Inject for all tool calls.
-            # Inject for all tool calls.
+            # Handle multiple tool calls or single tool call
             if result.get("tool_calls"):
-                log.info(f"Found multiple tool_calls in result, processing {len(result.get('tool_calls'))} calls...")
+                log.info(f"Processing {len(result.get('tool_calls'))} tool calls...")
                 for idx, tool_call in enumerate(result.get("tool_calls")):
-                    log.info(f"Processing tool_call #{idx + 1}...")
-                    # Make sure parameters exist
+                    # Inject metadata
                     tool_call.setdefault("parameters", {})
-
-                    # Add chat_id
                     tool_call["parameters"]["chat_id"] = chat_id
-
-                    # Add reporter name and email to THIS tool_call
                     tool_call["parameters"]["reporter_name"] = reporter_name
                     tool_call["parameters"]["reporter_email"] = reporter_email
 
-                    log.info(f"Tool Call #{idx + 1} after injection: {tool_call}")
-
-                    log.info(f"Calling tool_call_handler for tool_call #{idx + 1}...")
-
+                    log.debug(f"Tool call #{idx + 1}: {tool_call.get('name')}")
                     await tool_call_handler(tool_call)
-
-            # If not a tool call, still inject. Might be important.
             else:
-                log.info(f"Single tool call found (not in tool_calls array)")
+                log.info(f"Processing single tool call")
                 result.setdefault("parameters", {})
-
-                # Add the chat_id
                 result["parameters"]["chat_id"] = chat_id
-                # Add reporter name
                 result["parameters"]["reporter_name"] = reporter_name
                 result["parameters"]["reporter_email"] = reporter_email
 
-                log.info(f"Tool Call after injection: {result}")
-
-                log.info(f"Calling tool_call_handler for single tool call...")
                 await tool_call_handler(result)
 
         except Exception as e:
             log.error(f"Error processing tool calls: {e}")
-            log.exception(f"Full exception traceback:")
+            log.exception("Full traceback:")
             content = None
+
     except Exception as e:
         log.error(f"Error in generate_chat_completion: {e}")
-        log.exception(f"Full exception traceback:")
+        log.exception("Full traceback:")
         content = None
 
-    log.info(f"========== FINAL RESULTS ==========")
-    log.debug(f"tool_contexts (sources): {sources}")
+    log.info(f"Handler completed - {len(sources)} sources generated")
+    log.debug(f"Sources: {sources}")
 
     if skip_files and "files" in body.get("metadata", {}):
-        log.info(f"skip_files is True, removing files from body metadata")
+        log.debug(f"Removing files from body metadata")
         del body["metadata"]["files"]
 
-    log.info(f"Returning body with {len(sources)} sources")
     return body, {"sources": sources}
 
 
