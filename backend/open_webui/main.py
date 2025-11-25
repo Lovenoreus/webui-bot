@@ -1552,6 +1552,7 @@ async def chat_completion(
             return await process_chat_response(
                 request, response, form_data, user, metadata, model, events, tasks
             )
+
         except asyncio.CancelledError:
             log.info("Chat processing was cancelled")
             try:

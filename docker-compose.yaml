@@ -25,6 +25,10 @@ services:
     environment:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
       - 'WEBUI_SECRET_KEY='
+      - 'MCP_SERVER_PORT=${MCP_SERVER_PORT:-8009}'
+      - 'MCP_TOOLS_LIST=${MCP_TOOLS_LIST:-greet:greet,ad:active_directory,ticket:ticket_system,weather:weather}'
+      - 'MCP_RESPONSE_CACHE_TTL=${MCP_RESPONSE_CACHE_TTL:-60}'  # Cache TTL in seconds
+      - 'MCP_RESPONSE_CACHE_SIZE=${MCP_RESPONSE_CACHE_SIZE:-500}'  # Max cached responses
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped

@@ -281,83 +281,147 @@ def process_tool_result(
     return tool_result, tool_result_files, tool_result_embeds
 
 
-# ========== MODULE-LEVEL CACHE ==========
-# Place this at the top of your file, outside any function
+import os
 import asyncio
 import json
 import httpx
-from typing import Optional, Dict
+from typing import Optional, Dict, List
+from functools import lru_cache
 from uuid import uuid4
+import hashlib
 
-# Cache for tool mapping to avoid fetching OpenAPI spec on every call
-_TOOL_MAPPING_CACHE = None
+# ========== BUILD MCP SERVER URL FROM ENVIRONMENT VARIABLE ==========
+MCP_SERVER_PORT = os.getenv("MCP_SERVER_PORT", "8109")
+MCP_SERVER_URL = f"http://host.docker.internal:{MCP_SERVER_PORT}"
+
+# ========== PARSE MCP_TOOLS_LIST FROM ENVIRONMENT ==========
+MCP_TOOLS_LIST_RAW = os.getenv("MCP_TOOLS_LIST", "greet:greet,ad:active_directory,ticket:ticket_system")
+
+# Parse into a DICT for O(1) lookup instead of list iteration
+MCP_TOOLS_MAPPING = {}  # Changed from list to dict
+MCP_PREFIX_MAPPING = {}  # Separate mapping for prefix patterns
+
+if MCP_TOOLS_LIST_RAW:
+    for mapping in MCP_TOOLS_LIST_RAW.split(","):
+        mapping = mapping.strip()
+        if ":" in mapping:
+            prefix, filter_name = mapping.split(":", 1)
+            prefix = prefix.strip()
+            filter_name = filter_name.strip()
+
+            # Store both exact matches and prefix patterns
+            MCP_TOOLS_MAPPING[prefix] = filter_name  # For exact matches like "greet"
+            MCP_PREFIX_MAPPING[prefix] = filter_name  # For prefix matches like "ad_*"
+        else:
+            log.warning(f"Invalid MCP_TOOLS_LIST entry (missing ':'): {mapping}")
+
+log.info(f"🌐 MCP Server configured: {MCP_SERVER_URL}")
+log.info(f"🔧 MCP Tools Mapping loaded ({len(MCP_TOOLS_MAPPING)} patterns):")
+for prefix, filter_name in MCP_TOOLS_MAPPING.items():
+    log.info(f"   ├─ Tools matching '{prefix}*' → filter '{filter_name}'")
+
+# ========== CACHE FOR TOOL FILTER LOOKUPS ==========
+_TOOL_FILTER_CACHE = {}  # Cache: tool_name -> filter_name
 _CACHE_LOCK = asyncio.Lock()
 
 
-# ========== OPTIMIZED HANDLER FUNCTION ==========
+@lru_cache(maxsize=1000)
+def get_tools_filter_cached(tool_name: str) -> Optional[str]:
+    """
+    Determine which tools filter to use based on tool name prefix.
+    Uses LRU cache for instant lookups after first call.
+
+    Args:
+        tool_name: The tool name (e.g., "ad_list_users", "ticket_open", "greet")
+
+    Returns:
+        Tools filter string or None
+    """
+    # 1. Check for exact match first (O(1))
+    if tool_name in MCP_TOOLS_MAPPING:
+        return MCP_TOOLS_MAPPING[tool_name]
+
+    # 2. Check for prefix match (O(n) but n is small and cached)
+    for prefix, filter_name in MCP_PREFIX_MAPPING.items():
+        if tool_name.startswith(f"{prefix}_"):
+            return filter_name
+
+    # 3. No match found
+    log.warning(f"No tools filter found for tool: {tool_name}")
+    return None
+
+
+def get_tools_filter(tool_name: str) -> Optional[str]:
+    """Wrapper that uses the cached version"""
+    return get_tools_filter_cached(tool_name)
+
+
+# ========== CACHE MCP SERVER RESPONSES (OPTIONAL) ==========
+_MCP_RESPONSE_CACHE = {}  # Cache: (tool_name, params_hash) -> response
+_RESPONSE_CACHE_TTL = 60  # seconds
+_RESPONSE_CACHE_MAX_SIZE = 500
+
+
+def get_params_hash(params: dict) -> str:
+    """Create a hash of parameters for cache key"""
+    try:
+        # Sort keys for consistent hashing
+        sorted_params = json.dumps(params, sort_keys=True)
+        return hashlib.md5(sorted_params.encode()).hexdigest()
+    except:
+        return str(hash(frozenset(params.items())))
+
+
+async def get_cached_mcp_response(tool_name: str, params: dict):
+    """Check if we have a cached response for this tool call"""
+    cache_key = (tool_name, get_params_hash(params))
+
+    async with _CACHE_LOCK:
+        if cache_key in _MCP_RESPONSE_CACHE:
+            cached_data, timestamp = _MCP_RESPONSE_CACHE[cache_key]
+
+            # Check if cache is still valid
+            if (asyncio.get_event_loop().time() - timestamp) < _RESPONSE_CACHE_TTL:
+                log.debug(f"✅ Cache HIT for {tool_name}")
+                return cached_data
+            else:
+                # Expired, remove it
+                del _MCP_RESPONSE_CACHE[cache_key]
+                log.debug(f"⏰ Cache EXPIRED for {tool_name}")
+
+    return None
+
+
+async def cache_mcp_response(tool_name: str, params: dict, response_data):
+    """Cache an MCP response"""
+    cache_key = (tool_name, get_params_hash(params))
+
+    async with _CACHE_LOCK:
+        # Implement LRU eviction if cache is full
+        if len(_MCP_RESPONSE_CACHE) >= _RESPONSE_CACHE_MAX_SIZE:
+            # Remove oldest entry
+            oldest_key = next(iter(_MCP_RESPONSE_CACHE))
+            del _MCP_RESPONSE_CACHE[oldest_key]
+            log.debug(f"🗑️ Evicted oldest cache entry")
+
+        _MCP_RESPONSE_CACHE[cache_key] = (response_data, asyncio.get_event_loop().time())
+        log.debug(f"💾 Cached response for {tool_name}")
+
+
+# ========== OPTIMIZED HANDLER FUNCTION WITH CACHING ==========
 async def chat_completion_tools_handler(
         request: Request, body: dict, extra_params: dict, user: UserModel, models, tools
 ) -> tuple[dict, dict]:
     log.debug(f"Starting chat_completion_tools_handler")
 
-    # ========== OPTIMIZED HELPER FUNCTION WITH CACHING ==========
-    async def get_mcpo_tool_mapping() -> Dict[str, str]:
-        """
-        Fetch and parse OpenAPI spec to get tool endpoint mappings.
-        CACHED after first call for performance.
-
-        Returns a dict like: {"greet": "/greet", "ticket_open": "/ticket_open"}
-        """
-        global _TOOL_MAPPING_CACHE
-
-        # Return cached version if available (instant!)
-        if _TOOL_MAPPING_CACHE is not None:
-            log.debug(f"Using cached tool mapping ({len(_TOOL_MAPPING_CACHE)} tools)")
-            return _TOOL_MAPPING_CACHE
-
-        # Only fetch once with lock to prevent race conditions
-        async with _CACHE_LOCK:
-            # Double-check after acquiring lock
-            if _TOOL_MAPPING_CACHE is not None:
-                log.debug(f"Cache populated by another request")
-                return _TOOL_MAPPING_CACHE
-
-            log.info(f"Fetching OpenAPI spec (first time only)...")
-
-            try:
-                async with httpx.AsyncClient(timeout=10.0) as client:
-                    response = await client.get('http://host.docker.internal:8101/openapi.json')
-                    response.raise_for_status()
-
-                    spec = response.json()
-
-                    # Build mapping from paths
-                    mapping = {}
-                    for path in spec.get("paths", {}).keys():
-                        # "/greet" → "greet"
-                        tool_name = path.lstrip("/")
-                        mapping[tool_name] = path
-
-                    # Cache it globally
-                    _TOOL_MAPPING_CACHE = mapping
-                    log.info(f"Tool mapping cached successfully: {len(mapping)} tools")
-                    return mapping
-
-            except Exception as e:
-                log.error(f"Error fetching MCPO tool mapping: {e}")
-                return {}
-
-    async def call_mcp_server_directly(tool_function_name: str, tool_function_params: dict):
+    async def call_mcp_server_directly(
+            tool_function_name: str,
+            tool_function_params: dict,
+            enable_cache: bool = True  # Allow disabling cache per call
+    ):
         """
         Makes a direct call to the MCP server using the MCP protocol.
-        Bypasses MCPO proxy for better performance.
-
-        Args:
-            tool_function_name: Name of the tool (e.g., "greet", "ticket_open")
-            tool_function_params: Dictionary of parameters to pass to the tool
-
-        Returns:
-            The response from the MCP server formatted as [result_data, headers]
+        Uses caching for both filter lookup and responses.
         """
         log.debug(f"Calling tool: {tool_function_name}")
 
@@ -370,19 +434,34 @@ async def chat_completion_tools_handler(
 
         log.debug(f"Cleaned tool name: {actual_tool_name}")
 
+        # ========== CHECK RESPONSE CACHE FIRST ==========
+        # if enable_cache:
+        #     cached_response = await get_cached_mcp_response(actual_tool_name, tool_function_params)
+        #     if cached_response is not None:
+        #         return cached_response
+
+        # ========== FAST CACHED FILTER LOOKUP (O(1)) ==========
+        tools_filter = get_tools_filter(actual_tool_name)
+
+        log.info(f"🎯 MCP ROUTING: {actual_tool_name} → {MCP_SERVER_URL}?tools={tools_filter}")
+
         # Build MCP protocol request
         mcp_request = {
             "name": actual_tool_name,
             "arguments": tool_function_params
         }
 
-        # Direct call to MCP server (bypassing MCPO proxy)
-        base_url = "http://host.docker.internal:8009"
-        full_url = f"{base_url}/mcp/tools/call"
+        log.info(f'MCP Request Data: {mcp_request}')
 
         headers = {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Accept": "application/json"
         }
+
+        # Build full URL with tools filter
+        full_url = f"{MCP_SERVER_URL}/mcp/tools/call"
+        if tools_filter:
+            full_url += f"?tools={tools_filter}"
 
         log.debug(f"POST {full_url}")
         log.debug(f"Request body: {mcp_request}")
@@ -396,7 +475,6 @@ async def chat_completion_tools_handler(
                 )
 
                 log.debug(f"Response status: {response.status_code}")
-
                 response.raise_for_status()
 
                 # Parse the MCP response
@@ -411,33 +489,42 @@ async def chat_completion_tools_handler(
                     try:
                         parsed_content = json.loads(text_content)
                         log.debug(f"Parsed JSON response: {parsed_content}")
-                        return [
+                        response_data = [
                             parsed_content,
                             {"content-type": "application/json"}
                         ]
                     except json.JSONDecodeError:
                         # Return as plain text
                         log.debug(f"Plain text response: {text_content}")
-                        return [
+                        response_data = [
                             {"message": text_content},
                             {"content-type": "text/plain"}
                         ]
+                else:
+                    # Fallback - return entire result
+                    log.debug(f"Returning raw MCP result: {result}")
+                    response_data = [result, {"content-type": "application/json"}]
 
-                # Fallback - return entire result
-                log.debug(f"Returning raw MCP result: {result}")
-                return [result, {"content-type": "application/json"}]
+                # ========== CACHE THE RESPONSE ==========
+                if enable_cache and not result.get("isError"):
+                    await cache_mcp_response(actual_tool_name, tool_function_params, response_data)
+
+                return response_data
 
         except httpx.ConnectError as e:
-            log.error(f"Cannot connect to MCP server: {e}")
-            return [{"error": f"Cannot connect to MCP server: {str(e)}"}, {}]
+            log.error(f"❌ Cannot connect to MCP server {MCP_SERVER_URL}: {e}")
+            return [{"error": f"Cannot connect to MCP server {MCP_SERVER_URL}: {str(e)}"}, {}]
+
         except httpx.TimeoutException as e:
-            log.error(f"MCP server timeout: {e}")
-            return [{"error": f"MCP server timeout: {str(e)}"}, {}]
+            log.error(f"⏱️ MCP server timeout {MCP_SERVER_URL}: {e}")
+            return [{"error": f"MCP server timeout {MCP_SERVER_URL}: {str(e)}"}, {}]
+
         except httpx.HTTPStatusError as e:
-            log.error(f"MCP server error {e.response.status_code}: {e.response.text}")
+            log.error(f"❌ MCP server error {MCP_SERVER_URL} - {e.response.status_code}: {e.response.text}")
             return [{"error": f"MCP server error {e.response.status_code}: {e.response.text}"}, {}]
+
         except Exception as e:
-            log.error(f"Unexpected error calling MCP server: {e}")
+            log.error(f"❌ Unexpected error calling MCP server {MCP_SERVER_URL}: {e}")
             log.exception("Full traceback:")
             return [{"error": f"Failed to call MCP server: {str(e)}"}, {}]
 
@@ -597,22 +684,27 @@ async def chat_completion_tools_handler(
 
                     # Filter parameters based on spec
                     spec = tool.get("spec", {})
-                    allowed_params = spec.get("parameters", {}).get("properties", {}).keys()
+                    log.info(f'This is spec: {spec}')
+                    log.info(f'These are the parameters: {tool_function_params.items()}')
+                    # Correct: properties are inside "parameters"
+                    properties_dict = spec.get("parameters", {}).get("properties", {})
+                    allowed_params = properties_dict.keys()
+
                     tool_function_params = {
                         k: v for k, v in tool_function_params.items() if k in allowed_params
                     }
 
-                    log.debug(f"Filtered parameters: {list(tool_function_params.keys())}")
+                    log.info(f"Filtered parameters: {list(tool_function_params.keys())}")
 
                     if direct_tool:
                         log.info(f"Executing direct tool via MCP protocol: {tool_function_name}")
 
-                        # Direct MCP server call (optimized)
+                        # Direct MCP server call with dynamic routing based on tool name
                         tool_result = await call_mcp_server_directly(
                             tool_function_name=tool_function_name,
                             tool_function_params=tool_function_params
                         )
-                        log.debug(f"Direct tool result received")
+                        log.debug(f"Direct tool result received from MCPO")
                     else:
                         log.debug(f"Executing callable tool: {tool_function_name}")
                         tool_function = tool["callable"]
@@ -662,7 +754,7 @@ async def chat_completion_tools_handler(
                         skip_files = True
                         log.debug(f"Tool is file_handler, setting skip_files=True")
 
-                log.info(f"Tool call completed: {tool_function_name}")
+                log.info(f"✅ Tool call completed: {tool_function_name}")
 
             # Inject chat_id and user info into tool calls
             log.debug(f"Injecting chat_id and user info into tool calls")
@@ -3015,6 +3107,9 @@ async def process_chat_response(
                             user,
                         )
 
+                        log.info(f'[Streaming Response] 1 This is Res: {res}')
+                        print(f'[Streaming Response] 1 This is Res: {res}')
+
                         if isinstance(res, StreamingResponse):
                             await stream_body_handler(res, new_form_data)
                         else:
@@ -3188,16 +3283,22 @@ async def process_chat_response(
                                 ],
                             }
 
+                            # TODO: THIS COULD BE THE ENTRY POINT FOR LIMITING DATA.
                             res = await generate_chat_completion(
                                 request,
                                 new_form_data,
                                 user,
                             )
 
+                            log.info(f'[Streaming Response] 2 This is Res: {res}')
+                            print(f'[Streaming Response] 2 This is Res: {res}')
+
                             if isinstance(res, StreamingResponse):
                                 await stream_body_handler(res, new_form_data)
+
                             else:
                                 break
+
                         except Exception as e:
                             log.debug(e)
                             break
